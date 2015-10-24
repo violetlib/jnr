@@ -1,0 +1,54 @@
+<html>
+<body>
+
+The <b>VAquaRendering</b> package supports rendering of UI components using native code on OS X. The package
+is designed to support alternative implementations.
+<p>
+The entry point to this package is the
+<a href="org/violetlib/jnr/aqua/AquaNativeRendering.html">AquaNativeRendering</a> class, which uses the best available implementation.
+</p>
+
+<p>
+These implementations are currently available:
+</p>
+
+<ul>
+<li>
+An implementation that renders by creating actual AppKit views and drawing them into a raster buffer.
+Similar techniques are used by browsers to simulate native check boxes and other controls.
+This implementation is a proof of concept with little optimization beyond caching of rendered images.
+There are some unavoidable limitations to this approach.
+</li>
+
+<li>
+An implementation that uses the same native rendering framework used by most
+AppKit views. Where possible, the (supported and minimally documented)
+Java Runtime Support framework API is used to access the native rendering.
+</li>
+
+<li>
+An implementation that uses classes from the JDK Aqua look and feel, which provide an optimized,
+but restricted path to the native rendering framework via the Java Runtime Support framework.
+This implementation is the most efficient but also has the most restrictions.
+This implementation may not work in future releases of the JDK where access to Aqua look and feel
+classes may be restricted.
+</li>
+
+<li>
+A hybrid implementation that selects from the above implementations to provide the best performance and
+the fewest restrictions.
+</li>
+</ul>
+
+<p>
+All implementations use some Java simulations to work around limitations of the native rendering code.
+</p>
+
+<p>
+Note that use of the Java Runtime Support framework on OS 10.10 (Yosemite) requires an upgraded version.
+The upgraded version is installed by the
+<a href="https://support.apple.com/kb/DL1572">Java for OS X 2015-001</a> update.
+</p>
+
+</body>
+</html>

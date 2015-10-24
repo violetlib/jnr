@@ -1,0 +1,84 @@
+<project default="VAquaRenderingJNI" name="VAquaRenderingJNI" basedir=".">
+
+<typedef name="jni" classname="com.cbfiddle.ant.JNILibrary"/>
+
+	<property name="buildroot" location="${user.home}/build"/>
+	<property name="products" location="${buildroot}/products"/>
+	<property name="dist" location="${products}/jni"/>
+
+	<target name="headers">
+		<javah class="org.violetlib.jnr.aqua.impl.AquaNativePainter"
+           classpath="/Users/alan/build/working/VAquaRendering/classes"
+           destdir="."/>
+		<javah class="org.violetlib.jnr.aqua.impl.NativeSupport"
+           classpath="/Users/alan/build/working/VAquaRendering/classes"
+           destdir="."/>
+		<javah class="org.violetlib.jnr.aqua.coreui.CoreUIPainter"
+           classpath="/Users/alan/build/working/VAquaRendering/classes"
+           destdir="."/>
+	</target>
+
+	<target name="VAquaRenderingJNI" depends="headers">
+
+	<mkdir dir="${dist}"/>
+
+	<jni
+		version="1"
+		compatibilityversion="1"
+		outputfile="${dist}/libVAquaRendering.dylib"
+		arch="x86_64"
+		librarypath="/usr/local/lib"
+		includepath="/usr/local/include"
+		>
+
+		<fileset dir=".">
+			<include name="*.c"/>
+			<include name="*.m"/>
+		</fileset>
+
+		<compilerOption>-fobjc-arc</compilerOption>
+
+		<framework>CoreFoundation</framework>
+		<framework>Cocoa</framework>
+		<framework>JavaVM</framework>
+		<framework>JavaNativeFoundation</framework>
+		<framework>JavaRuntimeSupport</framework>
+
+	</jni>
+
+	<copy file="${dist}/libVAquaRendering.dylib" preservelastmodified="true" tofile="${basedir}/../resources/libVAquaRendering.dylib"/>
+	<copy file="${dist}/libVAquaRendering.dylib" preservelastmodified="true" tofile="${buildroot}/idea/production/VAquaRendering/libVAquaRendering.dylib"/>
+
+	</target>
+
+	<target name="VAquaRenderingPureJNI">
+
+	<mkdir dir="${dist}"/>
+
+	<jni
+		version="1"
+		compatibilityversion="1"
+		outputfile="${dist}/libVAquaRendering.dylib"
+		arch="x86_64"
+		librarypath="/usr/local/lib"
+		includepath="/usr/local/include"
+		>
+
+		<fileset dir=".">
+			<include name="*.c"/>
+			<include name="*.m"/>
+			<exclude name="org_violetlib_jnr_aqua_coreui_CUIDrawPainter.m"/>
+		</fileset>
+
+		<compilerOption>-fobjc-arc</compilerOption>
+
+		<framework>CoreFoundation</framework>
+		<framework>Cocoa</framework>
+		<framework>JavaVM</framework>
+		<framework>JavaNativeFoundation</framework>
+		<framework>JavaRuntimeSupport</framework>
+
+	</jni>
+
+	</target>
+</project>

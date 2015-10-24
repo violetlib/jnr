@@ -1,0 +1,9 @@
+/.idea
+/api
+/archive
+/properties.txt
+/release*/out
+/release*/dist
+/resources/libVAquaRendering.dylib
+/jni/org_*.h
+/VAquaRendering.iml
