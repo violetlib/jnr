@@ -2,8 +2,7 @@
 /api
 /archive
 /properties.txt
-/release*/out
-/release*/dist
-/resources/libVAquaRendering.dylib
+/dist
+/out
 /jni/org_*.h
 /VAquaRendering.iml

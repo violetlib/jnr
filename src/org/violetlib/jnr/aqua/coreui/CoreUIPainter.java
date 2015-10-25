@@ -691,7 +691,10 @@ public class CoreUIPainter
 
 	public @Nullable Renderer getPopupArrowRenderer(@NotNull PopupButtonConfiguration g)
 	{
-		switch (g.getPopupButtonWidget()) {
+		PopupButtonWidget w = g.getPopupButtonWidget();
+		State state = g.getState();
+
+		switch (w) {
 			// These button widgets paint their own arrows
 			case BUTTON_POP_DOWN:
 			case BUTTON_POP_UP:
@@ -700,11 +703,24 @@ public class CoreUIPainter
 			case BUTTON_POP_DOWN_TEXTURED:
 			case BUTTON_POP_UP_TEXTURED:
 				return null;
+
+			// These button widgets are unable to paint proper arrows in the rollover state on El Capitan (the color is
+			// wrong), but the correct arrows are the same as the active state. It is better to use the native active state
+			// arrows to avoid a flicker as the simulation is not perfect.
+
+			case BUTTON_POP_UP_CELL:
+			case BUTTON_POP_UP_GRADIENT:
+			case BUTTON_POP_UP_SQUARE:
+			case BUTTON_POP_UP_BEVEL:
+				if (state == State.ROLLOVER) {
+					state = State.ACTIVE;
+				}
+				break;
 		}
 
 		Object ld = toLayoutDirection(g.getLayoutDirection());
 		Object bt = CoreUIBackgroundTypes.BACKGROUND_LIGHT;
-		Object st = toState(g.getState());
+		Object st = toState(state);
 
 		// TBD: background type should be lowered for a recessed button in rollover state
 

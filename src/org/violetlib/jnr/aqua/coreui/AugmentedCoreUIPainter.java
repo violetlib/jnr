@@ -24,6 +24,8 @@ import org.violetlib.jnr.aqua.impl.ThinSplitPaneDividerPainterExtension;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.jnr.impl.Renderer;
 
+import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.*;
+
 /**
 	This class augments the Core UI native painting code to work around its deficiencies.
 */
@@ -125,8 +127,8 @@ public class AugmentedCoreUIPainter
 
 	private boolean isArrowNeeded(@NotNull PopupButtonConfiguration g)
 	{
-		// Correct arrow color for recessed style
 		PopupButtonWidget w = g.getPopupButtonWidget();
-		return w == PopupButtonWidget.BUTTON_POP_UP_RECESSED || w == PopupButtonWidget.BUTTON_POP_DOWN_RECESSED;
+		// Correct arrow color for recessed style
+		return w == BUTTON_POP_UP_RECESSED || w == BUTTON_POP_DOWN_RECESSED;
 	}
 }

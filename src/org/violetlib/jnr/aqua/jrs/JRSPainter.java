@@ -790,13 +790,30 @@ public class JRSPainter
 
 	public @Nullable Renderer getPopupArrowRenderer(@NotNull PopupButtonConfiguration g)
 	{
-		switch (g.getPopupButtonWidget()) {
+		PopupButtonWidget w = g.getPopupButtonWidget();
+		State state = g.getState();
+
+		switch (w) {
 			// These button widgets paint their own arrows
 			case BUTTON_POP_DOWN:
 			case BUTTON_POP_UP:
 			case BUTTON_POP_DOWN_ROUND_RECT:
 			case BUTTON_POP_UP_ROUND_RECT:
 				return null;
+
+			// These button widgets are unable to paint proper arrows in the rollover state on El Capitan (the color is
+			// wrong), but the correct arrows are the same as the active state. It is better to use the native active state
+			// arrows to avoid a flicker as the simulation is not perfect.
+
+			case BUTTON_POP_UP_CELL:
+			case BUTTON_POP_UP_GRADIENT:
+			case BUTTON_POP_UP_SQUARE:
+			case BUTTON_POP_UP_BEVEL:
+			case BUTTON_POP_UP_TEXTURED:
+				if (state == State.ROLLOVER) {
+					state = State.ACTIVE;
+				}
+				break;
 		}
 
 		// JRS cannot paint a pull down arrow
@@ -810,7 +827,7 @@ public class JRSPainter
 		maker.set(JRSUIConstants.ArrowsOnly.YES);
 		maker.set(JRSUIConstants.AlignmentHorizontal.RIGHT);
 		configureSize(g.getSize());
-		configureState(g.getState());
+		configureState(state);
 		configureLayoutDirection(g.getLayoutDirection());
 		BasicRenderer r = maker.getRenderer();
 

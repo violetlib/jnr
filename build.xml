@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="VAquaRendering" default="jar" basedir=".">
+<project name="VAquaRendering" basedir=".">
 
 	<property name="docdir" location="api"/>
-	<property name="webroot" location="../../web site/violetlib.org"/>
-	<property name="installdir" location="${webroot}/release/jnr"/>
 	<property name="homebin" location="${user.home}/bin"/>
 	<property name="root" location="."/>
 
@@ -15,115 +13,5 @@
 	</filelist>
 
 	<classpath/>
-
-	<target name="jar"
-	    depends="clean, compile"
-	    description="Build the development versions of the JARs">
-		<define-library/>
-	</target>
-	
-  <target name="release"
-      depends="validateReleaseNumber"
-      description="Build the release versions of the JARs">
-    <ant dir="release" inheritAll="false">
-      <propertyset>
-        <propertyref name="RELEASE"/>
-      </propertyset>
-    </ant>
-
-    <ant dir="releaseHybrid" inheritAll="false">
-      <propertyset>
-        <propertyref name="RELEASE"/>
-      </propertyset>
-    </ant>
-  </target>
-
-  <target name="showrelease">
-    <echo message="VAquaRendering Release"/>
-    <exec dir="."
-        executable="${homebin}/jarecho"
-        os="Mac OS X">
-      <arg value="release/dist/VAquaRendering.jar"/>
-      <arg value="org/violetlib/jnr/aqua/RELEASE.txt"/>
-    </exec>
-    <exec dir="."
-        executable="${homebin}/jarecho"
-        os="Mac OS X">
-      <arg value="release/dist/VAquaRendering.jar"/>
-      <arg value="org/violetlib/jnr/aqua/BUILD.txt"/>
-    </exec>
-    <exec dir="."
-        executable="${homebin}/jarecho"
-        os="Mac OS X">
-      <arg value="releaseHybrid/dist/VAquaRendering.jar"/>
-      <arg value="org/violetlib/jnr/aqua/RELEASE.txt"/>
-    </exec>
-    <exec dir="."
-        executable="${homebin}/jarecho"
-        os="Mac OS X">
-      <arg value="releaseHybrid/dist/VAquaRendering.jar"/>
-      <arg value="org/violetlib/jnr/aqua/BUILD.txt"/>
-    </exec>
-    <echo message=""/>
-  </target>
-
-  <target name="installlocal">
-			<copy file="releaseHybrid/dist/VAquaRendering.jar" preservelastmodified="true" tofile="${slib}/VAquaRendering.jar"/>
-  </target>
-
-  <target name="installjar" depends="validateReleaseNumber">
-    <mkdir dir="${installdir}/${RELEASE}"/>
-		<copy file="release/dist/VAquaRendering.jar" preservelastmodified="true" tofile="${installdir}/${RELEASE}/view/VAquaRendering${RELEASE}.jar"/>
-		<copy file="releaseHybrid/dist/VAquaRendering.jar" preservelastmodified="true" tofile="${installdir}/${RELEASE}/full/VAquaRendering${RELEASE}.jar"/>
-  </target>
-
-	<target name="doc" depends="validateReleaseNumber, compile">
-		<define-documentation
-		  doctitle="VAquaRendering - Java Native Rendering for OS X"
-			title="VAquaRendering - Release ${RELEASE}"
-			packages="org.violetlib.jnr.aqua,org.violetlib.jnr"
-			access="public"
-		>
-		<javadoc-elements>
-			<arg value="-overview"/>
-			<arg value="${root}/overview.html"/>
-		</javadoc-elements>
-		</define-documentation>
-	</target>
-
-  <target name="installdoc" depends="doc">
-	  <mkdir dir="${installdir}/api"/>
-    <exec dir="${installdir}"
-        executable="/bin/rm"
-        os="Mac OS X">
-      <arg value="-rf"/>
-      <arg value="${installdir}/api"/>
-    </exec>
-    <exec dir="."
-        executable="/bin/cp"
-        os="Mac OS X">
-      <arg value="-pr"/>
-      <arg value="${docdir}"/>
-      <arg value="${installdir}/api"/>
-    </exec>
-    <mkdir dir="${installdir}/${RELEASE}"/>
-    <zip destfile="${installdir}/${RELEASE}/VAquaRendering${RELEASE}API.zip">
-      <zipfileset dir="api" prefix="VAquaRenderingAPI/"/>
-    </zip>
-  </target>
-
-  <target name="installsource" depends="validateReleaseNumber">
-    <mkdir dir="${installdir}/${RELEASE}"/>
-    <zip destfile="${installdir}/${RELEASE}/VAquaRendering${RELEASE}Source.zip">
-      <zipfileset dir="." prefix="VAquaRendering/"
-        includes="LICENSE,src/**,jni/*.h,jni/*.m,lib/**,release/build.xml,releaseHybrid/build.xml">
-      </zipfileset>
-    </zip>
-  </target>
-
-  <target name="install" depends="installjar, installsource, installdoc"/>
-
-	<target name="VAquaRendering" depends="install"/>
-	<target name="clean-VAquaRendering" depends="clean"/>
 
 </project>
