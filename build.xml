@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="VAquaRendering" default="jar" basedir=".">
+<project name="VAquaRendering" default="debug" basedir=".">
 
 	<property name="docdir" location="api"/>
 	<property name="webroot" location="../../web site/violetlib.org"/>
@@ -16,26 +16,63 @@
 
 	<classpath/>
 
+	<!--
 	<target name="jar"
 	    depends="clean, compile"
 	    description="Build the development versions of the JARs">
 		<define-library/>
 	</target>
+	-->
 	
   <target name="release"
       depends="validateReleaseNumber"
       description="Build the release versions of the JARs">
-    <ant dir="release" inheritAll="false">
+
+    <mkdir dir="dist/${CURRENT_BRANCH}"/>
+    <mkdir dir="out/${CURRENT_BRANCH}"/>
+    <mkdir dir="dist/release/view"/>
+    <mkdir dir="dist/release/full"/>
+
+    <ant dir="release/view" inheritAll="false">
+      <property name="distdir" location="dist/${CURRENT_BRANCH}/view"/>
+      <property name="builddir" location="out/${CURRENT_BRANCH}/view"/>
       <propertyset>
         <propertyref name="RELEASE"/>
       </propertyset>
     </ant>
 
-    <ant dir="releaseHybrid" inheritAll="false">
+    <ant dir="release/full" inheritAll="false">
+      <property name="distdir" location="dist/${CURRENT_BRANCH}/full"/>
+      <property name="builddir" location="out/${CURRENT_BRANCH}/full"/>
       <propertyset>
         <propertyref name="RELEASE"/>
       </propertyset>
     </ant>
+		<copy file="dist/${CURRENT_BRANCH}/view/VAquaRendering.jar" preservelastmodified="true" tofile="dist/release/view/VAquaRendering.jar"/>
+		<copy file="dist/${CURRENT_BRANCH}/full/VAquaRendering.jar" preservelastmodified="true" tofile="dist/release/full/VAquaRendering.jar"/>
+  </target>
+
+  <target name="debug"
+      depends="validateReleaseNumber"
+      description="Build the debug versions of the JARs">
+
+    <mkdir dir="dist/${CURRENT_BRANCH}"/>
+    <mkdir dir="out/${CURRENT_BRANCH}"/>
+
+    <ant dir="release/view" inheritAll="false">
+      <property name="debug" value="true"/>
+      <property name="distdir" location="dist/${CURRENT_BRANCH}/view"/>
+      <property name="builddir" location="out/${CURRENT_BRANCH}/view"/>
+      <property name="RELEASE" value="${CURRENT_BRANCH} ${RELEASE}x"/>
+    </ant>
+
+    <ant dir="release/full" inheritAll="false">
+      <property name="debug" value="true"/>
+      <property name="distdir" location="dist/${CURRENT_BRANCH}/full"/>
+      <property name="builddir" location="out/${CURRENT_BRANCH}/full"/>
+      <property name="RELEASE" value="${CURRENT_BRANCH} ${RELEASE}x"/>
+    </ant>
+		<copy file="dist/${CURRENT_BRANCH}/full/VAquaRendering.jar" preservelastmodified="true" tofile="dist/VAquaRendering.jar"/>
   </target>
 
   <target name="showrelease">
@@ -68,13 +105,13 @@
   </target>
 
   <target name="installlocal">
-			<copy file="releaseHybrid/dist/VAquaRendering.jar" preservelastmodified="true" tofile="${slib}/VAquaRendering.jar"/>
+			<copy file="dist/release/full/VAquaRendering.jar" preservelastmodified="true" tofile="${slib}/VAquaRendering.jar"/>
   </target>
 
   <target name="installjar" depends="validateReleaseNumber">
     <mkdir dir="${installdir}/${RELEASE}"/>
-		<copy file="release/dist/VAquaRendering.jar" preservelastmodified="true" tofile="${installdir}/${RELEASE}/view/VAquaRendering${RELEASE}.jar"/>
-		<copy file="releaseHybrid/dist/VAquaRendering.jar" preservelastmodified="true" tofile="${installdir}/${RELEASE}/full/VAquaRendering${RELEASE}.jar"/>
+		<copy file="dist/release/view/VAquaRendering.jar" preservelastmodified="true" tofile="${installdir}/${RELEASE}/view/VAquaRendering${RELEASE}.jar"/>
+		<copy file="dist/release/full/VAquaRendering.jar" preservelastmodified="true" tofile="${installdir}/${RELEASE}/full/VAquaRendering${RELEASE}.jar"/>
   </target>
 
 	<target name="doc" depends="validateReleaseNumber, compile">
