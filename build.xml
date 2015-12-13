@@ -48,7 +48,8 @@
         <propertyref name="RELEASE"/>
       </propertyset>
     </ant>
-		<copy file="dist/${CURRENT_BRANCH}/test/full/VAquaRendering.jar" preservelastmodified="true" tofile="dist/test/VAquaRendering.jar"/>
+		<copy file="dist/${CURRENT_BRANCH}/test/view/VAquaRendering.jar" preservelastmodified="true" tofile="dist/test/view/VAquaRendering.jar"/>
+		<copy file="dist/${CURRENT_BRANCH}/test/full/VAquaRendering.jar" preservelastmodified="true" tofile="dist/test/full/VAquaRendering.jar"/>
   </target>
 
   <target name="debug"
