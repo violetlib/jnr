@@ -33,7 +33,7 @@
     <property name="debug" value="false"/>
 
     <target name="init">
-        <echo message="${fullReleaseName}"/>
+        <echo level="info" message="${fullReleaseName}"/>
     </target>
         
     <target name="clean" description="Remove build directories">
@@ -133,7 +133,7 @@
 
     <target name="AquaNativeRendering" depends="compile-AquaNativeRendering-JNI,saveIDs">
 
-        <echo message="Building AquaNativeRendering[Hybrid] ${fullReleaseName}"/>
+        <echo level="info" message="Building AquaNativeRendering[Hybrid] ${fullReleaseName}"/>
 
         <mkdir dir="${distdir}"/>
 

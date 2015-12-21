@@ -25,7 +25,7 @@
     <property name="debug" value="false"/>
 
     <target name="init">
-        <echo message="${fullReleaseName}"/>
+        <echo level="info" message="${fullReleaseName}"/>
     </target>
     
     <target name="clean" description="Remove build directories">
@@ -116,7 +116,7 @@
 
     <target name="AquaNativeRendering" depends="compile-AquaNativeRendering-JNI, saveIDs">
 
-        <echo message="Building AquaNativeRendering ${fullReleaseName}"/>
+        <echo level="info" message="Building AquaNativeRendering ${fullReleaseName}"/>
 
         <mkdir dir="${distdir}"/>
 
