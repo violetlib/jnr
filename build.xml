@@ -14,34 +14,4 @@
 
 	<classpath/>
 
-  <target name="createDocArchive">
-    <mkdir dir="${documentationArchiveOutputDirectory}"/>
-    <mkdir dir="${documentationArchiveOutputDirectory}/tree"/>
-		<define-documentation
-		  doctitle="VAquaRendering - Java Native Rendering for OS X"
-			title="VAquaRendering - Release ${RELEASE}"
-			packages="org.violetlib.jnr.aqua,org.violetlib.jnr"
-			access="public"
-			outputDirectory="${documentationArchiveOutputDirectory}/tree"
-		>
-      <javadoc-elements>
-        <arg value="-overview"/>
-        <arg value="${root}/overview.html"/>
-      </javadoc-elements>
-		</define-documentation>
-    <zip destfile="${documentationArchiveOutputDirectory}/API.zip">
-      <zipfileset dir="${documentationArchiveOutputDirectory}/tree" prefix="VAquaRendering/" includes="**">
-      </zipfileset>
-    </zip>
-  </target>
-
-  <target name="createSourceArchive">
-    <mkdir dir="${sourceArchiveOutputDirectory}"/>
-    <zip destfile="${sourceArchiveOutputDirectory}/Source.zip">
-      <zipfileset dir="." prefix="VAquaRendering/"
-        includes="LICENSE,src/**,jni/*.h,jni/*.m,lib/**,release/*/build.xml">
-      </zipfileset>
-    </zip>
-  </target>
-
 </project>
