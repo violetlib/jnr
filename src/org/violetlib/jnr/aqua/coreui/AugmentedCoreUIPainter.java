@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -21,8 +21,11 @@ import org.violetlib.jnr.aqua.impl.PopUpArrowPainter;
 import org.violetlib.jnr.aqua.impl.PullDownArrowPainter;
 import org.violetlib.jnr.aqua.impl.TableColumnHeaderCellPainterExtension;
 import org.violetlib.jnr.aqua.impl.ThinSplitPaneDividerPainterExtension;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.jnr.impl.Renderer;
+
+import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.*;
 
 /**
 	This class augments the Core UI native painting code to work around its deficiencies.
@@ -125,8 +128,20 @@ public class AugmentedCoreUIPainter
 
 	private boolean isArrowNeeded(@NotNull PopupButtonConfiguration g)
 	{
-		// Correct arrow color for recessed style
 		PopupButtonWidget w = g.getPopupButtonWidget();
-		return w == PopupButtonWidget.BUTTON_POP_UP_RECESSED || w == PopupButtonWidget.BUTTON_POP_DOWN_RECESSED;
+
+		// On El Capitan, the arrow color is wrong for the rollover state in several styles.
+
+		if (g.getState() == State.ROLLOVER) {
+			int platformVersion = JNRPlatformUtils.getPlatformVersion();
+			if (platformVersion >= 101100) {
+				if (w == BUTTON_POP_UP_CELL || w == BUTTON_POP_UP_BEVEL || w == BUTTON_POP_UP_GRADIENT || w == BUTTON_POP_UP_SQUARE) {
+					return true;
+				}
+			}
+		}
+
+		// Correct arrow color for recessed style
+		return w == BUTTON_POP_UP_RECESSED || w == BUTTON_POP_DOWN_RECESSED;
 	}
 }
