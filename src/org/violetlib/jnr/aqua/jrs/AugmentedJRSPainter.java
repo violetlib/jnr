@@ -24,11 +24,8 @@ import org.violetlib.jnr.aqua.impl.PopUpArrowPainter;
 import org.violetlib.jnr.aqua.impl.PullDownArrowPainter;
 import org.violetlib.jnr.aqua.impl.TableColumnHeaderCellPainterExtension;
 import org.violetlib.jnr.aqua.impl.ThickSplitPaneDividerPainterExtension;
-import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.jnr.impl.Renderer;
-
-import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.*;
 
 /**
 	This class augments the JRS native painting code to work around its deficiencies.
@@ -94,22 +91,6 @@ public class AugmentedJRSPainter
 		PopupButtonWidget w = g.getPopupButtonWidget();
 
 		if (g.isPopUp()) {
-
-			// On El Capitan, the arrow color is wrong for the rollover state in several styles.
-
-			if (g.getState() == State.ROLLOVER) {
-				int platformVersion = JNRPlatformUtils.getPlatformVersion();
-				if (platformVersion >= 101100) {
-					if (w == BUTTON_POP_UP_CELL
-						|| w == BUTTON_POP_UP_BEVEL
-						|| w == BUTTON_POP_UP_GRADIENT
-						|| w == BUTTON_POP_UP_SQUARE
-						|| w == BUTTON_POP_UP_TEXTURED) {
-						return true;
-					}
-				}
-			}
-
 			return w == PopupButtonWidget.BUTTON_POP_UP_RECESSED;	// correct the color
 		}
 
