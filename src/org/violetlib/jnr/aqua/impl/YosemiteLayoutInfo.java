@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -208,7 +208,9 @@ public class YosemiteLayoutInfo
 			right = left;
 
 		} else if (bw == ButtonWidget.BUTTON_TOOLBAR_ITEM) {
-			top = left = right = bottom = 4;
+			top = 2;
+			bottom = 3;
+			left = right = 4;
 
 		} else if (bw == ButtonWidget.BUTTON_COLOR_WELL) {
 			// labels are not supported
