@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -83,6 +83,7 @@ public class PopupButtonLayoutConfiguration
 			case BUTTON_POP_UP_ROUND_RECT:
 			case BUTTON_POP_UP_RECESSED:
 			case BUTTON_POP_UP_TEXTURED:
+			case BUTTON_POP_UP_TEXTURED_TOOLBAR:
 			case BUTTON_POP_UP_GRADIENT:
 			case BUTTON_POP_UP_SQUARE:
 				return true;
@@ -92,6 +93,7 @@ public class PopupButtonLayoutConfiguration
 			case BUTTON_POP_DOWN_ROUND_RECT:
 			case BUTTON_POP_DOWN_RECESSED:
 			case BUTTON_POP_DOWN_TEXTURED:
+			case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
 			case BUTTON_POP_DOWN_GRADIENT:
 			case BUTTON_POP_DOWN_SQUARE:
 				return false;
@@ -136,7 +138,9 @@ public class PopupButtonLayoutConfiguration
 			case BUTTON_POP_UP_CELL:
 			case BUTTON_POP_DOWN_CELL:
 			case BUTTON_POP_UP_TEXTURED:
+			case BUTTON_POP_UP_TEXTURED_TOOLBAR:
 			case BUTTON_POP_DOWN_TEXTURED:
+			case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
 				return true;
 			default:
 				return false;
@@ -156,5 +160,4 @@ public class PopupButtonLayoutConfiguration
 				return true;
 		}
 	}
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -85,11 +85,10 @@ public class YosemiteLayoutInfo
 		} else if (bw == ButtonWidget.BUTTON_ROUNDED_RECT) {
 			return BasicLayoutInfo.createFixedHeight(size(sz, 18, 16, 14));
 
-		} else if (bw == ButtonWidget.BUTTON_TEXTURED) {
-			// NSButton has a fixed height. Core UI does not.
+		} else if (bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
 			return BasicLayoutInfo.createFixedHeight(size(sz, 23, 19, 16));
 
-		} else if (bw == ButtonWidget.BUTTON_ROUND) {
+		} else if (bw == ButtonWidget.BUTTON_ROUND || bw == ButtonWidget.BUTTON_ROUND_TOOLBAR) {
 			return BasicLayoutInfo.createFixed(size(sz, 20, 17, 14), size(sz, 21, 18, 15));
 
 		} else if (bw == ButtonWidget.BUTTON_ROUND_INSET) {
@@ -179,12 +178,12 @@ public class YosemiteLayoutInfo
 			top = bottom = 1;
 			left = right = 4;
 
-		} else if (bw == ButtonWidget.BUTTON_TEXTURED) {
-			top = 1;
-			bottom = 2;
+		} else if (bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
+			top = 0.51f;
+			bottom = 1.49f;
 			left = right = 3;
 
-		} else if (bw == ButtonWidget.BUTTON_ROUND) {
+		} else if (bw == ButtonWidget.BUTTON_ROUND || bw == ButtonWidget.BUTTON_ROUND_TOOLBAR) {
 			top = left = right = size2D(sz, 4, 3.5f, 3);
 			bottom = top + 1;
 
@@ -208,7 +207,9 @@ public class YosemiteLayoutInfo
 			right = left;
 
 		} else if (bw == ButtonWidget.BUTTON_TOOLBAR_ITEM) {
-			top = left = right = bottom = 4;
+			top = 2;
+			bottom = 3;
+			left = right = 4;
 
 		} else if (bw == ButtonWidget.BUTTON_COLOR_WELL) {
 			// labels are not supported
@@ -227,6 +228,7 @@ public class YosemiteLayoutInfo
 		switch (bw) {
 			case BUTTON_TAB:
 			case BUTTON_SEGMENTED:
+			case BUTTON_SEGMENTED_SEPARATED:
 				return BasicLayoutInfo.createFixedHeight(size(sz, 22, 19, 16));
 
 			case BUTTON_SEGMENTED_INSET:
@@ -234,8 +236,10 @@ public class YosemiteLayoutInfo
 
 			case BUTTON_SEGMENTED_SCURVE:
 			case BUTTON_SEGMENTED_TEXTURED:
+			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
 			case BUTTON_SEGMENTED_TOOLBAR:
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
 				return BasicLayoutInfo.createFixedHeight(size(sz, 23, 19, 16));
 
 			case BUTTON_SEGMENTED_SMALL_SQUARE:
@@ -250,15 +254,14 @@ public class YosemiteLayoutInfo
 	public @NotNull Insetter getSegmentedButtonLabelInsets(@NotNull SegmentedButtonLayoutConfiguration g)
 	{
 		SegmentedButtonWidget bw = g.getWidget();
-		Size sz = g.getSize();
 		Position pos = g.getPosition();
 
 		LayoutInfo layoutInfo = getLayoutInfo(g);
-		float top = 0;
-		float bottom = 0;
-		float left = size(sz, 10, 8, 6);
+		float top = 1;
+		float bottom = 2;
+		float left = 1;
 		float right = left;
-		float endAdjust = 0;
+		float endAdjust = 3;
 
 		boolean isLeftEnd = pos == Position.FIRST || pos == Position.ONLY;
 		boolean isRightEnd = pos == Position.LAST || pos == Position.ONLY;
@@ -266,26 +269,28 @@ public class YosemiteLayoutInfo
 		switch (bw) {
 			case BUTTON_TAB:
 			case BUTTON_SEGMENTED:
-				top = size(sz, 1, 1, 1);
-				bottom = size(sz, 2, 2, 3);
-				endAdjust = 3;
+				break;
+			case BUTTON_SEGMENTED_SEPARATED:
+				endAdjust = 0;
+				left = right = 3;
 				break;
 			case BUTTON_SEGMENTED_INSET:
-				top = size(sz, 1, 1, 1);
-				bottom = size(sz, 1, 1, 1);
-				endAdjust = 4;
+				bottom = 1;
 				break;
 			case BUTTON_SEGMENTED_SCURVE:
 			case BUTTON_SEGMENTED_TEXTURED:
+			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
 			case BUTTON_SEGMENTED_TOOLBAR:
-			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-				top = size(sz, 1, 1, 1);
-				bottom = size(sz, 1, 1, 2);
 				endAdjust = 2;
 				break;
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+				endAdjust = 0;
+				left = right = 3;
+				break;
 			case BUTTON_SEGMENTED_SMALL_SQUARE:
-				top = size(sz, 1, 1, 1);
-				bottom = size(sz, 1, 1, 1);
+				bottom = 1;
+				endAdjust = 0;
 				break;
 			default:
 				throw new UnsupportedOperationException();
@@ -311,6 +316,11 @@ public class YosemiteLayoutInfo
 		if (bw == ComboBoxWidget.BUTTON_COMBO_BOX_CELL) {
 			return BasicLayoutInfo.createMinimumHeight(size(sz, 14, 11, 11));
 
+		} else if (bw == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED || bw == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
+			float fixedHeight = size(sz, 23, 19, 16);
+			float minWidth = size(sz, 27, 24, 22);
+			return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
+
 		} else {
 			float fixedHeight = size(sz, 22, 19, 15);
 			float minWidth = size(sz, 27, 24, 22);
@@ -323,16 +333,20 @@ public class YosemiteLayoutInfo
 	{
 		int indicatorWidth;
 
-		switch (g.getSize())
-		{
-			case SMALL:
-				indicatorWidth = 19;
-				break;
-			case MINI:
-				indicatorWidth = 16;
-				break;
-			default:
-				indicatorWidth = 21;
+		ComboBoxWidget w = g.getWidget();
+		if (w == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED || w == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
+			indicatorWidth = 18;
+		} else {
+			switch (g.getSize()) {
+				case SMALL:
+					indicatorWidth = 19;
+					break;
+				case MINI:
+					indicatorWidth = 16;
+					break;
+				default:
+					indicatorWidth = 21;
+			}
 		}
 
 		return g.isLeftToRight()
@@ -352,10 +366,25 @@ public class YosemiteLayoutInfo
 		}
 
 		LayoutInfo layoutInfo = getLayoutInfo(g);
-		float near = size2D(sz, 18.5f, 16.5f, 14.5f);
-		float far = 0.5f;
-		float top = 1;
-		float bottom = size2D(sz, 2, 2, 1);
+		float near;
+		float far;
+		float top;
+		float bottom;
+
+		if (bw == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED || bw == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
+			// The inactive rendering is not as tall as the active rendering. Need to take that into account.
+			// near 19 works on Yosemite but not on El Capitan
+			near = bw == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR ? 20 : 19;
+			far = 2.5f;
+			top = 1;
+			bottom = 2;
+		} else {
+			near = size2D(sz, 18.5f, 16.5f, 14.5f);
+			far = 0.5f;
+			top = 1;
+			bottom = size2D(sz, 2, 2, 1);
+		}
+
 		return g.isLeftToRight()
 			? Insetters.createFixed(top, far, bottom, near, layoutInfo)
 			: Insetters.createFixed(top, near, bottom, far, layoutInfo);
@@ -364,7 +393,7 @@ public class YosemiteLayoutInfo
 	@Override
 	protected @NotNull LayoutInfo getPopUpButtonLayoutInfo(@NotNull PopupButtonLayoutConfiguration g)
 	{
-		// On Yosemite, the square style bombs if the mini size is selected.
+		// On Yosemite and El Capitan, the square style bombs if the mini size is selected.
 		// See rendering code, which must be consistent.
 
 		PopupButtonWidget bw = g.getPopupButtonWidget();
@@ -407,6 +436,8 @@ public class YosemiteLayoutInfo
 
 			case BUTTON_POP_DOWN_TEXTURED:
 			case BUTTON_POP_UP_TEXTURED:
+			case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
+			case BUTTON_POP_UP_TEXTURED_TOOLBAR:
 				float fixedHeight = size(sz, 23, 19, 16);
 				float minWidth = size(sz, 25, 24, 20);
 				return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
@@ -443,7 +474,7 @@ public class YosemiteLayoutInfo
 				top -= 2;
 			} else if (w == PopupButtonWidget.BUTTON_POP_UP_RECESSED) {
 				top -= size2D(sz, 1.5f, 0, 2);
-			} else if (w == PopupButtonWidget.BUTTON_POP_UP_TEXTURED) {
+			} else if (w == PopupButtonWidget.BUTTON_POP_UP_TEXTURED || w == PopupButtonWidget.BUTTON_POP_UP_TEXTURED_TOOLBAR) {
 				top -= size2D(sz, 2, 1, 2);
 			}
 			bottom = buttonHeight - top - height;
@@ -490,12 +521,12 @@ public class YosemiteLayoutInfo
 				far = 3;
 				near = size2D(sz, 17, 15, 13);
 				bottom = size2D(sz, 2.5f, 2.5f, 2);
-				top = size2D(sz, 0, 0.5f, 1);
+				top = size2D(sz, 0.5f, 0.5f, 1);
 				break;
 
 			case BUTTON_POP_UP_SQUARE:
-				near = size2D(sz, 17, 15, 15);
-				bottom = size2D(sz, 1, 1, 1);
+				near = size2D(sz, 16, 15, 15);
+				bottom = 1;
 				break;
 
 			case BUTTON_POP_UP_CELL:
@@ -503,29 +534,44 @@ public class YosemiteLayoutInfo
 				return Insetters.createFixed(0, 0, 0, near);
 
 			case BUTTON_POP_UP_ROUND_RECT:
-			case BUTTON_POP_UP_RECESSED:
-			case BUTTON_POP_UP_GRADIENT:
-				// TBD
+			case BUTTON_POP_DOWN_ROUND_RECT:
+				far = 3;
 				near = size2D(sz, 17, 15, 13);
+				break;
+
+			case BUTTON_POP_UP_RECESSED:
+			case BUTTON_POP_DOWN_RECESSED:
+				near = size2D(sz, 17, 15, 13);
+				break;
+
+			case BUTTON_POP_UP_GRADIENT:
+			case BUTTON_POP_DOWN_GRADIENT:
+				near = 16;
 				break;
 
 			case BUTTON_POP_UP_BEVEL:
 			case BUTTON_POP_DOWN_BEVEL:
+				far = 3;
 				bottom = 2;
-				near = size2D(sz, 17, 15, 13);
+				near = 15;
 				break;
 
 			case BUTTON_POP_UP_TEXTURED:
 			case BUTTON_POP_DOWN_TEXTURED:
-				top = 0;
+			case BUTTON_POP_UP_TEXTURED_TOOLBAR:
+			case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
+				// The inactive rendering is not as tall as the active rendering. Need to take that into account.
+				top = 1;
+				bottom = 2;
+				far = 2;
 				near = size2D(sz, 17, 15, 13);
 				break;
 
 			case BUTTON_POP_DOWN:
 				far = 3;
 				near = size2D(sz, 17, 15, 13);
-				bottom = size2D(sz, 2, 2, 2);
-				top = size2D(sz, 1, 1, 1);
+				bottom = 2;
+				top = 1;
 				break;
 
 			case BUTTON_POP_DOWN_SQUARE:
@@ -535,13 +581,6 @@ public class YosemiteLayoutInfo
 			case BUTTON_POP_DOWN_CELL:
 				near = size2D(sz, 13, 12.5f, 12);
 				return Insetters.createFixed(0, 0, 0, near);
-
-			case BUTTON_POP_DOWN_ROUND_RECT:
-			case BUTTON_POP_DOWN_RECESSED:
-			case BUTTON_POP_DOWN_GRADIENT:
-				// TBD
-				near = size2D(sz, 17, 15, 13);
-				break;
 		}
 
 		LayoutInfo layoutInfo = getLayoutInfo(g);
@@ -1088,10 +1127,10 @@ public class YosemiteLayoutInfo
 		switch (g.getWidget())
 		{
 			case THIN_DIVIDER:
-				d = 2;
+				d = 1;
 				break;
 			case THICK_DIVIDER:
-				d = 10;
+				d = 9;
 				break;
 			case PANE_SPLITTER:
 				d = 10;
@@ -1118,20 +1157,17 @@ public class YosemiteLayoutInfo
 	@Override
 	protected @NotNull LayoutInfo getTextFieldLayoutInfo(@NotNull TextFieldLayoutConfiguration g)
 	{
-		switch (g.getWidget()) {
-			case TEXT_FIELD_ROUND:
+		AquaUIPainter.TextFieldWidget w = g.getWidget();
+		if (w.isRound() || w.isSearch()) {
+			if (w.isToolbar()) {
+				// The actual sizes for small and mini are mostly bogus. We do not simulate this bug.
+				return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 23, 19, 16));
+			} else {
 				return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 22, 19, 17));
-
-			case TEXT_FIELD_SEARCH:
-			case TEXT_FIELD_SEARCH_WITH_CANCEL:
-			case TEXT_FIELD_SEARCH_WITH_MENU:
-			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
-				// NSTextView is not capable of displaying a mini size search field, but Core UI can draw one.
-				// IB will create a mini size search field with height 15, but it displays clipped.
-				return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 22, 19, 17));
-			default:
-				return BasicLayoutInfo.getInstance();
+			}
 		}
+
+		return BasicLayoutInfo.getInstance();
 	}
 
 	@Override
@@ -1148,47 +1184,53 @@ public class YosemiteLayoutInfo
 		int d = 0;
 		float gap = 6;
 
-		switch (tw) {
-
-			case TEXT_FIELD_SEARCH_WITH_MENU:
-			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
+		if (tw.isSearch()) {
+			if (tw.hasMenu()) {
 				d = 4;
 				gap = 3.5f;
-				// fall through
-
-			case TEXT_FIELD_SEARCH:
-			case TEXT_FIELD_SEARCH_WITH_CANCEL:
-
-				if (g.isLeftToRight()) {
-					Insetter insets = getSearchButtonPaintingInsets(g);
-					if (insets != null) {
-						Rectangle2D bounds = insets.apply2D(100, 100);
-						left = (float) (bounds.getX() + bounds.getWidth() + gap);
-					} else {
-						left = size(sz, 27+d, 26+d, 22+d);
-					}
-					right = size(sz, 22, 19, 16);
+			}
+			if (g.isLeftToRight()) {
+				Insetter insets = getSearchButtonPaintingInsets(g);
+				if (insets != null) {
+					Rectangle2D bounds = insets.apply2D(100, 100);
+					left = (float) (bounds.getX() + bounds.getWidth() + gap);
 				} else {
-					Insetter insets = getSearchButtonPaintingInsets(g);
-					if (insets != null) {
-						Rectangle2D bounds = insets.apply2D(100, 100);
-						right = (float) (100 - bounds.getX() + gap);
-					} else {
-						right = size(sz, 27+d, 26+d, 22+d);
-					}
-					left = size(sz, 22, 19, 16);
+					left = size(sz, 27+d, 26+d, 22+d);
 				}
+				right = size(sz, 22, 19, 16);
+			} else {
+				Insetter insets = getSearchButtonPaintingInsets(g);
+				if (insets != null) {
+					Rectangle2D bounds = insets.apply2D(100, 100);
+					right = (float) (100 - bounds.getX() + gap);
+				} else {
+					right = size(sz, 27+d, 26+d, 22+d);
+				}
+				left = size(sz, 22, 19, 16);
+			}
 
-				top = size2D(sz, 3, 1.5f, 2f);
-				bottom = size2D(sz, 3, 1.5f, 1f);
-				break;
+			if (tw.isToolbar()) {
+				top = size2D(sz, 3, 1.5f, 1.5f);
+				bottom = size2D(sz, 3, 2, 1.5f);
+			} else {
+				top = size2D(sz, 3, 1.5f, 1.5f);
+				bottom = size2D(sz, 3, 1.5f, 1.5f);
+			}
 
+		} else switch (tw) {
 			case TEXT_FIELD:
 				top = bottom = left = right = 1;
 				break;
 
 			case TEXT_FIELD_ROUND:
-				top = bottom = 1;
+				top = 1;
+				bottom = 1;
+				left = right = 2.5f;
+				break;
+
+			case TEXT_FIELD_ROUND_TOOLBAR:
+				top = 1;
+				bottom = 2;
 				left = right = 2.5f;
 				break;
 
@@ -1206,24 +1248,17 @@ public class YosemiteLayoutInfo
 		float d = 0;
 		float h;
 
-		switch (g.getWidget()) {
-
-			case TEXT_FIELD_SEARCH_WITH_MENU:
-			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
+		TextFieldWidget w = g.getWidget();
+		if (w.isSearch()) {
+			if (w.hasMenu()) {
 				d = 4;
-				// fall through
-
-			case TEXT_FIELD_SEARCH:
-			case TEXT_FIELD_SEARCH_WITH_CANCEL:
-				h = size(g.getSize(), 27, 26, 22);
-				d += h;
-				break;
-
-			default:
-				return null;
+			}
+			h = size(g.getSize(), 27, 26, 22);
+			d += h;
+			return g.isLeftToRight() ? Insetters.createLeftAligned(d, 0, 0, 0) : Insetters.createRightAligned(d, 0, 0, 0);
 		}
 
-		return g.isLeftToRight() ? Insetters.createLeftAligned(d, 0, 0, 0) : Insetters.createRightAligned(d, 0, 0, 0);
+		return null;
 	}
 
 	@Override
@@ -1254,24 +1289,14 @@ public class YosemiteLayoutInfo
 	@Override
 	public @Nullable LayoutInfo getSearchButtonLayoutInfo(@NotNull TextFieldLayoutConfiguration g)
 	{
-		Size sz = g.getSize();
+		TextFieldWidget w = g.getWidget();
 
-		boolean hasMenu = false;
-
-		switch (g.getWidget()) {
-
-			case TEXT_FIELD_SEARCH_WITH_MENU:
-			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
-				hasMenu = true;
-				break;
-
-			case TEXT_FIELD_SEARCH:
-			case TEXT_FIELD_SEARCH_WITH_CANCEL:
-				break;
-
-			default:
-				return null;
+		if (!w.isSearch()) {
+			return null;
 		}
+
+		boolean hasMenu = w.hasMenu();
+		Size sz = g.getSize();
 
 		// The visual size is smaller when rendered in 2x
 		float height = size2D(sz, 13, 12, 10);
@@ -1282,23 +1307,14 @@ public class YosemiteLayoutInfo
 	@Override
 	public @Nullable Insetter getCancelButtonInsets(@NotNull TextFieldLayoutConfiguration g)
 	{
-		Size sz = g.getSize();
-
-		float d;
-
-		switch (g.getWidget()) {
-
-			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
-			case TEXT_FIELD_SEARCH_WITH_CANCEL:
-				d = size(sz, 14, 11, 9);
-				break;
-
-			default:
-				return null;
+		TextFieldWidget w = g.getWidget();
+		if (w.hasCancel()) {
+			Size sz = g.getSize();
+			float d = size(sz, 14, 11, 9);
+			float right = size(sz, 4, 4, 3);
+			return g.isLeftToRight() ? Insetters.createRightAligned(d, right, 0, 0) : Insetters.createLeftAligned(d, right, 0, 0);
 		}
-
-		float right = size(sz, 4, 4, 3);
-		return g.isLeftToRight() ? Insetters.createRightAligned(d, right, 0, 0) : Insetters.createLeftAligned(d, right, 0, 0);
+		return null;
 	}
 
 	@Override
@@ -1329,22 +1345,13 @@ public class YosemiteLayoutInfo
 	@Override
 	public @Nullable LayoutInfo getCancelButtonLayoutInfo(@NotNull TextFieldLayoutConfiguration g)
 	{
-		Size sz = g.getSize();
-
-		float d;
-
-		switch (g.getWidget()) {
-
-			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
-			case TEXT_FIELD_SEARCH_WITH_CANCEL:
-				d = size(sz, 14, 11, 9);
-				break;
-
-			default:
-				return null;
+		TextFieldWidget w = g.getWidget();
+		if (w.hasCancel()) {
+			Size sz = g.getSize();
+			float d = size(sz, 14, 11, 9);
+			return BasicLayoutInfo.createFixed(d, d);
 		}
-
-		return BasicLayoutInfo.createFixed(d, d);
+		return null;
 	}
 
 	@Override

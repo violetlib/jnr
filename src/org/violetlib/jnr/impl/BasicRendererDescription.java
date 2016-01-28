@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -15,6 +15,8 @@ import org.jetbrains.annotations.*;
 
 /**
 	A renderer description based on fixed offsets and raster size adjustments.
+
+	@see MultiResolutionRendererDescription
 */
 
 public final class BasicRendererDescription
@@ -87,11 +89,18 @@ public final class BasicRendererDescription
 	@Override
 	public @NotNull RasterDescription getRasterBounds(@NotNull Rectangle2D target, int scaleFactor)
 	{
-		float x = (float) (target.getX() + xOffset);
-		float y = (float) (target.getY() + yOffset);
-		float rasterWidth = (float) (target.getWidth() + widthAdjustment);
-		float rasterHeight = (float) (target.getHeight() + heightAdjustment);
+		float x = round(target.getX() + xOffset, scaleFactor);
+		float y = round(target.getY() + yOffset, scaleFactor);
+		float rasterWidth = round(target.getWidth() + widthAdjustment, scaleFactor);
+		float rasterHeight = round(target.getHeight() + heightAdjustment, scaleFactor);
 		return new RasterDescription(x, y, rasterWidth, rasterHeight);
+	}
+
+	private float round(double v, int scaleFactor)
+	{
+		double scaledValue = v * scaleFactor;
+		long scaledRounded = Math.round(scaledValue);
+		return ((float) scaledRounded) / scaleFactor;
 	}
 
 	public @NotNull BasicRendererDescription withAdjustments(float x, float y, float w, float h)

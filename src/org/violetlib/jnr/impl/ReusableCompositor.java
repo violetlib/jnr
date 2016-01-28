@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -10,14 +10,8 @@ package org.violetlib.jnr.impl;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferInt;
-import java.awt.image.DirectColorModel;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
 import java.util.Arrays;
 
 import org.jetbrains.annotations.*;
@@ -45,8 +39,6 @@ import org.jetbrains.annotations.*;
 public class ReusableCompositor
 {
 	// TBD: would it be faster to turn everything into an Image and use graphics operations?
-
-	private static final @NotNull ColorModel colorModel = createColorModel();
 
 	private @Nullable int[] data;	// the actual raster buffer, reallocated as needed to contain at least the required number of pixels.
 		// May be null if the raster has zero size.
@@ -91,7 +83,7 @@ public class ReusableCompositor
 
 	public static @NotNull ColorModel getColorModel()
 	{
-		return colorModel;
+		return BasicImageSupport.getColorModel();
 	}
 
 	/**
@@ -311,13 +303,61 @@ public class ReusableCompositor
 			int[] sourceData = source.data;
 			if (sourceData != null) {
 				isEmpty = false;
+				int sourceSpan = source.getRasterWidth();
 				for (int rowOffset = 0; rowOffset < dh; rowOffset++) {
 					int row = dy + rowOffset;
 					if (row >= 0 && row < rasterHeight) {
 						for (int colOffset = 0; colOffset < dw; colOffset++) {
 							int col = dx + colOffset;
 							if (col >= 0 && col < rasterWidth) {
-								int pixel = sourceData[rowOffset * dw + colOffset];
+								int pixel = sourceData[rowOffset * sourceSpan + colOffset];
+								int alpha = (pixel >> 24) & 0xFF;
+								if (alpha != 0) {
+									if (alpha != 0xFF) {
+										pixel = combine(data[row * rasterWidth + col], pixel);
+									}
+									data[row * rasterWidth + col] = pixel;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+		Render from a designated region of a compositor into a designated region of the raster, composing with existing
+		contents.
+
+		@param source The compositor that is the source of the pixels.
+		@param sx The X origin of the source region.
+		@param sy The Y origin of the source region.
+		@param dx The X origin of the raster region.
+		@param dy The Y origin of the raster region.
+		@param dw The width of the region.
+		@param dh The height of the region.
+	*/
+
+	public void composeFrom(@NotNull ReusableCompositor source, int sx, int sy, int dx, int dy, int dw, int dh)
+	{
+		ensureConfigured();
+
+		if (data != null) {
+			int[] sourceData = source.data;
+			if (sourceData != null) {
+				isEmpty = false;
+				int sourceWidth = source.getRasterWidth();
+				int sourceHeight = source.getRasterHeight();
+				for (int rowOffset = 0; rowOffset < dh; rowOffset++) {
+					int sourceRow = sy + rowOffset;
+					int row = dy + rowOffset;
+					if (row >= 0 && row < rasterHeight && sourceRow >= 0 && sourceRow < sourceHeight) {
+						for (int colOffset = 0; colOffset < dw; colOffset++) {
+							int sourceColumn = sx + colOffset;
+							int col = dx + colOffset;
+							if (col >= 0 && col < rasterWidth && sourceColumn >= 0 && sourceColumn < sourceWidth) {
+								int pixel = sourceData[sourceRow * sourceWidth + sourceColumn];
 								int alpha = (pixel >> 24) & 0xFF;
 								if (alpha != 0) {
 									if (alpha != 0xFF) {
@@ -406,7 +446,7 @@ public class ReusableCompositor
 		ensureConfigured();
 
 		if (b == null && data != null) {
-			b = createBufferedImage(colorModel, data, rasterWidth, rasterHeight, rasterWidth);
+			b = BasicImageSupport.createImage(data, rasterWidth, rasterHeight);
 		}
 
 		return b;
@@ -424,29 +464,6 @@ public class ReusableCompositor
 		if (im != null) {
 			g.drawImage(im, null, null);
 		}
-	}
-
-	/**
-		Create a color model for INT_ARGB_PRE.
-	*/
-	private static @NotNull ColorModel createColorModel()
-	{
-		return new DirectColorModel(
-			ColorSpace.getInstance(ColorSpace.CS_sRGB),
-			32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000, true, DataBuffer.TYPE_INT
-		);
-	}
-
-	private static @NotNull BufferedImage createBufferedImage(@NotNull ColorModel cm, @NotNull int[] buffer, int w, int h, int scan)
-	{
-		DataBuffer db = new DataBufferInt(buffer, buffer.length);
-		int[] bandMasks = new int[4];
-		bandMasks[0] = 0x00ff0000;
-		bandMasks[1] = 0x0000ff00;
-		bandMasks[2] = 0x000000ff;
-		bandMasks[3] = 0xff000000;
-		WritableRaster r = Raster.createPackedRaster(db, w, h, scan, bandMasks, null);
-		return new BufferedImage(cm, r, true, null);
 	}
 
 	public static void compose(int[] data, int rw, int rh, int x, int y, int pixel)

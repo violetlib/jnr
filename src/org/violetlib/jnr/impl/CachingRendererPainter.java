@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -19,11 +19,24 @@ import org.jetbrains.annotations.*;
 public abstract class CachingRendererPainter
 	extends RendererPainter
 {
-	private static boolean isCachingEnabled = true;
+	private static boolean isCachingEnabled = getDefaultCachingEnabled();
+
+	private static boolean getDefaultCachingEnabled()
+	{
+		String s = System.getProperty("VAqua.enableCaching");
+		if ("false".equals(s)) {
+			System.err.println("VAqua caching disabled");
+			return false;
+		}
+		return true;
+	}
 
 	public static void setCachingEnabled(boolean b)
 	{
-		isCachingEnabled = b;
+		if (b != isCachingEnabled) {
+			isCachingEnabled = b;
+			System.err.println("VAqua caching " + (isCachingEnabled ? "enabled" : "disabled"));
+		}
 	}
 
 	/**

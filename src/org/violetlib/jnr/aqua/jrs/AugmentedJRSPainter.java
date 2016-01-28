@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -24,6 +24,7 @@ import org.violetlib.jnr.aqua.impl.PopUpArrowPainter;
 import org.violetlib.jnr.aqua.impl.PullDownArrowPainter;
 import org.violetlib.jnr.aqua.impl.TableColumnHeaderCellPainterExtension;
 import org.violetlib.jnr.aqua.impl.ThickSplitPaneDividerPainterExtension;
+import org.violetlib.jnr.aqua.impl.ThinSplitPaneDividerPainterExtension;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.jnr.impl.Renderer;
 
@@ -54,6 +55,9 @@ public class AugmentedJRSPainter
 	{
 		if (g.getWidget() == DividerWidget.THICK_DIVIDER) {
 			PainterExtension px = new ThickSplitPaneDividerPainterExtension(g);
+			return Renderer.create(px);
+		} else if (g.getWidget() == DividerWidget.THIN_DIVIDER) {
+			PainterExtension px = new ThinSplitPaneDividerPainterExtension(g);
 			return Renderer.create(px);
 		} else {
 			return super.getSplitPaneDividerRenderer(g);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -54,12 +54,73 @@ static const int TextFieldSearchWithMenuAndCancel = 5;
 static const int RightToLeftSlider = 1002;
 static const int UpsideDownSlider = 1003;
 
-@interface FakeParentWindow : NSWindow
-@end
+// Special codes for non-standard segmented control styles
+static const int NSSegmentStyleSeparated_Rounded = 80;
+static const int NSSegmentStyleSeparated_Textured = 81;
+
+// debug support
+
+static NSString *createIndentation(int indent) {
+  return [@"                                   " substringToIndex: indent];
+}
+
+static NSString *createViewDescription(NSView *v) {
+  if (v) {
+    NSString *description = [v debugDescription];
+    if ([v isKindOfClass: [NSVisualEffectView class]]) {
+      NSVisualEffectView *vv = (NSVisualEffectView*) v;
+      description = [NSString stringWithFormat: @"%@ state=%ld", description, (long) vv.state];
+    }
+    return description;
+  } else {
+    return @"";
+  }
+}
+
+static void viewDebug(NSView *v, NSString *title, int indent) {
+  NSString *titleString = title ? [NSString stringWithFormat: @"%@: ", title] : @"";
+  NSString *od = v.opaque ? @" Opaque" : @"";
+  NSString *viewDescription = createViewDescription(v);
+
+  NSLog(@"%@%@%@%@ %f %f %f %f",
+    createIndentation(indent),
+    titleString, viewDescription, od,
+    v.frame.origin.x, v.frame.origin.y, v.bounds.size.width, v.bounds.size.height);
+
+  for (NSView *sv in v.subviews) {
+    viewDebug(sv, @"", indent+2);
+  }
+}
+
+static NSView *getTopView(NSWindow *w) {
+  NSView *view = w.contentView;
+  while (view != nil) {
+    NSView *parent = view.superview;
+    if (parent == nil) {
+      return view;
+    }
+    view = parent;
+  }
+  return nil;
+}
+
+static void windowDebug(NSWindow *w) {
+  NSString *od = w.opaque ? @" Opaque" : @"";
+  NSRect frame = w.frame;
+  NSLog(@"Window: %@%@ %f %f %f %f", [w description], od,
+    frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
+  NSView *v = getTopView(w);
+  if (v != nil) {
+    viewDebug(v, @"", 2);
+  }
+}
 
 //
 // FakeParentWindow - allow control over the active/inactive status
 //
+
+@interface FakeParentWindow : NSWindow
+@end
 
 @implementation FakeParentWindow
 - (BOOL)isKeyWindow
@@ -89,10 +150,28 @@ static const int UpsideDownSlider = 1003;
 }
 @end
 
+// Support for views that display differently in toolbars
+
+@interface NSView (NSViewPrivate)
+- (int)_semanticContext;
+@end
+
+@interface MyFakeToolbarContainer : NSView
+- (int)_semanticContext;
+@end
+
+@implementation MyFakeToolbarContainer
+- (int)_semanticContext
+{
+  return 5;
+}
+@end
 
 static FakeParentWindow *fakeParentWindow;
+static FakeParentWindow *fakeTexturedWindow;
 static FakeParentWindow *fakeDocumentWindow;
 static MyPanel *myPanel;
+static MyFakeToolbarContainer *fakeToolbarContainer;
 
 static void init()
 {
@@ -100,6 +179,17 @@ static void init()
 		NSRect rect = NSMakeRect(0, 0, 10000, 10000);
 		fakeParentWindow = [[FakeParentWindow alloc] initWithContentRect: rect
 			styleMask: NSBorderlessWindowMask
+			backing: NSBackingStoreNonretained
+			defer: YES
+			];
+	}
+
+  // A textured window background is needed for textured separated segmented controls and
+  // for inactive textured segmented controls.
+	if (!fakeTexturedWindow) {
+		NSRect rect = NSMakeRect(0, 0, 10000, 10000);
+		fakeTexturedWindow = [[FakeParentWindow alloc] initWithContentRect: rect
+			styleMask: NSTexturedBackgroundWindowMask
 			backing: NSBackingStoreNonretained
 			defer: YES
 			];
@@ -122,6 +212,28 @@ static void init()
 			defer: YES
 			];
 	}
+
+	if (!fakeToolbarContainer) {
+		NSRect rect = NSMakeRect(0, 0, 9000, 9000);
+		fakeToolbarContainer = [[MyFakeToolbarContainer alloc] initWithFrame: rect];
+	}
+}
+
+// Support for views that display differently in toolbars
+
+static void installContentViewInWindow(FakeParentWindow *window, NSView *view, BOOL inToolbar)
+{
+  if (inToolbar) {
+    [fakeToolbarContainer addSubview: view];
+    window.contentView = fakeToolbarContainer;
+  } else {
+    window.contentView = view;
+  }
+}
+
+static void installContentView(NSView *view, BOOL inToolbar)
+{
+  installContentViewInWindow(fakeParentWindow, view, inToolbar);
 }
 
 @interface FakeButton : NSButton
@@ -179,29 +291,29 @@ static NSGraphicsContext *setupRaw(int *data, int rw, int rh, int w, int h)
  	[NSGraphicsContext setCurrentContext: currentGraphicsContext];
 	init();
 	NSRect frameRect = NSMakeRect(0, 0, w, h);
-	[fakeParentWindow setStyleMask: 0];
 	[fakeParentWindow setFrame: frameRect display: NO];
+	[fakeTexturedWindow setFrame: frameRect display: NO];
 	return currentGraphicsContext;
 }
 
 static NSGraphicsContext *setup(JNIEnv *env, jintArray data, jint rw, jint rh, jfloat w, jfloat h)
 {
 	pixelData = data;
-    jboolean isCopy = JNI_FALSE;
-    rawPixelData = (*env)->GetPrimitiveArrayCritical(env, data, &isCopy);
-    if (rawPixelData) {
+  jboolean isCopy = JNI_FALSE;
+  rawPixelData = (*env)->GetPrimitiveArrayCritical(env, data, &isCopy);
+  if (rawPixelData) {
 		return setupRaw(rawPixelData, rw, rh, w, h);
 	} else {
 		return NULL;
 	}
 }
 
-static void cleanup(JNIEnv *env)
+static void cleanupGraphics(JNIEnv *env)
 {
 	if (rawPixelData) {
 		(*env)->ReleasePrimitiveArrayCritical(env, pixelData, rawPixelData, 0);
 		rawPixelData = NULL;
-	}	
+	}
 
 	pixelData = NULL;
 
@@ -209,15 +321,30 @@ static void cleanup(JNIEnv *env)
 		[NSGraphicsContext restoreGraphicsState];
 		currentGraphicsContext = NULL;
 	}
-	
+
 	if (currentCGContext) {
 		CGContextRelease(currentCGContext);
 		currentCGContext = NULL;
 	}
+}
+
+static void cleanup(JNIEnv *env)
+{
+  cleanupGraphics(env);
 
 	if (fakeParentWindow) {
 		[fakeParentWindow setContentView: NULL];
 	}
+
+	if (fakeTexturedWindow) {
+		[fakeTexturedWindow setContentView: NULL];
+	}
+
+  if (fakeToolbarContainer) {
+    for (NSView *sv in fakeToolbarContainer.subviews) {
+      [sv removeFromSuperview];
+    }
+  }
 }
 
 static void setControlSize(NSView* v, int sz)
@@ -225,7 +352,7 @@ static void setControlSize(NSView* v, int sz)
 	// Large not supported
 
 	NSControlSize size = NSRegularControlSize;
-	
+
 	switch (sz)
 	{
 		case MiniSize:
@@ -246,7 +373,7 @@ static void setControlSize(NSView* v, int sz)
 			//NSLog(@"setControlSize: is not defined on %@", v);
 		}
 	}
-	
+
 	if ([v respondsToSelector: @selector(setFont:)]) {
 		[(id)v setFont: [NSFont systemFontOfSize: [NSFont systemFontSizeForControlSize: size]]];
 	}
@@ -363,9 +490,9 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h,
   	jint buttonType, jint bezelStyle, jint sz, jint st, jboolean isFocused, jint value, jint layoutDirection)
 {
-  	COCOA_ENTER(env);
-	NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
-    if (gc) {
+  COCOA_ENTER(env);
+  NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
+  if (gc) {
 
 		NSRect frameRect = NSMakeRect(0, 0, w, h);
 
@@ -375,12 +502,18 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 			[buttonView setFrame: frameRect];
 		}
 
-		[fakeParentWindow setContentView: buttonView];
-
 		BOOL isHighlight = NO;
 		BOOL allowsMixedState = NO;
 		BOOL shouldPaint = YES;
-		
+		BOOL inToolbar = NO;
+
+		if (bezelStyle >= 1000) {
+		  inToolbar = YES;
+		  bezelStyle -= 1000;
+		}
+
+    installContentView(buttonView, inToolbar);
+
 		if (value == 2) {
 			allowsMixedState = YES;
 			value = -1;
@@ -402,7 +535,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 			[fakeParentWindow setDefaultButtonCell: [buttonView cell]];
 
 		} else if (st == PressedState) {
-		
+
 			isHighlight = YES;
 
 		}
@@ -417,7 +550,6 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 			[buttonView highlight: isHighlight];
 			[buttonView setTitle: @""];
 			[[buttonView cell] setUserInterfaceLayoutDirection: layoutDirection];
-
 			[buttonView displayRectIgnoringOpacity: frameRect inContext: gc];
 		}
 
@@ -428,7 +560,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 		}
 
 		cleanup(env);
-    }
+  }
 	COCOA_EXIT(env);
 }
 
@@ -468,6 +600,17 @@ static const int SEGMENT_POSITION_MIDDLE = 1;
 static const int SEGMENT_POSITION_LAST = 2;
 static const int SEGMENT_POSITION_ONLY = 3;
 
+// array indexes for debugging output
+
+static const int DEBUG_SEGMENT_WIDTH = 0;
+static const int DEBUG_SEGMENT_HEIGHT = 1;
+static const int DEBUG_SEGMENT_X_OFFSET = 2;
+static const int DEBUG_SEGMENT_Y_OFFSET = 3;
+static const int DEBUG_SEGMENT_DIVIDER_WIDTH = 4;
+static const int DEBUG_SEGMENT_OUTER_LEFT_INSET = 5;
+static const int DEBUG_SEGMENT_LEFT_INSET = 6;
+static const int DEBUG_SEGMENT_RIGHT_INSET = 7;
+
 /*
  * Class:     org_violetlib_jnr_aqua_impl_AquaNativePainter
  * Method:    nativePaintSegmentedButton
@@ -475,185 +618,247 @@ static const int SEGMENT_POSITION_ONLY = 3;
  */
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintSegmentedButton
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h,
-  	jint segmentStyle, jint segmentPosition, jint sz, jint st, jboolean isFocused, jint flags)
+  	jint segmentStyle, jint segmentPosition, jint sz, jint st, jboolean isFocused, jint flags,
+  	jfloatArray debugOutput, jintArray debugData)
 {
-  	COCOA_ENTER(env);
+  COCOA_ENTER(env);
+
+  FakeParentWindow *window = fakeParentWindow;
+
+  //NSLog(@"Segmented button %d", segmentStyle);  // debug
+
+  BOOL is1x = rw == w;
+  BOOL isElCap = floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_10_Max;
+  BOOL isLeft = segmentPosition == SEGMENT_POSITION_ONLY || segmentPosition == SEGMENT_POSITION_FIRST;
+
+  // The following layout parameters are hand tuned and must be kept in sync with the actual painting. They describe
+  // empty space on either end of the segmented control relative to the control frame.
+
+  float dividerWidth = 1;		// width of the dividers
+  float outerLeftInset = 0;	// width of empty space on the left side of the control
+  float leftInset = 3;      // extra space on the left side of the control that is not part of a segment
+  float rightInset = 3;     // extra space on the right side of the control that is not part of a segment
+  float topInset = 0;
+
+  if (isElCap && !is1x) {
+    outerLeftInset = 0.5f;
+  }
+
+  BOOL inToolbar = NO;
+  if (segmentStyle >= 1000) {
+    inToolbar = YES;
+    segmentStyle -= 1000;
+  }
+
+  jint originalSegmentStyle = segmentStyle;
+
+  if (segmentStyle == NSSegmentStyleSeparated_Rounded) {
+    segmentStyle = NSSegmentStyleSeparated;
+  } else if (segmentStyle == NSSegmentStyleSeparated_Textured) {
+    segmentStyle = NSSegmentStyleSeparated;
+    window = fakeTexturedWindow;
+  } else if (segmentStyle == NSSegmentStyleTexturedSquare) {
+    window = fakeTexturedWindow;
+  }
+
+  //NSLog(@" displayed style %d", segmentStyle);  // debug
+  //NSLog(@" state %d, flags %d", st, flags);  // debug
+  //NSLog(@" requested width %f", w); // debug
+
+  if (segmentStyle == NSSegmentStyleRounded || originalSegmentStyle == NSSegmentStyleSeparated_Rounded) {
+    // Push button and tab style
+    switch (sz) {
+      case RegularSize: leftInset = is1x ? 1 : 1.5f; rightInset = is1x ? 1 : 0.5f; outerLeftInset = 2; break;
+      case SmallSize:   leftInset = is1x ? 1 : 1.5f; rightInset = is1x ? 1 : 0.5f; outerLeftInset = 2; topInset = -0.49f; break;
+      case MiniSize:    leftInset = is1x ? 2 : 2.5f; rightInset = is1x ? 2 : 1.5f; outerLeftInset = 1; break;
+    }
+    if (isElCap && !is1x) {
+      leftInset += 0.5f;
+      outerLeftInset -= 0.5f;
+    }
+  } else if (segmentStyle == NSSegmentStyleRoundRect) {
+    // Inset style
+    leftInset = is1x ? 2 : 2.5f;
+    rightInset = is1x ? 2 : 1.5f;
+    outerLeftInset = 1;
+    if (isElCap && !is1x) {
+      leftInset += 0.5f;
+      outerLeftInset -= 0.5f;
+    }
+  } else if (segmentStyle == NSSegmentStyleCapsule) {
+    // S-Curve style (like textured except for layout)
+    leftInset = is1x ? 3 : 3.5f;
+    rightInset = is1x ? 3 : 2.5f;
+    if (isElCap && !is1x) {
+      leftInset += 0.5f;
+      rightInset -= 0.5f;
+      outerLeftInset -= 0.5f;
+    }
+  } else if (segmentStyle == NSSegmentStyleTexturedRounded) {
+    // Rounded textured style (aka toolbar)
+    if (sz == RegularSize) {
+      leftInset = is1x ? 3 : 3.5f;
+      rightInset = is1x ? 3 : 2.5f;
+    } else {
+      leftInset = is1x ? 1 : 1.5f;
+      rightInset = is1x ? 1 : 0.5f;
+    }
+    if (isElCap && !is1x) {
+      leftInset += 0.5f;
+      rightInset -= 0.5f;
+      outerLeftInset -= 0.5f;
+    }
+  } else if (segmentStyle == NSSegmentStyleTexturedSquare) {
+    // Normal textured style
+    if (isElCap) {
+      leftInset = is1x ? 1 : inToolbar ? 1 : 2;
+      rightInset = is1x ? 1 : 0;
+      if (!inToolbar) {
+        // The 0.5 point outer left inset does not work on El Capitan if the control is not in a toolbar.
+        outerLeftInset = 0;
+      }
+    } else {
+      leftInset = is1x ? 1 : 1.5f;
+      rightInset = is1x ? 1 : 0.5f;
+    }
+  } else if (originalSegmentStyle == NSSegmentStyleSeparated_Textured) {
+    // Separated textured style
+    if (sz == RegularSize) {
+      leftInset = is1x ? 3 : 3.5f;
+      rightInset = is1x ? 3 : 2.5f;
+    } else {
+      leftInset = is1x ? 1 : 1.5f;
+      rightInset = is1x ? 1 : 0.5f;
+    }
+    if (isElCap && !is1x) {
+      leftInset -= 0.5f;
+      rightInset -= 1;
+    }
+  } else if (segmentStyle == NSSegmentStyleSmallSquare) {
+    // Square style
+    outerLeftInset = 0;
+    leftInset = rightInset = 1;
+  }
+
+  // A segmented control with one segment is painted directly.
+
+  // Otherwise, we create a segmented control large enough for four segments and render it into the buffer.
+  // The four segments correspond to the three possible position based renderings with an option for
+  // whether the middle segment is next to a selected segment or not.
+  // We set the user space of the graphics context so that we capture the appropriate region in the buffer.
+
+  // The segment width will be less than the provided width because the provided width includes
+  // space for a border and/or a divider.
+
+  // All the dividers will be painted, but only the desired ones are included in the requested bounds.
+
+  // Right to left orientation is not supported. Not sure it needs to be here.
+
+  float otherSegmentWidth = 40;
+
+  float segmentWidth;
+  int segmentIndex;
+  int selectedSegmentIndex = -1;
+
+  float xOffset = 0;
+  float widthAdjustment = 0;
+
+  float cw;
+
+  if (segmentPosition == SEGMENT_POSITION_ONLY) {
+    cw = w + outerLeftInset;
+  } else {
+    if (segmentPosition == SEGMENT_POSITION_FIRST) {
+      segmentIndex = 0;
+      segmentWidth = w - leftInset;
+    } else if (segmentPosition == SEGMENT_POSITION_MIDDLE) {
+      segmentIndex = 1;
+      segmentWidth = w;
+    } else if (segmentPosition == SEGMENT_POSITION_LAST) {
+      segmentIndex = 3;
+      segmentWidth = w - rightInset;
+    } else {
+      // should not happen
+      @throw([NSException exceptionWithName: NSInvalidArgumentException reason: @"Invalid segment position parameter" userInfo: nil]);
+    }
+
+    // Multiple selection is not supported
+
+    if (flags & SEGMENT_FLAG_IS_SELECTED) {
+      selectedSegmentIndex = segmentIndex;
+    } else if (flags & SEGMENT_FLAG_IS_LEFT_NEIGHBOR_SELECTED) {
+      if (segmentIndex > 0) {
+        selectedSegmentIndex = segmentIndex - 1;
+      }
+    } else if (flags & SEGMENT_FLAG_IS_RIGHT_NEIGHBOR_SELECTED) {
+      if (segmentIndex == 1) {
+        segmentIndex = 2;
+        selectedSegmentIndex = 3;
+      } else if (segmentIndex == 0) {
+        selectedSegmentIndex = 1;
+      }
+    }
+
+    if (segmentIndex > 0) {
+      // the width of the left segment is otherSegmentWidth + leftInset
+      xOffset = leftInset + segmentIndex * (otherSegmentWidth + dividerWidth);
+      widthAdjustment += leftInset;
+    }
+
+    if (segmentIndex < 3) {
+      // the width of the right segment is otherSegmentWidth + rightInset
+      widthAdjustment += rightInset;
+    }
+
+    if (segmentIndex > 0 && (flags & SEGMENT_FLAG_DRAW_LEADING_SEPARATOR) != 0) {
+      xOffset -= dividerWidth;
+      segmentWidth -= dividerWidth;
+      widthAdjustment -= dividerWidth;
+    }
+
+    if (segmentIndex < 3 && (flags & SEGMENT_FLAG_DRAW_TRAILING_SEPARATOR) != 0) {
+      segmentWidth -= dividerWidth;
+      widthAdjustment -= dividerWidth;
+    }
+
+    cw = outerLeftInset + w + 3 * (dividerWidth + otherSegmentWidth) + widthAdjustment;
+  }
+
+  float ch = h + topInset;
+
 	NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
+  if (gc) {
 
-    if (gc) {
+    NSRect controlFrame = NSMakeRect(0, 0, cw, ch);
+    [window setFrame: controlFrame display: NO];
 
-		// The following layout parameters are hand tuned and must be kept in sync with the
-		// actual painting. They describe empty space on either end of the segmented control
-		// relative to the control frame.
-
-		float leftInset = 3;		// extra space in the control not part of a segment
-		float rightInset = 3;
-		float dividerWidth = 1;		// width of the dividers
-		float outerLeftInset = 0;	// width of empty space on the left side
-		float yOffset = 0;
-
-		if (segmentStyle == NSSegmentStyleRounded) {	// standard buttons and tabs
-			switch (sz) {
-				case RegularSize:	leftInset = 2; rightInset = 0.51f; outerLeftInset = 1.49f; break;
-				case SmallSize:    	leftInset = 2; rightInset = 0.51f; outerLeftInset = 1.49f; yOffset = 0.5f; break;
-				case MiniSize:     	leftInset = 2; rightInset = 1.51f; outerLeftInset = 1.49f; break;
-			}
-		} else if (segmentStyle == NSSegmentStyleRoundRect) {	// inset
-			leftInset = 3;
-			rightInset = 2;
-			outerLeftInset = 0.49f;
-		} else if (segmentStyle == NSSegmentStyleCapsule
-			|| segmentStyle == NSSegmentStyleTexturedRounded
-			|| segmentStyle == 8 /* NSSegmentStyleSeparated */) {
-			outerLeftInset = -0.49f; 
-			switch (sz) {
-				// The actual regular insets are 3.5 and 2.5. We round up and
-				// compensate with an outer inset.
-				case RegularSize:	leftInset = 4; rightInset = 3; break;
-				case SmallSize:    	leftInset = 2; rightInset = 1; break;
-				case MiniSize:     	leftInset = 2; rightInset = 1; break;
-			}
-		} else if (segmentStyle == NSSegmentStyleTexturedSquare) {
-			outerLeftInset = -0.49f; 
-			switch (sz) {
-				case RegularSize:	leftInset = 2; rightInset = 1; break;
-				case SmallSize:    	leftInset = 2; rightInset = 1; break;
-				case MiniSize:     	leftInset = 2; rightInset = 1; break;
-			}
-		} else if (segmentStyle == NSSegmentStyleSmallSquare) {
-			switch (sz) {
-				case RegularSize:	leftInset = 1; rightInset = 1; break;
-				case SmallSize:    	leftInset = 1; rightInset = 1; break;
-				case MiniSize:     	leftInset = 1; rightInset = 1; break;
-			}
-		}
-
-		if (segmentStyle == NSSegmentStyleTexturedSquare
-			|| segmentStyle == NSSegmentStyleCapsule
-			|| segmentStyle == NSSegmentStyleTexturedRounded
-			|| segmentStyle == 8 /* NSSegmentStyleSeparated */) {
-			[fakeParentWindow setStyleMask: NSTexturedBackgroundWindowMask];
-		}
+    NSSegmentedControl *view;
 
 		if (segmentPosition == SEGMENT_POSITION_ONLY) {
-			// A segmented control with one segment is painted directly
-			
-			float cw = w + outerLeftInset;
 
-		 	NSRect controlFrame = NSMakeRect(0, 0, cw, h);
-			[fakeParentWindow setFrame: controlFrame display: NO];
-
+			// Create and configure the segmented control
 			if (segmentedControl == nil) {
 				segmentedControl = [[NSSegmentedControl alloc] initWithFrame: controlFrame];
 				[segmentedControl setUserInterfaceLayoutDirection: NSUserInterfaceLayoutDirectionLeftToRight];
 				[segmentedControl setSegmentCount: 1];
 				[segmentedControl setLabel: @"" forSegment: 0];
-			} else {
-				[segmentedControl setFrame: controlFrame];
 			}
 
-			[fakeParentWindow setContentView: segmentedControl];
-			[segmentedControl setSegmentStyle: segmentStyle];
+      view = segmentedControl;
 
 			// setting the segment width is tricky
 			// zero means fit to the text, which is not what I want
 			// however, w is the control width, and the control is wider than the segment
 
-			int segmentWidth = w - (leftInset + rightInset);
+			segmentWidth = w - (leftInset + rightInset);
 
-			setControlSize(segmentedControl, sz);
-			setControlState(segmentedControl, st);
-			[segmentedControl setWidth: segmentWidth forSegment: 0];
-			[segmentedControl setSelected: (flags & SEGMENT_FLAG_IS_SELECTED) forSegment: 0];
-			[segmentedControl setEnabled: st != 2 forSegment: 0];
-
-			NSAffineTransform* xform = [NSAffineTransform transform];
-			[xform translateXBy: -outerLeftInset yBy: -yOffset];
-			[xform concat];
-			[segmentedControl displayRectIgnoringOpacity: controlFrame inContext: currentGraphicsContext];
-			segmentedControl = nil;
+			[view setWidth: segmentWidth forSegment: 0];
+			[view setSelected: (flags & SEGMENT_FLAG_IS_SELECTED) forSegment: 0];
+			[view setEnabled: isEnabled forSegment: 0];
 
 		} else {
-			// Create a segmented control large enough for four segments and render it into the buffer.
-			// The four segments correspond to the three possible position based renderings with an option for
-			// whether the middle segment is next to a selected segment or not.
-			// Set the user space of the graphics context so that we capture the appropriate region in the buffer.
-
-			// The segment width will be less than the provided width because the provided width includes
-			// space for a border and/or a divider.
-
-			// All the dividers will be painted, but only the desired ones are included in the requested bounds.
-			
-			// Right to left orientation is not supported. Not sure it needs to be here.
-
-			int segmentWidth;
-			int segmentIndex;
-			int selectedSegmentIndex = -1;
-
-			if (segmentPosition == SEGMENT_POSITION_FIRST) {
-				segmentIndex = 0;
-				segmentWidth = w - leftInset;
-			} else if (segmentPosition == SEGMENT_POSITION_MIDDLE) {
-				segmentIndex = 1;
-				segmentWidth = w;
-			} else if (segmentPosition == SEGMENT_POSITION_LAST) {
-				segmentIndex = 3;
-				segmentWidth = w - rightInset;
-			} else {
-				// should not happen
-				@throw([NSException exceptionWithName: NSInvalidArgumentException reason: @"Invalid segment position parameter" userInfo: nil]);
-			}
-
-			// Multiple selection is not supported
-
-			if (flags & SEGMENT_FLAG_IS_SELECTED) {
-				selectedSegmentIndex = segmentIndex;
-			} else if (flags & SEGMENT_FLAG_IS_LEFT_NEIGHBOR_SELECTED) {
-				if (segmentIndex > 0) {
-					selectedSegmentIndex = segmentIndex - 1;
-				}
-			} else if (flags & SEGMENT_FLAG_IS_RIGHT_NEIGHBOR_SELECTED) {
-				if (segmentIndex == 1) {
-					segmentIndex = 2;
-					selectedSegmentIndex = 3;
-				} else if (segmentIndex == 0) {
-					selectedSegmentIndex = 1;
-				}
-			}
-
-			float xOffset = 0;
-			float widthAdjustment = 0;
-
-			if (segmentIndex > 0) {
-				// the width of the left segment is 100 + leftInset
-				xOffset = leftInset + segmentIndex * (100 + dividerWidth);
-				widthAdjustment += leftInset;
-			}
-
-			if (segmentIndex < 3) {
-				// the width of the right segment is 100 + rightInset
-				widthAdjustment += rightInset;
-			}
-
-			if (segmentIndex > 0 && (flags & SEGMENT_FLAG_DRAW_LEADING_SEPARATOR) != 0) {
-				xOffset -= dividerWidth;
-				segmentWidth -= dividerWidth;
-				widthAdjustment -= dividerWidth;
-			}
-			
-			if (segmentIndex < 3 && (flags & SEGMENT_FLAG_DRAW_TRAILING_SEPARATOR) != 0) {
-				segmentWidth -= dividerWidth;
-				widthAdjustment -= dividerWidth;
-			}
-
-			float cw = outerLeftInset + w + 3 * (dividerWidth + 100) + widthAdjustment;
-		 	NSRect controlFrame = NSMakeRect(0, 0, cw, h);
-			[fakeParentWindow setFrame: controlFrame display: NO];
-
-			//NSLog(@"I=%d L=%f X=%f W=%f F=%x", segmentIndex, outerLeftInset, xOffset, cw, flags);
 
 			// Create and configure the segmented control
-
 			if (segmentedControl4 == nil) {
 				segmentedControl4 = [[NSSegmentedControl alloc] initWithFrame: controlFrame];
 				[segmentedControl4 setUserInterfaceLayoutDirection: NSUserInterfaceLayoutDirectionLeftToRight];
@@ -662,43 +867,94 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 				[segmentedControl4 setLabel: @"" forSegment: 1];
 				[segmentedControl4 setLabel: @"" forSegment: 2];
 				[segmentedControl4 setLabel: @"" forSegment: 3];
-			} else {
-				[segmentedControl4 setFrame: controlFrame];
 			}
 
-			float testFactor = 1;	// should be 1, reduce to see more of the control for testing
-			float width = 100 * testFactor;
+      view = segmentedControl4;
 
-			[fakeParentWindow setContentView: segmentedControl4];
-			[segmentedControl4 setSegmentStyle: segmentStyle];
-			setControlSize(segmentedControl4, sz);
-			setControlState(segmentedControl4, st);
-			[segmentedControl4 setWidth: width forSegment: 0];
-			[segmentedControl4 setWidth: width forSegment: 1];
-			[segmentedControl4 setWidth: width forSegment: 2];
-			[segmentedControl4 setWidth: width forSegment: 3];
-			[segmentedControl4 setWidth: segmentWidth * testFactor forSegment: segmentIndex];
-			[segmentedControl4 setEnabled: st != 2 forSegment: 0];
-			[segmentedControl4 setEnabled: st != 2 forSegment: 1];
-			[segmentedControl4 setEnabled: st != 2 forSegment: 2];
-			[segmentedControl4 setEnabled: st != 2 forSegment: 3];
-			[segmentedControl4 setSelected: NO forSegment: 0];
-			[segmentedControl4 setSelected: NO forSegment: 1];
-			[segmentedControl4 setSelected: NO forSegment: 2];
-			[segmentedControl4 setSelected: NO forSegment: 3];
+			[view setWidth: otherSegmentWidth forSegment: 0];
+			[view setWidth: otherSegmentWidth forSegment: 1];
+			[view setWidth: otherSegmentWidth forSegment: 2];
+			[view setWidth: otherSegmentWidth forSegment: 3];
+			[view setWidth: segmentWidth forSegment: segmentIndex];
+			[view setEnabled: isEnabled forSegment: 0];
+			[view setEnabled: isEnabled forSegment: 1];
+			[view setEnabled: isEnabled forSegment: 2];
+			[view setEnabled: isEnabled forSegment: 3];
+			[view setSelected: NO forSegment: 0];
+			[view setSelected: NO forSegment: 1];
+			[view setSelected: NO forSegment: 2];
+			[view setSelected: NO forSegment: 3];
 			if (selectedSegmentIndex >= 0) {
-				[segmentedControl4 setSelected: YES forSegment: selectedSegmentIndex];
+				[view setSelected: YES forSegment: selectedSegmentIndex];
 			}
-			
-			NSAffineTransform* xform = [NSAffineTransform transform];
-			[xform translateXBy: -(outerLeftInset + xOffset) yBy: -yOffset];
-			[xform concat];
-			[segmentedControl4 displayRectIgnoringOpacity: controlFrame inContext: currentGraphicsContext];
-			segmentedControl4 = nil;
 		}
 
-		cleanup(env);
+    [view setFrame: controlFrame];
+    installContentViewInWindow(window, view, inToolbar);
+    [view setSegmentStyle: segmentStyle];
+    setControlSize(view, sz);
+    setControlState(view, st);
+
+//    NSLog(@"Segmented control: %@ style: %ld mode: %ld width: %f",
+//          [view description],
+//          (long) view.segmentStyle,
+//          (long) view.trackingMode,
+//          cw);
+//    NSInteger segmentCount = view.segmentCount;
+//    for (NSInteger i = 0; i < segmentCount; i++) {
+//      CGFloat sw = [view widthForSegment: i];
+//      NSLog(@"  %f", sw);
+//    }
+
+    NSAffineTransform* xform = [NSAffineTransform transform];
+    [xform translateXBy: -(outerLeftInset + xOffset) yBy: topInset];
+    [xform concat];
+    [view displayRectIgnoringOpacity: controlFrame inContext: currentGraphicsContext];
+
+    // If requested, return an image of the entire control.
+
+    int crw = 0;    // raster width in pixels
+    int crh = 0;    // raster height in pixels
+
+    if (debugData) {
+      cleanupGraphics(env);
+
+      cw = ceil(cw);
+      ch = ceil(ch);
+
+      float xScale = rw / w;
+      float yScale = rh / h;
+      crw = (int) (xScale * cw);
+      crh = (int) (yScale * ch);
+
+      //NSLog(@"Creating debug image %d %d", crw, crh);
+
+      NSGraphicsContext *gc = setup(env, debugData, crw, crh, cw, ch);
+      if (gc) {
+        [view displayRectIgnoringOpacity: controlFrame inContext: currentGraphicsContext];
+      }
     }
+
+    if (debugOutput) {
+      jfloat *a = (*env)->GetFloatArrayElements(env, debugOutput, NULL);
+      if (a) {
+        a[DEBUG_SEGMENT_WIDTH] = crw;
+        a[DEBUG_SEGMENT_HEIGHT] = crh;
+        a[DEBUG_SEGMENT_X_OFFSET] = outerLeftInset + xOffset;
+        a[DEBUG_SEGMENT_Y_OFFSET] = topInset;
+        a[DEBUG_SEGMENT_DIVIDER_WIDTH] = dividerWidth;
+        a[DEBUG_SEGMENT_OUTER_LEFT_INSET] = outerLeftInset;
+        a[DEBUG_SEGMENT_LEFT_INSET] = leftInset;
+        a[DEBUG_SEGMENT_RIGHT_INSET] = rightInset;
+        (*env)->ReleaseFloatArrayElements(env, debugOutput, a, 0);
+      }
+    }
+
+    segmentedControl = nil;
+    segmentedControl4 = nil;
+
+		cleanup(env);
+  }
 	COCOA_EXIT(env);
 }
 
@@ -711,7 +967,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
   (JNIEnv *env, jclass cl, jint segmentStyle, jint sz)
 {
 	jint result = -1;
-	
+
   	COCOA_ENTER(env);
 
 	init();
@@ -768,7 +1024,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 	}
 
 	COCOA_EXIT(env);
-	
+
 	return result;
 }
 
@@ -790,7 +1046,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
 	// This test uses knowledge of the platform that certain types of buttons have a
 	// fixed width when no title is used.
-	
+
 	if (bezelStyle == NSHelpButtonBezelStyle || buttonType == NSSwitchButton || buttonType == NSRadioButton) {
 		float originalWidth = 1000;
 		float originalHeight = 1000;
@@ -808,7 +1064,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 	}
 
 	COCOA_EXIT(env);
-	
+
 	return result;
 }
 
@@ -818,13 +1074,23 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
  * Signature: ([IIIIIIII)V
  */
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintComboBox
-  (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint type, jint sz, jint st, jint layoutDirection)
+  (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint type, jint sz, jint st, jint bezelStyle, jint layoutDirection)
 {
 	COCOA_ENTER(env);
 	NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
-    if (gc) {
+  if (gc) {
 
 		// TBD: pressed and inactive states are not drawn correctly
+
+		BOOL inToolbar = NO;
+
+		if (bezelStyle >= 1000) {
+		  inToolbar = YES;
+		  bezelStyle -= 1000;
+		}
+
+    // Note: as of 10.11.3, NSTexturedComboBox always uses the toolbar rendering. Thus a textured non-toolbar combo box
+    // is clipped at the top and bottom.
 
 		// Define the width of the region to paint when painting the indicator only or the arrows only.
 		// Note that these widths may include an inset.
@@ -838,8 +1104,24 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 		jboolean drawTextBackground = st != DisabledState && st != DisabledInactiveState;
 
 		NSRect frameRect = NSMakeRect(0, 0, w, h);
-		NSComboBox* view = [[NSComboBox alloc] initWithFrame: frameRect];
-		[fakeParentWindow setContentView: view];
+		NSComboBox* view;
+
+    if (bezelStyle == NSTexturedRoundedBezelStyle) {
+      Class c = NSClassFromString(@"NSTexturedComboBox");
+      //NSLog(@"Instantiating class %@", c);
+		  view = [[c alloc] initWithFrame: frameRect];
+      //NSLog(@"Cell is %@", view.cell);
+      Class cc = NSClassFromString(@"NSTexturedComboBoxCell");
+      //NSLog(@"Instantiating class %@", cc);
+      NSCell *cell = [[cc alloc] init];
+      //NSLog(@"Cell is %@", cell);
+      view.cell = cell;
+      view.stringValue = @"";
+    } else {
+      view = [[NSComboBox alloc] initWithFrame: frameRect];
+    }
+
+    installContentView(view, inToolbar);
 		setControlSize(view, sz);
 		setControlState(view, st);
 		[view setButtonBordered: type != 2 /* ARROWS_ONLY */ ];
@@ -854,7 +1136,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 		}
 		[view displayRectIgnoringOpacity: frameRect inContext: gc];
 		cleanup(env);
-    }
+  }
 	COCOA_EXIT(env);
 }
 
@@ -869,10 +1151,18 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 {
 	COCOA_ENTER(env);
 	NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
-    if (gc) {
+  if (gc) {
 		NSRect frameRect = NSMakeRect(0, 0, w, h);
 		NSPopUpButton* view = [[NSPopUpButton alloc] initWithFrame: frameRect pullsDown: !isUp];
-		[fakeParentWindow setContentView: view];
+
+		BOOL inToolbar = NO;
+
+		if (bezelStyle >= 1000) {
+		  inToolbar = YES;
+		  bezelStyle -= 1000;
+		}
+
+    installContentView(view, inToolbar);
 
 		// bezelStyle 0 is for cells (borderless)
 		// A recessed button border should be drawn only in the rollover state.
@@ -931,7 +1221,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintGroupBox
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint titlePosition, jint state, jboolean isFrameOnly)
 {
-  	COCOA_ENTER(env);
+  COCOA_ENTER(env);
 	NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
     if (gc) {
 		NSRect frameRect = NSMakeRect(0, 0, w, h);
@@ -943,7 +1233,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 		[view setTitle: @""];
 		[view displayRectIgnoringOpacity: frameRect inContext: gc];
 		cleanup(env);
-    }
+  }
 	COCOA_EXIT(env);
 }
 
@@ -988,12 +1278,18 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintTextField
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint sz, jint state, jint type)
 {
-  	COCOA_ENTER(env);
+  COCOA_ENTER(env);
 	NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
-    if (gc) {
+  if (gc) {
 		NSRect frameRect = NSMakeRect(0, 0, w, h);
 		NSTextField* view;
-		
+
+    BOOL inToolbar = NO;
+    if (type >= 1000) {
+      inToolbar = YES;
+      type -= 1000;
+    }
+
 		// In OS X 10.11 can do [searchField setCentersPlaceholder: NO];
 
 		// TBD: The cancel button is too dark. Do not know why.
@@ -1009,14 +1305,14 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 				//NSButtonCell *cbcell = [cell cancelButtonCell];
 				//[cbcell setEnabled: NO];
 			}
-			
+
 			if (type == TextFieldSearchWithMenu || type == TextFieldSearchWithMenuAndCancel) {
 				// show the menu icon
 				// TBD: this is not working
 				// Probably need to field to be focused
 				NSMenu *cellMenu = [[NSMenu alloc] initWithTitle: @"Dummy"];
 				NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:@"Clear" action:NULL keyEquivalent:@""];
-    			[item setTag:NSSearchFieldClearRecentsMenuItemTag];
+    		[item setTag:NSSearchFieldClearRecentsMenuItemTag];
 				[cellMenu insertItem:item atIndex:0];
 				[cell setSearchMenuTemplate:cellMenu];
 			}
@@ -1030,14 +1326,14 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 			}
 		}
 
-		[fakeParentWindow setContentView: view];
+		installContentView(view, inToolbar);
 
 		setControlSize(view, sz);
 		setControlState(view, state);
 
 		[view displayRectIgnoringOpacity: frameRect inContext: gc];
 		cleanup(env);
-    }
+  }
 	COCOA_EXIT(env);
 }
 
@@ -1058,13 +1354,13 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 - (NSView *)tableView:(NSTableView *)tableView
    viewForTableColumn:(NSTableColumn *)tableColumn
                   row:(NSInteger)row {
- 
+
     // Get an existing cell with the MyView identifier if it exists
     NSTextField *result = [tableView makeViewWithIdentifier:@"MyView" owner:self];
- 
+
     // There is no existing cell to reuse so create a new one
     if (result == nil) {
- 
+
 		// Create the new NSTextField with a frame of the {0,0} with the width of the table.
 		// Note that the height of the frame is not really relevant, because the row height will modify the height.
 		result = [[NSTextField alloc] initWithFrame: NSMakeRect(0, 0, 100, 0)];
@@ -1097,7 +1393,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintTableColumnHeader
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint state, jint direction, jboolean isSelected, jint layoutDirection)
 {
-  	COCOA_ENTER(env);
+  COCOA_ENTER(env);
 
 	NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
     if (gc) {
@@ -1232,7 +1528,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint sliderType, jint sz, jint state,
   	jboolean isFocused, jdouble value, jint numberOfTickMarks, jint tickMarkPosition)
 {
-  	COCOA_ENTER(env);
+  COCOA_ENTER(env);
 	NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
     if (gc) {
 		NSRect frameRect = NSMakeRect(0, 0, w, h);
@@ -1243,7 +1539,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
 		[view displayRectIgnoringOpacity: frameRect inContext: gc];
 		cleanup(env);
-    }
+  }
 	COCOA_EXIT(env);
 }
 
@@ -1273,15 +1569,15 @@ NSRect bounds;
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativeGetSliderThumbBounds
   (JNIEnv *env, jclass cl, jfloatArray bounds, jfloat w, jfloat h, jint sliderType, jint sz, jdouble value, jint numberOfTickMarks, jint tickMarkPosition)
 {
-  	COCOA_ENTER(env);
+  COCOA_ENTER(env);
 
-  	int *data = calloc(w * h, sizeof(int));
+  int *data = calloc(w * h, sizeof(int));
 	NSGraphicsContext *gc = setupRaw(data, w, h, w, h);
-    if (gc) {
+  if (gc) {
 		NSRect frameRect = NSMakeRect(0, 0, w, h);
 		NSSlider* view = [[NSSlider alloc] initWithFrame: frameRect];
 		[fakeParentWindow setContentView: view];
-		
+
 		ThumbCapturingSliderCell *cell = [[ThumbCapturingSliderCell alloc] init];
 		[view setCell: cell];
 
@@ -1306,9 +1602,9 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 		}
 
 		(*env)->ReleasePrimitiveArrayCritical(env, bounds, boundsData, 0);
-    }
-    free(data);
-    
+  }
+  free(data);
+
 	COCOA_EXIT(env);
 }
 
@@ -1320,10 +1616,10 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintSpinnerArrows
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint sz, jint state, jboolean isFocused, jboolean isPressedTop)
 {
-  	COCOA_ENTER(env);
+  COCOA_ENTER(env);
 
 	NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
-    if (gc) {
+  if (gc) {
 		NSRect frameRect = NSMakeRect(0, 0, w, h);
 		NSStepper* view = [[NSStepper alloc] initWithFrame: frameRect];
 		[fakeParentWindow setContentView: view];
@@ -1343,12 +1639,10 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
 		[view displayRectIgnoringOpacity: frameRect inContext: gc];
 		cleanup(env);
-    }
+  }
 
 	COCOA_EXIT(env);
 }
-
-static NSSplitView *splitView;
 
 /*
  * Class:     org_violetlib_jnr_aqua_impl_AquaNativePainter
@@ -1358,34 +1652,31 @@ static NSSplitView *splitView;
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintSplitPaneDivider
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint type, jint state, jint o, jint thickness)
 {
-	// the thickness of standard dividers cannot be changed
+	// the thickness of standard dividers cannot be changed, so we ignore the thickness parameter
 
-  	COCOA_ENTER(env);
+	COCOA_ENTER(env);
+
 	NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
-    if (gc) {
+	if (gc) {
 		NSRect frameRect = NSMakeRect(0, 0, w, h);
-
-		if (splitView == NULL) {
-			splitView = [[NSSplitView alloc] initWithFrame: frameRect];
-			NSRect subviewFrame = NSMakeRect(0, 0, w, h);
-			NSView *view1 = [[NSView alloc] initWithFrame: subviewFrame];
-			NSView *view2 = [[NSView alloc] initWithFrame: subviewFrame];
-			[splitView addSubview:view1];
-			[splitView addSubview:view2];
-			[splitView setPosition: 0 ofDividerAtIndex: 0];
-		} else {
-			[splitView setFrame: frameRect];
-		}
+		NSSplitView *splitView = [[NSSplitView alloc] initWithFrame: frameRect];
+		NSRect subviewFrame = NSMakeRect(0, 0, w, h);
+		NSView *view1 = [[NSView alloc] initWithFrame: subviewFrame];
+		NSView *view2 = [[NSView alloc] initWithFrame: subviewFrame];
+		[splitView addSubview:view1];
+		[splitView addSubview:view2];
+		[splitView setPosition: 0 ofDividerAtIndex: 0];
 
 		[fakeParentWindow setContentView: splitView];
 
 		setControlState(splitView, state);
 		[splitView setDividerStyle: type];
 		[splitView setVertical: o];
-		
+
 		[splitView displayRectIgnoringOpacity: frameRect inContext: gc];
 		cleanup(env);
-    }
+	}
+
 	COCOA_EXIT(env);
 }
 
@@ -1427,9 +1718,9 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint type, jint state,
   	jint closeState, jint minimizeState, jint resizeState, jboolean resizeIsFullScreen, jboolean isDirty)
 {
-  	COCOA_ENTER(env);
+  COCOA_ENTER(env);
 	NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
-    if (gc) {
+  if (gc) {
 		NSRect frameRect = NSMakeRect(0, 0, w, h);
 		[fakeParentWindow setContentView: NULL];
 
@@ -1450,12 +1741,12 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 		[w setCollectionBehavior:behavior];
 
 		// We can force a button to display as inactive.
-		
+
 		NSButton *minimizeButton = [w standardWindowButton: NSWindowMiniaturizeButton];
 		if (minimizeButton) {
 			configureTitleBarButton(minimizeButton, minimizeState);
 		}
-		
+
 		NSButton *resizeButton = [w standardWindowButton: NSWindowZoomButton];
 		if (resizeButton) {
 			configureTitleBarButton(resizeButton, resizeState);
@@ -1463,7 +1754,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 			// Therefore, we display no icon.
 			[[resizeButton cell] setHighlighted: NO];
 		}
-		
+
 		// Displaying the window does not work, but displaying the border view does.
 
 		NSButton *closeButton = [w standardWindowButton: NSWindowCloseButton];
@@ -1474,7 +1765,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 		}
 
 		cleanup(env);
-    }
+  }
 	COCOA_EXIT(env);
 }
 
@@ -1488,9 +1779,9 @@ JNIEXPORT jboolean JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_na
 {
 	jboolean result = 0;
 
-    jboolean isCopy = JNI_FALSE;
-    int *rawData = (*env)->GetPrimitiveArrayCritical(env, data, &isCopy);
-    if (rawData) {
+  jboolean isCopy = JNI_FALSE;
+  int *rawData = (*env)->GetPrimitiveArrayCritical(env, data, &isCopy);
+  if (rawData) {
 
 		COCOA_ENTER(env);
 
@@ -1520,7 +1811,7 @@ JNIEXPORT jboolean JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_na
 			rawData[n+2] = frame.size.width;
 			rawData[n+3] = frame.size.height;
 		}
-	
+
 		NSButton *resizeButton = [w standardWindowButton: NSWindowZoomButton];
 		if (resizeButton) {
 			int n = 8;
@@ -1536,7 +1827,7 @@ JNIEXPORT jboolean JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_na
 		COCOA_EXIT(env);
 
 		(*env)->ReleasePrimitiveArrayCritical(env, data, rawData, 0);
-		}
+	}
 
 	return result;
 }
@@ -1554,7 +1845,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 	// This is appropriate for the rollover display, but not for the initial display.
 	// However, the track is likely to be the wrong size, because what we get here is the
 	// first frame of an "expansion" animation.
-	
+
 	if (type == 1 /* OVERLAY */) {
 		return;
 	}
@@ -1581,7 +1872,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
 	COCOA_ENTER(env);
 	NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
-    if (gc) {
+  if (gc) {
 		NSRect frameRect = NSMakeRect(0, 0, w, h);
 		NSScroller* view = [[NSScroller alloc] initWithFrame: frameRect];
 		[fakeParentWindow setContentView: view];
@@ -1591,7 +1882,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 			case 0: /* LEGACY */
 				[view setScrollerStyle: NSScrollerStyleLegacy];
 				break;
-				
+
 			case 1: /* OVERLAY */
 			case 2: /* OVERLAY_ROLLOVER */
 
@@ -1599,15 +1890,14 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 				[[view cell] setHighlighted: YES];
 				break;
 		}
-		
+
 		setControlSize(view, sz);
 		setControlState(view, st);
 		[view setFloatValue: thumbPosition];
 		[view setKnobProportion: thumbExtent];
-
 		[view displayRectIgnoringOpacity: frameRect inContext: gc];
 		cleanup(env);
-    }
+  }
 	COCOA_EXIT(env);
 }
 
@@ -1627,14 +1917,14 @@ JNIEXPORT jstring JNICALL Java_org_violetlib_jnr_aqua_impl_NativeSupport_getJava
 	}
 
 	NSString *path = @"/System/Library/Frameworks/JavaVM.framework/Frameworks/JavaRuntimeSupport.framework/Versions/Current/Resources/Info.plist";
-    NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile: path];
-    if (dict) {
-    	NSString *s = (NSString*) [dict objectForKey: @"CFBundleShortVersionString"];
-    	if (s) {
-    		result = JNFNSToJavaString(env, s);
-    	}
+  NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile: path];
+  if (dict) {
+    NSString *s = (NSString*) [dict objectForKey: @"CFBundleShortVersionString"];
+    if (s) {
+      result = JNFNSToJavaString(env, s);
     }
-    return result;
+  }
+  return result;
 }
 
 /*
@@ -1645,10 +1935,10 @@ JNIEXPORT jstring JNICALL Java_org_violetlib_jnr_aqua_impl_NativeSupport_getJava
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_NativeSupport_syslog
   (JNIEnv *env, jclass cl, jstring msg)
 {
-	    jsize slen = (*env) -> GetStringLength(env, msg);
-	    const jchar *schars = (*env) -> GetStringChars(env, msg, NULL);
-	    CFStringRef s = CFStringCreateWithCharacters(NULL, schars, slen);
-	    NSLog(@"%@", s);
-	    CFRelease(s);
-	    (*env) -> ReleaseStringChars(env, msg, schars);
+  jsize slen = (*env) -> GetStringLength(env, msg);
+  const jchar *schars = (*env) -> GetStringChars(env, msg, NULL);
+  CFStringRef s = CFStringCreateWithCharacters(NULL, schars, slen);
+  NSLog(@"%@", s);
+  CFRelease(s);
+  (*env) -> ReleaseStringChars(env, msg, schars);
 }

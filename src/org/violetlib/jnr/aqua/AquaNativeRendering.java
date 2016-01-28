@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -121,7 +121,7 @@ public class AquaNativeRendering
 		AquaUIPainter jrsPainter = null;
 
 		try {
-			Class c = Class.forName("org.violetlib.jnr.aqua.impl.AugmentedAquaNativePainter");
+			Class c = getClass("org.violetlib.jnr.aqua.impl.AugmentedAquaNativePainter");
 			if (AquaNativePainter.class.isAssignableFrom(c)) {
 				viewPainter = (AquaNativePainter) c.newInstance();
 			}
@@ -132,7 +132,7 @@ public class AquaNativeRendering
 		boolean useJRS = jrsVersion >= 15;
 
 		try {
-			Class c = Class.forName("org.violetlib.jnr.aqua.coreui.AugmentedCoreUIPainter");
+			Class c = getClass("org.violetlib.jnr.aqua.coreui.AugmentedCoreUIPainter");
 			if (AquaUIPainter.class.isAssignableFrom(c)) {
 				Constructor cons = c.getConstructor(Boolean.TYPE);
 				coreUIPainter = (AquaUIPainter) cons.newInstance(useJRS);
@@ -142,7 +142,7 @@ public class AquaNativeRendering
 
 		if (useJRS) {
 			try {
-				Class c = Class.forName("org.violetlib.jnr.aqua.jrs.AugmentedJRSPainter");
+				Class c = getClass("org.violetlib.jnr.aqua.jrs.AugmentedJRSPainter");
 				if (AquaUIPainter.class.isAssignableFrom(c)) {
 					jrsPainter = (AquaUIPainter) c.newInstance();
 				}
@@ -159,5 +159,12 @@ public class AquaNativeRendering
 		} else {
 			preferredPainter = jrsPainter;	// last because it has the most limitations
 		}
+	}
+
+	protected static @NotNull Class getClass(@NotNull String name)
+		throws ClassNotFoundException
+	{
+		ClassLoader loader = AquaNativeRendering.class.getClassLoader();
+		return Class.forName(name, true, loader);
 	}
 }

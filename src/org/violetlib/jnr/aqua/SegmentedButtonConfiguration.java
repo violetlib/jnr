@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -23,13 +23,20 @@ import org.violetlib.jnr.aqua.AquaUIPainter.Direction;
 
 	<p>
 	The painting model for segmented buttons follows the Java model. The buttons are abutted with no overlap. For each
-	divider between two buttons, the client code decides which button owns the divider and sets the drawLeadingSeparator
-	and drawTrailingSeparator parameters appropriately. The divider is painted in the space allocated to the button that
-	owns the divider. Because Java normally does not know which buttons are part of a segmented control, the normal policy
-	is for the button on the left to own the divider. Code that knows about the buttons in a segmented control can get
-	slightly better results by having the selected button own the dividers on either side, buttons to the left of the
-	selected button own the dividers to their left, and buttons to the right of the selected button own the dividers to
-	their right.
+	divider between two buttons, the client code decides which button owns the divider and sets the leftDividerState
+	and rightDividerState parameters appropriately. The divider is painted in the space allocated to the button that
+	owns the divider.
+	</p>
+
+	<p>
+	Because Java normally does not know which buttons are part of a segmented control, the normal policy is for the button
+	on the left to own the divider. The divider state is set to selected if that button is selected.
+	</p>
+
+	<p>
+	Code that knows about the buttons in a segmented control can get slightly better results by having the selected button
+	own the dividers on either side, buttons to the left of the selected button own the dividers to their left, and
+	buttons to the right of the selected button own the dividers to their right.
 	</p>
 
 	<p>
@@ -91,6 +98,12 @@ public class SegmentedButtonConfiguration
 		this(g.getWidget(), g.getSize(), state, isSelected, isFocused, d, g.getPosition(), leftDividerState, rightDividerState);
 	}
 
+	public @NotNull SegmentedButtonConfiguration withWidget(@NotNull SegmentedButtonWidget widget)
+	{
+		return new SegmentedButtonConfiguration(widget,
+			getSize(), state, isSelected, isFocused, d, getPosition(), leftDividerState, rightDividerState);
+	}
+
 	public @NotNull State getState()
 	{
 		return state;
@@ -148,7 +161,7 @@ public class SegmentedButtonConfiguration
 		String fs = isFocused ? " focused" : "";
 		String ss = isSelected ? "S" : "-";
 		String ls = leftDividerState == DividerState.NONE ? "" : leftDividerState == DividerState.ORDINARY ? "<" : "[";
-		String rs = rightDividerState == DividerState.NONE ? "" : rightDividerState == DividerState.ORDINARY ? ">" : "[";
+		String rs = rightDividerState == DividerState.NONE ? "" : rightDividerState == DividerState.ORDINARY ? ">" : "]";
 		return super.toString() + " " + d + " " + state + fs + " " + ls + ss + rs;
 	}
 }

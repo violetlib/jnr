@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -19,12 +19,12 @@ import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.Painter;
 import org.violetlib.jnr.SliderPainter;
 import org.violetlib.jnr.aqua.*;
-import org.violetlib.jnr.impl.BasicRenderer;
 import org.violetlib.jnr.impl.BasicRendererDescription;
 import org.violetlib.jnr.impl.MultiResolutionRendererDescription;
 import org.violetlib.jnr.NullPainter;
 import org.violetlib.jnr.impl.OffsetPainter;
 import org.violetlib.jnr.impl.Renderer;
+import org.violetlib.jnr.impl.RendererDebugInfo;
 import org.violetlib.jnr.impl.RendererDescription;
 
 import static org.violetlib.jnr.impl.JNRUtils.*;
@@ -213,6 +213,16 @@ public abstract class AquaUIPainterBase
 		throw new UnsupportedOperationException();	// TBD
 	}
 
+	public @Nullable RendererDebugInfo getRendererDebugInfo(@NotNull Configuration g, int scaleFactor, int width, int height)
+	{
+		if (g instanceof SegmentedButtonConfiguration) {
+			SegmentedButtonConfiguration gg = (SegmentedButtonConfiguration) g;
+			return getSegmentedButtonRendererDebugInfo(gg, scaleFactor, width, height);
+		}
+
+		return null;
+	}
+
 	/**
 		Map a button widget to a canonical equivalent. This mapping addresses the fact that certain styles have become
 		obsolete and are best supported by using a similar style.
@@ -239,26 +249,16 @@ public abstract class AquaUIPainterBase
 		return null;
 	}
 
-	protected @NotNull RendererDescription getSearchButtonRendererDescription(@NotNull TextFieldLayoutConfiguration g)
+	protected @Nullable RendererDescription getSearchButtonRendererDescription(@NotNull TextFieldLayoutConfiguration g)
 	{
-		Size sz = g.getSize();
+		TextFieldWidget w = g.getWidget();
 
-		boolean hasMenu = false;
-
-		switch (g.getWidget()) {
-
-			case TEXT_FIELD_SEARCH_WITH_MENU:
-			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
-				hasMenu = true;
-				break;
-
-			case TEXT_FIELD_SEARCH:
-			case TEXT_FIELD_SEARCH_WITH_CANCEL:
-				break;
-
-			default:
-				return null;
+		if (!w.isSearch()) {
+			return null;
 		}
+
+		Size sz = g.getSize();
+		boolean hasMenu = w.hasMenu();
 
 		if (hasMenu) {
 			float x1 = size2D(sz, -5, -6, -4);
@@ -386,6 +386,11 @@ public abstract class AquaUIPainterBase
 	protected abstract @NotNull Renderer getSplitPaneDividerRenderer(@NotNull SplitPaneDividerConfiguration g);
 
 	protected abstract @NotNull Renderer getGradientRenderer(@NotNull GradientConfiguration g);
+
+	protected @Nullable RendererDebugInfo getSegmentedButtonRendererDebugInfo(@NotNull SegmentedButtonConfiguration g, int scaleFactor, int width, int height)
+	{
+		return null;
+	}
 
 	/**
 		Return the renderer used to draw the arrows of pop up button, if any.

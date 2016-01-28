@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -64,9 +64,13 @@ public class NativeSupport
 //         }
 
 			// debug
-			log("Java Runtime Support: " + getJavaRuntimeSupportVersion());
+			String jrsv = getJavaRuntimeSupportVersion();
+			if (false) {
+				log("Java Runtime Support: " + jrsv);
+			}
+
 			int version = getJavaRuntimeSupportMajorVersion();
-			if (version > 0 && version < 15) {
+			if ((version > 0 && version < 15) || "15.0.0".equals(jrsv)) {
 				log("Found obsolete version of Java Runtime Support framework");
 				log("To upgrade, install Java for OS X 2015-001 from https://support.apple.com/kb/DL1572");
 			}

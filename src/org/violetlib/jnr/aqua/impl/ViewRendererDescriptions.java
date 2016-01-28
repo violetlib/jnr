@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -12,6 +12,7 @@ import org.jetbrains.annotations.*;
 
 import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.impl.BasicRendererDescription;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.MultiResolutionRendererDescription;
 import org.violetlib.jnr.impl.RendererDescription;
 
@@ -27,14 +28,19 @@ public class ViewRendererDescriptions
 	@Override
 	public @NotNull RendererDescription getButtonRendererDescription(@NotNull ButtonConfiguration g)
 	{
-		final AquaUIPainter.ButtonWidget bw = toCanonicalButtonStyle(g.getButtonWidget());
+		AquaUIPainter.ButtonWidget bw = toCanonicalButtonStyle(g.getButtonWidget());
 
 		if (bw == AquaUIPainter.ButtonWidget.BUTTON_TOOLBAR_ITEM) {
 			ToolBarItemWellConfiguration tg = new ToolBarItemWellConfiguration(g.getState(), true);
 			return getToolBarItemWellRendererDescription(tg);
 		}
 
-		final AquaUIPainter.Size sz = g.getSize();
+		AquaUIPainter.Size sz = g.getSize();
+
+		int platformVersion = JNRPlatformUtils.getPlatformVersion();
+		if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TOOLBAR && platformVersion < 101100) {
+			bw = AquaUIPainter.ButtonWidget.BUTTON_ROUND;
+		}
 
 		if (bw == AquaUIPainter.ButtonWidget.BUTTON_PUSH) {
 			switch (sz) {
@@ -98,11 +104,11 @@ public class ViewRendererDescriptions
 			switch (sz) {
 				case LARGE:
 				case REGULAR:
-					return new BasicRendererDescription(0, 0, 0, 3);
+					return new BasicRendererDescription(0, 0, 0, platformVersion < 101200 ? 3 : 0);
 				case SMALL:
 					return new BasicRendererDescription(0, 0, 0, 0);
 				case MINI:
-					return new BasicRendererDescription(0, -0.5f, 1, 0);
+					return platformVersion < 101200 ? new BasicRendererDescription(0, -0.5f, 1, 0) : new BasicRendererDescription(-0.49f, 0, 1, 0);
 				default:
 					throw new UnsupportedOperationException();
 			}
@@ -120,6 +126,9 @@ public class ViewRendererDescriptions
 			return new BasicRendererDescription(0, 0, 0, 1);
 
 		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED) {
+			return new BasicRendererDescription(0, 0, 0, 0);
+
+		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
 			return new BasicRendererDescription(0, 0, 0, 0);
 
 		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND) {
@@ -149,6 +158,9 @@ public class ViewRendererDescriptions
 		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TEXTURED) {
 			return new BasicRendererDescription(0, 0, 0, 0);
 
+		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TOOLBAR) {
+			return new BasicRendererDescription(0, 0, 0, 0);
+
 		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_COLOR_WELL) {
 			return new BasicRendererDescription(0, 0, 0, 0);
 
@@ -162,15 +174,17 @@ public class ViewRendererDescriptions
 	{
 		// The native view renderer renders an entire segmented control but arranges that only one button is rendered into
 		// our buffer. It does not make sense to change the raster width, because the raster width is the only way that the
-		// native renderer knows how wide the button should be. If any adjustment is needed, it should be made by the native
-		// renderer.
+		// native renderer knows how wide the button should be. If any horizontal adjustment is needed, it should be made
+		// by the native renderer.
 
 		AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
 		AquaUIPainter.Size sz = g.getSize();
+		int platformVersion = JNRPlatformUtils.getPlatformVersion();
 
 		switch (bw) {
 			case BUTTON_TAB:
 			case BUTTON_SEGMENTED:
+			case BUTTON_SEGMENTED_SEPARATED:
 				switch (sz) {
 					case LARGE:
 					case REGULAR:
@@ -178,7 +192,7 @@ public class ViewRendererDescriptions
 					case SMALL:
 						return createVertical(0, 2);
 					case MINI:
-						return createVertical(-1, 5);
+						return createVertical(-0.51f, 5);
 					default:
 						throw new UnsupportedOperationException();
 				}
@@ -198,16 +212,21 @@ public class ViewRendererDescriptions
 
 			case BUTTON_SEGMENTED_SCURVE:
 			case BUTTON_SEGMENTED_TEXTURED:
+			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
 			case BUTTON_SEGMENTED_TOOLBAR:
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+				boolean raise = bw == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_TOOLBAR || bw == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR;
 				switch (sz) {
 					case LARGE:
 					case REGULAR:
-						return createVertical(-1, 2);
+						return platformVersion >= 101100 ? createVertical(-1.49f, 3) : createVertical(-1, 2);
 					case SMALL:
-						return createVertical(-1, 4);
+						return platformVersion >= 101100 ? createVertical(raise ? -1.49f : -0.49f, 4) : createVertical(-1, 4);
 					case MINI:
-						return createVertical(0, 4);
+						return new MultiResolutionRendererDescription(
+							createVertical(platformVersion >= 101100 ? 0 : -1, 5),
+							createVertical(0, platformVersion >= 101100 ? 5 : 4.5f));
 					default:
 						throw new UnsupportedOperationException();
 				}
@@ -257,6 +276,18 @@ public class ViewRendererDescriptions
 					return new BasicRendererDescription(0, -1, 3, 1);
 				case MINI:
 					return new BasicRendererDescription(0, 0, 2, 1);
+				default:
+					throw new UnsupportedOperationException();
+			}
+		} else if (bw == AquaUIPainter.ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED || bw == AquaUIPainter.ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR){
+			switch (sz) {
+				case LARGE:
+				case REGULAR:
+					return new BasicRendererDescription(0, 0, 1, 0);
+				case SMALL:
+					return new BasicRendererDescription(0, 0, 2, 2);
+				case MINI:
+					return new BasicRendererDescription(0, 0, 0, 2);
 				default:
 					throw new UnsupportedOperationException();
 			}
@@ -383,6 +414,8 @@ public class ViewRendererDescriptions
 
 			case BUTTON_POP_DOWN_TEXTURED:
 			case BUTTON_POP_UP_TEXTURED:
+			case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
+			case BUTTON_POP_UP_TEXTURED_TOOLBAR:
 				return new BasicRendererDescription(0, 0, 0, 0);
 
 			case BUTTON_POP_UP_GRADIENT:
@@ -481,16 +514,29 @@ public class ViewRendererDescriptions
 	@Override
 	public @NotNull RendererDescription getSplitPaneDividerRendererDescription(@NotNull SplitPaneDividerConfiguration g)
 	{
-		AquaUIPainter.DividerWidget dw = g.getWidget();
 		AquaUIPainter.Orientation o = g.getOrientation();
 
 		switch (g.getWidget())
 		{
 			case THIN_DIVIDER:
+				// At 2x, the native view painter requires a "divider width" of at least 2 points.
+				// At 1x, a larger size works better for both horizontal and vertical dividers.
+				// We should only be given a "divider width" of one point, as that is the fixed logical divider width.
+				return o == AquaUIPainter.Orientation.HORIZONTAL ? new BasicRendererDescription(0, 0, 0, 9) : new BasicRendererDescription(-1, 0, 2, 0);
+
 			case THICK_DIVIDER:
-				return new BasicRendererDescription(0, 0, 0, 0);
+				// At 2x, the native view painter requires a "divider width" of at least 10 points.
+				// At 1x, a larger width works better for vertical dividers.
+				// We should only be given a "divider width" of 9 points, as that is the fixed logical divider width.
+				return o == AquaUIPainter.Orientation.HORIZONTAL ? new BasicRendererDescription(0, 0, 0, 1) :
+					new MultiResolutionRendererDescription(new BasicRendererDescription(-4, 0, 6, 0), new BasicRendererDescription(-3, 0, 6, 0));
+
 			case PANE_SPLITTER:
-				return o == AquaUIPainter.Orientation.HORIZONTAL ? new BasicRendererDescription(0, -1, 0, 2) : new BasicRendererDescription(-1, 0, 2, 0);
+				// At 2x, the native view painter requires a "divider width" of at least 11 points.
+				// At 1x, a larger width works better for vertical dividers.
+				// We should only be given a "divider width" of 10 points, as that is the fixed logical divider width.
+				return o == AquaUIPainter.Orientation.HORIZONTAL ? new BasicRendererDescription(0, 0, 0, 1) : new BasicRendererDescription(-5, 0, 10, 0);
+
 			default:
 				return null;
 		}

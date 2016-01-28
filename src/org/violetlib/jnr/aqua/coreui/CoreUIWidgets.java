@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -34,6 +34,7 @@ public class CoreUIWidgets
 	public static final String BUTTON_SEGMENTED_INSET2 = "kCUIWidgetButtonSegmentedInset2";
 	public static final String BUTTON_SEGMENTED_SCURVE = "kCUIWidgetButtonSegmentedSCurve";
 	public static final String BUTTON_SEGMENTED_SEPARATED = "kCUIWidgetButtonSegmentedSeparated";
+	public static final String BUTTON_SEGMENTED_SEPARATED_TEXTURED = "kCUIWidgetButtonSegmentedSeparatedTextured";
 	public static final String BUTTON_SEGMENTED_SEPARATED_TOOLBAR = "kCUIWidgetButtonSegmentedSeparatedToolbar";
 	public static final String BUTTON_SEGMENTED_SLIDESHOW = "kCUIWidgetButtonSegmentedSlideshow";
 	public static final String BUTTON_SEGMENTED_TEXTURED = "kCUIWidgetButtonSegmentedTextured";
@@ -49,10 +50,12 @@ public class CoreUIWidgets
 	public static final String BUTTON_PUSH_SCOPE2 = "kCUIWidgetButtonPushScope2";
 	public static final String BUTTON_PUSH_SLIDESHOW = "kCUIWidgetButtonPushSlideshow";
 	public static final String BUTTON_PUSH_TEXTURED = "kCUIWidgetButtonPushTextured";
+	public static final String BUTTON_PUSH_TOOLBAR = "kCUIWidgetButtonPushToolbar";
 	public static final String BUTTON_ROUND = "roundbutton";
 	public static final String BUTTON_ROUND_INSET = "roundbutton.inset";
 	public static final String BUTTON_ROUND_INSET2 = "kCUIWidgetButtonRoundInset2";
 	public static final String BUTTON_ROUND_TEXTURED = "kCUIWidgetButtonRoundTextured";
+	public static final String BUTTON_ROUND_TOOLBAR = "kCUIWidgetButtonRoundToolbar";
 
 	public static final String SCROLL_COLUMN_SIZER = "widget.scrollColumnSizer";
 	public static final String TOOL_BAR_ITEM_WELL = "kCUIWidgetToolbarItemWell";
@@ -60,19 +63,24 @@ public class CoreUIWidgets
 	public static final String FRAME_LIST_BOX = "listbox";
 	public static final String FRAME_TEXT_FIELD = "textfield";
 	public static final String FRAME_TEXT_FIELD_ROUND = "textfieldround";
+	public static final String VARIANT_TEXT_FIELD_ROUND_TOOLBAR = "kCUIVariantTextFieldRoundToolbar";
 
 	public static final String BUTTON_COMBO_BOX = "combobox";
 	public static final String BUTTON_COMBO_BOX_INSET = "kCUIWidgetButtonComboBoxInset";
+	public static final String BUTTON_COMBO_BOX_TEXTURED = "kCUIWidgetButtonComboBoxTextured";
+	public static final String BUTTON_COMBO_BOX_TOOLBAR = "kCUIWidgetButtonComboBoxToolbar";
 
 	public static final String BUTTON_POP_DOWN = "popdownbutton";
 	public static final String BUTTON_POP_DOWN_SQUARE = "kCUIWidgetButtonPopDownSquare";
 	public static final String BUTTON_POP_DOWN_INSET = "popdownbutton.inset";
 	public static final String BUTTON_POP_DOWN_TEXTURED = "kCUIWidgetButtonPopDownTextured";
+	public static final String BUTTON_POP_DOWN_TOOLBAR = "kCUIWidgetButtonPopDownToolbar";
 
 	public static final String BUTTON_POP_UP = "popupbutton";
 	public static final String BUTTON_POP_UP_SQUARE = "kCUIWidgetButtonPopUpSquare";
 	public static final String BUTTON_POP_UP_INSET = "popupbutton.inset";
 	public static final String BUTTON_POP_UP_TEXTURED = "kCUIWidgetButtonPopUpTextured";
+	public static final String BUTTON_POP_UP_TOOLBAR = "kCUIWidgetButtonPopUpToolbar";
 
 	public static final String BUTTON_SEARCH_FIELD_FIND = "buttonsearchfieldfind";
 	public static final String BUTTON_SEARCH_FIELD_CANCEL = "buttonsearchfieldcancel";

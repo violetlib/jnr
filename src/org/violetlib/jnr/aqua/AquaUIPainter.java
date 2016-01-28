@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -233,18 +233,27 @@ public interface AquaUIPainter
 		BUTTON_INLINE,                // a short, fixed height button with rounded ends, used as a push button or indicator inside lists
 		BUTTON_ROUNDED_RECT,          // fixed height, displays as an rectangle outline with rounded corners and no background, darkens when pressed, in IB
 		BUTTON_TEXTURED,              // fixed height, does not support disabled state, recommended for use in window frame, also called scurve
+		BUTTON_TEXTURED_TOOLBAR,      // introduced in 10.11 for textured buttons on the tool bar (taller)
 		BUTTON_TOOLBAR_ITEM,					// a tool bar item
 		BUTTON_COLOR_WELL,						// a color well
 
 		// The following styles are no longer recommended
 
-		BUTTON_BEVEL,                 // Bevel button with square corners (not recommended in Yosemite)
-		BUTTON_BEVEL_ROUND,           // Bevel button with rounded corners (not recommended in Yosemite)
-		BUTTON_ROUND,                 // a round white button with a border
-		BUTTON_ROUND_INSET,           // a round transparent button with an outline, probably obsolete
-		BUTTON_ROUND_TEXTURED,        // a round white borderless button with a shadow, probably obsolete; not the button sometimes called Round Textured in IB, this is round
+		BUTTON_BEVEL,                 	// Bevel button with square corners (not recommended in Yosemite)
+		BUTTON_BEVEL_ROUND,           	// Bevel button with rounded corners (not recommended in Yosemite)
+		BUTTON_ROUND,                 	// a round white button with a border
+		BUTTON_ROUND_INSET,           	// a round transparent button with an outline, probably obsolete
+		BUTTON_ROUND_TEXTURED,        	// a round white borderless button with a shadow; not the button sometimes called Round Textured in IB, this is round
+		BUTTON_ROUND_TOOLBAR,						// introduced in 10.11 for textured buttons on the toolbar (taller)
+		BUTTON_PUSH_INSET2;							// an obsolete style supported by Core UI
 
-		BUTTON_PUSH_INSET2,						// an obsolete style supported by Core UI
+		public boolean isTextured()
+		{
+			return this == BUTTON_TEXTURED
+				|| this == BUTTON_TEXTURED_TOOLBAR
+				|| this == BUTTON_ROUND_TEXTURED
+				|| this == BUTTON_ROUND_TOOLBAR;
+		}
 	}
 
 	/**
@@ -253,17 +262,25 @@ public interface AquaUIPainter
 
 	enum SegmentedButtonWidget
 	{
-		BUTTON_TAB,                     			// the segmented control on a Tab View
-		BUTTON_SEGMENTED,               			// the default button for the content area, known as Rounded (looks the same as Tab)
-		BUTTON_SEGMENTED_INSET,         			// also known as Round Rect, a transparent button whose outline has rounded corners
-		BUTTON_SEGMENTED_TEXTURED,      			// also known as Textured Square, for use in window frames
-		BUTTON_SEGMENTED_SMALL_SQUARE,  			// a square button similar to a gradient button
-		BUTTON_SEGMENTED_TEXTURED_SEPARATED,	// separated buttons that look like Textured buttons, for use in window frames
+		BUTTON_TAB,                     							// the segmented control on a Tab View
+		BUTTON_SEGMENTED,               							// the default button for the content area, known as Rounded (looks the same as Tab)
+		BUTTON_SEGMENTED_SEPARATED,               		// separated buttons that look like Rounded buttons
+		BUTTON_SEGMENTED_INSET,         							// also known as Round Rect, a transparent button whose outline has rounded corners
+		BUTTON_SEGMENTED_SMALL_SQUARE,  							// a square button similar to a gradient button
+		BUTTON_SEGMENTED_TEXTURED,      							// also known as Textured Square, for use in window frames
+		BUTTON_SEGMENTED_TEXTURED_TOOLBAR,    				// introduced in 10.11 for textured segmented controls on the tool bar (taller)
+		BUTTON_SEGMENTED_TEXTURED_SEPARATED,					// separated buttons that look like Textured buttons, for use in window frames
+		BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR,	// introduced in 10.11 for textured segmented controls on the tool bar (taller)
 
 		// The following styles are obsolete and are replaced by other styles in Yosemite
 
-		BUTTON_SEGMENTED_TOOLBAR,       // also known as Textured Rounded
-		BUTTON_SEGMENTED_SCURVE,        // also known as Capsule
+		BUTTON_SEGMENTED_TOOLBAR,       // also known as Capsule or Textured Rounded
+		BUTTON_SEGMENTED_SCURVE;        // also known as Capsule or Textured Rounded
+
+		public boolean isSeparated()
+		{
+			return this == BUTTON_SEGMENTED_SEPARATED || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR;
+		}
 	}
 
 	/**
@@ -272,12 +289,55 @@ public interface AquaUIPainter
 
 	enum TextFieldWidget
 	{
-		TEXT_FIELD,											// square corners, no fixed height
-		TEXT_FIELD_ROUND,								// rounded corners, fixed height
-		TEXT_FIELD_SEARCH,
-		TEXT_FIELD_SEARCH_WITH_CANCEL,
-		TEXT_FIELD_SEARCH_WITH_MENU,
-		TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL,
+		TEXT_FIELD(false, false, false, false),								// square corners, no fixed height
+		TEXT_FIELD_ROUND(false, false, false, false),					// rounded corners, fixed height
+		TEXT_FIELD_ROUND_TOOLBAR(false, false, false, true),	// for text fields on the tool bar (taller)
+		TEXT_FIELD_SEARCH(true, false, false, false),
+		TEXT_FIELD_SEARCH_WITH_CANCEL(true, false, true, false),
+		TEXT_FIELD_SEARCH_WITH_MENU(true, true, false, false),
+		TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL(true, true, true, false),
+		TEXT_FIELD_SEARCH_TOOLBAR(true, false, false, true),
+		TEXT_FIELD_SEARCH_WITH_CANCEL_TOOLBAR(true, false, true, true),
+		TEXT_FIELD_SEARCH_WITH_MENU_TOOLBAR(true, true, false, true),
+		TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL_TOOLBAR(true, true, true, true);
+
+		private final boolean isSearch;
+		private final boolean hasMenu;
+		private final boolean hasCancel;
+		private final boolean isToolbar;
+
+		TextFieldWidget(boolean isSearch, boolean hasMenu, boolean hasCancel, boolean isToolbar)
+		{
+			this.isSearch = isSearch;
+			this.hasMenu = hasMenu;
+			this.hasCancel = hasCancel;
+			this.isToolbar = isToolbar;
+		}
+
+		public boolean isSearch()
+		{
+			return isSearch;
+		}
+
+		public boolean hasMenu()
+		{
+			return hasMenu;
+		}
+
+		public boolean hasCancel()
+		{
+			return hasCancel;
+		}
+
+		public boolean isToolbar()
+		{
+			return isToolbar;
+		}
+
+		public boolean isRound()
+		{
+			return this == TEXT_FIELD_ROUND || this == TEXT_FIELD_ROUND_TOOLBAR;
+		}
 	}
 
 	/**
@@ -288,6 +348,8 @@ public interface AquaUIPainter
 	{
 		BUTTON_COMBO_BOX,
 		BUTTON_COMBO_BOX_CELL,
+		BUTTON_COMBO_BOX_TEXTURED,
+		BUTTON_COMBO_BOX_TEXTURED_TOOLBAR,
 	}
 
 	/**
@@ -302,6 +364,7 @@ public interface AquaUIPainter
 		BUTTON_POP_DOWN_ROUND_RECT,
 		BUTTON_POP_DOWN_RECESSED,
 		BUTTON_POP_DOWN_TEXTURED,
+		BUTTON_POP_DOWN_TEXTURED_TOOLBAR,
 		BUTTON_POP_DOWN_GRADIENT,			// the preferred square style
 		BUTTON_POP_DOWN_SQUARE,				// replaced by Gradient in Yosemite
 
@@ -311,6 +374,7 @@ public interface AquaUIPainter
 		BUTTON_POP_UP_ROUND_RECT,
 		BUTTON_POP_UP_RECESSED,
 		BUTTON_POP_UP_TEXTURED,
+		BUTTON_POP_UP_TEXTURED_TOOLBAR,
 		BUTTON_POP_UP_GRADIENT,				// the preferred square style
 		BUTTON_POP_UP_SQUARE,					// replaced by Gradient in Yosemite
 	}

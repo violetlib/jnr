@@ -73,10 +73,6 @@ public class Insetters
 		return new CombinedInsetter(horizontal, vertical);
 	}
 
-
-
-
-
 	/**
 		Create insets for a region with a fixed width positioned at a fixed offset from the left edge.
 
