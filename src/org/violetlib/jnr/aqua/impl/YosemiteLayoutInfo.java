@@ -1090,7 +1090,7 @@ public class YosemiteLayoutInfo
 		switch (g.getWidget())
 		{
 			case THIN_DIVIDER:
-				d = 2;
+				d = 1;
 				break;
 			case THICK_DIVIDER:
 				d = 10;

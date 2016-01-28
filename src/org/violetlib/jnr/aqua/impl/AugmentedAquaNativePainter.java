@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -12,6 +12,7 @@ import org.jetbrains.annotations.*;
 
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.aqua.ScrollBarConfiguration;
+import org.violetlib.jnr.aqua.SplitPaneDividerConfiguration;
 import org.violetlib.jnr.aqua.TableColumnHeaderConfiguration;
 import org.violetlib.jnr.aqua.TextFieldConfiguration;
 import org.violetlib.jnr.aqua.TitleBarConfiguration;
@@ -84,5 +85,21 @@ public class AugmentedAquaNativePainter
 			}
 		}
 		return r;
+	}
+
+	@Override
+	protected @NotNull Renderer getSplitPaneDividerRenderer(@NotNull SplitPaneDividerConfiguration g)
+	{
+		// Although the native painter can paint a thin divider, it will do so only if the view width is at least 2 points.
+		// That suggests that a native thin divider is wider than it appears, which would explain how it implements the 5
+		// point wide drag area. VAqua could use that approach, but it would require more extensive code modification. So,
+		// instead we define the width of a thin divider to be 1 point and simulate painting it.
+
+		if (g.getWidget() == DividerWidget.THIN_DIVIDER) {
+			PainterExtension px = new ThinSplitPaneDividerPainterExtension(g);
+			return Renderer.create(px);
+		} else {
+			return super.getSplitPaneDividerRenderer(g);
+		}
 	}
 }
