@@ -1093,7 +1093,7 @@ public class YosemiteLayoutInfo
 				d = 1;
 				break;
 			case THICK_DIVIDER:
-				d = 10;
+				d = 9;
 				break;
 			case PANE_SPLITTER:
 				d = 10;

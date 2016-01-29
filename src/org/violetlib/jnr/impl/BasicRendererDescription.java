@@ -15,6 +15,8 @@ import org.jetbrains.annotations.*;
 
 /**
 	A renderer description based on fixed offsets and raster size adjustments.
+
+	@see MultiResolutionRendererDescription
 */
 
 public final class BasicRendererDescription

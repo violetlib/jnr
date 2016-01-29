@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -16,6 +16,7 @@ import org.violetlib.jnr.aqua.ComboBoxConfiguration;
 import org.violetlib.jnr.aqua.PopupButtonConfiguration;
 import org.violetlib.jnr.aqua.ScrollBarConfiguration;
 import org.violetlib.jnr.aqua.SegmentedButtonConfiguration;
+import org.violetlib.jnr.aqua.SplitPaneDividerConfiguration;
 import org.violetlib.jnr.aqua.impl.NativeSupport;
 import org.violetlib.jnr.aqua.impl.ViewRendererDescriptions;
 import org.violetlib.jnr.impl.BasicRendererDescription;
@@ -32,6 +33,24 @@ import static org.violetlib.jnr.impl.JNRUtils.*;
 public class CoreUIRendererDescriptions
 	extends ViewRendererDescriptions
 {
+	@Override
+	public @NotNull RendererDescription getSplitPaneDividerRendererDescription(@NotNull SplitPaneDividerConfiguration g)
+	{
+		AquaUIPainter.DividerWidget dw = g.getWidget();
+		AquaUIPainter.Orientation o = g.getOrientation();
+
+		switch (g.getWidget())
+		{
+			case THIN_DIVIDER:
+			case THICK_DIVIDER:
+				return new BasicRendererDescription(0, 0, 0, 0);
+			case PANE_SPLITTER:
+				return o == AquaUIPainter.Orientation.HORIZONTAL ? new BasicRendererDescription(0, -1, 0, 2) : new BasicRendererDescription(-1, 0, 2, 0);
+			default:
+				return null;
+		}
+	}
+
 	@Override
 	public @NotNull RendererDescription getButtonRendererDescription(@NotNull ButtonConfiguration g)
 	{

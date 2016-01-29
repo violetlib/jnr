@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -201,7 +201,7 @@ static void cleanup(JNIEnv *env)
 	if (rawPixelData) {
 		(*env)->ReleasePrimitiveArrayCritical(env, pixelData, rawPixelData, 0);
 		rawPixelData = NULL;
-	}	
+	}
 
 	pixelData = NULL;
 
@@ -209,7 +209,7 @@ static void cleanup(JNIEnv *env)
 		[NSGraphicsContext restoreGraphicsState];
 		currentGraphicsContext = NULL;
 	}
-	
+
 	if (currentCGContext) {
 		CGContextRelease(currentCGContext);
 		currentCGContext = NULL;
@@ -225,7 +225,7 @@ static void setControlSize(NSView* v, int sz)
 	// Large not supported
 
 	NSControlSize size = NSRegularControlSize;
-	
+
 	switch (sz)
 	{
 		case MiniSize:
@@ -246,7 +246,7 @@ static void setControlSize(NSView* v, int sz)
 			//NSLog(@"setControlSize: is not defined on %@", v);
 		}
 	}
-	
+
 	if ([v respondsToSelector: @selector(setFont:)]) {
 		[(id)v setFont: [NSFont systemFontOfSize: [NSFont systemFontSizeForControlSize: size]]];
 	}
@@ -380,7 +380,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 		BOOL isHighlight = NO;
 		BOOL allowsMixedState = NO;
 		BOOL shouldPaint = YES;
-		
+
 		if (value == 2) {
 			allowsMixedState = YES;
 			value = -1;
@@ -402,7 +402,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 			[fakeParentWindow setDefaultButtonCell: [buttonView cell]];
 
 		} else if (st == PressedState) {
-		
+
 			isHighlight = YES;
 
 		}
@@ -505,7 +505,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 		} else if (segmentStyle == NSSegmentStyleCapsule
 			|| segmentStyle == NSSegmentStyleTexturedRounded
 			|| segmentStyle == 8 /* NSSegmentStyleSeparated */) {
-			outerLeftInset = -0.49f; 
+			outerLeftInset = -0.49f;
 			switch (sz) {
 				// The actual regular insets are 3.5 and 2.5. We round up and
 				// compensate with an outer inset.
@@ -514,7 +514,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 				case MiniSize:     	leftInset = 2; rightInset = 1; break;
 			}
 		} else if (segmentStyle == NSSegmentStyleTexturedSquare) {
-			outerLeftInset = -0.49f; 
+			outerLeftInset = -0.49f;
 			switch (sz) {
 				case RegularSize:	leftInset = 2; rightInset = 1; break;
 				case SmallSize:    	leftInset = 2; rightInset = 1; break;
@@ -537,7 +537,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
 		if (segmentPosition == SEGMENT_POSITION_ONLY) {
 			// A segmented control with one segment is painted directly
-			
+
 			float cw = w + outerLeftInset;
 
 		 	NSRect controlFrame = NSMakeRect(0, 0, cw, h);
@@ -583,7 +583,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 			// space for a border and/or a divider.
 
 			// All the dividers will be painted, but only the desired ones are included in the requested bounds.
-			
+
 			// Right to left orientation is not supported. Not sure it needs to be here.
 
 			int segmentWidth;
@@ -640,7 +640,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 				segmentWidth -= dividerWidth;
 				widthAdjustment -= dividerWidth;
 			}
-			
+
 			if (segmentIndex < 3 && (flags & SEGMENT_FLAG_DRAW_TRAILING_SEPARATOR) != 0) {
 				segmentWidth -= dividerWidth;
 				widthAdjustment -= dividerWidth;
@@ -689,7 +689,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 			if (selectedSegmentIndex >= 0) {
 				[segmentedControl4 setSelected: YES forSegment: selectedSegmentIndex];
 			}
-			
+
 			NSAffineTransform* xform = [NSAffineTransform transform];
 			[xform translateXBy: -(outerLeftInset + xOffset) yBy: -yOffset];
 			[xform concat];
@@ -711,7 +711,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
   (JNIEnv *env, jclass cl, jint segmentStyle, jint sz)
 {
 	jint result = -1;
-	
+
   	COCOA_ENTER(env);
 
 	init();
@@ -768,7 +768,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 	}
 
 	COCOA_EXIT(env);
-	
+
 	return result;
 }
 
@@ -790,7 +790,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
 	// This test uses knowledge of the platform that certain types of buttons have a
 	// fixed width when no title is used.
-	
+
 	if (bezelStyle == NSHelpButtonBezelStyle || buttonType == NSSwitchButton || buttonType == NSRadioButton) {
 		float originalWidth = 1000;
 		float originalHeight = 1000;
@@ -808,7 +808,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 	}
 
 	COCOA_EXIT(env);
-	
+
 	return result;
 }
 
@@ -993,7 +993,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
     if (gc) {
 		NSRect frameRect = NSMakeRect(0, 0, w, h);
 		NSTextField* view;
-		
+
 		// In OS X 10.11 can do [searchField setCentersPlaceholder: NO];
 
 		// TBD: The cancel button is too dark. Do not know why.
@@ -1009,7 +1009,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 				//NSButtonCell *cbcell = [cell cancelButtonCell];
 				//[cbcell setEnabled: NO];
 			}
-			
+
 			if (type == TextFieldSearchWithMenu || type == TextFieldSearchWithMenuAndCancel) {
 				// show the menu icon
 				// TBD: this is not working
@@ -1058,13 +1058,13 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 - (NSView *)tableView:(NSTableView *)tableView
    viewForTableColumn:(NSTableColumn *)tableColumn
                   row:(NSInteger)row {
- 
+
     // Get an existing cell with the MyView identifier if it exists
     NSTextField *result = [tableView makeViewWithIdentifier:@"MyView" owner:self];
- 
+
     // There is no existing cell to reuse so create a new one
     if (result == nil) {
- 
+
 		// Create the new NSTextField with a frame of the {0,0} with the width of the table.
 		// Note that the height of the frame is not really relevant, because the row height will modify the height.
 		result = [[NSTextField alloc] initWithFrame: NSMakeRect(0, 0, 100, 0)];
@@ -1281,7 +1281,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 		NSRect frameRect = NSMakeRect(0, 0, w, h);
 		NSSlider* view = [[NSSlider alloc] initWithFrame: frameRect];
 		[fakeParentWindow setContentView: view];
-		
+
 		ThumbCapturingSliderCell *cell = [[ThumbCapturingSliderCell alloc] init];
 		[view setCell: cell];
 
@@ -1308,7 +1308,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 		(*env)->ReleasePrimitiveArrayCritical(env, bounds, boundsData, 0);
     }
     free(data);
-    
+
 	COCOA_EXIT(env);
 }
 
@@ -1348,8 +1348,6 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 	COCOA_EXIT(env);
 }
 
-static NSSplitView *splitView;
-
 /*
  * Class:     org_violetlib_jnr_aqua_impl_AquaNativePainter
  * Method:    nativePaintSplitPaneDivider
@@ -1358,34 +1356,31 @@ static NSSplitView *splitView;
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintSplitPaneDivider
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint type, jint state, jint o, jint thickness)
 {
-	// the thickness of standard dividers cannot be changed
+	// the thickness of standard dividers cannot be changed, so we ignore the thickness parameter
 
-  	COCOA_ENTER(env);
+	COCOA_ENTER(env);
+
 	NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
-    if (gc) {
+	if (gc) {
 		NSRect frameRect = NSMakeRect(0, 0, w, h);
-
-		if (splitView == NULL) {
-			splitView = [[NSSplitView alloc] initWithFrame: frameRect];
-			NSRect subviewFrame = NSMakeRect(0, 0, w, h);
-			NSView *view1 = [[NSView alloc] initWithFrame: subviewFrame];
-			NSView *view2 = [[NSView alloc] initWithFrame: subviewFrame];
-			[splitView addSubview:view1];
-			[splitView addSubview:view2];
-			[splitView setPosition: 0 ofDividerAtIndex: 0];
-		} else {
-			[splitView setFrame: frameRect];
-		}
+		NSSplitView *splitView = [[NSSplitView alloc] initWithFrame: frameRect];
+		NSRect subviewFrame = NSMakeRect(0, 0, w, h);
+		NSView *view1 = [[NSView alloc] initWithFrame: subviewFrame];
+		NSView *view2 = [[NSView alloc] initWithFrame: subviewFrame];
+		[splitView addSubview:view1];
+		[splitView addSubview:view2];
+		[splitView setPosition: 0 ofDividerAtIndex: 0];
 
 		[fakeParentWindow setContentView: splitView];
 
 		setControlState(splitView, state);
 		[splitView setDividerStyle: type];
 		[splitView setVertical: o];
-		
+
 		[splitView displayRectIgnoringOpacity: frameRect inContext: gc];
 		cleanup(env);
-    }
+	}
+
 	COCOA_EXIT(env);
 }
 
@@ -1450,12 +1445,12 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 		[w setCollectionBehavior:behavior];
 
 		// We can force a button to display as inactive.
-		
+
 		NSButton *minimizeButton = [w standardWindowButton: NSWindowMiniaturizeButton];
 		if (minimizeButton) {
 			configureTitleBarButton(minimizeButton, minimizeState);
 		}
-		
+
 		NSButton *resizeButton = [w standardWindowButton: NSWindowZoomButton];
 		if (resizeButton) {
 			configureTitleBarButton(resizeButton, resizeState);
@@ -1463,7 +1458,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 			// Therefore, we display no icon.
 			[[resizeButton cell] setHighlighted: NO];
 		}
-		
+
 		// Displaying the window does not work, but displaying the border view does.
 
 		NSButton *closeButton = [w standardWindowButton: NSWindowCloseButton];
@@ -1520,7 +1515,7 @@ JNIEXPORT jboolean JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_na
 			rawData[n+2] = frame.size.width;
 			rawData[n+3] = frame.size.height;
 		}
-	
+
 		NSButton *resizeButton = [w standardWindowButton: NSWindowZoomButton];
 		if (resizeButton) {
 			int n = 8;
@@ -1554,7 +1549,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 	// This is appropriate for the rollover display, but not for the initial display.
 	// However, the track is likely to be the wrong size, because what we get here is the
 	// first frame of an "expansion" animation.
-	
+
 	if (type == 1 /* OVERLAY */) {
 		return;
 	}
@@ -1591,7 +1586,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 			case 0: /* LEGACY */
 				[view setScrollerStyle: NSScrollerStyleLegacy];
 				break;
-				
+
 			case 1: /* OVERLAY */
 			case 2: /* OVERLAY_ROLLOVER */
 
@@ -1599,7 +1594,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 				[[view cell] setHighlighted: YES];
 				break;
 		}
-		
+
 		setControlSize(view, sz);
 		setControlState(view, st);
 		[view setFloatValue: thumbPosition];

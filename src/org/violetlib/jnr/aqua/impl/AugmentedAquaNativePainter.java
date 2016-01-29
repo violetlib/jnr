@@ -86,20 +86,4 @@ public class AugmentedAquaNativePainter
 		}
 		return r;
 	}
-
-	@Override
-	protected @NotNull Renderer getSplitPaneDividerRenderer(@NotNull SplitPaneDividerConfiguration g)
-	{
-		// Although the native painter can paint a thin divider, it will do so only if the view width is at least 2 points.
-		// That suggests that a native thin divider is wider than it appears, which would explain how it implements the 5
-		// point wide drag area. VAqua could use that approach, but it would require more extensive code modification. So,
-		// instead we define the width of a thin divider to be 1 point and simulate painting it.
-
-		if (g.getWidget() == DividerWidget.THIN_DIVIDER) {
-			PainterExtension px = new ThinSplitPaneDividerPainterExtension(g);
-			return Renderer.create(px);
-		} else {
-			return super.getSplitPaneDividerRenderer(g);
-		}
-	}
 }

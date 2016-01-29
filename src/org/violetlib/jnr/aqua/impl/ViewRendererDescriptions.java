@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -481,16 +481,29 @@ public class ViewRendererDescriptions
 	@Override
 	public @NotNull RendererDescription getSplitPaneDividerRendererDescription(@NotNull SplitPaneDividerConfiguration g)
 	{
-		AquaUIPainter.DividerWidget dw = g.getWidget();
 		AquaUIPainter.Orientation o = g.getOrientation();
 
 		switch (g.getWidget())
 		{
 			case THIN_DIVIDER:
+				// At 2x, the native view painter requires a "divider width" of at least 2 points.
+				// At 1x, a larger size works better for both horizontal and vertical dividers.
+				// We should only be given a "divider width" of one point, as that is the fixed logical divider width.
+				return o == AquaUIPainter.Orientation.HORIZONTAL ? new BasicRendererDescription(0, 0, 0, 9) : new BasicRendererDescription(-1, 0, 2, 0);
+
 			case THICK_DIVIDER:
-				return new BasicRendererDescription(0, 0, 0, 0);
+				// At 2x, the native view painter requires a "divider width" of at least 10 points.
+				// At 1x, a larger width works better for vertical dividers.
+				// We should only be given a "divider width" of 9 points, as that is the fixed logical divider width.
+				return o == AquaUIPainter.Orientation.HORIZONTAL ? new BasicRendererDescription(0, 0, 0, 1) :
+					new MultiResolutionRendererDescription(new BasicRendererDescription(-4, 0, 6, 0), new BasicRendererDescription(-3, 0, 6, 0));
+
 			case PANE_SPLITTER:
-				return o == AquaUIPainter.Orientation.HORIZONTAL ? new BasicRendererDescription(0, -1, 0, 2) : new BasicRendererDescription(-1, 0, 2, 0);
+				// At 2x, the native view painter requires a "divider width" of at least 11 points.
+				// At 1x, a larger width works better for vertical dividers.
+				// We should only be given a "divider width" of 10 points, as that is the fixed logical divider width.
+				return o == AquaUIPainter.Orientation.HORIZONTAL ? new BasicRendererDescription(0, 0, 0, 1) : new BasicRendererDescription(-5, 0, 10, 0);
+
 			default:
 				return null;
 		}
