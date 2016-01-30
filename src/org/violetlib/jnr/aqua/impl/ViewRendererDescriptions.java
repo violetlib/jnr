@@ -167,6 +167,7 @@ public class ViewRendererDescriptions
 
 		AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
 		AquaUIPainter.Size sz = g.getSize();
+		AquaUIPainter.Position position = g.getPosition();
 
 		switch (bw) {
 			case BUTTON_TAB:
@@ -207,7 +208,10 @@ public class ViewRendererDescriptions
 					case SMALL:
 						return createVertical(-1, 4);
 					case MINI:
-						return createVertical(0, 4);
+						boolean isLeft = position == AquaUIPainter.Position.FIRST || position == AquaUIPainter.Position.ONLY;
+						return new MultiResolutionRendererDescription(
+							new BasicRendererDescription(isLeft ? -1 : 0, 0, isLeft ? 1 : 0, 5),
+							new BasicRendererDescription(isLeft ? -0.5f : 0, 0, isLeft ? 0.5f : 0, 4.5f));
 					default:
 						throw new UnsupportedOperationException();
 				}

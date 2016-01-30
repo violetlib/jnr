@@ -118,10 +118,16 @@ public class CoreUIRendererDescriptions
 			case BUTTON_SEGMENTED_SCURVE:
 			case BUTTON_SEGMENTED_TEXTURED:
 			case BUTTON_SEGMENTED_TOOLBAR:
+				if (sz == AquaUIPainter.Size.MINI) {
+					rd = createVertical(0, 4);
+				}
 				yOffset = size(sz, 0, -1, -2);
 				break;
 
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+				if (sz == AquaUIPainter.Size.MINI) {
+					rd = createVertical(0, 4);
+				}
 				yOffset = size(sz, 0, -1, -2);
 				extraWidth = -0.49f;	// decrease the raster width at 2x so that the gap is 1 point
 				isLeftDividerPossible = false;

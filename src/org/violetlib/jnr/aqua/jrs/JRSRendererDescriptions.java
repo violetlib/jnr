@@ -14,6 +14,7 @@ import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.SegmentedButtonConfiguration;
 import org.violetlib.jnr.aqua.coreui.CoreUIRendererDescriptions;
 import org.violetlib.jnr.aqua.impl.NativeSupport;
+import org.violetlib.jnr.impl.BasicRendererDescription;
 import org.violetlib.jnr.impl.JNRUtils;
 import org.violetlib.jnr.impl.RendererDescription;
 
@@ -35,15 +36,18 @@ public class JRSRendererDescriptions
 		}
 
 		RendererDescription rd = super.getSegmentedButtonRendererDescription(g);
-
 		AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
 		AquaUIPainter.Size sz = g.getSize();
+		AquaUIPainter.Position position = g.getPosition();
 
 		try {
 			switch (bw)
 			{
 				case BUTTON_SEGMENTED:
 				{
+					if (sz == AquaUIPainter.Size.MINI) {
+						rd = new BasicRendererDescription(0, 0, position == AquaUIPainter.Position.MIDDLE ? 1 : 0, 4);
+					}
 					float yOffset = JNRUtils.size(sz, -1, -1, 0);
 					return JNRUtils.changeRendererDescription(rd, JNRUtils.NO_CHANGE, yOffset, JNRUtils.NO_CHANGE, JNRUtils.NO_CHANGE);
 				}
@@ -54,6 +58,9 @@ public class JRSRendererDescriptions
 				case BUTTON_SEGMENTED_SCURVE:
 				case BUTTON_SEGMENTED_TEXTURED:
 				case BUTTON_SEGMENTED_TOOLBAR:
+					if (sz == AquaUIPainter.Size.MINI) {
+						rd = new BasicRendererDescription(0, 0, position == AquaUIPainter.Position.MIDDLE ? 1 : 0, 4);
+					}
 					return JNRUtils.changeRendererDescription(rd, JNRUtils.NO_CHANGE, 0, JNRUtils.NO_CHANGE, JNRUtils.NO_CHANGE);
 			}
 		} catch (UnsupportedOperationException ex) {

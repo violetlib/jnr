@@ -268,8 +268,8 @@ public class YosemiteLayoutInfo
 		switch (bw) {
 			case BUTTON_TAB:
 			case BUTTON_SEGMENTED:
-				top = size(sz, 1, 1, 1);
-				bottom = size(sz, 2, 2, 3);
+				top = size2D(sz, 1, 1, 0.5f);
+				bottom = size2D(sz, 2, 2, 2.5f);
 				endAdjust = 3;
 				break;
 			case BUTTON_SEGMENTED_INSET:
@@ -282,7 +282,7 @@ public class YosemiteLayoutInfo
 			case BUTTON_SEGMENTED_TOOLBAR:
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
 				top = size(sz, 1, 1, 1);
-				bottom = size(sz, 1, 1, 2);
+				bottom = size(sz, 1, 1, 1);
 				endAdjust = 2;
 				break;
 			case BUTTON_SEGMENTED_SMALL_SQUARE:

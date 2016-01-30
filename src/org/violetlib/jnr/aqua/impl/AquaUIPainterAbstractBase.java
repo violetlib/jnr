@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -23,6 +23,7 @@ import org.violetlib.jnr.aqua.PopupButtonLayoutConfiguration;
 import org.violetlib.jnr.aqua.ScrollBarThumbConfiguration;
 import org.violetlib.jnr.aqua.ScrollBarThumbLayoutConfiguration;
 import org.violetlib.jnr.aqua.SliderLayoutConfiguration;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 /**
 	An abstract base class containing common code that supports layout but not rendering.
@@ -52,8 +53,14 @@ public abstract class AquaUIPainterAbstractBase
 	protected float pWidth;					// the width of the painted area, limited by the widget fixed width (if any)
 	protected float pHeight;				// the height of the painted area, limited by the widget fixed height (if any)
 
-	protected static final @NotNull AquaUILayoutInfo uiLayout = new YosemiteLayoutInfo();
-	protected static final @NotNull UIOutliner uiOutliner = new YosemiteOutliner((YosemiteLayoutInfo) uiLayout);
+	protected static final @NotNull AquaUILayoutInfo uiLayout;
+	protected static final @NotNull UIOutliner uiOutliner;
+
+	static {
+		int platformVersion = JNRPlatformUtils.getPlatformVersion();
+		uiLayout = platformVersion >= 101100 ? new ElCapitanLayoutInfo() : new YosemiteLayoutInfo();
+		uiOutliner = new YosemiteOutliner((YosemiteLayoutInfo) uiLayout);
+	}
 
 	public void setAlignmentEnabled(boolean b)
 	{
