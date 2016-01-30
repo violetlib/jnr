@@ -262,8 +262,8 @@ public interface AquaUIPainter
 
 		// The following styles are obsolete and are replaced by other styles in Yosemite
 
-		BUTTON_SEGMENTED_TOOLBAR,       // also known as Textured Rounded
-		BUTTON_SEGMENTED_SCURVE,        // also known as Capsule
+		BUTTON_SEGMENTED_TOOLBAR,       // also known as Capsule or Textured Rounded
+		BUTTON_SEGMENTED_SCURVE,        // also known as Capsule or Textured Rounded
 	}
 
 	/**
