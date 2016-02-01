@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -166,7 +166,7 @@ public class CoreUIPainter
 			case BUTTON_INLINE:
 				widget = CoreUIWidgets.BUTTON_PUSH_SLIDESHOW; break;	// not correct, inline buttons are not supported by Core UI
 			case BUTTON_TEXTURED:
-				widget = CoreUIWidgets.BUTTON_PUSH_TEXTURED; break;
+				widget = CoreUIWidgets.BUTTON_SEGMENTED_SCURVE; break;
 			case BUTTON_PUSH_INSET2:
 				widget = CoreUIWidgets.BUTTON_PUSH_INSET2; break;
 			case BUTTON_COLOR_WELL:
@@ -1128,7 +1128,8 @@ public class CoreUIPainter
 			case BUTTON_SEGMENTED_SMALL_SQUARE:
 				widget = CoreUIWidgets.BUTTON_BEVEL_INSET; break;
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-				widget = CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR; break;
+				int platformVersion = JNRPlatformUtils.getPlatformVersion();
+				widget = platformVersion >= 101100 ? CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TEXTURED : CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR; break;
 		}
 
 		BasicRenderer r = getRenderer(

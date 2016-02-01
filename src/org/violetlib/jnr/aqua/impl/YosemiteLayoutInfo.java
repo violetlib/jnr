@@ -86,7 +86,6 @@ public class YosemiteLayoutInfo
 			return BasicLayoutInfo.createFixedHeight(size(sz, 18, 16, 14));
 
 		} else if (bw == ButtonWidget.BUTTON_TEXTURED) {
-			// NSButton has a fixed height. Core UI does not.
 			return BasicLayoutInfo.createFixedHeight(size(sz, 23, 19, 16));
 
 		} else if (bw == ButtonWidget.BUTTON_ROUND) {
@@ -268,8 +267,8 @@ public class YosemiteLayoutInfo
 		switch (bw) {
 			case BUTTON_TAB:
 			case BUTTON_SEGMENTED:
-				top = size2D(sz, 1, 1, 0.5f);
-				bottom = size2D(sz, 2, 2, 2.5f);
+				top = size2D(sz, 1, 1, 1);
+				bottom = size2D(sz, 2, 2, 2);
 				endAdjust = 3;
 				break;
 			case BUTTON_SEGMENTED_INSET:

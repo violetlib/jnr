@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -34,6 +34,7 @@ public class CoreUIWidgets
 	public static final String BUTTON_SEGMENTED_INSET2 = "kCUIWidgetButtonSegmentedInset2";
 	public static final String BUTTON_SEGMENTED_SCURVE = "kCUIWidgetButtonSegmentedSCurve";
 	public static final String BUTTON_SEGMENTED_SEPARATED = "kCUIWidgetButtonSegmentedSeparated";
+	public static final String BUTTON_SEGMENTED_SEPARATED_TEXTURED = "kCUIWidgetButtonSegmentedSeparatedTextured";
 	public static final String BUTTON_SEGMENTED_SEPARATED_TOOLBAR = "kCUIWidgetButtonSegmentedSeparatedToolbar";
 	public static final String BUTTON_SEGMENTED_SLIDESHOW = "kCUIWidgetButtonSegmentedSlideshow";
 	public static final String BUTTON_SEGMENTED_TEXTURED = "kCUIWidgetButtonSegmentedTextured";

@@ -12,6 +12,7 @@ import org.jetbrains.annotations.*;
 
 import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.impl.BasicRendererDescription;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.MultiResolutionRendererDescription;
 import org.violetlib.jnr.impl.RendererDescription;
 
@@ -168,6 +169,7 @@ public class ViewRendererDescriptions
 		AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
 		AquaUIPainter.Size sz = g.getSize();
 		AquaUIPainter.Position position = g.getPosition();
+		int platformVersion = JNRPlatformUtils.getPlatformVersion();
 
 		switch (bw) {
 			case BUTTON_TAB:
@@ -177,9 +179,9 @@ public class ViewRendererDescriptions
 					case REGULAR:
 						return createVertical(0, 1);
 					case SMALL:
-						return createVertical(0, 2);
+						return createVertical(-0.49f, 2);
 					case MINI:
-						return createVertical(-1, 5);
+						return createVertical(-0.51f, 5);
 					default:
 						throw new UnsupportedOperationException();
 				}
@@ -204,14 +206,14 @@ public class ViewRendererDescriptions
 				switch (sz) {
 					case LARGE:
 					case REGULAR:
-						return createVertical(-1, 2);
+						return platformVersion >= 101100 ? new BasicRendererDescription(-1, -1.49f, 0, 3): createVertical(-1, 2);
 					case SMALL:
-						return createVertical(-1, 4);
+						return platformVersion >= 101100 ? createVertical(-0.49f, 4) : createVertical(-1, 4);
 					case MINI:
 						boolean isLeft = position == AquaUIPainter.Position.FIRST || position == AquaUIPainter.Position.ONLY;
 						return new MultiResolutionRendererDescription(
-							new BasicRendererDescription(isLeft ? -1 : 0, 0, isLeft ? 1 : 0, 5),
-							new BasicRendererDescription(isLeft ? -0.5f : 0, 0, isLeft ? 0.5f : 0, 4.5f));
+							new BasicRendererDescription(isLeft ? -1 : 0, platformVersion >= 101100 ? 0 : -1, isLeft ? 1 : 0, 5),
+							new BasicRendererDescription(isLeft ? -0.5f : 0, 0, isLeft ? 0.5f : 0, platformVersion >= 101100 ? 5 : 4.5f));
 					default:
 						throw new UnsupportedOperationException();
 				}
