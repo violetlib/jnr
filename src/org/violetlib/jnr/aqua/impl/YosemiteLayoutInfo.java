@@ -1121,14 +1121,16 @@ public class YosemiteLayoutInfo
 	{
 		switch (g.getWidget()) {
 			case TEXT_FIELD_ROUND:
+				// On Yosemite, a mini rounded text field has height 19.
+				// This behavior is probably a bug, and we do not emulate it.
 				return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 22, 19, 17));
 
 			case TEXT_FIELD_SEARCH:
 			case TEXT_FIELD_SEARCH_WITH_CANCEL:
 			case TEXT_FIELD_SEARCH_WITH_MENU:
 			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
-				// NSTextView is not capable of displaying a mini size search field, but Core UI can draw one.
-				// IB will create a mini size search field with height 15, but it displays clipped.
+				// On Yosemite, a mini search field is clipped with height 15.
+				// This behavior is probably a bug, and we do not emulate it.
 				return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 22, 19, 17));
 			default:
 				return BasicLayoutInfo.getInstance();

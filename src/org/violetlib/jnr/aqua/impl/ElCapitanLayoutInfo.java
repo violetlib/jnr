@@ -15,6 +15,7 @@ import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.ButtonLayoutConfiguration;
 import org.violetlib.jnr.aqua.SegmentedButtonLayoutConfiguration;
+import org.violetlib.jnr.aqua.TextFieldLayoutConfiguration;
 import org.violetlib.jnr.aqua.ToolBarItemWellLayoutConfiguration;
 import org.violetlib.jnr.impl.BasicLayoutInfo;
 import org.violetlib.jnr.impl.Insetters;
@@ -75,7 +76,7 @@ public class ElCapitanLayoutInfo
 			return BasicLayoutInfo.createFixedHeight(size(sz, 18, 16, 14));
 
 		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED) {
-			return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));	// changed
+			return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));	// changed in El Capitan
 
 		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND) {
 			return BasicLayoutInfo.createFixed(size(sz, 20, 17, 14), size(sz, 21, 18, 15));
@@ -226,7 +227,7 @@ public class ElCapitanLayoutInfo
 			case BUTTON_SEGMENTED_TEXTURED:
 			case BUTTON_SEGMENTED_TOOLBAR:
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-				return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));	// changed
+				return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));	// changed in El Capitan
 
 			case BUTTON_SEGMENTED_SMALL_SQUARE:
 				return BasicLayoutInfo.createFixedHeight(size(sz, 21, 19, 17));
@@ -269,8 +270,8 @@ public class ElCapitanLayoutInfo
 			case BUTTON_SEGMENTED_TEXTURED:
 			case BUTTON_SEGMENTED_TOOLBAR:
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-				top = 0.5f;	// changed
-				bottom = 1.5f;	// changed
+				top = 0.5f;	// changed in El Capitan
+				bottom = 1.5f;	// changed in El Capitan
 				endAdjust = 2;
 				break;
 			case BUTTON_SEGMENTED_SMALL_SQUARE:
@@ -290,5 +291,22 @@ public class ElCapitanLayoutInfo
 		}
 
 		return Insetters.createFixed(top, left, bottom, right, layoutInfo);
+	}
+
+	@Override
+	protected @NotNull LayoutInfo getTextFieldLayoutInfo(@NotNull TextFieldLayoutConfiguration g)
+	{
+		switch (g.getWidget()) {
+			case TEXT_FIELD_ROUND:
+				return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 22, 19, 17));
+
+			case TEXT_FIELD_SEARCH:
+			case TEXT_FIELD_SEARCH_WITH_CANCEL:
+			case TEXT_FIELD_SEARCH_WITH_MENU:
+			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
+				return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 22, 19, 17));
+			default:
+				return BasicLayoutInfo.getInstance();
+		}
 	}
 }
