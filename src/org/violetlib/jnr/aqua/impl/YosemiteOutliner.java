@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -143,7 +143,7 @@ public class YosemiteOutliner
 			corner = 14;
 		} else if (bw == BUTTON_RECESSED) {
 			corner = 6;
-		} else if (bw == BUTTON_TEXTURED) {
+		} else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR) {
 			corner = 6;
 			height -= 0.5;
 		} else if (bw == BUTTON_DISCLOSURE_TRIANGLE) {
@@ -182,6 +182,7 @@ public class YosemiteOutliner
 		{
 			case BUTTON_TAB:
 			case BUTTON_SEGMENTED:
+			case BUTTON_SEGMENTED_SEPARATED:
 				x += size2D(sz, isLeft ? 0.5f : 0, 0, 0);
 				y += size2D(sz, 0.5f, 1, 1);
 				height += size2D(sz, -2, -3, -2);
@@ -204,8 +205,10 @@ public class YosemiteOutliner
 				break;
 			case BUTTON_SEGMENTED_SCURVE:
 			case BUTTON_SEGMENTED_TEXTURED:
+			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
 			case BUTTON_SEGMENTED_TOOLBAR:
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
 				width += size2D(sz, 0, 0, 0);
 				height += size2D(sz, -1, -1, -1);
 				break;
@@ -305,7 +308,10 @@ public class YosemiteOutliner
 			} else if (bw == BUTTON_POP_UP_BEVEL || bw == BUTTON_POP_DOWN_BEVEL) {
 				height += size2D(sz, -2, -2, -1);
 				y += size2D(sz, 0.5f, 0.5f, 0.5f);
-			} else if (bw == BUTTON_POP_UP_TEXTURED || bw == BUTTON_POP_DOWN_TEXTURED) {
+			} else if (bw == BUTTON_POP_UP_TEXTURED
+				|| bw == BUTTON_POP_DOWN_TEXTURED
+				|| bw == BUTTON_POP_UP_TEXTURED_TOOLBAR
+				|| bw == BUTTON_POP_DOWN_TEXTURED_TOOLBAR) {
 				height += -0.5f;
 			}
 
@@ -369,27 +375,20 @@ public class YosemiteOutliner
 		double width = bounds.getWidth();
 		double height = bounds.getHeight();
 
-		switch (g.getWidget()) {
-
-			case TEXT_FIELD_SEARCH_WITH_MENU:
-			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
-			case TEXT_FIELD_SEARCH:
-			case TEXT_FIELD_SEARCH_WITH_CANCEL:
-
-				double corner = 6;
-				x += 0.5;
-				y += 0.5;
-				width -= 1;
-				height -= 1;
-				return new RoundRectangle2D.Double(x, y, width, height, corner, corner);
-
-			default:
-
-				x += 0.5;
-				y += 0.5;
-				width -= 1.5;
-				height -= 1.5;
-				return new Rectangle2D.Double(x, y, width, height);
+		TextFieldWidget w = g.getWidget();
+		if (w.isSearch()) {
+			double corner = 6;
+			x += 0.5;
+			y += 0.5;
+			width -= 1;
+			height -= 1;
+			return new RoundRectangle2D.Double(x, y, width, height, corner, corner);
+		} else {
+			x += 0.5;
+			y += 0.5;
+			width -= 1.5;
+			height -= 1.5;
+			return new Rectangle2D.Double(x, y, width, height);
 		}
 	}
 

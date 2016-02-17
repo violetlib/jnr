@@ -76,7 +76,7 @@ public class AugmentedAquaNativePainter
 	{
 		Renderer r = super.getTextFieldRenderer(g);
 		TextFieldWidget w = g.getWidget();
-		if (w == TextFieldWidget.TEXT_FIELD_SEARCH_WITH_MENU || w == TextFieldWidget.TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL) {
+		if (w.hasMenu()) {
 			Insetter insets = uiLayout.getSearchButtonPaintingInsets(g);
 			if (insets != null) {
 				PainterExtension px = new SearchFieldMenuIconPainter(g, insets);

@@ -14,6 +14,7 @@ import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.ButtonLayoutConfiguration;
+import org.violetlib.jnr.aqua.PopupButtonLayoutConfiguration;
 import org.violetlib.jnr.aqua.SegmentedButtonLayoutConfiguration;
 import org.violetlib.jnr.aqua.TextFieldLayoutConfiguration;
 import org.violetlib.jnr.aqua.ToolBarItemWellLayoutConfiguration;
@@ -77,6 +78,9 @@ public class ElCapitanLayoutInfo
 
 		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED) {
 			return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));	// changed in El Capitan
+
+		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
+			return BasicLayoutInfo.createFixedHeight(size(sz, 24, 20, 17));	// new in El Capitan
 
 		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND) {
 			return BasicLayoutInfo.createFixed(size(sz, 20, 17, 14), size(sz, 21, 18, 15));
@@ -168,7 +172,7 @@ public class ElCapitanLayoutInfo
 			top = bottom = 1;
 			left = right = 4;
 
-		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED) {
+		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED || bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
 			top = 0.5f;	// changed
 			bottom = 1.5f;	// changed
 			left = right = 3;
@@ -218,6 +222,7 @@ public class ElCapitanLayoutInfo
 		switch (bw) {
 			case BUTTON_TAB:
 			case BUTTON_SEGMENTED:
+			case BUTTON_SEGMENTED_SEPARATED:
 				return BasicLayoutInfo.createFixedHeight(size(sz, 22, 19, 16));
 
 			case BUTTON_SEGMENTED_INSET:
@@ -228,6 +233,10 @@ public class ElCapitanLayoutInfo
 			case BUTTON_SEGMENTED_TOOLBAR:
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
 				return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));	// changed in El Capitan
+
+			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+				return BasicLayoutInfo.createFixedHeight(size(sz, 24, 20, 17));	// introduced in El Capitan
 
 			case BUTTON_SEGMENTED_SMALL_SQUARE:
 				return BasicLayoutInfo.createFixedHeight(size(sz, 21, 19, 17));
@@ -274,6 +283,12 @@ public class ElCapitanLayoutInfo
 				bottom = 1.5f;	// changed in El Capitan
 				endAdjust = 2;
 				break;
+			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+				top = 0.5f;	// introduced in El Capitan
+				bottom = 1.5f;	// introduced in El Capitan
+				endAdjust = 2;
+				break;
 			case BUTTON_SEGMENTED_SMALL_SQUARE:
 				top = size(sz, 1, 1, 1);
 				bottom = size(sz, 1, 1, 1);
@@ -294,19 +309,88 @@ public class ElCapitanLayoutInfo
 	}
 
 	@Override
+	protected @NotNull LayoutInfo getPopUpButtonLayoutInfo(@NotNull PopupButtonLayoutConfiguration g)
+	{
+		// On Yosemite and El Capitan, the square style bombs if the mini size is selected.
+		// See rendering code, which must be consistent.
+
+		AquaUIPainter.PopupButtonWidget bw = g.getPopupButtonWidget();
+		AquaUIPainter.Size sz = g.getSize();
+		boolean isSquare = bw == AquaUIPainter.PopupButtonWidget.BUTTON_POP_UP_SQUARE || bw == AquaUIPainter.PopupButtonWidget.BUTTON_POP_DOWN_SQUARE;
+		boolean isArrowsOnly = bw == AquaUIPainter.PopupButtonWidget.BUTTON_POP_UP_CELL || bw == AquaUIPainter.PopupButtonWidget.BUTTON_POP_DOWN_CELL;
+
+		if ((isSquare || isArrowsOnly) && sz == AquaUIPainter.Size.MINI) {
+			sz = AquaUIPainter.Size.SMALL;
+		}
+
+		switch (bw) {
+			case BUTTON_POP_UP:
+			case BUTTON_POP_DOWN:
+			{
+				float fixedHeight = size(sz, 22, 19, 16);
+				float minWidth = size(sz, 25, 24, 20);
+				return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
+			}
+
+			case BUTTON_POP_UP_CELL:
+			case BUTTON_POP_DOWN_CELL:
+				return BasicLayoutInfo.createMinimumHeight(size(sz, 12, 10, 10));
+
+			case BUTTON_POP_UP_SQUARE:
+			case BUTTON_POP_DOWN_SQUARE:
+				return BasicLayoutInfo.createFixedHeight(size(sz, 23, 20, 17));
+
+			case BUTTON_POP_DOWN_BEVEL:
+			case BUTTON_POP_UP_BEVEL:
+				return BasicLayoutInfo.createFixedHeight(22);
+
+			case BUTTON_POP_DOWN_ROUND_RECT:
+			case BUTTON_POP_UP_ROUND_RECT:
+				return BasicLayoutInfo.createFixedHeight(size(sz, 18, 16, 14));
+
+			case BUTTON_POP_DOWN_RECESSED:
+			case BUTTON_POP_UP_RECESSED:
+				return BasicLayoutInfo.createFixedHeight(size(sz, 18, 16, 14));
+
+			case BUTTON_POP_DOWN_TEXTURED:
+			case BUTTON_POP_UP_TEXTURED:
+			{
+				float fixedHeight = size(sz, 22, 18, 15);	// changed in El Capitan
+				float minWidth = size(sz, 25, 24, 20);
+				return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
+			}
+
+			case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
+			case BUTTON_POP_UP_TEXTURED_TOOLBAR:
+			{
+				// introduced in El Capitan
+				float fixedHeight = size(sz, 24, 20, 17);
+				float minWidth = size(sz, 25, 24, 20);
+				return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
+			}
+
+			case BUTTON_POP_DOWN_GRADIENT:
+			case BUTTON_POP_UP_GRADIENT:
+				return BasicLayoutInfo.createFixedHeight(21);
+
+			default:
+				throw new UnsupportedOperationException();
+		}
+	}
+
+	@Override
 	protected @NotNull LayoutInfo getTextFieldLayoutInfo(@NotNull TextFieldLayoutConfiguration g)
 	{
-		switch (g.getWidget()) {
-			case TEXT_FIELD_ROUND:
+		AquaUIPainter.TextFieldWidget w = g.getWidget();
+		if (w.isRound() || w.isSearch()) {
+			if (w.isToolbar()) {
+				// The actual sizes for small and mini are bogus. We do not simulate this bug.
+				return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 24, 20, 17));
+			} else {
 				return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 22, 19, 17));
-
-			case TEXT_FIELD_SEARCH:
-			case TEXT_FIELD_SEARCH_WITH_CANCEL:
-			case TEXT_FIELD_SEARCH_WITH_MENU:
-			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
-				return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 22, 19, 17));
-			default:
-				return BasicLayoutInfo.getInstance();
+			}
 		}
+
+		return BasicLayoutInfo.getInstance();
 	}
 }

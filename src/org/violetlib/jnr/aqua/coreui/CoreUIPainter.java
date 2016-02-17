@@ -115,6 +115,7 @@ public class CoreUIPainter
 
 		RendererDescription rd = rendererDescriptions.getButtonRendererDescription(g);
 		State st = g.getState();
+		int platformVersion = JNRPlatformUtils.getPlatformVersion();
 
 		String widget;
 
@@ -167,6 +168,8 @@ public class CoreUIPainter
 				widget = CoreUIWidgets.BUTTON_PUSH_SLIDESHOW; break;	// not correct, inline buttons are not supported by Core UI
 			case BUTTON_TEXTURED:
 				widget = CoreUIWidgets.BUTTON_SEGMENTED_SCURVE; break;
+			case BUTTON_TEXTURED_TOOLBAR:
+				widget = platformVersion >= 101100 ? CoreUIWidgets.BUTTON_SEGMENTED_TOOLBAR : CoreUIWidgets.BUTTON_SEGMENTED_SCURVE; break;
 			case BUTTON_PUSH_INSET2:
 				widget = CoreUIWidgets.BUTTON_PUSH_INSET2; break;
 			case BUTTON_COLOR_WELL:
@@ -217,7 +220,7 @@ public class CoreUIPainter
 		}
 
 		// Textured buttons paint the same background when disabled as they would when enabled
-		if (bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_ROUND_TEXTURED) {
+		if (bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR || bw == ButtonWidget.BUTTON_ROUND_TEXTURED) {
 			if (st == State.DISABLED) {
 				st = State.ACTIVE;
 			} else if (st == State.DISABLED_INACTIVE) {
@@ -434,32 +437,43 @@ public class CoreUIPainter
 		RendererDescription rd = rendererDescriptions.getTextFieldRendererDescription(g);
 		TextFieldWidget tw = g.getWidget();
 
-		if (tw == TextFieldWidget.TEXT_FIELD || tw == TextFieldWidget.TEXT_FIELD_ROUND) {
+		String widget = getWidget(tw);
+
+		if (widget != null) {
+			String variant = getVariant(tw);
 			BasicRenderer r =  getRenderer(
-				WIDGET_KEY, tw == TextFieldWidget.TEXT_FIELD_ROUND ? CoreUIWidgets.FRAME_TEXT_FIELD_ROUND : CoreUIWidgets.FRAME_TEXT_FIELD,
+				WIDGET_KEY, widget,
 				SIZE_KEY, tw == TextFieldWidget.TEXT_FIELD ? toSize(Size.LARGE) : toSize(g.getSize()),
 				STATE_KEY, toState(g.getState()),
+				VARIANT_KEY, variant,
 				IS_FOCUSED_KEY, g.isFocused()
 			);
 			return Renderer.create(r, rd);
-		} else {
+		} else if (tw.isSearch()) {
 			Insetter searchButtonInsets = uiLayout.getSearchButtonPaintingInsets(g);
-			Insetter cancelButtonInsets = null;
-
-			switch (tw) {
-				case TEXT_FIELD_SEARCH:
-				case TEXT_FIELD_SEARCH_WITH_MENU:
-					break;
-				case TEXT_FIELD_SEARCH_WITH_CANCEL:
-				case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
-					cancelButtonInsets = uiLayout.getCancelButtonPaintingInsets(g);
-					break;
-				default:
-					throw new UnsupportedOperationException();
-			}
-
+			Insetter cancelButtonInsets = tw.hasCancel() ? uiLayout.getCancelButtonPaintingInsets(g) : null;
 			return new SearchFieldRenderer(g, rd, searchButtonInsets, cancelButtonInsets);
+		} else {
+			throw new UnsupportedOperationException();
 		}
+	}
+
+	private @Nullable String getWidget(@NotNull TextFieldWidget tw)
+	{
+		switch (tw) {
+			case TEXT_FIELD_ROUND:
+			case TEXT_FIELD_ROUND_TOOLBAR:
+				return CoreUIWidgets.FRAME_TEXT_FIELD_ROUND;
+			case TEXT_FIELD:
+				return CoreUIWidgets.FRAME_TEXT_FIELD;
+			default:
+				return null;
+		}
+	}
+
+	private @Nullable String getVariant(@NotNull TextFieldWidget tw)
+	{
+		return tw.isToolbar() ? CoreUIWidgets.VARIANT_TEXT_FIELD_ROUND_TOOLBAR : null;
 	}
 
 	private class SearchFieldRenderer
@@ -488,10 +502,12 @@ public class CoreUIPainter
 			float h = compositor.getHeight();
 
 			{
+				String variant = getVariant(g.getWidget());
 				BasicRenderer br = getRenderer(
 					WIDGET_KEY, CoreUIWidgets.FRAME_TEXT_FIELD_ROUND,
 					SIZE_KEY, toSize(g.getSize()),
 					STATE_KEY, toState(g.getState()),
+					VARIANT_KEY, variant,
 					IS_FOCUSED_KEY, g.isFocused()
 				);
 				Renderer r = Renderer.create(br, rd);
@@ -519,7 +535,7 @@ public class CoreUIPainter
 	public @NotNull Renderer getSearchFieldFindButtonRenderer(@NotNull TextFieldConfiguration g)
 	{
 		TextFieldWidget widget = g.getWidget();
-		boolean hasMenu = widget == TextFieldWidget.TEXT_FIELD_SEARCH_WITH_MENU || widget == TextFieldWidget.TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL;
+		boolean hasMenu = widget.hasMenu();
 		BasicRenderer r = getRenderer(
 			WIDGET_KEY, CoreUIWidgets.BUTTON_SEARCH_FIELD_FIND,
 			USER_INTERFACE_LAYOUT_DIRECTION_KEY, toLayoutDirection(g.getLayoutDirection()),
@@ -609,6 +625,7 @@ public class CoreUIPainter
 		String widget;
 		List<String> extraParameters = null;
 		RendererDescription rd = rendererDescriptions.getBasicPopupButtonRendererDescription(g);
+		int platformVersion = JNRPlatformUtils.getPlatformVersion();
 
 		switch (g.getPopupButtonWidget()) {
 
@@ -647,8 +664,16 @@ public class CoreUIPainter
 				widget = CoreUIWidgets.BUTTON_POP_DOWN_TEXTURED;
 				break;
 
+			case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
+				widget = platformVersion >= 101100 ? CoreUIWidgets.BUTTON_POP_DOWN_TOOLBAR : CoreUIWidgets.BUTTON_POP_DOWN_TEXTURED;
+				break;
+
 			case BUTTON_POP_UP_TEXTURED:
 				widget = CoreUIWidgets.BUTTON_POP_UP_TEXTURED;
+				break;
+
+			case BUTTON_POP_UP_TEXTURED_TOOLBAR:
+				widget = platformVersion >= 101100 ? CoreUIWidgets.BUTTON_POP_UP_TOOLBAR : CoreUIWidgets.BUTTON_POP_UP_TEXTURED;
 				break;
 
 			case BUTTON_POP_DOWN_GRADIENT:
@@ -702,6 +727,8 @@ public class CoreUIPainter
 			case BUTTON_POP_UP_ROUND_RECT:
 			case BUTTON_POP_DOWN_TEXTURED:
 			case BUTTON_POP_UP_TEXTURED:
+			case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
+			case BUTTON_POP_UP_TEXTURED_TOOLBAR:
 				return null;
 
 			// These button widgets are unable to paint proper arrows in the rollover state on El Capitan (the color is
@@ -1111,6 +1138,7 @@ public class CoreUIPainter
 		State st = g.getState();
 		String widget = CoreUIWidgets.BUTTON_SEGMENTED;
 		Object state = toState(st);
+		int platformVersion = JNRPlatformUtils.getPlatformVersion();
 
 		switch (bw) {
 			case BUTTON_TAB:
@@ -1123,13 +1151,18 @@ public class CoreUIPainter
 				widget = CoreUIWidgets.BUTTON_SEGMENTED_SCURVE; break;
 			case BUTTON_SEGMENTED_TEXTURED:
 				widget = CoreUIWidgets.BUTTON_SEGMENTED_TEXTURED; break;
+			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+				widget = platformVersion >= 101100 ? CoreUIWidgets.BUTTON_SEGMENTED_TOOLBAR : CoreUIWidgets.BUTTON_SEGMENTED_TEXTURED; break;
 			case BUTTON_SEGMENTED_TOOLBAR:
 				widget = CoreUIWidgets.BUTTON_SEGMENTED_TOOLBAR; break;
 			case BUTTON_SEGMENTED_SMALL_SQUARE:
 				widget = CoreUIWidgets.BUTTON_BEVEL_INSET; break;
+			case BUTTON_SEGMENTED_SEPARATED:
+				widget = CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED; break;
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-				int platformVersion = JNRPlatformUtils.getPlatformVersion();
 				widget = platformVersion >= 101100 ? CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TEXTURED : CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR; break;
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+				widget = platformVersion >= 101100 ? CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR : CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR; break;
 		}
 
 		BasicRenderer r = getRenderer(

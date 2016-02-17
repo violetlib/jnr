@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -28,11 +28,17 @@ public class JRSRendererDescriptions
 	@Override
 	public @NotNull RendererDescription getSegmentedButtonRendererDescription(@NotNull SegmentedButtonConfiguration g)
 	{
-		if (g.getWidget() == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED) {
+		boolean compress = false;
+
+		AquaUIPainter.SegmentedButtonWidget w = g.getWidget();
+		if (w == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED
+			|| w == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR) {
 			// an attempted workaround, must coordinate with renderer
-			g = new SegmentedButtonConfiguration(AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED,
-				g.getSize(), g.getState(), g.isSelected(), g.isFocused(), g.getDirection(), g.getPosition(),
-				g.getLeftDividerState(), g.getRightDividerState());
+			g = g.withWidget(AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED);
+		} else if (w == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED) {
+			// an attempted workaround, must coordinate with renderer
+			g = g.withWidget(AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED);
+			compress = true;
 		}
 
 		RendererDescription rd = super.getSegmentedButtonRendererDescription(g);
@@ -49,7 +55,9 @@ public class JRSRendererDescriptions
 						rd = new BasicRendererDescription(0, 0, position == AquaUIPainter.Position.MIDDLE ? 1 : 0, 4);
 					}
 					float yOffset = JNRUtils.size(sz, -1, -1, 0);
-					return JNRUtils.changeRendererDescription(rd, JNRUtils.NO_CHANGE, yOffset, JNRUtils.NO_CHANGE, JNRUtils.NO_CHANGE);
+					float xOffset = compress ? JNRUtils.size2D(sz, -2.49f, -2.49f, -1.49f) : JNRUtils.NO_CHANGE;
+					float widthAdjust = compress ? JNRUtils.size2D(sz, 5, 5, 3) : JNRUtils.NO_CHANGE;
+					return JNRUtils.changeRendererDescription(rd, xOffset, yOffset, widthAdjust, JNRUtils.NO_CHANGE);
 				}
 
 				case BUTTON_SEGMENTED_INSET:
@@ -57,6 +65,7 @@ public class JRSRendererDescriptions
 
 				case BUTTON_SEGMENTED_SCURVE:
 				case BUTTON_SEGMENTED_TEXTURED:
+				case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:	// not supported
 				case BUTTON_SEGMENTED_TOOLBAR:
 					if (sz == AquaUIPainter.Size.MINI) {
 						rd = new BasicRendererDescription(0, 0, position == AquaUIPainter.Position.MIDDLE ? 1 : 0, 4);

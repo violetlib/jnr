@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -89,6 +89,12 @@ public class SegmentedButtonConfiguration
 																			@NotNull DividerState rightDividerState)
 	{
 		this(g.getWidget(), g.getSize(), state, isSelected, isFocused, d, g.getPosition(), leftDividerState, rightDividerState);
+	}
+
+	public @NotNull SegmentedButtonConfiguration withWidget(@NotNull SegmentedButtonWidget widget)
+	{
+		return new SegmentedButtonConfiguration(widget,
+			getSize(), state, isSelected, isFocused, d, getPosition(), leftDividerState, rightDividerState);
 	}
 
 	public @NotNull State getState()

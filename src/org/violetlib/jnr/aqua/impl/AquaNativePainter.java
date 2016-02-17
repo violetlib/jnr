@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,6 +8,7 @@
 
 package org.violetlib.jnr.aqua.impl;
 
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
@@ -16,8 +17,11 @@ import java.security.PrivilegedAction;
 import org.jetbrains.annotations.*;
 
 import org.violetlib.jnr.aqua.*;
+import org.violetlib.jnr.impl.BasicImageSupport;
 import org.violetlib.jnr.impl.BasicRenderer;
+import org.violetlib.jnr.impl.RasterDescription;
 import org.violetlib.jnr.impl.Renderer;
+import org.violetlib.jnr.impl.RendererDebugInfo;
 import org.violetlib.jnr.impl.RendererDescription;
 
 /**
@@ -61,6 +65,9 @@ public class AquaNativePainter
 	protected static final int NSRoundedDisclosureBezelStyle = 14;
 	protected static final int NSInlineBezelStyle            = 15;
 
+	// The following is an internal bezel style. It indicates that the button is on a toolbar.
+	protected static final int NSTexturedRoundedBezelStyle_Toolbar = 1000 + NSTexturedRoundedBezelStyle;
+
 	// NSButtonType
 	protected static final int NSMomentaryLightButton         = 0;	// illuminates when pressed
 	protected static final int NSPushOnPushOffButton          = 1;	// illuminated in the On state
@@ -88,15 +95,28 @@ public class AquaNativePainter
 	protected static final int TextFieldSearchWithMenu					= 4;
 	protected static final int TextFieldSearchWithMenuAndCancel	= 5;
 
+	// The following are internal types, they indicate that the text field is on a toolbar
+	protected static final int TextFieldRound_Toolbar										= 1000 + TextFieldRound;
+	protected static final int TextFieldSearch_Toolbar									= 1000 + TextFieldSearch;
+	protected static final int TextFieldSearchWithCancel_Toolbar				= 1000 + TextFieldSearchWithCancel;
+	protected static final int TextFieldSearchWithMenu_Toolbar					= 1000 + TextFieldSearchWithMenu;
+	protected static final int TextFieldSearchWithMenuAndCancel_Toolbar	= 1000 + TextFieldSearchWithMenuAndCancel;
+
 	// NSSegmentStyle
-	protected static final int NSSegmentStyleAutomatic = 0;				// determined by window type and position in window
-	protected static final int NSSegmentStyleRounded = 1;					// the default style for controls in the content area
-	protected static final int NSSegmentStyleTexturedRounded = 2;	// obsolete: use NSSegmentStyleTexturedSquare
-	protected static final int NSSegmentStyleRoundRect = 3;				// bordered; shorter; rounded corners - probably was used for scope options in the past
-	protected static final int NSSegmentStyleTexturedSquare = 4;	// borderless; corners are rounded (recommended for window frame use)
-	protected static final int NSSegmentStyleCapsule = 5;					// obsolete: use NSSegmentStyleTexturedSquare
-	protected static final int NSSegmentStyleSmallSquare = 6;			// bordered; square corners; not sure how it should be used
-	protected static final int NSSegmentStyleSeparated = 8;				// like textured, but each button is separate
+	protected static final int NSSegmentStyleAutomatic = 0;							// determined by window type and position in window
+	protected static final int NSSegmentStyleRounded = 1;								// the default style for controls in the content area
+	protected static final int NSSegmentStyleTexturedRounded = 2;				// obsolete: use NSSegmentStyleTexturedSquare
+	protected static final int NSSegmentStyleRoundRect = 3;							// bordered; shorter; rounded corners - probably was used for scope options in the past
+	protected static final int NSSegmentStyleTexturedSquare = 4;				// borderless; corners are rounded (recommended for window frame use)
+	protected static final int NSSegmentStyleCapsule = 5;								// obsolete: use NSSegmentStyleTexturedSquare
+	protected static final int NSSegmentStyleSmallSquare = 6;						// bordered; square corners; not sure how it should be used
+	protected static final int NSSegmentStyleSeparated = 8;							// the generic style (not used here)
+	protected static final int NSSegmentStyleSeparated_Rounded = 80;		// like rounded, but each button is separate
+	protected static final int NSSegmentStyleSeparated_Textured = 81;		// like textured, but each button is separate
+
+	// The following are internal types, they indicate that the segmented button is on a toolbar
+	protected static final int NSSegmentStyleTexturedSquare_Toolbar = 1000 + NSSegmentStyleTexturedSquare;
+	protected static final int NSSegmentStyleSeparated_Toolbar = 1000 + NSSegmentStyleSeparated_Textured;
 
 	// NSTitlePosition
 	protected static final int NSNoTitle     = 0;
@@ -299,6 +319,21 @@ public class AquaNativePainter
 			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
 				type = TextFieldSearchWithMenuAndCancel;
 				break;
+			case TEXT_FIELD_ROUND_TOOLBAR:
+				type = TextFieldRound_Toolbar;
+				break;
+			case TEXT_FIELD_SEARCH_TOOLBAR:
+				type = TextFieldSearch_Toolbar;
+				break;
+			case TEXT_FIELD_SEARCH_WITH_CANCEL_TOOLBAR:
+				type = TextFieldSearchWithCancel_Toolbar;
+				break;
+			case TEXT_FIELD_SEARCH_WITH_MENU_TOOLBAR:
+				type = TextFieldSearchWithMenu_Toolbar;
+				break;
+			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL_TOOLBAR:
+				type = TextFieldSearchWithMenuAndCancel_Toolbar;
+				break;
 			default:
 				throw new UnsupportedOperationException();
 		}
@@ -498,6 +533,17 @@ public class AquaNativePainter
 		throw new UnsupportedOperationException();
 	}
 
+	// array indexes for debugging output
+
+	public static final int DEBUG_SEGMENT_WIDTH = 0;
+	public static final int DEBUG_SEGMENT_HEIGHT = 1;
+	public static final int DEBUG_SEGMENT_X_OFFSET = 2;
+	public static final int DEBUG_SEGMENT_Y_OFFSET = 3;
+	public static final int DEBUG_SEGMENT_DIVIDER_WIDTH = 4;
+	public static final int DEBUG_SEGMENT_OUTER_LEFT_INSET = 5;
+	public static final int DEBUG_SEGMENT_LEFT_INSET = 6;
+	public static final int DEBUG_SEGMENT_RIGHT_INSET = 7;
+
 	@Override
 	protected @NotNull Renderer getSegmentedButtonRenderer(@NotNull SegmentedButtonConfiguration g)
 	{
@@ -510,8 +556,52 @@ public class AquaNativePainter
 		int flags = toSegmentFlags(g);
 
 		BasicRenderer r = (data, rw, rh, w, h) -> nativePaintSegmentedButton(data, rw, rh, w, h, segmentStyle, segmentPosition, size,
-			state, g.isFocused(), flags);
+			state, g.isFocused(), flags, null, null);
+
 		return Renderer.create(r, rd);
+	}
+
+	@Override
+	protected @Nullable RendererDebugInfo getSegmentedButtonRendererDebugInfo(@NotNull SegmentedButtonConfiguration g,
+																																						int scaleFactor, int width, int height)
+	{
+		int size = toSize(g.getSize());
+		int state = toState(g.getState());
+		int segmentStyle = toSegmentedStyle(g.getWidget());
+		int segmentPosition = toSegmentPosition(g.getPosition());
+		int flags = toSegmentFlags(g);
+
+		float[] debugOutput = new float[8];
+		int[] debugData = new int[40000];
+
+		Rectangle2D bounds = new Rectangle2D.Float(0, 0, width, height);
+		RendererDescription rd = rendererDescriptions.getSegmentedButtonRendererDescription(g);
+		RasterDescription sd = rd.getRasterBounds(bounds, scaleFactor);
+		int rw = (int) Math.ceil(scaleFactor * sd.getWidth());
+		int rh = (int) Math.ceil(scaleFactor * sd.getHeight());
+		float w = sd.getWidth();
+		float h = sd.getHeight();
+		int[] data = new int[rw * rh];
+		nativePaintSegmentedButton(data, rw, rh, w, h, segmentStyle, segmentPosition, size,
+					state, g.isFocused(), flags, debugOutput, debugData);
+
+		int imageWidth = (int) debugOutput[DEBUG_SEGMENT_WIDTH];
+		int imageHeight = (int) debugOutput[DEBUG_SEGMENT_HEIGHT];
+		float xOffset = debugOutput[DEBUG_SEGMENT_X_OFFSET];
+		float yOffset = debugOutput[DEBUG_SEGMENT_Y_OFFSET];
+		float dividerWidth = debugOutput[DEBUG_SEGMENT_DIVIDER_WIDTH];
+		float outerLeftInset = debugOutput[DEBUG_SEGMENT_OUTER_LEFT_INSET];
+		float leftInset = debugOutput[DEBUG_SEGMENT_LEFT_INSET];
+		float rightInset = debugOutput[DEBUG_SEGMENT_RIGHT_INSET];
+
+		String info = "Outer left: " + outerLeftInset
+			+ "; left: " + leftInset
+			+ "; right: " + rightInset
+			+ "; divider: " + dividerWidth;
+
+		Image im = BasicImageSupport.createImage(debugData, imageWidth, imageHeight);
+		Rectangle2D frame = new Rectangle2D.Float(xOffset, yOffset, w, h);
+		return new RendererDebugInfo(im, frame, info);
 	}
 
 	public static final int SEGMENT_POSITION_FIRST = 0;
@@ -731,13 +821,19 @@ public class AquaNativePainter
 			case BUTTON_SEGMENTED_SCURVE:
 				return NSSegmentStyleCapsule;
 			case BUTTON_SEGMENTED_TEXTURED:
-				return NSSegmentStyleTexturedRounded;
-			case BUTTON_SEGMENTED_TOOLBAR:
 				return NSSegmentStyleTexturedSquare;
+			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+				return NSSegmentStyleTexturedSquare_Toolbar;
+			case BUTTON_SEGMENTED_TOOLBAR:
+				return NSSegmentStyleTexturedRounded;
 			case BUTTON_SEGMENTED_SMALL_SQUARE:
 				return NSSegmentStyleSmallSquare;
+			case BUTTON_SEGMENTED_SEPARATED:
+				return NSSegmentStyleSeparated_Rounded;
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-				return NSSegmentStyleSeparated;
+				return NSSegmentStyleSeparated_Textured;
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+				return NSSegmentStyleSeparated_Toolbar;
 		}
 		throw new UnsupportedOperationException();
 	}
@@ -768,6 +864,10 @@ public class AquaNativePainter
 			case BUTTON_POP_DOWN_TEXTURED:
 			case BUTTON_POP_UP_TEXTURED:
 				return NSTexturedRoundedBezelStyle;
+
+			case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
+			case BUTTON_POP_UP_TEXTURED_TOOLBAR:
+				return NSTexturedRoundedBezelStyle_Toolbar;
 
 			case BUTTON_POP_DOWN_GRADIENT:
 			case BUTTON_POP_UP_GRADIENT:
@@ -809,6 +909,8 @@ public class AquaNativePainter
 				return NSRoundRectBezelStyle;		// no background
 			case BUTTON_TEXTURED:
 				return NSTexturedRoundedBezelStyle;
+			case BUTTON_TEXTURED_TOOLBAR:
+				return NSTexturedRoundedBezelStyle_Toolbar;
 			case BUTTON_ROUND:
 				return NSCircularBezelStyle;
 		}
@@ -992,7 +1094,7 @@ public class AquaNativePainter
 	private static native void nativePaintGroupBox(int[] data, int rw, int rh, float w, float h, int titlePosition, int state, boolean isFrameOnly);
 	private static native void nativePaintListBox(int[] data, int rw, int rh, float w, float h, int state, boolean isFocused, boolean isFrameOnly);
 	private static native void nativePaintTextField(int[] data, int rw, int rh, float w, float h, int sz, int state, int type);
-	private static native void nativePaintSegmentedButton(int[] data, int rw, int rh, float w, float h, int segmentType, int segmentPosition, int size, int state, boolean isFocused, int flags);
+	private static native void nativePaintSegmentedButton(int[] data, int rw, int rh, float w, float h, int segmentType, int segmentPosition, int size, int state, boolean isFocused, int flags, float[] debugOutput, int[] debugData);
 	private static native void nativePaintComboBox(int[] data, int rw, int rh, float w, float h, int type, int size, int state, int layoutDirection);
 	private static native void nativePaintPopUpButton(int[] data, int rw, int rh, float w, float h, boolean isUp, int size, int state, int bezelStyle, int layoutDirection);
 	private static native void nativePaintTableColumnHeader(int[] data, int rw, int rh, float w, float h, int state, int direction, boolean isSelected, int layoutDirection);

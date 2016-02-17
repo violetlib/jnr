@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -98,7 +98,10 @@ public class HybridAquaUIPainter
 				return coreUIPainter;
 			}
 			PopupButtonWidget widget = bg.getPopupButtonWidget();
-			if (widget == PopupButtonWidget.BUTTON_POP_UP_TEXTURED || widget == PopupButtonWidget.BUTTON_POP_DOWN_TEXTURED) {
+			if (widget == PopupButtonWidget.BUTTON_POP_UP_TEXTURED
+				|| widget == PopupButtonWidget.BUTTON_POP_DOWN_TEXTURED
+				|| widget == PopupButtonWidget.BUTTON_POP_UP_TEXTURED_TOOLBAR
+				|| widget == PopupButtonWidget.BUTTON_POP_DOWN_TEXTURED_TOOLBAR) {
 				return coreUIPainter;
 			}
 		} else if (g instanceof ProgressIndicatorConfiguration) {
@@ -111,7 +114,8 @@ public class HybridAquaUIPainter
 			return coreUIPainter;
 		} else if (g instanceof TextFieldConfiguration) {
 			TextFieldConfiguration bg = (TextFieldConfiguration) g;
-			if (bg.isSearchField()) {
+			TextFieldWidget w = bg.getWidget();
+			if (w != TextFieldWidget.TEXT_FIELD && w != TextFieldWidget.TEXT_FIELD_ROUND) {
 				return coreUIPainter;
 			}
 		} else if (g instanceof SliderConfiguration) {

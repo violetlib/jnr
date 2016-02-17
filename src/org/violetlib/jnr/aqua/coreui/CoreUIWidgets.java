@@ -61,6 +61,7 @@ public class CoreUIWidgets
 	public static final String FRAME_LIST_BOX = "listbox";
 	public static final String FRAME_TEXT_FIELD = "textfield";
 	public static final String FRAME_TEXT_FIELD_ROUND = "textfieldround";
+	public static final String VARIANT_TEXT_FIELD_ROUND_TOOLBAR = "kCUIVariantTextFieldRoundToolbar";
 
 	public static final String BUTTON_COMBO_BOX = "combobox";
 	public static final String BUTTON_COMBO_BOX_INSET = "kCUIWidgetButtonComboBoxInset";
@@ -69,11 +70,13 @@ public class CoreUIWidgets
 	public static final String BUTTON_POP_DOWN_SQUARE = "kCUIWidgetButtonPopDownSquare";
 	public static final String BUTTON_POP_DOWN_INSET = "popdownbutton.inset";
 	public static final String BUTTON_POP_DOWN_TEXTURED = "kCUIWidgetButtonPopDownTextured";
+	public static final String BUTTON_POP_DOWN_TOOLBAR = "kCUIWidgetButtonPopDownToolbar";
 
 	public static final String BUTTON_POP_UP = "popupbutton";
 	public static final String BUTTON_POP_UP_SQUARE = "kCUIWidgetButtonPopUpSquare";
 	public static final String BUTTON_POP_UP_INSET = "popupbutton.inset";
 	public static final String BUTTON_POP_UP_TEXTURED = "kCUIWidgetButtonPopUpTextured";
+	public static final String BUTTON_POP_UP_TOOLBAR = "kCUIWidgetButtonPopUpToolbar";
 
 	public static final String BUTTON_SEARCH_FIELD_FIND = "buttonsearchfieldfind";
 	public static final String BUTTON_SEARCH_FIELD_CANCEL = "buttonsearchfieldcancel";

@@ -85,7 +85,7 @@ public class YosemiteLayoutInfo
 		} else if (bw == ButtonWidget.BUTTON_ROUNDED_RECT) {
 			return BasicLayoutInfo.createFixedHeight(size(sz, 18, 16, 14));
 
-		} else if (bw == ButtonWidget.BUTTON_TEXTURED) {
+		} else if (bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
 			return BasicLayoutInfo.createFixedHeight(size(sz, 23, 19, 16));
 
 		} else if (bw == ButtonWidget.BUTTON_ROUND) {
@@ -178,7 +178,7 @@ public class YosemiteLayoutInfo
 			top = bottom = 1;
 			left = right = 4;
 
-		} else if (bw == ButtonWidget.BUTTON_TEXTURED) {
+		} else if (bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
 			top = 1;
 			bottom = 2;
 			left = right = 3;
@@ -228,6 +228,7 @@ public class YosemiteLayoutInfo
 		switch (bw) {
 			case BUTTON_TAB:
 			case BUTTON_SEGMENTED:
+			case BUTTON_SEGMENTED_SEPARATED:
 				return BasicLayoutInfo.createFixedHeight(size(sz, 22, 19, 16));
 
 			case BUTTON_SEGMENTED_INSET:
@@ -235,8 +236,10 @@ public class YosemiteLayoutInfo
 
 			case BUTTON_SEGMENTED_SCURVE:
 			case BUTTON_SEGMENTED_TEXTURED:
+			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
 			case BUTTON_SEGMENTED_TOOLBAR:
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
 				return BasicLayoutInfo.createFixedHeight(size(sz, 23, 19, 16));
 
 			case BUTTON_SEGMENTED_SMALL_SQUARE:
@@ -267,6 +270,7 @@ public class YosemiteLayoutInfo
 		switch (bw) {
 			case BUTTON_TAB:
 			case BUTTON_SEGMENTED:
+			case BUTTON_SEGMENTED_SEPARATED:
 				top = size2D(sz, 1, 1, 1);
 				bottom = size2D(sz, 2, 2, 2);
 				endAdjust = 3;
@@ -278,8 +282,10 @@ public class YosemiteLayoutInfo
 				break;
 			case BUTTON_SEGMENTED_SCURVE:
 			case BUTTON_SEGMENTED_TEXTURED:
+			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
 			case BUTTON_SEGMENTED_TOOLBAR:
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
 				top = size(sz, 1, 1, 1);
 				bottom = size(sz, 1, 1, 1);
 				endAdjust = 2;
@@ -365,7 +371,7 @@ public class YosemiteLayoutInfo
 	@Override
 	protected @NotNull LayoutInfo getPopUpButtonLayoutInfo(@NotNull PopupButtonLayoutConfiguration g)
 	{
-		// On Yosemite, the square style bombs if the mini size is selected.
+		// On Yosemite and El Capitan, the square style bombs if the mini size is selected.
 		// See rendering code, which must be consistent.
 
 		PopupButtonWidget bw = g.getPopupButtonWidget();
@@ -408,6 +414,8 @@ public class YosemiteLayoutInfo
 
 			case BUTTON_POP_DOWN_TEXTURED:
 			case BUTTON_POP_UP_TEXTURED:
+			case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
+			case BUTTON_POP_UP_TEXTURED_TOOLBAR:
 				float fixedHeight = size(sz, 23, 19, 16);
 				float minWidth = size(sz, 25, 24, 20);
 				return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
@@ -444,7 +452,7 @@ public class YosemiteLayoutInfo
 				top -= 2;
 			} else if (w == PopupButtonWidget.BUTTON_POP_UP_RECESSED) {
 				top -= size2D(sz, 1.5f, 0, 2);
-			} else if (w == PopupButtonWidget.BUTTON_POP_UP_TEXTURED) {
+			} else if (w == PopupButtonWidget.BUTTON_POP_UP_TEXTURED || w == PopupButtonWidget.BUTTON_POP_UP_TEXTURED_TOOLBAR) {
 				top -= size2D(sz, 2, 1, 2);
 			}
 			bottom = buttonHeight - top - height;
@@ -518,6 +526,8 @@ public class YosemiteLayoutInfo
 
 			case BUTTON_POP_UP_TEXTURED:
 			case BUTTON_POP_DOWN_TEXTURED:
+			case BUTTON_POP_UP_TEXTURED_TOOLBAR:
+			case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
 				top = 0;
 				near = size2D(sz, 17, 15, 13);
 				break;
@@ -1119,22 +1129,17 @@ public class YosemiteLayoutInfo
 	@Override
 	protected @NotNull LayoutInfo getTextFieldLayoutInfo(@NotNull TextFieldLayoutConfiguration g)
 	{
-		switch (g.getWidget()) {
-			case TEXT_FIELD_ROUND:
-				// On Yosemite, a mini rounded text field has height 19.
-				// This behavior is probably a bug, and we do not emulate it.
+		AquaUIPainter.TextFieldWidget w = g.getWidget();
+		if (w.isRound() || w.isSearch()) {
+			if (w.isToolbar()) {
+				// The actual sizes for small and mini are mostly bogus. We do not simulate this bug.
+				return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 23, 20, 18));
+			} else {
 				return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 22, 19, 17));
-
-			case TEXT_FIELD_SEARCH:
-			case TEXT_FIELD_SEARCH_WITH_CANCEL:
-			case TEXT_FIELD_SEARCH_WITH_MENU:
-			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
-				// On Yosemite, a mini search field is clipped with height 15.
-				// This behavior is probably a bug, and we do not emulate it.
-				return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 22, 19, 17));
-			default:
-				return BasicLayoutInfo.getInstance();
+			}
 		}
+
+		return BasicLayoutInfo.getInstance();
 	}
 
 	@Override
@@ -1151,46 +1156,40 @@ public class YosemiteLayoutInfo
 		int d = 0;
 		float gap = 6;
 
-		switch (tw) {
-
-			case TEXT_FIELD_SEARCH_WITH_MENU:
-			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
+		if (tw.isSearch()) {
+			if (tw.hasMenu()) {
 				d = 4;
 				gap = 3.5f;
-				// fall through
-
-			case TEXT_FIELD_SEARCH:
-			case TEXT_FIELD_SEARCH_WITH_CANCEL:
-
-				if (g.isLeftToRight()) {
-					Insetter insets = getSearchButtonPaintingInsets(g);
-					if (insets != null) {
-						Rectangle2D bounds = insets.apply2D(100, 100);
-						left = (float) (bounds.getX() + bounds.getWidth() + gap);
-					} else {
-						left = size(sz, 27+d, 26+d, 22+d);
-					}
-					right = size(sz, 22, 19, 16);
+			}
+			if (g.isLeftToRight()) {
+				Insetter insets = getSearchButtonPaintingInsets(g);
+				if (insets != null) {
+					Rectangle2D bounds = insets.apply2D(100, 100);
+					left = (float) (bounds.getX() + bounds.getWidth() + gap);
 				} else {
-					Insetter insets = getSearchButtonPaintingInsets(g);
-					if (insets != null) {
-						Rectangle2D bounds = insets.apply2D(100, 100);
-						right = (float) (100 - bounds.getX() + gap);
-					} else {
-						right = size(sz, 27+d, 26+d, 22+d);
-					}
-					left = size(sz, 22, 19, 16);
+					left = size(sz, 27+d, 26+d, 22+d);
 				}
+				right = size(sz, 22, 19, 16);
+			} else {
+				Insetter insets = getSearchButtonPaintingInsets(g);
+				if (insets != null) {
+					Rectangle2D bounds = insets.apply2D(100, 100);
+					right = (float) (100 - bounds.getX() + gap);
+				} else {
+					right = size(sz, 27+d, 26+d, 22+d);
+				}
+				left = size(sz, 22, 19, 16);
+			}
 
-				top = size2D(sz, 3, 1.5f, 2f);
-				bottom = size2D(sz, 3, 1.5f, 1f);
-				break;
-
+			top = size2D(sz, 3, 1.5f, 2f);
+			bottom = size2D(sz, 3, 1.5f, 1f);
+		} else switch (tw) {
 			case TEXT_FIELD:
 				top = bottom = left = right = 1;
 				break;
 
 			case TEXT_FIELD_ROUND:
+			case TEXT_FIELD_ROUND_TOOLBAR:
 				top = bottom = 1;
 				left = right = 2.5f;
 				break;
@@ -1209,24 +1208,17 @@ public class YosemiteLayoutInfo
 		float d = 0;
 		float h;
 
-		switch (g.getWidget()) {
-
-			case TEXT_FIELD_SEARCH_WITH_MENU:
-			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
+		TextFieldWidget w = g.getWidget();
+		if (w.isSearch()) {
+			if (w.hasMenu()) {
 				d = 4;
-				// fall through
-
-			case TEXT_FIELD_SEARCH:
-			case TEXT_FIELD_SEARCH_WITH_CANCEL:
-				h = size(g.getSize(), 27, 26, 22);
-				d += h;
-				break;
-
-			default:
-				return null;
+			}
+			h = size(g.getSize(), 27, 26, 22);
+			d += h;
+			return g.isLeftToRight() ? Insetters.createLeftAligned(d, 0, 0, 0) : Insetters.createRightAligned(d, 0, 0, 0);
 		}
 
-		return g.isLeftToRight() ? Insetters.createLeftAligned(d, 0, 0, 0) : Insetters.createRightAligned(d, 0, 0, 0);
+		return null;
 	}
 
 	@Override
@@ -1257,24 +1249,14 @@ public class YosemiteLayoutInfo
 	@Override
 	public @Nullable LayoutInfo getSearchButtonLayoutInfo(@NotNull TextFieldLayoutConfiguration g)
 	{
-		Size sz = g.getSize();
+		TextFieldWidget w = g.getWidget();
 
-		boolean hasMenu = false;
-
-		switch (g.getWidget()) {
-
-			case TEXT_FIELD_SEARCH_WITH_MENU:
-			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
-				hasMenu = true;
-				break;
-
-			case TEXT_FIELD_SEARCH:
-			case TEXT_FIELD_SEARCH_WITH_CANCEL:
-				break;
-
-			default:
-				return null;
+		if (!w.isSearch()) {
+			return null;
 		}
+
+		boolean hasMenu = w.hasMenu();
+		Size sz = g.getSize();
 
 		// The visual size is smaller when rendered in 2x
 		float height = size2D(sz, 13, 12, 10);
@@ -1285,23 +1267,14 @@ public class YosemiteLayoutInfo
 	@Override
 	public @Nullable Insetter getCancelButtonInsets(@NotNull TextFieldLayoutConfiguration g)
 	{
-		Size sz = g.getSize();
-
-		float d;
-
-		switch (g.getWidget()) {
-
-			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
-			case TEXT_FIELD_SEARCH_WITH_CANCEL:
-				d = size(sz, 14, 11, 9);
-				break;
-
-			default:
-				return null;
+		TextFieldWidget w = g.getWidget();
+		if (w.hasCancel()) {
+			Size sz = g.getSize();
+			float d = size(sz, 14, 11, 9);
+			float right = size(sz, 4, 4, 3);
+			return g.isLeftToRight() ? Insetters.createRightAligned(d, right, 0, 0) : Insetters.createLeftAligned(d, right, 0, 0);
 		}
-
-		float right = size(sz, 4, 4, 3);
-		return g.isLeftToRight() ? Insetters.createRightAligned(d, right, 0, 0) : Insetters.createLeftAligned(d, right, 0, 0);
+		return null;
 	}
 
 	@Override
@@ -1332,22 +1305,13 @@ public class YosemiteLayoutInfo
 	@Override
 	public @Nullable LayoutInfo getCancelButtonLayoutInfo(@NotNull TextFieldLayoutConfiguration g)
 	{
-		Size sz = g.getSize();
-
-		float d;
-
-		switch (g.getWidget()) {
-
-			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
-			case TEXT_FIELD_SEARCH_WITH_CANCEL:
-				d = size(sz, 14, 11, 9);
-				break;
-
-			default:
-				return null;
+		TextFieldWidget w = g.getWidget();
+		if (w.hasCancel()) {
+			Size sz = g.getSize();
+			float d = size(sz, 14, 11, 9);
+			return BasicLayoutInfo.createFixed(d, d);
 		}
-
-		return BasicLayoutInfo.createFixed(d, d);
+		return null;
 	}
 
 	@Override

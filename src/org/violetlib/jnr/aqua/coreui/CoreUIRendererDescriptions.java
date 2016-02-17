@@ -20,7 +20,9 @@ import org.violetlib.jnr.aqua.SplitPaneDividerConfiguration;
 import org.violetlib.jnr.aqua.impl.NativeSupport;
 import org.violetlib.jnr.aqua.impl.ViewRendererDescriptions;
 import org.violetlib.jnr.impl.BasicRendererDescription;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.JNRUtils;
+import org.violetlib.jnr.impl.MultiResolutionRendererDescription;
 import org.violetlib.jnr.impl.RendererDescription;
 
 import static org.violetlib.jnr.impl.JNRUtils.*;
@@ -69,8 +71,15 @@ public class CoreUIRendererDescriptions
 				default:
 					throw new UnsupportedOperationException();
 			}
-		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED) {
-			return new BasicRendererDescription(-1, -1, 2, 2);
+		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED || bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
+			int platformVersion = JNRPlatformUtils.getPlatformVersion();
+			if (platformVersion >= 101100) {
+				BasicRendererDescription x1 = new BasicRendererDescription(0, -1, 0, 2);
+				BasicRendererDescription x2 = new BasicRendererDescription(-0.5f, -1, 1, 2);
+				return new MultiResolutionRendererDescription(x1, x2);
+			} else {
+				return new BasicRendererDescription(-1, -1, 2, 2);
+			}
 		} else {
 			return super.getButtonRendererDescription(g);
 		}
@@ -79,22 +88,14 @@ public class CoreUIRendererDescriptions
 	@Override
 	public @NotNull RendererDescription getSegmentedButtonRendererDescription(@NotNull SegmentedButtonConfiguration g)
 	{
-		AquaUIPainter.Position pos = g.getPosition();
 		AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
 		AquaUIPainter.Size sz = g.getSize();
-
-		boolean atLeftEdge = pos == AquaUIPainter.Position.FIRST || pos == AquaUIPainter.Position.ONLY;
-		boolean atRightEdge = pos == AquaUIPainter.Position.LAST || pos == AquaUIPainter.Position.ONLY;
-
-		boolean isLeftDividerPossible = pos == AquaUIPainter.Position.MIDDLE || pos == AquaUIPainter.Position.LAST;
-		boolean isRightDividerPossible = pos == AquaUIPainter.Position.FIRST || pos == AquaUIPainter.Position.MIDDLE;
 
 		RendererDescription rd = super.getSegmentedButtonRendererDescription(g);
 
 		float extraWidth = 0;
 		float xOffset = 0;
 		float yOffset = 0;
-
 		float leftOffset = 0;
 		float leftExtraWidth = 0;
 		float rightExtraWidth = 0;
@@ -103,6 +104,7 @@ public class CoreUIRendererDescriptions
 		switch (bw) {
 			case BUTTON_TAB:
 			case BUTTON_SEGMENTED:
+			case BUTTON_SEGMENTED_SEPARATED:
 				yOffset = size2D(sz, -0.51f, -1, -2);	// regular size should be -1 at 1x
 				leftOffset = size(sz, -2, -2, -1);
 				leftExtraWidth = rightExtraWidth = size(sz, 2, 2, 1);
@@ -118,6 +120,7 @@ public class CoreUIRendererDescriptions
 			case BUTTON_SEGMENTED_SCURVE:
 			case BUTTON_SEGMENTED_TEXTURED:
 			case BUTTON_SEGMENTED_TOOLBAR:
+			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
 				if (sz == AquaUIPainter.Size.MINI) {
 					rd = createVertical(0, 4);
 				}
@@ -125,13 +128,12 @@ public class CoreUIRendererDescriptions
 				break;
 
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
 				if (sz == AquaUIPainter.Size.MINI) {
 					rd = createVertical(0, 4);
 				}
 				yOffset = size(sz, 0, -1, -2);
 				extraWidth = -0.49f;	// decrease the raster width at 2x so that the gap is 1 point
-				isLeftDividerPossible = false;
-				isRightDividerPossible = false;
 				break;
 
 			case BUTTON_SEGMENTED_SMALL_SQUARE:
@@ -142,6 +144,32 @@ public class CoreUIRendererDescriptions
 			default:
 				throw new UnsupportedOperationException();
 		}
+
+		return adjustSegmentedRendererDescription(g, rd, extraWidth, xOffset, yOffset, leftOffset, leftExtraWidth, rightExtraWidth, extraHeight);
+	}
+
+	protected @NotNull RendererDescription adjustSegmentedRendererDescription(
+		@NotNull SegmentedButtonConfiguration g,
+		@NotNull RendererDescription rd,
+		float extraWidth,
+		float xOffset,
+		float yOffset,
+		float leftOffset,
+		float leftExtraWidth,
+		float rightExtraWidth,
+		float extraHeight
+	)
+	{
+		AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
+		boolean isSeparated = bw.isSeparated();
+
+		AquaUIPainter.Position pos = g.getPosition();
+
+		boolean atLeftEdge = pos == AquaUIPainter.Position.FIRST || pos == AquaUIPainter.Position.ONLY;
+		boolean atRightEdge = pos == AquaUIPainter.Position.LAST || pos == AquaUIPainter.Position.ONLY;
+
+		boolean isLeftDividerPossible = !isSeparated && (pos == AquaUIPainter.Position.MIDDLE || pos == AquaUIPainter.Position.LAST);
+		boolean isRightDividerPossible = !isSeparated && (pos == AquaUIPainter.Position.FIRST || pos == AquaUIPainter.Position.MIDDLE);
 
 		if (atLeftEdge) {
 			xOffset += leftOffset;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -10,14 +10,8 @@ package org.violetlib.jnr.impl;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferInt;
-import java.awt.image.DirectColorModel;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
 import java.util.Arrays;
 
 import org.jetbrains.annotations.*;
@@ -45,8 +39,6 @@ import org.jetbrains.annotations.*;
 public class ReusableCompositor
 {
 	// TBD: would it be faster to turn everything into an Image and use graphics operations?
-
-	private static final @NotNull ColorModel colorModel = createColorModel();
 
 	private @Nullable int[] data;	// the actual raster buffer, reallocated as needed to contain at least the required number of pixels.
 		// May be null if the raster has zero size.
@@ -91,7 +83,7 @@ public class ReusableCompositor
 
 	public static @NotNull ColorModel getColorModel()
 	{
-		return colorModel;
+		return BasicImageSupport.getColorModel();
 	}
 
 	/**
@@ -406,7 +398,7 @@ public class ReusableCompositor
 		ensureConfigured();
 
 		if (b == null && data != null) {
-			b = createBufferedImage(colorModel, data, rasterWidth, rasterHeight, rasterWidth);
+			b = BasicImageSupport.createImage(data, rasterWidth, rasterHeight);
 		}
 
 		return b;
@@ -424,29 +416,6 @@ public class ReusableCompositor
 		if (im != null) {
 			g.drawImage(im, null, null);
 		}
-	}
-
-	/**
-		Create a color model for INT_ARGB_PRE.
-	*/
-	private static @NotNull ColorModel createColorModel()
-	{
-		return new DirectColorModel(
-			ColorSpace.getInstance(ColorSpace.CS_sRGB),
-			32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000, true, DataBuffer.TYPE_INT
-		);
-	}
-
-	private static @NotNull BufferedImage createBufferedImage(@NotNull ColorModel cm, @NotNull int[] buffer, int w, int h, int scan)
-	{
-		DataBuffer db = new DataBufferInt(buffer, buffer.length);
-		int[] bandMasks = new int[4];
-		bandMasks[0] = 0x00ff0000;
-		bandMasks[1] = 0x0000ff00;
-		bandMasks[2] = 0x000000ff;
-		bandMasks[3] = 0xff000000;
-		WritableRaster r = Raster.createPackedRaster(db, w, h, scan, bandMasks, null);
-		return new BufferedImage(cm, r, true, null);
 	}
 
 	public static void compose(int[] data, int rw, int rh, int x, int y, int pixel)

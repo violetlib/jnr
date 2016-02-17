@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -240,6 +240,7 @@ public class JRSPainter
 				maker.set(JRSUIConstants.Widget.BUTTON_PUSH_INSET);
 				break;
 			case BUTTON_TEXTURED:
+			case BUTTON_TEXTURED_TOOLBAR:	// not supported
 				maker.set(JRSUIConstants.Widget.BUTTON_PUSH_TEXTURED);
 				break;
 			case BUTTON_ROUND:
@@ -271,7 +272,7 @@ public class JRSPainter
 		}
 
 		// Textured buttons paint the same background when disabled as they would when enabled
-		if (bw == ButtonWidget.BUTTON_TEXTURED) {
+		if (bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
 			if (st == State.DISABLED) {
 				st = State.ACTIVE;
 			} else if (st == State.DISABLED_INACTIVE) {
@@ -325,7 +326,8 @@ public class JRSPainter
 		} else if (bw == ButtonWidget.BUTTON_CHECK_BOX || bw == ButtonWidget.BUTTON_RADIO
 			|| bw == ButtonWidget.BUTTON_BEVEL || bw == ButtonWidget.BUTTON_BEVEL_ROUND
 			|| bw == ButtonWidget.BUTTON_GRADIENT
-			|| bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_ROUND) {
+			|| bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR
+			|| bw == ButtonWidget.BUTTON_ROUND) {
 			switch (bs) {
 				case ON:
 					maker.setValue(1);
@@ -482,30 +484,33 @@ public class JRSPainter
 		RendererDescription rd = rendererDescriptions.getTextFieldRendererDescription(g);
 
 		TextFieldWidget tw = g.getWidget();
+		JRSUIConstants.Widget widget = getWidget(tw);
 
-		if (tw == TextFieldWidget.TEXT_FIELD || tw == TextFieldWidget.TEXT_FIELD_ROUND) {
+		if (widget != null) {
 			maker.reset();
-			maker.set(tw == TextFieldWidget.TEXT_FIELD ? JRSUIConstants.Widget.FRAME_TEXT_FIELD : JRSUIConstants.Widget.FRAME_TEXT_FIELD_ROUND);
+			maker.set(widget);
 			configureSize(g.getSize());
 			configureState(g.getState());
 			return Renderer.create(maker.getRenderer(), rd);
-		} else {
+		} else if (tw.isSearch()) {
 			Insetter searchButtonInsets = uiLayout.getSearchButtonPaintingInsets(g);
-			Insetter cancelButtonInsets = null;
-
-			switch (tw) {
-				case TEXT_FIELD_SEARCH:
-				case TEXT_FIELD_SEARCH_WITH_MENU:
-					break;
-				case TEXT_FIELD_SEARCH_WITH_CANCEL:
-				case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
-					cancelButtonInsets = uiLayout.getCancelButtonPaintingInsets(g);
-					break;
-				default:
-					throw new UnsupportedOperationException();
-			}
-
+			Insetter cancelButtonInsets = tw.hasCancel() ? uiLayout.getCancelButtonPaintingInsets(g) : null;
 			return new SearchFieldRenderer(g, searchButtonInsets, cancelButtonInsets);
+		} else {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	private @Nullable JRSUIConstants.Widget getWidget(@NotNull TextFieldWidget tw)
+	{
+		switch (tw) {
+			case TEXT_FIELD_ROUND:
+			case TEXT_FIELD_ROUND_TOOLBAR:	// not supported
+				return JRSUIConstants.Widget.FRAME_TEXT_FIELD_ROUND;
+			case TEXT_FIELD:
+				return JRSUIConstants.Widget.FRAME_TEXT_FIELD;
+			default:
+				return null;
 		}
 	}
 
@@ -560,7 +565,7 @@ public class JRSPainter
 	public @NotNull Renderer getSearchFieldFindButtonRenderer(@NotNull TextFieldConfiguration g)
 	{
 		TextFieldWidget widget = g.getWidget();
-		boolean hasMenu = widget == TextFieldWidget.TEXT_FIELD_SEARCH_WITH_MENU || widget == TextFieldWidget.TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL;
+		boolean hasMenu = widget.hasMenu();
 		maker.reset();
 		maker.set(JRSUIConstants.Widget.BUTTON_SEARCH_FIELD_FIND);
 		if (hasMenu) {
@@ -638,8 +643,6 @@ public class JRSPainter
 		Position pos = g.getPosition();
 
 		SegmentedButtonWidget bw = g.getWidget();
-		State st = g.getState();
-		boolean isSelected = g.isSelected();
 
 		maker.reset();
 
@@ -650,6 +653,12 @@ public class JRSPainter
 			case BUTTON_SEGMENTED:
 				maker.set(JRSUIConstants.Widget.BUTTON_SEGMENTED);
 				break;
+			case BUTTON_SEGMENTED_SEPARATED:
+				// not supported
+				// an attempted workaround, must coordinate with renderer description
+				pos = Position.ONLY;
+				maker.set(JRSUIConstants.Widget.BUTTON_SEGMENTED);
+				break;
 			case BUTTON_SEGMENTED_INSET:
 				maker.set(JRSUIConstants.Widget.BUTTON_SEGMENTED_INSET);
 				break;
@@ -657,6 +666,7 @@ public class JRSPainter
 				maker.set(JRSUIConstants.Widget.BUTTON_SEGMENTED_SCURVE);
 				break;
 			case BUTTON_SEGMENTED_TEXTURED:
+			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:	// not supported
 				maker.set(JRSUIConstants.Widget.BUTTON_SEGMENTED_TEXTURED);
 				break;
 			case BUTTON_SEGMENTED_TOOLBAR:
@@ -666,6 +676,8 @@ public class JRSPainter
 				maker.set(JRSUIConstants.Widget.BUTTON_BEVEL_INSET);
 				break;
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+				// not supported
 				// an attempted workaround, must coordinate with renderer description
 				pos = Position.ONLY;
 				maker.set(JRSUIConstants.Widget.BUTTON_SEGMENTED_TEXTURED);
@@ -695,7 +707,7 @@ public class JRSPainter
 
 		maker.set(JRSUIConstants.SegmentLeadingSeparator.NO);
 		maker.set(JRSUIConstants.SegmentTrailingSeparator.YES);
-		maker.set(isSelected ? JRSUIConstants.BooleanValue.YES : JRSUIConstants.BooleanValue.NO);
+		maker.set(g.isSelected() ? JRSUIConstants.BooleanValue.YES : JRSUIConstants.BooleanValue.NO);
 		maker.set(g.isFocused() ? JRSUIConstants.Focused.YES : JRSUIConstants.Focused.NO);
 		return Renderer.create(maker.getRenderer(), rd);
 	}
@@ -753,6 +765,8 @@ public class JRSPainter
 
 			case BUTTON_POP_DOWN_TEXTURED:
 			case BUTTON_POP_UP_TEXTURED:
+			case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
+			case BUTTON_POP_UP_TEXTURED_TOOLBAR:
 				maker.set(JRSUIConstants.Widget.BUTTON_PUSH_TEXTURED);	// may not be exactly right
 				break;
 
@@ -810,6 +824,7 @@ public class JRSPainter
 			case BUTTON_POP_UP_SQUARE:
 			case BUTTON_POP_UP_BEVEL:
 			case BUTTON_POP_UP_TEXTURED:
+			case BUTTON_POP_UP_TEXTURED_TOOLBAR:
 				if (state == State.ROLLOVER) {
 					state = State.ACTIVE;
 				}

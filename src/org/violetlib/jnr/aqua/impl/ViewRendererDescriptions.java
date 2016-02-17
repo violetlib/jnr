@@ -123,6 +123,9 @@ public class ViewRendererDescriptions
 		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED) {
 			return new BasicRendererDescription(0, 0, 0, 0);
 
+		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
+			return new BasicRendererDescription(0, 0, 0, 0);
+
 		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND) {
 			switch (sz) {
 				case LARGE:
@@ -163,23 +166,23 @@ public class ViewRendererDescriptions
 	{
 		// The native view renderer renders an entire segmented control but arranges that only one button is rendered into
 		// our buffer. It does not make sense to change the raster width, because the raster width is the only way that the
-		// native renderer knows how wide the button should be. If any adjustment is needed, it should be made by the native
-		// renderer.
+		// native renderer knows how wide the button should be. If any horizontal adjustment is needed, it should be made
+		// by the native renderer.
 
 		AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
 		AquaUIPainter.Size sz = g.getSize();
-		AquaUIPainter.Position position = g.getPosition();
 		int platformVersion = JNRPlatformUtils.getPlatformVersion();
 
 		switch (bw) {
 			case BUTTON_TAB:
 			case BUTTON_SEGMENTED:
+			case BUTTON_SEGMENTED_SEPARATED:
 				switch (sz) {
 					case LARGE:
 					case REGULAR:
 						return createVertical(0, 1);
 					case SMALL:
-						return createVertical(-0.49f, 2);
+						return createVertical(0, 2);
 					case MINI:
 						return createVertical(-0.51f, 5);
 					default:
@@ -201,19 +204,21 @@ public class ViewRendererDescriptions
 
 			case BUTTON_SEGMENTED_SCURVE:
 			case BUTTON_SEGMENTED_TEXTURED:
+			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
 			case BUTTON_SEGMENTED_TOOLBAR:
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+				boolean raise = bw == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_TOOLBAR || bw == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR;
 				switch (sz) {
 					case LARGE:
 					case REGULAR:
-						return platformVersion >= 101100 ? new BasicRendererDescription(-1, -1.49f, 0, 3): createVertical(-1, 2);
+						return platformVersion >= 101100 ? createVertical(-1.49f, 3) : createVertical(-1, 2);
 					case SMALL:
-						return platformVersion >= 101100 ? createVertical(-0.49f, 4) : createVertical(-1, 4);
+						return platformVersion >= 101100 ? createVertical(raise ? -1.49f : -0.49f, 4) : createVertical(-1, 4);
 					case MINI:
-						boolean isLeft = position == AquaUIPainter.Position.FIRST || position == AquaUIPainter.Position.ONLY;
 						return new MultiResolutionRendererDescription(
-							new BasicRendererDescription(isLeft ? -1 : 0, platformVersion >= 101100 ? 0 : -1, isLeft ? 1 : 0, 5),
-							new BasicRendererDescription(isLeft ? -0.5f : 0, 0, isLeft ? 0.5f : 0, platformVersion >= 101100 ? 5 : 4.5f));
+							createVertical(platformVersion >= 101100 ? 0 : -1, 5),
+							createVertical(0, platformVersion >= 101100 ? 5 : 4.5f));
 					default:
 						throw new UnsupportedOperationException();
 				}
@@ -389,6 +394,8 @@ public class ViewRendererDescriptions
 
 			case BUTTON_POP_DOWN_TEXTURED:
 			case BUTTON_POP_UP_TEXTURED:
+			case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
+			case BUTTON_POP_UP_TEXTURED_TOOLBAR:
 				return new BasicRendererDescription(0, 0, 0, 0);
 
 			case BUTTON_POP_UP_GRADIENT:

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -58,15 +58,7 @@ public class TextFieldLayoutConfiguration
 
 	public boolean isSearchField()
 	{
-		switch (tw)
-		{
-			case TEXT_FIELD_SEARCH:
-			case TEXT_FIELD_SEARCH_WITH_MENU:
-			case TEXT_FIELD_SEARCH_WITH_CANCEL:
-			case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL:
-				return true;
-		}
-		return false;
+		return tw.isSearch();
 	}
 
 	@Override
