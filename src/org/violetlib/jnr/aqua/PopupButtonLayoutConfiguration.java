@@ -138,7 +138,9 @@ public class PopupButtonLayoutConfiguration
 			case BUTTON_POP_UP_CELL:
 			case BUTTON_POP_DOWN_CELL:
 			case BUTTON_POP_UP_TEXTURED:
+			case BUTTON_POP_UP_TEXTURED_TOOLBAR:
 			case BUTTON_POP_DOWN_TEXTURED:
+			case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
 				return true;
 			default:
 				return false;
@@ -158,5 +160,4 @@ public class PopupButtonLayoutConfiguration
 				return true;
 		}
 	}
-
 }

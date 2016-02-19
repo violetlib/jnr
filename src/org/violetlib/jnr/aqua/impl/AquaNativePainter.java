@@ -352,8 +352,9 @@ public class AquaNativePainter
 		int size = toSize(g.getSize());
 		int state = toState(g.getState());
 		int type = toComboBoxType(g.getWidget());
+		int bezel = toBezelStyle(g.getWidget());
 		int ld = toUILayoutDirection(g.getLayoutDirection());
-		BasicRenderer r = (data, rw, rh, w, h) -> nativePaintComboBox(data, rw, rh, w, h, type, size, state, ld);
+		BasicRenderer r = (data, rw, rh, w, h) -> nativePaintComboBox(data, rw, rh, w, h, type, size, state, bezel, ld);
 		return Renderer.create(r, rd);
 	}
 
@@ -838,6 +839,22 @@ public class AquaNativePainter
 		throw new UnsupportedOperationException();
 	}
 
+	// Note: This is an internal hack; NSComboBox does not use bezel style.
+	protected int toBezelStyle(@NotNull ComboBoxWidget w)
+	{
+		switch (w) {
+			case BUTTON_COMBO_BOX:
+				return NSRoundedBezelStyle;
+			case BUTTON_COMBO_BOX_CELL:
+				return 0;
+			case BUTTON_COMBO_BOX_TEXTURED:
+				return NSTexturedRoundedBezelStyle;
+			case BUTTON_COMBO_BOX_TEXTURED_TOOLBAR:
+				return NSTexturedRoundedBezelStyle_Toolbar;
+		}
+		throw new UnsupportedOperationException();
+	}
+
 	protected int toBezelStyle(@NotNull PopupButtonWidget bw)
 	{
 		switch (bw) {
@@ -1095,7 +1112,7 @@ public class AquaNativePainter
 	private static native void nativePaintListBox(int[] data, int rw, int rh, float w, float h, int state, boolean isFocused, boolean isFrameOnly);
 	private static native void nativePaintTextField(int[] data, int rw, int rh, float w, float h, int sz, int state, int type);
 	private static native void nativePaintSegmentedButton(int[] data, int rw, int rh, float w, float h, int segmentType, int segmentPosition, int size, int state, boolean isFocused, int flags, float[] debugOutput, int[] debugData);
-	private static native void nativePaintComboBox(int[] data, int rw, int rh, float w, float h, int type, int size, int state, int layoutDirection);
+	private static native void nativePaintComboBox(int[] data, int rw, int rh, float w, float h, int type, int size, int state, int bezelStyle, int layoutDirection);
 	private static native void nativePaintPopUpButton(int[] data, int rw, int rh, float w, float h, boolean isUp, int size, int state, int bezelStyle, int layoutDirection);
 	private static native void nativePaintTableColumnHeader(int[] data, int rw, int rh, float w, float h, int state, int direction, boolean isSelected, int layoutDirection);
 	private static native void nativePaintSlider(int[] data, int rw, int rh, float w, float h, int sliderType, int size, int state, boolean isFocused, double value, int numberOfTickMarks, int position);

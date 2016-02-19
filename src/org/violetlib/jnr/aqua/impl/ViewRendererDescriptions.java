@@ -271,6 +271,18 @@ public class ViewRendererDescriptions
 				default:
 					throw new UnsupportedOperationException();
 			}
+		} else if (bw == AquaUIPainter.ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED || bw == AquaUIPainter.ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR){
+			switch (sz) {
+				case LARGE:
+				case REGULAR:
+					return new BasicRendererDescription(0, 0, 1, 0);
+				case SMALL:
+					return new BasicRendererDescription(0, 0, 2, 2);
+				case MINI:
+					return new BasicRendererDescription(0, 0, 0, 2);
+				default:
+					throw new UnsupportedOperationException();
+			}
 		} else {
 			switch (sz) {
 				case LARGE:

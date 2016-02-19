@@ -1074,13 +1074,20 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
  * Signature: ([IIIIIIII)V
  */
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintComboBox
-  (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint type, jint sz, jint st, jint layoutDirection)
+  (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint type, jint sz, jint st, jint bezelStyle, jint layoutDirection)
 {
 	COCOA_ENTER(env);
 	NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
-    if (gc) {
+  if (gc) {
 
 		// TBD: pressed and inactive states are not drawn correctly
+
+		BOOL inToolbar = NO;
+
+		if (bezelStyle >= 1000) {
+		  inToolbar = YES;
+		  bezelStyle -= 1000;
+		}
 
 		// Define the width of the region to paint when painting the indicator only or the arrows only.
 		// Note that these widths may include an inset.
@@ -1094,8 +1101,24 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 		jboolean drawTextBackground = st != DisabledState && st != DisabledInactiveState;
 
 		NSRect frameRect = NSMakeRect(0, 0, w, h);
-		NSComboBox* view = [[NSComboBox alloc] initWithFrame: frameRect];
-		[fakeParentWindow setContentView: view];
+		NSComboBox* view;
+
+    if (bezelStyle == NSTexturedRoundedBezelStyle) {
+      Class c = NSClassFromString(@"NSTexturedComboBox");
+      //NSLog(@"Instantiating class %@", c);
+		  view = [[c alloc] initWithFrame: frameRect];
+      //NSLog(@"Cell is %@", view.cell);
+      Class cc = NSClassFromString(@"NSTexturedComboBoxCell");
+      //NSLog(@"Instantiating class %@", cc);
+      NSCell *cell = [[cc alloc] init];
+      //NSLog(@"Cell is %@", cell);
+      view.cell = cell;
+      view.stringValue = @"";
+    } else {
+      view = [[NSComboBox alloc] initWithFrame: frameRect];
+    }
+
+    installContentView(view, inToolbar);
 		setControlSize(view, sz);
 		setControlState(view, st);
 		[view setButtonBordered: type != 2 /* ARROWS_ONLY */ ];
@@ -1110,7 +1133,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 		}
 		[view displayRectIgnoringOpacity: frameRect inContext: gc];
 		cleanup(env);
-    }
+  }
 	COCOA_EXIT(env);
 }
 

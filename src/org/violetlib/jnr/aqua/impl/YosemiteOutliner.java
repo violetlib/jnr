@@ -236,14 +236,18 @@ public class YosemiteOutliner
 			width += size2D(sz, -1, -1, -1);
 			double corner = 6;
 
-			// A combo box has square corners on the text field side.
-
 			// TBD: support right to left
 
 			return new GeneralRoundRectangle(x, y, width, height, 0, 0, corner, corner, corner, corner, 0, 0);
+
 		} else if (widget == ComboBoxWidget.BUTTON_COMBO_BOX_CELL) {
 			Insetter insets = uiLayout.getComboBoxEditorInsets(g);
 			return insets.applyToBounds2D(bounds);
+
+		} else if (widget == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED || widget == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
+			double corner = 4;
+			return new GeneralRoundRectangle(x, y, width, height, corner, corner, corner, corner, corner, corner, corner, corner);
+
 		} else {
 			return null;
 		}
@@ -294,6 +298,15 @@ public class YosemiteOutliner
 			x += size2D(sz, 0, 0, -0.5f);
 			return new Rectangle2D.Double(x, y, width, height);
 
+		} else if (bw == BUTTON_POP_UP_TEXTURED
+			|| bw == BUTTON_POP_DOWN_TEXTURED
+			|| bw == BUTTON_POP_UP_TEXTURED_TOOLBAR
+			|| bw == BUTTON_POP_DOWN_TEXTURED_TOOLBAR) {
+
+			height -= 0.5;
+			double corner = 6;
+			return new RoundRectangle2D.Double(x, y, width, height, corner, corner);
+
 		} else {
 			x += 0.5;
 			width -= 1;
@@ -308,11 +321,6 @@ public class YosemiteOutliner
 			} else if (bw == BUTTON_POP_UP_BEVEL || bw == BUTTON_POP_DOWN_BEVEL) {
 				height += size2D(sz, -2, -2, -1);
 				y += size2D(sz, 0.5f, 0.5f, 0.5f);
-			} else if (bw == BUTTON_POP_UP_TEXTURED
-				|| bw == BUTTON_POP_DOWN_TEXTURED
-				|| bw == BUTTON_POP_UP_TEXTURED_TOOLBAR
-				|| bw == BUTTON_POP_DOWN_TEXTURED_TOOLBAR) {
-				height += -0.5f;
 			}
 
 			return new RoundRectangle2D.Double(x, y, width, height, corner, corner);
@@ -376,12 +384,16 @@ public class YosemiteOutliner
 		double height = bounds.getHeight();
 
 		TextFieldWidget w = g.getWidget();
-		if (w.isSearch()) {
+		if (w.isSearch() || w.isRound()) {
 			double corner = 6;
-			x += 0.5;
-			y += 0.5;
-			width -= 1;
-			height -= 1;
+			if (w.isToolbar()) {
+				height -= 0.5f;
+			} else {
+				x += 0.5;
+				y += 0.5;
+				width -= 1;
+				height -= 1;
+			}
 			return new RoundRectangle2D.Double(x, y, width, height, corner, corner);
 		} else {
 			x += 0.5;

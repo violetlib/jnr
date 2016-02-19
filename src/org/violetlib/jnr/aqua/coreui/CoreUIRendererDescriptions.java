@@ -78,7 +78,7 @@ public class CoreUIRendererDescriptions
 				BasicRendererDescription x2 = new BasicRendererDescription(-0.5f, -1, 1, 2);
 				return new MultiResolutionRendererDescription(x1, x2);
 			} else {
-				return new BasicRendererDescription(-1, -1, 2, 2);
+				return new BasicRendererDescription(0, 0, 0, 0);
 			}
 		} else {
 			return super.getButtonRendererDescription(g);
@@ -216,6 +216,18 @@ public class CoreUIRendererDescriptions
 					return new BasicRendererDescription(0, -3, 2, 3);
 				case MINI:
 					return new BasicRendererDescription(0, -1.5f, 2, 2);
+				default:
+					throw new UnsupportedOperationException();
+			}
+		} else if (bw == AquaUIPainter.ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED || bw == AquaUIPainter.ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR){
+			switch (sz) {
+				case LARGE:
+				case REGULAR:
+					return new BasicRendererDescription(0, 0, 0, 0);
+				case SMALL:
+					return new BasicRendererDescription(0, 0, 0, 0);
+				case MINI:
+					return new BasicRendererDescription(0, 0, 0, 0);
 				default:
 					throw new UnsupportedOperationException();
 			}

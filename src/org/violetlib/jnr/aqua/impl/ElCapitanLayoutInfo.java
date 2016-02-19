@@ -14,6 +14,7 @@ import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.ButtonLayoutConfiguration;
+import org.violetlib.jnr.aqua.ComboBoxLayoutConfiguration;
 import org.violetlib.jnr.aqua.PopupButtonLayoutConfiguration;
 import org.violetlib.jnr.aqua.SegmentedButtonLayoutConfiguration;
 import org.violetlib.jnr.aqua.TextFieldLayoutConfiguration;
@@ -173,8 +174,8 @@ public class ElCapitanLayoutInfo
 			left = right = 4;
 
 		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED || bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
-			top = 0.5f;	// changed
-			bottom = 1.5f;	// changed
+			top = 0.5f;	// changed in El Capitan
+			bottom = 1.5f;	// changed in El Capitan
 			left = right = 3;
 
 		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND) {
@@ -250,15 +251,14 @@ public class ElCapitanLayoutInfo
 	public @NotNull Insetter getSegmentedButtonLabelInsets(@NotNull SegmentedButtonLayoutConfiguration g)
 	{
 		AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
-		AquaUIPainter.Size sz = g.getSize();
 		AquaUIPainter.Position pos = g.getPosition();
 
 		LayoutInfo layoutInfo = getLayoutInfo(g);
-		float top = 0;
-		float bottom = 0;
-		float left = size(sz, 10, 8, 6);
+		float top = 1;
+		float bottom = 2;
+		float left = 1;
 		float right = left;
-		float endAdjust = 0;
+		float endAdjust = 3;
 
 		boolean isLeftEnd = pos == AquaUIPainter.Position.FIRST || pos == AquaUIPainter.Position.ONLY;
 		boolean isRightEnd = pos == AquaUIPainter.Position.LAST || pos == AquaUIPainter.Position.ONLY;
@@ -266,32 +266,32 @@ public class ElCapitanLayoutInfo
 		switch (bw) {
 			case BUTTON_TAB:
 			case BUTTON_SEGMENTED:
-				top = size2D(sz, 1, 0.5f, 1);
-				bottom = size2D(sz, 2, 2.5f, 2);
-				endAdjust = 3;
+				break;
+			case BUTTON_SEGMENTED_SEPARATED:
+				endAdjust = 0;
+				left = right = 3;
 				break;
 			case BUTTON_SEGMENTED_INSET:
-				top = size(sz, 1, 1, 1);
-				bottom = size(sz, 1, 1, 1);
-				endAdjust = 4;
+				bottom = 1;
 				break;
 			case BUTTON_SEGMENTED_SCURVE:
 			case BUTTON_SEGMENTED_TEXTURED:
+			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
 			case BUTTON_SEGMENTED_TOOLBAR:
-			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
 				top = 0.5f;	// changed in El Capitan
 				bottom = 1.5f;	// changed in El Capitan
 				endAdjust = 2;
 				break;
-			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-				top = 0.5f;	// introduced in El Capitan
-				bottom = 1.5f;	// introduced in El Capitan
-				endAdjust = 2;
+				top = 0.5f;	// changed in El Capitan
+				bottom = 1.5f;	// changed in El Capitan
+				endAdjust = 0;
+				left = right = 3;
 				break;
 			case BUTTON_SEGMENTED_SMALL_SQUARE:
-				top = size(sz, 1, 1, 1);
-				bottom = size(sz, 1, 1, 1);
+				bottom = 1;
+				endAdjust = 0;
 				break;
 			default:
 				throw new UnsupportedOperationException();
@@ -306,6 +306,33 @@ public class ElCapitanLayoutInfo
 		}
 
 		return Insetters.createFixed(top, left, bottom, right, layoutInfo);
+	}
+
+	@Override
+	protected @NotNull LayoutInfo getComboBoxLayoutInfo(@NotNull ComboBoxLayoutConfiguration g)
+	{
+		AquaUIPainter.ComboBoxWidget bw = g.getWidget();
+		AquaUIPainter.Size sz = g.getSize();
+
+		if (bw == AquaUIPainter.ComboBoxWidget.BUTTON_COMBO_BOX_CELL) {
+			return BasicLayoutInfo.createMinimumHeight(size(sz, 14, 11, 11));
+
+		} else if (bw == AquaUIPainter.ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED) {
+			float fixedHeight = size(sz, 22, 18, 15);	// changed in El Capitan
+			float minWidth = size(sz, 27, 24, 22);
+			return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
+
+		} else if (bw == AquaUIPainter.ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
+			// introduced in El Capitan
+			float fixedHeight = size(sz, 24, 20, 17);
+			float minWidth = size(sz, 27, 24, 22);
+			return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
+
+		} else {
+			float fixedHeight = size(sz, 22, 19, 15);
+			float minWidth = size(sz, 27, 24, 22);
+			return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
+		}
 	}
 
 	@Override

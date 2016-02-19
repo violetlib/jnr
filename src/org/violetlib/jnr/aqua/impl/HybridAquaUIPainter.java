@@ -88,8 +88,15 @@ public class HybridAquaUIPainter
 			return coreUIPainter;
 		} else if (g instanceof ComboBoxConfiguration) {
 			ComboBoxConfiguration bg = (ComboBoxConfiguration) g;
+			ComboBoxWidget w = bg.getWidget();
 			State st = bg.getState();
-			if (st == State.DISABLED || st == State.DISABLED_INACTIVE || bg.getLayoutDirection() == UILayoutDirection.RIGHT_TO_LEFT) {
+			Size sz = bg.getSize();
+			if (st == State.DISABLED
+				|| st == State.DISABLED_INACTIVE
+				|| bg.getLayoutDirection() == UILayoutDirection.RIGHT_TO_LEFT
+				|| w == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED
+				|| w == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR
+				|| w == ComboBoxWidget.BUTTON_COMBO_BOX_CELL && sz == Size.MINI) {
 				return coreUIPainter;
 			}
 		} else if (g instanceof PopupButtonConfiguration) {

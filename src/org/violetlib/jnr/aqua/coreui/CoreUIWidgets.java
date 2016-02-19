@@ -50,10 +50,12 @@ public class CoreUIWidgets
 	public static final String BUTTON_PUSH_SCOPE2 = "kCUIWidgetButtonPushScope2";
 	public static final String BUTTON_PUSH_SLIDESHOW = "kCUIWidgetButtonPushSlideshow";
 	public static final String BUTTON_PUSH_TEXTURED = "kCUIWidgetButtonPushTextured";
+	public static final String BUTTON_PUSH_TOOLBAR = "kCUIWidgetButtonPushToolbar";
 	public static final String BUTTON_ROUND = "roundbutton";
 	public static final String BUTTON_ROUND_INSET = "roundbutton.inset";
 	public static final String BUTTON_ROUND_INSET2 = "kCUIWidgetButtonRoundInset2";
 	public static final String BUTTON_ROUND_TEXTURED = "kCUIWidgetButtonRoundTextured";
+	public static final String BUTTON_ROUND_TOOLBAR = "kCUIWidgetButtonRoundToolbar";
 
 	public static final String SCROLL_COLUMN_SIZER = "widget.scrollColumnSizer";
 	public static final String TOOL_BAR_ITEM_WELL = "kCUIWidgetToolbarItemWell";
@@ -65,6 +67,8 @@ public class CoreUIWidgets
 
 	public static final String BUTTON_COMBO_BOX = "combobox";
 	public static final String BUTTON_COMBO_BOX_INSET = "kCUIWidgetButtonComboBoxInset";
+	public static final String BUTTON_COMBO_BOX_TEXTURED = "kCUIWidgetButtonComboBoxTextured";
+	public static final String BUTTON_COMBO_BOX_TOOLBAR = "kCUIWidgetButtonComboBoxToolbar";
 
 	public static final String BUTTON_POP_DOWN = "popdownbutton";
 	public static final String BUTTON_POP_DOWN_SQUARE = "kCUIWidgetButtonPopDownSquare";

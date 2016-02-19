@@ -591,13 +591,28 @@ public class CoreUIPainter
 			return Renderer.create(r, rd);
 		}
 
+		String widget = getWidget(bw);
+
 		BasicRenderer r =  getRenderer(
-			WIDGET_KEY, CoreUIWidgets.BUTTON_COMBO_BOX,
+			WIDGET_KEY, widget,
 			SIZE_KEY, toSize(sz),
 			STATE_KEY, toState(st),
 			USER_INTERFACE_LAYOUT_DIRECTION_KEY, toLayoutDirection(ld),
 			IS_FOCUSED_KEY, g.isFocused());
 		return Renderer.create(r, rd);
+	}
+
+	private @NotNull String getWidget(@NotNull ComboBoxWidget w)
+	{
+		int platformVersion = JNRPlatformUtils.getPlatformVersion();
+		switch (w) {
+			case BUTTON_COMBO_BOX_TEXTURED:
+				return CoreUIWidgets.BUTTON_COMBO_BOX_TEXTURED;
+			case BUTTON_COMBO_BOX_TEXTURED_TOOLBAR:
+				return platformVersion >= 101100 ? CoreUIWidgets.BUTTON_COMBO_BOX_TOOLBAR : CoreUIWidgets.BUTTON_COMBO_BOX_TEXTURED;
+			default:
+				return CoreUIWidgets.BUTTON_COMBO_BOX;
+		}
 	}
 
 	@Override
