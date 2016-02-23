@@ -65,7 +65,8 @@ public class AquaNativePainter
 	protected static final int NSRoundedDisclosureBezelStyle = 14;
 	protected static final int NSInlineBezelStyle            = 15;
 
-	// The following is an internal bezel style. It indicates that the button is on a toolbar.
+	// The following are internal bezel styles. They indicate that the button is on a toolbar.
+	protected static final int NSCircularBezelStyle_Toolbar = 1000 + NSCircularBezelStyle;
 	protected static final int NSTexturedRoundedBezelStyle_Toolbar = 1000 + NSTexturedRoundedBezelStyle;
 
 	// NSButtonType
@@ -930,6 +931,8 @@ public class AquaNativePainter
 				return NSTexturedRoundedBezelStyle_Toolbar;
 			case BUTTON_ROUND:
 				return NSCircularBezelStyle;
+			case BUTTON_ROUND_TOOLBAR:
+				return NSCircularBezelStyle_Toolbar;
 		}
 		throw new UnsupportedOperationException();
 	}

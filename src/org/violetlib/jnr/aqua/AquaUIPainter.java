@@ -239,13 +239,21 @@ public interface AquaUIPainter
 
 		// The following styles are no longer recommended
 
-		BUTTON_BEVEL,                 // Bevel button with square corners (not recommended in Yosemite)
-		BUTTON_BEVEL_ROUND,           // Bevel button with rounded corners (not recommended in Yosemite)
-		BUTTON_ROUND,                 // a round white button with a border
-		BUTTON_ROUND_INSET,           // a round transparent button with an outline, probably obsolete
-		BUTTON_ROUND_TEXTURED,        // a round white borderless button with a shadow, probably obsolete; not the button sometimes called Round Textured in IB, this is round
+		BUTTON_BEVEL,                 	// Bevel button with square corners (not recommended in Yosemite)
+		BUTTON_BEVEL_ROUND,           	// Bevel button with rounded corners (not recommended in Yosemite)
+		BUTTON_ROUND,                 	// a round white button with a border
+		BUTTON_ROUND_INSET,           	// a round transparent button with an outline, probably obsolete
+		BUTTON_ROUND_TEXTURED,        	// a round white borderless button with a shadow; not the button sometimes called Round Textured in IB, this is round
+		BUTTON_ROUND_TOOLBAR,						// introduced in 10.11 for textured buttons on the toolbar (taller)
+		BUTTON_PUSH_INSET2;							// an obsolete style supported by Core UI
 
-		BUTTON_PUSH_INSET2,						// an obsolete style supported by Core UI
+		public boolean isTextured()
+		{
+			return this == BUTTON_TEXTURED
+				|| this == BUTTON_TEXTURED_TOOLBAR
+				|| this == BUTTON_ROUND_TEXTURED
+				|| this == BUTTON_ROUND_TOOLBAR;
+		}
 	}
 
 	/**

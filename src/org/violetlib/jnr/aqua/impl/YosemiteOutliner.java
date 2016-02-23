@@ -77,7 +77,8 @@ public class YosemiteOutliner
 			|| bw == BUTTON_HELP
 			|| bw == BUTTON_ROUND
 			|| bw == BUTTON_ROUND_INSET
-			|| bw == BUTTON_ROUND_TEXTURED) {
+			|| bw == BUTTON_ROUND_TEXTURED
+			|| bw == BUTTON_ROUND_TOOLBAR) {
 
 			switch (bw)
 			{
@@ -95,7 +96,7 @@ public class YosemiteOutliner
 
 			// The width and height are usually equal, but in some cases the height is larger
 
-			if (height > width && bw != BUTTON_ROUND_TEXTURED) {
+			if (height > width && !bw.isTextured()) {
 				double excess = height - width;
 				y += excess/2;
 				height = width;

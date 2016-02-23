@@ -28,14 +28,19 @@ public class ViewRendererDescriptions
 	@Override
 	public @NotNull RendererDescription getButtonRendererDescription(@NotNull ButtonConfiguration g)
 	{
-		final AquaUIPainter.ButtonWidget bw = toCanonicalButtonStyle(g.getButtonWidget());
+		AquaUIPainter.ButtonWidget bw = toCanonicalButtonStyle(g.getButtonWidget());
 
 		if (bw == AquaUIPainter.ButtonWidget.BUTTON_TOOLBAR_ITEM) {
 			ToolBarItemWellConfiguration tg = new ToolBarItemWellConfiguration(g.getState(), true);
 			return getToolBarItemWellRendererDescription(tg);
 		}
 
-		final AquaUIPainter.Size sz = g.getSize();
+		AquaUIPainter.Size sz = g.getSize();
+
+		int platformVersion = JNRPlatformUtils.getPlatformVersion();
+		if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TOOLBAR && platformVersion < 101100) {
+			bw = AquaUIPainter.ButtonWidget.BUTTON_ROUND;
+		}
 
 		if (bw == AquaUIPainter.ButtonWidget.BUTTON_PUSH) {
 			switch (sz) {
@@ -151,6 +156,9 @@ public class ViewRendererDescriptions
 			return new BasicRendererDescription(0, 0, 0, 0);
 
 		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TEXTURED) {
+			return new BasicRendererDescription(0, 0, 0, 0);
+
+		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TOOLBAR) {
 			return new BasicRendererDescription(0, 0, 0, 0);
 
 		} else if (bw == AquaUIPainter.ButtonWidget.BUTTON_COLOR_WELL) {

@@ -164,6 +164,8 @@ public class CoreUIPainter
 				widget = CoreUIWidgets.BUTTON_ROUND_INSET; break;
 			case BUTTON_ROUND_TEXTURED:
 				widget = CoreUIWidgets.BUTTON_ROUND_TEXTURED; break;
+			case BUTTON_ROUND_TOOLBAR:
+				widget = platformVersion >= 101100 ? CoreUIWidgets.BUTTON_ROUND_TOOLBAR : CoreUIWidgets.BUTTON_ROUND; break;
 			case BUTTON_INLINE:
 				widget = CoreUIWidgets.BUTTON_PUSH_SLIDESHOW; break;	// not correct, inline buttons are not supported by Core UI
 			case BUTTON_TEXTURED:
@@ -220,7 +222,7 @@ public class CoreUIPainter
 		}
 
 		// Textured buttons paint the same background when disabled as they would when enabled
-		if (bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR || bw == ButtonWidget.BUTTON_ROUND_TEXTURED) {
+		if (bw.isTextured()) {
 			if (st == State.DISABLED) {
 				st = State.ACTIVE;
 			} else if (st == State.DISABLED_INACTIVE) {

@@ -88,7 +88,7 @@ public class YosemiteLayoutInfo
 		} else if (bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
 			return BasicLayoutInfo.createFixedHeight(size(sz, 23, 19, 16));
 
-		} else if (bw == ButtonWidget.BUTTON_ROUND) {
+		} else if (bw == ButtonWidget.BUTTON_ROUND || bw == ButtonWidget.BUTTON_ROUND_TOOLBAR) {
 			return BasicLayoutInfo.createFixed(size(sz, 20, 17, 14), size(sz, 21, 18, 15));
 
 		} else if (bw == ButtonWidget.BUTTON_ROUND_INSET) {
@@ -179,11 +179,11 @@ public class YosemiteLayoutInfo
 			left = right = 4;
 
 		} else if (bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
-			top = 1;
-			bottom = 2;
+			top = 0.51f;
+			bottom = 1.49f;
 			left = right = 3;
 
-		} else if (bw == ButtonWidget.BUTTON_ROUND) {
+		} else if (bw == ButtonWidget.BUTTON_ROUND || bw == ButtonWidget.BUTTON_ROUND_TOOLBAR) {
 			top = left = right = size2D(sz, 4, 3.5f, 3);
 			bottom = top + 1;
 
