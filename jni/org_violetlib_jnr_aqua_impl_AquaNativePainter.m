@@ -1089,6 +1089,9 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 		  bezelStyle -= 1000;
 		}
 
+    // Note: as of 10.11.3, NSTexturedComboBox always uses the toolbar rendering. Thus a textured non-toolbar combo box
+    // is clipped at the top and bottom.
+
 		// Define the width of the region to paint when painting the indicator only or the arrows only.
 		// Note that these widths may include an inset.
 		int indicatorWidth = 21;
