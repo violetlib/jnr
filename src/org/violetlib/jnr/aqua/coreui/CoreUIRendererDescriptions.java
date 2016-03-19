@@ -23,6 +23,7 @@ import org.violetlib.jnr.impl.BasicRendererDescription;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.JNRUtils;
 import org.violetlib.jnr.impl.MultiResolutionRendererDescription;
+import org.violetlib.jnr.impl.Renderer;
 import org.violetlib.jnr.impl.RendererDescription;
 
 import static org.violetlib.jnr.impl.JNRUtils.*;
@@ -88,6 +89,8 @@ public class CoreUIRendererDescriptions
 	@Override
 	public @NotNull RendererDescription getSegmentedButtonRendererDescription(@NotNull SegmentedButtonConfiguration g)
 	{
+		int platformVersion = JNRPlatformUtils.getPlatformVersion();
+
 		AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
 		AquaUIPainter.Size sz = g.getSize();
 
@@ -107,6 +110,12 @@ public class CoreUIRendererDescriptions
 			case BUTTON_SEGMENTED_SEPARATED:
 				yOffset = size2D(sz, -0.51f, -1, -2);	// regular size should be -1 at 1x
 				leftOffset = size(sz, -2, -2, -1);
+
+				if (bw == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED && g.getPosition() != AquaUIPainter.Position.ONLY) {
+					// completely different rules
+					return getSegmentedSeparatedRendererDescription(g, rd, yOffset, leftOffset);
+				}
+
 				leftExtraWidth = rightExtraWidth = size(sz, 2, 2, 1);
 				break;
 
@@ -121,19 +130,15 @@ public class CoreUIRendererDescriptions
 			case BUTTON_SEGMENTED_TEXTURED:
 			case BUTTON_SEGMENTED_TOOLBAR:
 			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
-				if (sz == AquaUIPainter.Size.MINI) {
-					rd = createVertical(0, 4);
-				}
-				yOffset = size(sz, 0, -1, -2);
-				break;
-
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
 			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
 				if (sz == AquaUIPainter.Size.MINI) {
 					rd = createVertical(0, 4);
 				}
-				yOffset = size(sz, 0, -1, -2);
-				extraWidth = -0.49f;	// decrease the raster width at 2x so that the gap is 1 point
+				yOffset = size2D(sz, 0, platformVersion >= 101100 ? -1.5f : -1, -2);
+				if (bw.isSeparated()) {
+					return getTexturedSeparatedRendererDescription(g, rd, yOffset);
+				}
 				break;
 
 			case BUTTON_SEGMENTED_SMALL_SQUARE:
@@ -146,6 +151,94 @@ public class CoreUIRendererDescriptions
 		}
 
 		return adjustSegmentedRendererDescription(g, rd, extraWidth, xOffset, yOffset, leftOffset, leftExtraWidth, rightExtraWidth, extraHeight);
+	}
+
+	protected @NotNull RendererDescription getTexturedSeparatedRendererDescription(
+		@NotNull SegmentedButtonConfiguration g,
+		@NotNull RendererDescription rd,
+		float yOffset)
+	{
+		float extraWidth1 = 0;
+		float extraWidth2 = -0.5f;
+		float xOffset1 = 0;
+		float xOffset2 = 0;
+
+		boolean hasLeft = g.getLeftDividerState() != SegmentedButtonConfiguration.DividerState.NONE;
+		boolean hasRight = g.getRightDividerState() != SegmentedButtonConfiguration.DividerState.NONE;
+
+		AquaUIPainter.Position pos = g.getPosition();
+		if (pos == AquaUIPainter.Position.FIRST) {
+			if (!hasRight) {
+				extraWidth1 = 1;
+				extraWidth2 = 0.5f;
+
+			} else {
+				extraWidth2 = 0;
+			}
+		} else if (pos == AquaUIPainter.Position.MIDDLE) {
+			if (hasRight && !hasLeft) {
+				extraWidth2 = 0.5f;
+				xOffset2 = -0.5f;
+			} else if (hasLeft && !hasRight) {
+				extraWidth1 = 1;
+				extraWidth2 = 0.5f;
+			} else if (!hasLeft && !hasRight) {
+				extraWidth1 = 1;
+				extraWidth2 = 1;
+				xOffset2 = -0.5f;
+			} else {
+				extraWidth2 = 0;
+			}
+		} else if (pos == AquaUIPainter.Position.LAST) {
+			if (!hasLeft) {
+				extraWidth2 = 0.5f;
+				xOffset2 = -0.5f;
+			} else {
+				extraWidth2 = 0;
+			}
+		}
+
+		RendererDescription d1 = adjustSegmentedRendererDescription(g, rd, extraWidth1, xOffset1, yOffset, 0, 0, 0, 0);
+		RendererDescription d2 = adjustSegmentedRendererDescription(g, rd, extraWidth2, xOffset2, yOffset, 0, 0, 0, 0);
+		return new MultiResolutionRendererDescription(d1, d2);
+	}
+
+	protected @NotNull RendererDescription getSegmentedSeparatedRendererDescription(
+		@NotNull SegmentedButtonConfiguration g,
+		@NotNull RendererDescription rd,
+		float yOffset,
+		float xOffset
+	)
+	{
+		boolean hasLeft = g.getLeftDividerState() != SegmentedButtonConfiguration.DividerState.NONE;
+		boolean hasRight = g.getRightDividerState() != SegmentedButtonConfiguration.DividerState.NONE;
+
+		float extraWidth = hasRight ? 2 : 2.5f;
+
+		AquaUIPainter.Position pos = g.getPosition();
+		if (pos == AquaUIPainter.Position.FIRST) {
+		} else if (pos == AquaUIPainter.Position.MIDDLE) {
+			xOffset = 0;
+			extraWidth = 0.49f;
+			if (hasRight && !hasLeft) {
+				xOffset = -0.49f;
+			} else if (hasLeft && hasRight) {
+				extraWidth = 0;
+			} else if (!hasLeft && !hasRight) {
+				extraWidth = 1;
+				xOffset = -0.49f;
+			}
+		} else if (pos == AquaUIPainter.Position.LAST) {
+			extraWidth = 2;
+			xOffset = hasLeft ? 0 : -0.49f;
+		}
+
+		try {
+			return JNRUtils.adjustRendererDescription(rd, xOffset, yOffset, extraWidth, 0);
+		} catch (UnsupportedOperationException ex) {
+			NativeSupport.log("Unable to adjust segmented button renderer description for " + g);
+			return rd;
+		}
 	}
 
 	protected @NotNull RendererDescription adjustSegmentedRendererDescription(

@@ -66,7 +66,7 @@ public class CoreUIPainter
 		});
 	}
 
-	private static final @NotNull CoreUIRendererDescriptions rendererDescriptions = new CoreUIRendererDescriptions();
+	protected static final @NotNull CoreUIRendererDescriptions rendererDescriptions = new CoreUIRendererDescriptions();
 
 	protected boolean useJRS;		// if true, use the Java Runtime Support framework to access Core UI rendering
 
@@ -1132,7 +1132,12 @@ public class CoreUIPainter
 	protected @NotNull Renderer getSegmentedButtonRenderer(@NotNull SegmentedButtonConfiguration g)
 	{
 		RendererDescription rd = rendererDescriptions.getSegmentedButtonRendererDescription(g);
+		BasicRenderer r = getSegmentedButtonBasicRenderer(g);
+		return Renderer.create(r, rd);
+	}
 
+	protected @NotNull BasicRenderer getSegmentedButtonBasicRenderer(@NotNull SegmentedButtonConfiguration g)
+	{
 		boolean isSelected = g.isSelected();
 		boolean isLeftNeighborSelected = g.getLeftDividerState() == SegmentedButtonConfiguration.DividerState.SELECTED;
 		boolean isRightNeighborSelected = g.getRightDividerState() == SegmentedButtonConfiguration.DividerState.SELECTED;
@@ -1182,7 +1187,7 @@ public class CoreUIPainter
 				widget = platformVersion >= 101100 ? CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR : CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR; break;
 		}
 
-		BasicRenderer r = getRenderer(
+		return getRenderer(
 			WIDGET_KEY, widget,
 			SIZE_KEY, toSize(g.getSize()),
 			STATE_KEY, state,
@@ -1197,7 +1202,6 @@ public class CoreUIPainter
 			SEGMENT_TRAILING_SEPARATOR_TYPE_KEY, rightType,
 			VALUE_KEY, isSelected ? 1 : 0
 		);
-		return Renderer.create(r, rd);
 	}
 
 	@Override

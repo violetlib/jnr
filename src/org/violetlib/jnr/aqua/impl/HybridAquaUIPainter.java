@@ -79,11 +79,7 @@ public class HybridAquaUIPainter
 				return coreUIPainter;
 			}
 		} else if (g instanceof SegmentedButtonConfiguration) {
-			SegmentedButtonConfiguration bg = (SegmentedButtonConfiguration) g;
-			if (bg.getState() == State.PRESSED) {
-				return jrsPainter != null ? jrsPainter : viewPainter;
-			}
-			return viewPainter;
+			return coreUIPainter;
 		} else if (g instanceof GradientConfiguration) {
 			return coreUIPainter;
 		} else if (g instanceof ComboBoxConfiguration) {

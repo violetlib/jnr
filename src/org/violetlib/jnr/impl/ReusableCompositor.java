@@ -303,13 +303,61 @@ public class ReusableCompositor
 			int[] sourceData = source.data;
 			if (sourceData != null) {
 				isEmpty = false;
+				int sourceSpan = source.getRasterWidth();
 				for (int rowOffset = 0; rowOffset < dh; rowOffset++) {
 					int row = dy + rowOffset;
 					if (row >= 0 && row < rasterHeight) {
 						for (int colOffset = 0; colOffset < dw; colOffset++) {
 							int col = dx + colOffset;
 							if (col >= 0 && col < rasterWidth) {
-								int pixel = sourceData[rowOffset * dw + colOffset];
+								int pixel = sourceData[rowOffset * sourceSpan + colOffset];
+								int alpha = (pixel >> 24) & 0xFF;
+								if (alpha != 0) {
+									if (alpha != 0xFF) {
+										pixel = combine(data[row * rasterWidth + col], pixel);
+									}
+									data[row * rasterWidth + col] = pixel;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+		Render from a designated region of a compositor into a designated region of the raster, composing with existing
+		contents.
+
+		@param source The compositor that is the source of the pixels.
+		@param sx The X origin of the source region.
+		@param sy The Y origin of the source region.
+		@param dx The X origin of the raster region.
+		@param dy The Y origin of the raster region.
+		@param dw The width of the region.
+		@param dh The height of the region.
+	*/
+
+	public void composeFrom(@NotNull ReusableCompositor source, int sx, int sy, int dx, int dy, int dw, int dh)
+	{
+		ensureConfigured();
+
+		if (data != null) {
+			int[] sourceData = source.data;
+			if (sourceData != null) {
+				isEmpty = false;
+				int sourceWidth = source.getRasterWidth();
+				int sourceHeight = source.getRasterHeight();
+				for (int rowOffset = 0; rowOffset < dh; rowOffset++) {
+					int sourceRow = sy + rowOffset;
+					int row = dy + rowOffset;
+					if (row >= 0 && row < rasterHeight && sourceRow >= 0 && sourceRow < sourceHeight) {
+						for (int colOffset = 0; colOffset < dw; colOffset++) {
+							int sourceColumn = sx + colOffset;
+							int col = dx + colOffset;
+							if (col >= 0 && col < rasterWidth && sourceColumn >= 0 && sourceColumn < sourceWidth) {
+								int pixel = sourceData[sourceRow * sourceWidth + sourceColumn];
 								int alpha = (pixel >> 24) & 0xFF;
 								if (alpha != 0) {
 									if (alpha != 0xFF) {

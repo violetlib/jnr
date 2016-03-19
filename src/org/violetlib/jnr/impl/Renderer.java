@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -33,7 +33,7 @@ public abstract class Renderer
 	public static @NotNull Renderer create(@NotNull BasicRenderer r, @Nullable RendererDescription rd)
 	{
 		if (rd == null) {
-			rd = new BasicRendererDescription(0, 0, 0, 0);
+			rd = TrivialRendererDescription.getInstance();
 		}
 
 		return new BasicRendererRenderer(r, rd);
@@ -80,7 +80,9 @@ public abstract class Renderer
 	}
 
 	/**
-		Create a renderer that renders into a region of the target raster.
+		Create a renderer that renders into a region of the target raster. The region is specified in device independent
+		pixels.
+
 		@param source The source renderer.
 		@param x The X offset of the destination region.
 		@param y The Y offset of the destination region.
@@ -102,6 +104,22 @@ public abstract class Renderer
 	public static @NotNull Renderer createOffsetRenderer(@NotNull Renderer source, @NotNull Rectangle2D bounds)
 	{
 		return new OffsetRendererX(source, (float) bounds.getX(), (float) bounds.getY(), (float) bounds.getWidth(), (float) bounds.getHeight());
+	}
+
+	/**
+		Create a renderer that renders into a region of the target raster. The region is specified in raster pixels.
+
+		@param source The source renderer.
+		@param x The X offset of the destination region.
+		@param y The Y offset of the destination region.
+		@param w The width of the destination region.
+		@param h The height of the destination region.
+		@return the renderer.
+	*/
+
+	public static @NotNull Renderer createRasterOffsetRenderer(@NotNull Renderer source, int x, int y, int w, int h)
+	{
+		return new OffsetRasterRendererX(source, x, y, w, h);
 	}
 
 	public @Nullable BasicRenderer getBasicRenderer()
@@ -261,6 +279,52 @@ class OffsetRendererX
 			int rw = (int) Math.ceil(scaleFactor * w);
 			int rh = (int) Math.ceil(scaleFactor * h);
 			compositor.composePainter(px, rx, ry, rw, rh);
+		}
+	}
+}
+
+class OffsetRasterRendererX
+	extends Renderer
+{
+	private final @NotNull Renderer source;
+	private final int x;
+	private final int y;
+	private final int w;
+	private final int h;
+
+	public OffsetRasterRendererX(@NotNull Renderer source, int x, int y, int w, int h)
+	{
+		this.source = source;
+		this.x = x;
+		this.y = y;
+		this.w = w;
+		this.h = h;
+	}
+
+	@Override
+	public void composeTo(@NotNull ReusableCompositor compositor)
+	{
+		if (source instanceof BasicRendererRenderer) {
+			BasicRendererRenderer brr = (BasicRendererRenderer) source;
+			BasicRenderer r = brr.getBasicRenderer();
+			RendererDescription rd = brr.getRendererDescription();
+			if (rd.isTrivial()) {
+				compositor.composeRenderer(r, x, y, w, h);
+			} else {
+				int scaleFactor = compositor.getScaleFactor();
+				float sf = scaleFactor;
+				Rectangle2D bounds = new Rectangle2D.Float(x / sf, y / sf, w / sf, h / sf);
+				RasterDescription sd = rd.getRasterBounds(bounds, scaleFactor);
+				int rx = Math.round(scaleFactor * sd.getX());
+				int ry = Math.round(scaleFactor * sd.getY());
+				int rw = (int) Math.ceil(scaleFactor * sd.getWidth());
+				int rh = (int) Math.ceil(scaleFactor * sd.getHeight());
+				compositor.composeRenderer(r, rx, ry, rw, rh);
+			}
+		} else if (source instanceof PainterExtensionRenderer) {
+			PainterExtensionRenderer pxr = (PainterExtensionRenderer) source;
+			PainterExtension px = pxr.getPainterExtension();
+			compositor.composePainter(px, x, y, w, h);
 		}
 	}
 }
