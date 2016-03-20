@@ -194,6 +194,7 @@ public class JRSPainter
 		maker.reset();
 
 		State st = g.getState();
+		ButtonState bs = g.getButtonState();
 
 		switch (bw) {
 			case BUTTON_PUSH:
@@ -222,8 +223,8 @@ public class JRSPainter
 				break;
 			case BUTTON_RECESSED:
 
-				// A recessed button does not paint a background when OFF unless ROLLOVER
-				if (g.getButtonState() == ButtonState.OFF && g.getState() != State.ROLLOVER) {
+				// A recessed button does not paint a background when OFF unless ROLLOVER or PRESSED
+				if (bs == ButtonState.OFF && st != State.ROLLOVER && st != State.PRESSED) {
 					return NULL_RENDERER;
 				}
 
@@ -261,8 +262,6 @@ public class JRSPainter
 			default:
 				throw new UnsupportedOperationException();
 		}
-
-		ButtonState bs = g.getButtonState();
 
 		// Rounded rect and rounded bevel buttons use PRESSED instead of VALUE to indicate selection (when enabled)
 		if (bw == ButtonWidget.BUTTON_ROUNDED_RECT || bw == ButtonWidget.BUTTON_BEVEL_ROUND) {

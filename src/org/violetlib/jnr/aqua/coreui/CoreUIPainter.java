@@ -115,6 +115,7 @@ public class CoreUIPainter
 
 		RendererDescription rd = rendererDescriptions.getButtonRendererDescription(g);
 		State st = g.getState();
+		ButtonState bs = g.getButtonState();
 		int platformVersion = JNRPlatformUtils.getPlatformVersion();
 
 		String widget;
@@ -146,8 +147,8 @@ public class CoreUIPainter
 				widget = CoreUIWidgets.BUTTON_HELP; break;
 			case BUTTON_RECESSED:
 
-				// A recessed button does not paint a background when OFF unless ROLLOVER
-				if (g.getButtonState() == ButtonState.OFF && g.getState() != State.ROLLOVER) {
+				// A recessed button does not paint a background when OFF unless ROLLOVER or PRESSED
+				if (bs == ButtonState.OFF && st != State.ROLLOVER && st != State.PRESSED) {
 					return NULL_RENDERER;
 				}
 
@@ -184,8 +185,6 @@ public class CoreUIPainter
 		Object direction = null;
 		Object background = null;
 		Integer animationFrame = null;
-
-		ButtonState bs = g.getButtonState();
 
 		if (bw == ButtonWidget.BUTTON_DISCLOSURE_TRIANGLE) {
 			background = CoreUIBackgroundTypes.BACKGROUND_LIGHT;

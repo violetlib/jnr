@@ -196,36 +196,40 @@ public class AquaNativePainter
 	protected @NotNull Renderer getButtonRenderer(@NotNull ButtonConfiguration g)
 	{
 		ButtonWidget widget = g.getButtonWidget();
+		State st = g.getState();
+		ButtonState bs = g.getButtonState();
 
 		if (widget == ButtonWidget.BUTTON_TOOLBAR_ITEM) {
 			// A tool bar item button only paints a background when ON
-			if (g.getButtonState() != ButtonState.ON) {
+			if (bs != ButtonState.ON) {
 				return NULL_RENDERER;
 			}
-			ToolBarItemWellConfiguration tg = new ToolBarItemWellConfiguration(g.getState(), true);
+			ToolBarItemWellConfiguration tg = new ToolBarItemWellConfiguration(st, true);
 			return getToolBarItemWellRenderer(tg);
 		}
 
 		RendererDescription rd = rendererDescriptions.getButtonRendererDescription(g);
 
 		if (widget == ButtonWidget.BUTTON_COLOR_WELL) {
-			int state = toState(g.getState());
+			int state = toState(st);
 			BasicRenderer r = (data, rw, rh, w, h) -> nativePaintColorWell(data, rw, rh, w, h, state);
 			return Renderer.create(r, rd);
 		}
 
+		if (widget == ButtonWidget.BUTTON_RECESSED) {
+			// A recessed button does not paint a background when OFF unless ROLLOVER or PRESSED
+			if (bs == ButtonState.OFF && st != State.ROLLOVER && st != State.PRESSED) {
+				return NULL_RENDERER;
+			}
+		}
+
 		final ButtonWidget bw = toCanonicalButtonStyle(widget);
 		int size = toSize(g.getSize());
-		int state = toState(g.getState());
-		int value = toButtonValue(g.getButtonState());
+		int state = toState(st);
+		int value = toButtonValue(bs);
 		int buttonType = toButtonType(bw);
 		int bezelStyle = toBezelStyle(bw);
 		int uiLayoutDirection = toUILayoutDirection(g.getLayoutDirection());
-
-		// A recessed button does not paint a background when OFF unless ROLLOVER
-		if (bw == ButtonWidget.BUTTON_RECESSED && g.getButtonState() == ButtonState.OFF && g.getState() != State.ROLLOVER) {
-			return NULL_RENDERER;
-		}
 
 		BasicRenderer r = (data, rw, rh, w, h) -> nativePaintButton(data, rw, rh, w, h, buttonType, bezelStyle, size, state, g.isFocused(), value, uiLayoutDirection);
 		return Renderer.create(r, rd);
