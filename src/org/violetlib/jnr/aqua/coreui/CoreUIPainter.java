@@ -668,8 +668,8 @@ public class CoreUIPainter
 
 			case BUTTON_POP_DOWN_RECESSED:
 			case BUTTON_POP_UP_RECESSED:
-				// The button is painted only in the Rollover state.
-				if (st != State.ROLLOVER) {
+				// The button is painted only in the Rollover or Pressed states.
+				if (st != State.ROLLOVER && st != State.PRESSED) {
 					return null;
 				}
 

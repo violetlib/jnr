@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -37,7 +37,8 @@ public abstract class PopUpArrowPainterBase
 		State st = gg.getState();
 		PopupButtonWidget w = gg.getPopupButtonWidget();
 
-		if (st == State.ROLLOVER && (w == PopupButtonWidget.BUTTON_POP_UP_RECESSED || w == PopupButtonWidget.BUTTON_POP_DOWN_RECESSED)) {
+		if ((st == State.ROLLOVER || st == State.PRESSED)
+			&& (w == PopupButtonWidget.BUTTON_POP_UP_RECESSED || w == PopupButtonWidget.BUTTON_POP_DOWN_RECESSED)) {
 			return Color.WHITE;
 		}
 

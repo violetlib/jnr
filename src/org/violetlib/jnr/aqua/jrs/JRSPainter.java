@@ -727,6 +727,8 @@ public class JRSPainter
 			return null;
 		}
 
+		State st = g.getState();
+
 		RendererDescription rd = rendererDescriptions.getPopupButtonRendererDescription(g);
 
 		maker.reset();
@@ -755,8 +757,8 @@ public class JRSPainter
 
 			case BUTTON_POP_DOWN_RECESSED:
 			case BUTTON_POP_UP_RECESSED:
-				// The button is painted only in the Rollover state.
-				if (g.getState() != State.ROLLOVER) {
+				// The button is painted only in the Rollover or Pressed states.
+				if (st != State.ROLLOVER && st != State.PRESSED) {
 					return null;
 				}
 
@@ -793,7 +795,7 @@ public class JRSPainter
 		maker.set(JRSUIConstants.ArrowsOnly.NO);
 		maker.set(JRSUIConstants.AlignmentHorizontal.CENTER);
 		configureSize(g.getSize());
-		configureState(g.getState());
+		configureState(st);
 		configureLayoutDirection(g.getLayoutDirection());
 		return Renderer.create(maker.getRenderer(), rd);
 	}
