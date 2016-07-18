@@ -65,7 +65,10 @@ public class NativeSupport
 
 			// debug
 			String jrsv = getJavaRuntimeSupportVersion();
-			log("Java Runtime Support: " + jrsv);
+			if (false) {
+				log("Java Runtime Support: " + jrsv);
+			}
+
 			int version = getJavaRuntimeSupportMajorVersion();
 			if ((version > 0 && version < 15) || "15.0.0".equals(jrsv)) {
 				log("Found obsolete version of Java Runtime Support framework");
