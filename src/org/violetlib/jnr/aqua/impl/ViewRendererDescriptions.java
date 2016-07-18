@@ -104,11 +104,11 @@ public class ViewRendererDescriptions
 			switch (sz) {
 				case LARGE:
 				case REGULAR:
-					return new BasicRendererDescription(0, 0, 0, 3);
+					return new BasicRendererDescription(0, 0, 0, platformVersion < 101200 ? 3 : 0);
 				case SMALL:
 					return new BasicRendererDescription(0, 0, 0, 0);
 				case MINI:
-					return new BasicRendererDescription(0, -0.5f, 1, 0);
+					return platformVersion < 101200 ? new BasicRendererDescription(0, -0.5f, 1, 0) : new BasicRendererDescription(-0.49f, 0, 1, 0);
 				default:
 					throw new UnsupportedOperationException();
 			}

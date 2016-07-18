@@ -58,8 +58,19 @@ public abstract class AquaUIPainterAbstractBase
 
 	static {
 		int platformVersion = JNRPlatformUtils.getPlatformVersion();
-		uiLayout = platformVersion >= 101100 ? new ElCapitanLayoutInfo() : new YosemiteLayoutInfo();
+		uiLayout = findLayoutInfo(platformVersion);
 		uiOutliner = new YosemiteOutliner((YosemiteLayoutInfo) uiLayout);
+	}
+
+	private static @NotNull AquaUILayoutInfo findLayoutInfo(int platformVersion)
+	{
+		if (platformVersion >= 101200) {
+			return new SierraLayoutInfo();
+		} else if (platformVersion >= 101100) {
+			return new ElCapitanLayoutInfo();
+		} else {
+			return new YosemiteLayoutInfo();
+		}
 	}
 
 	public void setAlignmentEnabled(boolean b)
