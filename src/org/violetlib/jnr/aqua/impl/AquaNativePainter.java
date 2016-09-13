@@ -172,10 +172,13 @@ public class AquaNativePainter
 		});
 	}
 
-	protected static final @NotNull TitleBarLayoutInfo titleBarLayoutInfo = obtainTitleBarLayoutInfo();
+	protected static @Nullable TitleBarLayoutInfo titleBarLayoutInfo;
 
 	public static @NotNull TitleBarLayoutInfo getTitleBarLayoutInfo()
 	{
+		if (titleBarLayoutInfo == null) {
+			titleBarLayoutInfo = obtainTitleBarLayoutInfo();
+		}
 		return titleBarLayoutInfo;
 	}
 

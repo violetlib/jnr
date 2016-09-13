@@ -35,7 +35,7 @@ public class JNRPlatformUtils
 			String osName = System.getProperty("os.name");
 			String osVersion = System.getProperty("os.version");
 
-			boolean isOSX = osName.equals("Mac OS X");
+			boolean isOSX = osName.equals("Mac OS X") || osName.equals("macOS");
 			if (isOSX) {
 
 				platformVersionString = osVersion;

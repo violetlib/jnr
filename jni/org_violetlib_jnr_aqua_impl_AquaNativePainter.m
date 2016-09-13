@@ -240,10 +240,10 @@ static void installContentView(NSView *view, BOOL inToolbar)
 @end
 
 @implementation FakeButton
-- (BOOL) canDraw
-{
-	return YES;
-}
+//- (BOOL) canDraw
+//{
+//	return YES;
+//}
 @end
 
 static NSGraphicsContext *setupRaw(int *data, int rw, int rh, int w, int h)
