@@ -12,8 +12,9 @@ import java.awt.geom.Rectangle2D;
 
 import org.jetbrains.annotations.*;
 
-import apple.laf.JRSUIConstants;
-import apple.laf.JRSUIState;
+import org.violetlib.jnr.impl.jrs.JRSUIConstants;
+import org.violetlib.jnr.impl.jrs.JRSUIState;
+import org.violetlib.jnr.impl.jrs.JRSUIControl;
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.Painter;
@@ -45,16 +46,11 @@ public class JRSPainter
 	{
 		super(rendererDescriptions);
 
-		// This renderer depends upon the JDK native support being loaded and initialized.
-
 		try {
-			// The following will ensure that the native library is loaded (if possible).
-			com.apple.laf.AquaNativeResources.getWindowBackgroundColorUIResource();
-
-			// The following will ensure that the native library has been initialized (if possible).
-			apple.laf.JRSUIControl.initJRSUI();
+			// The following will ensure that the native library support has been initialized (if possible).
+			JRSUIControl.initJRSUI();
 		} catch (Exception ex) {
-			throw new UnsupportedOperationException("Unable to load or initialize the native library: " + ex);
+			throw new UnsupportedOperationException("Unable to initialize the native library: " + ex);
 		}
 
 		maker = new JRSRendererMaker();

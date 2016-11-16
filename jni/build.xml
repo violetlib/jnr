@@ -16,6 +16,12 @@
 		<javah class="org.violetlib.jnr.aqua.coreui.CoreUIPainter"
            classpath="/Users/alan/build/working/VAquaRendering/classes"
            destdir="."/>
+		<javah class="org.violetlib.jnr.impl.jrs.JRSUIControl"
+           classpath="/Users/alan/build/working/VAquaRendering/classes"
+           destdir="."/>
+		<javah class="org.violetlib.jnr.impl.jrs.JRSUIConstants"
+           classpath="/Users/alan/build/working/VAquaRendering/classes"
+           destdir="."/>
 	</target>
 
 	<target name="VAquaRenderingJNI" depends="headers">

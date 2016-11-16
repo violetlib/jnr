@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -12,10 +12,10 @@ import java.lang.reflect.Method;
 
 import org.jetbrains.annotations.*;
 
-import apple.laf.JRSUIConstants;
-import apple.laf.JRSUIControl;
-import apple.laf.JRSUIState;
-import apple.laf.JRSUIStateFactory;
+import org.violetlib.jnr.impl.jrs.JRSUIConstants;
+import org.violetlib.jnr.impl.jrs.JRSUIControl;
+import org.violetlib.jnr.impl.jrs.JRSUIState;
+import org.violetlib.jnr.impl.jrs.JRSUIStateFactory;
 import org.violetlib.jnr.impl.EmptyRenderer;
 import org.violetlib.jnr.impl.BasicRenderer;
 
