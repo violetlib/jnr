@@ -1090,10 +1090,9 @@ public class AquaNativePainter
 
 	private static @NotNull Rectangle[] obtainTitleBarButtonLayoutInfo(@NotNull TitleBarWidget bw)
 	{
-		int[] data = new int[4 * 3];
-
 		int windowType = toWindowType(bw);
-		if (nativeGetTitleBarButtonLayoutInfo(data, windowType)) {
+		int[] data = nativeGetTitleBarButtonLayoutInfo(windowType);
+		if (data != null) {
 			Rectangle close = new Rectangle(data[0], data[1], data[2], data[3]);
 			Rectangle minimize = new Rectangle(data[4], data[5], data[6], data[7]);
 			Rectangle resize = new Rectangle(data[8], data[9], data[10], data[11]);
@@ -1131,7 +1130,7 @@ public class AquaNativePainter
 	private static native void nativePaintTitleBar(int[] data, int rw, int rh, float w, float h, int windowType, int state, int closeState, int minimizeState, int resizeState, boolean resizeIsFullScreen, boolean isDirty);
 	private static native void nativePaintScrollBar(int[] data, int rw, int rh, float w, float h, int type, int size, int state, float thumbPosition, float thumbExtent);
 
-	private static native boolean nativeGetTitleBarButtonLayoutInfo(int[] data, int windowType);
+	private static native int[] nativeGetTitleBarButtonLayoutInfo(int windowType);
 	private static native void nativeGetSliderThumbBounds(float[] a, float w, float h, int sliderType, int size, double value, int numberOfTickMarks, int position);
 
 	// The following methods represent a failed experiment. Although I am not sure why, asking a view for its size

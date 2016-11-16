@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -48,7 +48,7 @@ public abstract class RendererPainter
 	@Override
 	public void paint(@NotNull Graphics gg, float x, float y)
 	{
-		int scaleFactor = JNRPlatformUtils.getScaleFactor(gg);
+		int scaleFactor = JavaSupport.getScaleFactor(gg);
 		int w = (int) Math.ceil(width);
 		int h = (int) Math.ceil(height);
 		Image im = getImage(scaleFactor, w, h);
@@ -80,6 +80,6 @@ public abstract class RendererPainter
 		rc.reset(rasterWidth, rasterHeight, scaleFactor);
 		r.composeTo(rc);
 		BufferedImage theImage = rc.getImage();
-		return theImage != null ? JNRPlatformUtils.createMultiResolutionImage(width, height, theImage) : null;
+		return theImage != null ? JavaSupport.createMultiResolutionImage(width, height, theImage) : null;
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Changes copyright (c) 2015 Alan Snyder.
+ * Changes copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -36,7 +36,7 @@ package org.violetlib.jnr.aqua.jrs;
 // copied from com.apple.laf.AquaPainter.AquaPixelsKey
 // replaced GraphicsConfiguration with scaleFactor, removed bounds
 
-import apple.laf.JRSUIState;
+import org.violetlib.jnr.impl.jrs.JRSUIState;
 import org.violetlib.jnr.impl.ImageCache;
 
 public class JRSPixelsKey implements ImageCache.PixelsKey {

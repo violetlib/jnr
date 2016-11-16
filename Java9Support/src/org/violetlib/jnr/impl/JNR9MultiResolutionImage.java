@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -22,15 +22,15 @@ import org.jetbrains.annotations.*;
 
 */
 
-public class JNR18MultiResolutionImage
+public class JNR9MultiResolutionImage
 	extends Image
-	implements sun.awt.image.MultiResolutionImage
+	implements java.awt.image.MultiResolutionImage
 {
 	private final int baseImageWidth;
 	private final int baseImageHeight;
 	private final @NotNull BufferedImage im;
 
-	public JNR18MultiResolutionImage(int baseImageWidth, int baseImageHeight, @NotNull BufferedImage im)
+	public JNR9MultiResolutionImage(int baseImageWidth, int baseImageHeight, @NotNull BufferedImage im)
 	{
 		this.baseImageWidth = baseImageWidth;
 		this.baseImageHeight = baseImageHeight;
@@ -38,7 +38,7 @@ public class JNR18MultiResolutionImage
 	}
 
 	@Override
-	public Image getResolutionVariant(int width, int height)
+	public Image getResolutionVariant(double width, double height)
 	{
 		return im;
 	}

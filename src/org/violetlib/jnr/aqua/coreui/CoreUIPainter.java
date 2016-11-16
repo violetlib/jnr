@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2017 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -118,6 +118,8 @@ public class CoreUIPainter
 		ButtonState bs = g.getButtonState();
 		int platformVersion = JNRPlatformUtils.getPlatformVersion();
 
+		boolean hasRolloverEffect = false;
+
 		String widget;
 
 		switch (bw) {
@@ -152,6 +154,8 @@ public class CoreUIPainter
 					return NULL_RENDERER;
 				}
 
+				hasRolloverEffect = true;
+
 				if (st == State.ACTIVE_DEFAULT || st == State.INACTIVE || st == State.DISABLED || st == State.DISABLED_INACTIVE) {
 					// renders incorrectly on Yosemite
 					st = State.ACTIVE;
@@ -180,6 +184,10 @@ public class CoreUIPainter
 
 			default:
 				throw new UnsupportedOperationException();
+		}
+
+		if (st == State.ROLLOVER && !hasRolloverEffect) {
+			st = State.ACTIVE;
 		}
 
 		Object direction = null;
@@ -582,6 +590,10 @@ public class CoreUIPainter
 		State st = g.getState();
 		UILayoutDirection ld = g.getLayoutDirection();
 
+		if (st == State.ROLLOVER) {
+			st = State.ACTIVE;
+		}
+
 		if (bw == ComboBoxWidget.BUTTON_COMBO_BOX_CELL) {
 			BasicRenderer r =  getRenderer(
 				WIDGET_KEY, CoreUIWidgets.BUTTON_COMBO_BOX,
@@ -643,6 +655,8 @@ public class CoreUIPainter
 		RendererDescription rd = rendererDescriptions.getBasicPopupButtonRendererDescription(g);
 		int platformVersion = JNRPlatformUtils.getPlatformVersion();
 
+		boolean hasRolloverEffect = false;
+
 		switch (g.getPopupButtonWidget()) {
 
 			case BUTTON_POP_DOWN:
@@ -672,7 +686,7 @@ public class CoreUIPainter
 				if (st != State.ROLLOVER && st != State.PRESSED) {
 					return null;
 				}
-
+				hasRolloverEffect = true;
 				widget = CoreUIWidgets.BUTTON_PUSH_SCOPE;
 				break;
 
@@ -704,6 +718,10 @@ public class CoreUIPainter
 
 			default:
 				throw new UnsupportedOperationException();
+		}
+
+		if (st == State.ROLLOVER && !hasRolloverEffect) {
+			st = State.ACTIVE;
 		}
 
 		BasicRenderer r;

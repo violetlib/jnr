@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2016 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -10,7 +10,7 @@ package org.violetlib.jnr.aqua.jrs;
 
 import org.jetbrains.annotations.*;
 
-import apple.laf.JRSUIState;
+import org.violetlib.jnr.impl.jrs.JRSUIState;
 import org.violetlib.jnr.impl.CachingRendererPainter;
 import org.violetlib.jnr.impl.ImageCache;
 import org.violetlib.jnr.impl.Renderer;

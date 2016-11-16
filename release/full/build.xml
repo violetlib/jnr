@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This build file will not compile JDK 9 specific sources until a JDK 9 compiler is available -->
+
 <project basedir="." default="release" name="Aqua Native Rendering">
 
     <tstamp>
@@ -11,6 +14,14 @@
         <arg value="1.8"/>
     </exec>
 
+    <exec executable="/usr/libexec/java_home" outputproperty="jdk9">
+        <arg value="-F"/>
+        <arg value="-v"/>
+        <arg value="9"/>
+    </exec>
+
+    <property name="javac9" value="${jdk9}/bin/javac"/>
+
     <property name="bootclasspath" value="${jdk8}/jre/lib/rt.jar" />
 
     <property name="RELEASE" value="0.9"/>
@@ -18,6 +29,8 @@
 
     <property name="base" value="../.."/>
     <property name="src" value="${base}/src"/>
+    <property name="src8" value="${base}/Java8Support/src"/>
+    <property name="src9" value="${base}/Java9Support/src"/>
     <property name="jnisrc" value="${base}/jni"/>
     <property name="builddir" value="out"/>
     <property name="classesdir" value="${builddir}/classes"/>
@@ -25,8 +38,8 @@
     <property name="jnidir" value="${builddir}/jni"/>
     <property name="distdir" value="dist"/>
 
-    <property name="SDKversion" value="10.11"/>
-    <property name="SDKroot" value="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${SDKversion}.sdk" />
+    <property name="SDKversion" value="10.12"/>
+    <property name="SDKroot" value="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${SDKversion}.sdk"/>
     <property name="libpath" value="${base}/lib/IdeaAnnotations.jar"/>
     <property name="cc" value="/usr/bin/cc"/>
 
@@ -35,7 +48,7 @@
     <target name="init">
         <echo level="info" message="${fullReleaseName}"/>
     </target>
-        
+
     <target name="clean" description="Remove build directories">
         <delete includeEmptyDirs="true" failonerror="false">
           <fileset dir="${builddir}"/>
@@ -48,10 +61,17 @@
       <echo file="${classesdir}/org/violetlib/jnr/aqua/BUILD.txt" message="${NOW}"/>
     </target>
 
-    <target name="compile-AquaNativeRendering-Java">
-        <mkdir dir="${classesdir}"/>
+    <condition property="javac9exists">
+      <resourceexists>
+        <file file="${javac9}"/>
+      </resourceexists>
+    </condition>
 
-        <javac source="1.8"
+    <target name="compile8">
+        <mkdir dir="${classesdir}"/>
+        <mkdir dir="${headersdir}"/>
+
+        <javac source="1.8" target="1.8"
             bootclasspath="${bootclasspath}"
             classpath="${libpath}"
             encoding="UTF-8"
@@ -61,6 +81,8 @@
             optimize="true"
             includeantruntime="false"
             >
+            <compilerarg value="-h"/>
+            <compilerarg path="${headersdir}"/>
             <patternset>
                 <include name="org/violetlib/geom/*.java"/>
                 <include name="org/violetlib/jnr/*.java"/>
@@ -70,28 +92,49 @@
                 <include name="org/violetlib/jnr/aqua/jrs/*.java"/>
                 <include name="org/violetlib/jnr/impl/*.java"/>
             </patternset>
-            </javac>
+        </javac>
 
+        <javac source="1.8" target="1.8"
+            bootclasspath="${bootclasspath}"
+            classpath="${libpath}"
+            encoding="UTF-8"
+            srcdir="${src8}"
+            destdir="${classesdir}"
+            debug="${debug}"
+            optimize="true"
+            includeantruntime="false"
+            >
+            <compilerarg value="-h"/>
+            <compilerarg path="${headersdir}"/>
+            <patternset>
+              <include name="org/violetlib/jnr/**/*.java"/>
+            </patternset>
+        </javac>
     </target>
-    
-    <target name="compile-AquaNativeRendering-JNI-headers" depends="compile-AquaNativeRendering-Java">
-        <mkdir dir="${headersdir}"/>
 
-        <javah class="org.violetlib.jnr.aqua.impl.AquaNativePainter"
-            classpath="${classesdir}"
-            destdir="${headersdir}"
-            />
-        <javah class="org.violetlib.jnr.aqua.impl.NativeSupport"
-            classpath="${classesdir}"
-            destdir="${headersdir}"
-            />
-        <javah class="org.violetlib.jnr.aqua.coreui.CoreUIPainter"
-            classpath="${classesdir}"
-            destdir="${headersdir}"
-            />
+    <target name="compile9" if="javac9exists">
+        <mkdir dir="${classesdir}"/>
+        <javac source="1.8" target="1.8"
+            classpath="${libpath}"
+            encoding="UTF-8"
+            srcdir="${src9}"
+            destdir="${classesdir}"
+            debug="${debug}"
+            optimize="true"
+            includeantruntime="false"
+            fork="true"
+            executable="${javac9}"
+            >
+            <patternset>
+              <include name="org/violetlib/jnr/**/*.java"/>
+            </patternset>
+        </javac>
     </target>
 
-    <target name="compile-AquaNativeRendering-JNI" depends="compile-AquaNativeRendering-JNI-headers">
+    <target name="compile-AquaNativeRendering-Java" depends="compile8,compile9">
+    </target>
+
+    <target name="compile-AquaNativeRendering-JNI" depends="compile8">
         <mkdir dir="${jnidir}"/>
 
         <exec executable="${cc}" failonerror="true" >
@@ -127,11 +170,13 @@
             <arg value="${jnisrc}/org_violetlib_jnr_aqua_impl_AquaNativePainter.m"/>
             <arg value="${jnisrc}/org_violetlib_jnr_aqua_coreui_CoreUIPainter.m"/>
             <arg value="${jnisrc}/org_violetlib_jnr_aqua_coreui_CUIDrawPainter.m"/>
+            <arg value="${jnisrc}/JRSUIConstantSync.m"/>
+            <arg value="${jnisrc}/JRSUIController.m"/>
         </exec>
 
     </target>
 
-    <target name="AquaNativeRendering" depends="compile-AquaNativeRendering-JNI,saveIDs">
+    <target name="AquaNativeRendering" depends="compile-AquaNativeRendering-JNI, compile-AquaNativeRendering-Java, saveIDs">
 
         <echo level="info" message="Building AquaNativeRendering[Hybrid] ${fullReleaseName}"/>
 
