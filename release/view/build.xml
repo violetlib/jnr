@@ -20,7 +20,7 @@
         <arg value="9"/>
     </exec>
 
-    <property name="javac9" value="${jdk9}/Contents/Home/bin/javac"/>
+    <property name="javac9" value="${jdk9}/bin/javac"/>
 
     <property name="bootclasspath" value="${jdk8}/jre/lib/rt.jar" />
 
