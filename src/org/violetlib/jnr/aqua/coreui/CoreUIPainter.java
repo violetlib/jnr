@@ -118,6 +118,8 @@ public class CoreUIPainter
 		ButtonState bs = g.getButtonState();
 		int platformVersion = JNRPlatformUtils.getPlatformVersion();
 
+		boolean hasRolloverEffect = false;
+
 		String widget;
 
 		switch (bw) {
@@ -152,6 +154,8 @@ public class CoreUIPainter
 					return NULL_RENDERER;
 				}
 
+				hasRolloverEffect = true;
+
 				if (st == State.ACTIVE_DEFAULT || st == State.INACTIVE || st == State.DISABLED || st == State.DISABLED_INACTIVE) {
 					// renders incorrectly on Yosemite
 					st = State.ACTIVE;
@@ -180,6 +184,10 @@ public class CoreUIPainter
 
 			default:
 				throw new UnsupportedOperationException();
+		}
+
+		if (st == State.ROLLOVER && !hasRolloverEffect) {
+			st = State.ACTIVE;
 		}
 
 		Object direction = null;

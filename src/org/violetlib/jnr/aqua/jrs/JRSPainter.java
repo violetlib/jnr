@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2017 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -192,6 +192,8 @@ public class JRSPainter
 		State st = g.getState();
 		ButtonState bs = g.getButtonState();
 
+		boolean hasRolloverEffect = false;
+
 		switch (bw) {
 			case BUTTON_PUSH:
 				maker.set(JRSUIConstants.Widget.BUTTON_PUSH);
@@ -223,6 +225,8 @@ public class JRSPainter
 				if (bs == ButtonState.OFF && st != State.ROLLOVER && st != State.PRESSED) {
 					return NULL_RENDERER;
 				}
+
+				hasRolloverEffect = true;
 
 				if (st == State.ACTIVE_DEFAULT || st == State.INACTIVE || st == State.DISABLED || st == State.DISABLED_INACTIVE) {
 					// these states render incorrectly on Yosemite
@@ -257,6 +261,10 @@ public class JRSPainter
 				break;
 			default:
 				throw new UnsupportedOperationException();
+		}
+
+		if (st == State.ROLLOVER && !hasRolloverEffect) {
+			st = State.ACTIVE;
 		}
 
 		// Rounded rect and rounded bevel buttons use PRESSED instead of VALUE to indicate selection (when enabled)
@@ -729,6 +737,8 @@ public class JRSPainter
 
 		maker.reset();
 
+		boolean hasRolloverEffect = false;
+
 		switch (g.getPopupButtonWidget()) {
 			case BUTTON_POP_DOWN:
 				maker.set(JRSUIConstants.Widget.BUTTON_POP_DOWN);
@@ -758,6 +768,7 @@ public class JRSPainter
 					return null;
 				}
 
+				hasRolloverEffect = true;
 				maker.set(JRSUIConstants.Widget.BUTTON_PUSH_SCOPE);
 				break;
 
@@ -785,6 +796,10 @@ public class JRSPainter
 
 			default:
 				throw new UnsupportedOperationException();
+		}
+
+		if (st == State.ROLLOVER && !hasRolloverEffect) {
+			st = State.ACTIVE;
 		}
 
 		maker.set(JRSUIConstants.IndicatorOnly.NO);
