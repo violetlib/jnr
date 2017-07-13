@@ -178,7 +178,7 @@ static void init()
 	if (!fakeParentWindow) {
 		NSRect rect = NSMakeRect(0, 0, 10000, 10000);
 		fakeParentWindow = [[FakeParentWindow alloc] initWithContentRect: rect
-			styleMask: NSBorderlessWindowMask
+			styleMask: NSWindowStyleMaskBorderless
 			backing: NSBackingStoreNonretained
 			defer: YES
 			];
@@ -189,7 +189,7 @@ static void init()
 	if (!fakeTexturedWindow) {
 		NSRect rect = NSMakeRect(0, 0, 10000, 10000);
 		fakeTexturedWindow = [[FakeParentWindow alloc] initWithContentRect: rect
-			styleMask: NSTexturedBackgroundWindowMask
+			styleMask: NSWindowStyleMaskTexturedBackground
 			backing: NSBackingStoreNonretained
 			defer: YES
 			];
@@ -198,7 +198,7 @@ static void init()
 	if (!fakeDocumentWindow) {
 		NSRect rect = NSMakeRect(0, 0, 10000, 10000);
 		fakeDocumentWindow = [[FakeParentWindow alloc] initWithContentRect: rect
-			styleMask: (NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask)
+			styleMask: (NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskMiniaturizable|NSWindowStyleMaskResizable)
 			backing: NSBackingStoreNonretained
 			defer: YES
 			];
@@ -207,7 +207,7 @@ static void init()
 	if (!myPanel) {
 		NSRect rect = NSMakeRect(0, 0, 10000, 10000);
 		myPanel = [[MyPanel alloc] initWithContentRect: rect
-			styleMask: (NSUtilityWindowMask|NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask)
+			styleMask: (NSWindowStyleMaskUtilityWindow|NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskMiniaturizable|NSWindowStyleMaskResizable)
 			backing: NSBackingStoreNonretained
 			defer: YES
 			];
@@ -351,15 +351,15 @@ static void setControlSize(NSView* v, int sz)
 {
 	// Large not supported
 
-	NSControlSize size = NSRegularControlSize;
+	NSControlSize size = NSControlSizeRegular;
 
 	switch (sz)
 	{
 		case MiniSize:
-			size = NSMiniControlSize;
+			size = NSControlSizeMini;
 			break;
 		case SmallSize:
-			size = NSSmallControlSize;
+			size = NSControlSizeSmall;
 			break;
 	}
 
@@ -1859,12 +1859,12 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
 	if (0) {
 		// Testing
-		float width1 = [NSScroller scrollerWidthForControlSize: NSRegularControlSize scrollerStyle: NSScrollerStyleOverlay];
-		float width2 = [NSScroller scrollerWidthForControlSize: NSSmallControlSize scrollerStyle: NSScrollerStyleOverlay];
-		float width3 = [NSScroller scrollerWidthForControlSize: NSMiniControlSize scrollerStyle: NSScrollerStyleOverlay];
-		float width4 = [NSScroller scrollerWidthForControlSize: NSRegularControlSize scrollerStyle: NSScrollerStyleLegacy];
-		float width5 = [NSScroller scrollerWidthForControlSize: NSSmallControlSize scrollerStyle: NSScrollerStyleLegacy];
-		float width6 = [NSScroller scrollerWidthForControlSize: NSMiniControlSize scrollerStyle: NSScrollerStyleLegacy];
+		float width1 = [NSScroller scrollerWidthForControlSize: NSControlSizeRegular scrollerStyle: NSScrollerStyleOverlay];
+		float width2 = [NSScroller scrollerWidthForControlSize: NSControlSizeSmall scrollerStyle: NSScrollerStyleOverlay];
+		float width3 = [NSScroller scrollerWidthForControlSize: NSControlSizeMini scrollerStyle: NSScrollerStyleOverlay];
+		float width4 = [NSScroller scrollerWidthForControlSize: NSControlSizeRegular scrollerStyle: NSScrollerStyleLegacy];
+		float width5 = [NSScroller scrollerWidthForControlSize: NSControlSizeSmall scrollerStyle: NSScrollerStyleLegacy];
+		float width6 = [NSScroller scrollerWidthForControlSize: NSControlSizeMini scrollerStyle: NSScrollerStyleLegacy];
 		NSLog(@"scroller width = %f %f %f %f %f %f", width1, width2, width3, width4, width5, width6);
 	}
 

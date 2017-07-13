@@ -25,7 +25,7 @@
     <property name="jnidir" value="${builddir}/jni"/>
     <property name="distdir" value="dist"/>
 
-    <property name="SDKversion" value="10.11"/>
+    <property name="SDKversion" value="10.12"/>
     <property name="SDKroot" value="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${SDKversion}.sdk" />
     <property name="libpath" value="${base}/lib/IdeaAnnotations.jar"/>
     <property name="cc" value="/usr/bin/cc"/>
@@ -35,7 +35,7 @@
     <target name="init">
         <echo level="info" message="${fullReleaseName}"/>
     </target>
-        
+
     <target name="clean" description="Remove build directories">
         <delete includeEmptyDirs="true" failonerror="false">
           <fileset dir="${builddir}"/>
@@ -73,7 +73,7 @@
             </javac>
 
     </target>
-    
+
     <target name="compile-AquaNativeRendering-JNI-headers" depends="compile-AquaNativeRendering-Java">
         <mkdir dir="${headersdir}"/>
 
