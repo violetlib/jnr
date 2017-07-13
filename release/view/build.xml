@@ -80,6 +80,8 @@
             optimize="true"
             includeantruntime="false"
             >
+            <compilerarg value="-h"/>
+            <compilerarg path="${headersdir}"/>
             <patternset>
                 <include name="org/violetlib/geom/*.java"/>
                 <include name="org/violetlib/jnr/*.java"/>
@@ -99,6 +101,8 @@
             optimize="true"
             includeantruntime="false"
             >
+            <compilerarg value="-h"/>
+            <compilerarg path="${headersdir}"/>
             <patternset>
               <include name="org/violetlib/jnr/**/*.java"/>
             </patternset>
@@ -124,33 +128,10 @@
         </javac>
     </target>
 
-<<<<<<< HEAD
     <target name="compile-AquaNativeRendering-Java" depends="compile8,compile9">
     </target>
 
-=======
->>>>>>> 10.13
-    <target name="compile-AquaNativeRendering-JNI-headers" depends="compile-AquaNativeRendering-Java">
-        <mkdir dir="${headersdir}"/>
-
-        <javac source="1.8" target="1.8"
-            bootclasspath="${bootclasspath}"
-            classpath="${libpath}:${classesdir}"
-            encoding="UTF-8"
-            srcdir="${src}"
-            destdir="${classesdir}"
-            includeantruntime="false"
-            >
-            <compilerarg value="-h"/>
-            <compilerarg path="${headersdir}"/>
-            <patternset>
-              <include name="org/violetlib/jnr/aqua/impl/AquaNativePainter.java"/>
-              <include name="org/violetlib/jnr/aqua/impl/NativeSupport.java"/>
-              </patternset>
-            </javac>
-    </target>
-
-    <target name="compile-AquaNativeRendering-JNI" depends="compile-AquaNativeRendering-JNI-headers">
+    <target name="compile-AquaNativeRendering-JNI" depends="compile8">
         <mkdir dir="${jnidir}"/>
 
         <exec executable="${cc}" failonerror="true" >
@@ -188,7 +169,7 @@
 
     </target>
 
-    <target name="AquaNativeRendering" depends="compile-AquaNativeRendering-JNI, saveIDs">
+    <target name="AquaNativeRendering" depends="compile-AquaNativeRendering-JNI, compile-AquaNativeRendering-Java, saveIDs">
 
         <echo level="info" message="Building AquaNativeRendering ${fullReleaseName}"/>
 
