@@ -124,9 +124,12 @@
         </javac>
     </target>
 
+<<<<<<< HEAD
     <target name="compile-AquaNativeRendering-Java" depends="compile8,compile9">
     </target>
 
+=======
+>>>>>>> 10.13
     <target name="compile-AquaNativeRendering-JNI-headers" depends="compile-AquaNativeRendering-Java">
         <mkdir dir="${headersdir}"/>
 

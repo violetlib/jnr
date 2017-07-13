@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2017 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -16,6 +16,7 @@ import org.jetbrains.annotations.*;
 
 import org.violetlib.jnr.Painter;
 import org.violetlib.jnr.aqua.*;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 /**
 	A hybrid painter that uses the best available implementation for each given configuration.
@@ -87,12 +88,22 @@ public class HybridAquaUIPainter
 			ComboBoxWidget w = bg.getWidget();
 			State st = bg.getState();
 			Size sz = bg.getSize();
-			if (st == State.DISABLED
+
+			// On 10.11 and earlier, all renderers paint proper cell style arrows, except JDK is unable to paint the mini
+			// size. On 10.12 and later, the cell style arrows have changed to a "V" shape, but JDK still uses the triangle
+			// version.
+
+			if (w == ComboBoxWidget.BUTTON_COMBO_BOX_CELL) {
+				int platformVersion = JNRPlatformUtils.getPlatformVersion();
+				if (platformVersion >= 101200 || sz == Size.MINI) {
+					return coreUIPainter;
+				}
+			} else if (st == State.DISABLED
 				|| st == State.DISABLED_INACTIVE
 				|| bg.getLayoutDirection() == UILayoutDirection.RIGHT_TO_LEFT
 				|| w == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED
 				|| w == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR
-				|| w == ComboBoxWidget.BUTTON_COMBO_BOX_CELL && sz == Size.MINI) {
+				) {
 				return coreUIPainter;
 			}
 		} else if (g instanceof PopupButtonConfiguration) {

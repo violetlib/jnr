@@ -175,48 +175,48 @@ static MyFakeToolbarContainer *fakeToolbarContainer;
 
 static void init()
 {
-  if (!fakeParentWindow) {
-    NSRect rect = NSMakeRect(0, 0, 10000, 10000);
-    fakeParentWindow = [[FakeParentWindow alloc] initWithContentRect: rect
-      styleMask: NSBorderlessWindowMask
-      backing: NSBackingStoreNonretained
-      defer: YES
-      ];
-  }
+	if (!fakeParentWindow) {
+		NSRect rect = NSMakeRect(0, 0, 10000, 10000);
+		fakeParentWindow = [[FakeParentWindow alloc] initWithContentRect: rect
+			styleMask: NSWindowStyleMaskBorderless
+			backing: NSBackingStoreNonretained
+			defer: YES
+			];
+	}
 
   // A textured window background is needed for textured separated segmented controls and
   // for inactive textured segmented controls.
-  if (!fakeTexturedWindow) {
-    NSRect rect = NSMakeRect(0, 0, 10000, 10000);
-    fakeTexturedWindow = [[FakeParentWindow alloc] initWithContentRect: rect
-      styleMask: NSTexturedBackgroundWindowMask
-      backing: NSBackingStoreNonretained
-      defer: YES
-      ];
-  }
+	if (!fakeTexturedWindow) {
+		NSRect rect = NSMakeRect(0, 0, 10000, 10000);
+		fakeTexturedWindow = [[FakeParentWindow alloc] initWithContentRect: rect
+			styleMask: NSWindowStyleMaskTexturedBackground
+			backing: NSBackingStoreNonretained
+			defer: YES
+			];
+	}
 
-  if (!fakeDocumentWindow) {
-    NSRect rect = NSMakeRect(0, 0, 10000, 10000);
-    fakeDocumentWindow = [[FakeParentWindow alloc] initWithContentRect: rect
-      styleMask: (NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask)
-      backing: NSBackingStoreNonretained
-      defer: YES
-      ];
-  }
+	if (!fakeDocumentWindow) {
+		NSRect rect = NSMakeRect(0, 0, 10000, 10000);
+		fakeDocumentWindow = [[FakeParentWindow alloc] initWithContentRect: rect
+			styleMask: (NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskMiniaturizable|NSWindowStyleMaskResizable)
+			backing: NSBackingStoreNonretained
+			defer: YES
+			];
+	}
 
-  if (!myPanel) {
-    NSRect rect = NSMakeRect(0, 0, 10000, 10000);
-    myPanel = [[MyPanel alloc] initWithContentRect: rect
-      styleMask: (NSUtilityWindowMask|NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask)
-      backing: NSBackingStoreNonretained
-      defer: YES
-      ];
-  }
+	if (!myPanel) {
+		NSRect rect = NSMakeRect(0, 0, 10000, 10000);
+		myPanel = [[MyPanel alloc] initWithContentRect: rect
+			styleMask: (NSWindowStyleMaskUtilityWindow|NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskMiniaturizable|NSWindowStyleMaskResizable)
+			backing: NSBackingStoreNonretained
+			defer: YES
+			];
+	}
 
-  if (!fakeToolbarContainer) {
-    NSRect rect = NSMakeRect(0, 0, 9000, 9000);
-    fakeToolbarContainer = [[MyFakeToolbarContainer alloc] initWithFrame: rect];
-  }
+	if (!fakeToolbarContainer) {
+		NSRect rect = NSMakeRect(0, 0, 9000, 9000);
+		fakeToolbarContainer = [[MyFakeToolbarContainer alloc] initWithFrame: rect];
+	}
 }
 
 // Support for views that display differently in toolbars
@@ -349,34 +349,34 @@ static void cleanup(JNIEnv *env)
 
 static void setControlSize(NSView* v, int sz)
 {
-  // Large not supported
+	// Large not supported
 
-  NSControlSize size = NSRegularControlSize;
+	NSControlSize size = NSControlSizeRegular;
 
-  switch (sz)
-  {
-    case MiniSize:
-      size = NSMiniControlSize;
-      break;
-    case SmallSize:
-      size = NSSmallControlSize;
-      break;
-  }
+	switch (sz)
+	{
+		case MiniSize:
+			size = NSControlSizeMini;
+			break;
+		case SmallSize:
+			size = NSControlSizeSmall;
+			break;
+	}
 
-  if ([v respondsToSelector: @selector(setControlSize:)]) {
-    [(id)v setControlSize: size];
-  } else {
-    if ([v respondsToSelector: @selector(cell)]) {
-      NSCell *cell = [(id)v cell];
-      [(id)cell setControlSize: size];
-    } else {
-      //NSLog(@"setControlSize: is not defined on %@", v);
-    }
-  }
+	if ([v respondsToSelector: @selector(setControlSize:)]) {
+		[(id)v setControlSize: size];
+	} else {
+		if ([v respondsToSelector: @selector(cell)]) {
+			NSCell *cell = [(id)v cell];
+			[(id)cell setControlSize: size];
+		} else {
+			//NSLog(@"setControlSize: is not defined on %@", v);
+		}
+	}
 
-  if ([v respondsToSelector: @selector(setFont:)]) {
-    [(id)v setFont: [NSFont systemFontOfSize: [NSFont systemFontSizeForControlSize: size]]];
-  }
+	if ([v respondsToSelector: @selector(setFont:)]) {
+		[(id)v setFont: [NSFont systemFontOfSize: [NSFont systemFontSizeForControlSize: size]]];
+	}
 }
 
 static void setControlState(NSView* v, int st)
@@ -1855,64 +1855,65 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h,
     jint type, jint sz, jint st, jfloat thumbPosition, jfloat thumbExtent)
 {
-  // For an overlay scroller, NSScroller paints a track.
-  // This is appropriate for the rollover display, but not for the initial display.
-  // However, the track is likely to be the wrong size, because what we get here is the
-  // first frame of an "expansion" animation.
+    // For an overlay scroller, NSScroller paints a track.
+    // This is appropriate for the rollover display, but not for the initial display.
+    // However, the track is likely to be the wrong size, because what we get here is the
+    // first frame of an "expansion" animation.
 
-  if (type == 1 /* OVERLAY */) {
-    return;
-  }
-
-  // In Yosemite, the display of an overlay scroll bar does not depend upon state.
-  // A legacy scroll bar displays as an empty track when disabled.
-
-  if (type == 2 /* OVERLAY_ROLLOVER */) {
-    st = ActiveState;
-  }
-
-  if (0) {
-    // Testing
-    float width1 = [NSScroller scrollerWidthForControlSize: NSRegularControlSize scrollerStyle: NSScrollerStyleOverlay];
-    float width2 = [NSScroller scrollerWidthForControlSize: NSSmallControlSize scrollerStyle: NSScrollerStyleOverlay];
-    float width3 = [NSScroller scrollerWidthForControlSize: NSMiniControlSize scrollerStyle: NSScrollerStyleOverlay];
-    float width4 = [NSScroller scrollerWidthForControlSize: NSRegularControlSize scrollerStyle: NSScrollerStyleLegacy];
-    float width5 = [NSScroller scrollerWidthForControlSize: NSSmallControlSize scrollerStyle: NSScrollerStyleLegacy];
-    float width6 = [NSScroller scrollerWidthForControlSize: NSMiniControlSize scrollerStyle: NSScrollerStyleLegacy];
-    NSLog(@"scroller width = %f %f %f %f %f %f", width1, width2, width3, width4, width5, width6);
-  }
-
-  // Only Regular and Small sizes are supported
-
-  COCOA_ENTER(env);
-  NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
-  if (gc) {
-    NSRect frameRect = NSMakeRect(0, 0, w, h);
-    NSScroller* view = [[NSScroller alloc] initWithFrame: frameRect];
-    [fakeParentWindow setContentView: view];
-
-    switch (type)
-    {
-      case 0: /* LEGACY */
-        [view setScrollerStyle: NSScrollerStyleLegacy];
-        break;
-
-      case 1: /* OVERLAY */
-      case 2: /* OVERLAY_ROLLOVER */
-
-        [view setScrollerStyle: NSScrollerStyleOverlay];
-        [[view cell] setHighlighted: YES];
-        break;
+    if (type == 1 /* OVERLAY */) {
+        return;
     }
 
-    setControlSize(view, sz);
-    setControlState(view, st);
-    [view setFloatValue: thumbPosition];
-    [view setKnobProportion: thumbExtent];
-    [view displayRectIgnoringOpacity: frameRect inContext: gc];
-    cleanup(env);
-  }
-  COCOA_EXIT(env);
+    // In Yosemite, the display of an overlay scroll bar does not depend upon state.
+    // A legacy scroll bar displays as an empty track when disabled.
+
+    if (type == 2 /* OVERLAY_ROLLOVER */) {
+        st = ActiveState;
+    }
+
+    if (0) {
+        // Testing
+        float width1 = [NSScroller scrollerWidthForControlSize: NSControlSizeRegular scrollerStyle: NSScrollerStyleOverlay];
+        float width2 = [NSScroller scrollerWidthForControlSize: NSControlSizeSmall scrollerStyle: NSScrollerStyleOverlay];
+        float width3 = [NSScroller scrollerWidthForControlSize: NSControlSizeMini scrollerStyle: NSScrollerStyleOverlay];
+        float width4 = [NSScroller scrollerWidthForControlSize: NSControlSizeRegular scrollerStyle: NSScrollerStyleLegacy];
+        float width5 = [NSScroller scrollerWidthForControlSize: NSControlSizeSmall scrollerStyle: NSScrollerStyleLegacy];
+        float width6 = [NSScroller scrollerWidthForControlSize: NSControlSizeMini scrollerStyle: NSScrollerStyleLegacy];
+        NSLog(@"scroller width = %f %f %f %f %f %f", width1, width2, width3, width4, width5, width6);
+    }
+
+    // Only Regular and Small sizes are supported
+
+    COCOA_ENTER(env);
+    NSGraphicsContext *gc = setup(env, data, rw, rh, w, h);
+
+    if (gc) {
+        NSRect frameRect = NSMakeRect(0, 0, w, h);
+        NSScroller* view = [[NSScroller alloc] initWithFrame: frameRect];
+        [fakeParentWindow setContentView: view];
+
+        switch (type)
+        {
+          case 0: /* LEGACY */
+            [view setScrollerStyle: NSScrollerStyleLegacy];
+            break;
+
+          case 1: /* OVERLAY */
+          case 2: /* OVERLAY_ROLLOVER */
+
+            [view setScrollerStyle: NSScrollerStyleOverlay];
+            [[view cell] setHighlighted: YES];
+            break;
+        }
+
+        setControlSize(view, sz);
+        setControlState(view, st);
+        [view setFloatValue: thumbPosition];
+        [view setKnobProportion: thumbExtent];
+        [view displayRectIgnoringOpacity: frameRect inContext: gc];
+        cleanup(env);
+    }
+    COCOA_EXIT(env);
 }
 
 /*
