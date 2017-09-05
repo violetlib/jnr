@@ -633,8 +633,13 @@ public class JRSPainter
 				throw new UnsupportedOperationException();
 		}
 
+		State st = g.getState();
+		if (st == State.ROLLOVER) {
+			st = State.ACTIVE;
+		}
+
 		configureSize(g.getSize());
-		configureState(g.getState());
+		configureState(st);
 		configureLayoutDirection(g.getLayoutDirection());
 
 		return Renderer.create(maker.getRenderer(), rd);
