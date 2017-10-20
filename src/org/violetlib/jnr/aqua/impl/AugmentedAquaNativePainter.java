@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -12,7 +12,6 @@ import org.jetbrains.annotations.*;
 
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.aqua.ScrollBarConfiguration;
-import org.violetlib.jnr.aqua.SplitPaneDividerConfiguration;
 import org.violetlib.jnr.aqua.TableColumnHeaderConfiguration;
 import org.violetlib.jnr.aqua.TextFieldConfiguration;
 import org.violetlib.jnr.aqua.TitleBarConfiguration;
@@ -85,5 +84,11 @@ public class AugmentedAquaNativePainter
 			}
 		}
 		return r;
+	}
+
+	@Override
+	public @NotNull String toString()
+	{
+		return "Augmented " + super.toString();
 	}
 }

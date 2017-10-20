@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- This build file will not compile JDK 9 specific sources until a JDK 9 compiler is available -->
-
 <project basedir="." default="release" name="Aqua Native Rendering">
 
     <tstamp>
         <format property="NOW" timezone="GMT" pattern="yyyy-MM-dd'T'HH:mm:ss'Z'"/>
     </tstamp>
 
+    <!-- A Java 9 or later compiler is required -->
+
+    <exec executable="/usr/libexec/java_home" outputproperty="jdk">
+        <arg value="-F"/>
+        <arg value="-v"/>
+        <arg value="9+"/>
+    </exec>
+
+    <property name="javac" value="${jdk}/bin/javac"/>
+
+    <!-- A Java 8 boot class path is required -->
+
     <exec executable="/usr/libexec/java_home" outputproperty="jdk8">
         <arg value="-F"/>
         <arg value="-v"/>
         <arg value="1.8"/>
     </exec>
-
-    <exec executable="/usr/libexec/java_home" outputproperty="jdk9">
-        <arg value="-F"/>
-        <arg value="-v"/>
-        <arg value="9"/>
-    </exec>
-
-    <property name="javac9" value="${jdk9}/bin/javac"/>
 
     <property name="bootclasspath" value="${jdk8}/jre/lib/rt.jar" />
 
@@ -38,7 +40,7 @@
     <property name="jnidir" value="${builddir}/jni"/>
     <property name="distdir" value="dist"/>
 
-    <property name="SDKversion" value="10.12"/>
+    <property name="SDKversion" value="10.13"/>
     <property name="SDKroot" value="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${SDKversion}.sdk"/>
     <property name="libpath" value="${base}/lib/IdeaAnnotations.jar"/>
     <property name="cc" value="/usr/bin/cc"/>
@@ -61,71 +63,71 @@
       <echo file="${classesdir}/org/violetlib/jnr/aqua/BUILD.txt" message="${NOW}"/>
     </target>
 
-    <condition property="javac9exists">
-      <resourceexists>
-        <file file="${javac9}"/>
-      </resourceexists>
-    </condition>
-
     <target name="compile8">
-        <mkdir dir="${classesdir}"/>
+      <mkdir dir="${classesdir}"/>
 
-        <javac source="1.8" target="1.8"
-            bootclasspath="${bootclasspath}"
-            classpath="${libpath}"
-            encoding="UTF-8"
-            srcdir="${src}"
-            destdir="${classesdir}"
-            debug="${debug}"
-            optimize="true"
-            includeantruntime="false"
-            >
-            <compilerarg value="-h"/>
-            <compilerarg path="${headersdir}"/>
-            <patternset>
-                <include name="org/violetlib/geom/*.java"/>
-                <include name="org/violetlib/jnr/*.java"/>
-                <include name="org/violetlib/jnr/aqua/*.java"/>
-                <include name="org/violetlib/jnr/aqua/impl/*.java"/>
-                <include name="org/violetlib/jnr/impl/*.java"/>
-            </patternset>
-        </javac>
+      <javac source="1.8" target="1.8"
+          bootclasspath="${bootclasspath}"
+          classpath="${libpath}"
+          encoding="UTF-8"
+          srcdir="${src}"
+          destdir="${classesdir}"
+          debug="${debug}"
+          optimize="true"
+          includeantruntime="false"
+          fork="true"
+          executable="${javac}"
+          >
+          <compilerarg value="-h"/>
+          <compilerarg path="${headersdir}"/>
+          <patternset>
+              <include name="org/violetlib/geom/*.java"/>
+              <include name="org/violetlib/jnr/*.java"/>
+              <include name="org/violetlib/jnr/aqua/*.java"/>
+              <include name="org/violetlib/jnr/aqua/impl/*.java"/>
+              <include name="org/violetlib/jnr/impl/*.java"/>
+          </patternset>
+      </javac>
 
-        <javac source="1.8" target="1.8"
-            bootclasspath="${bootclasspath}"
-            classpath="${libpath}"
-            encoding="UTF-8"
-            srcdir="${src8}"
-            destdir="${classesdir}"
-            debug="${debug}"
-            optimize="true"
-            includeantruntime="false"
-            >
-            <compilerarg value="-h"/>
-            <compilerarg path="${headersdir}"/>
-            <patternset>
-              <include name="org/violetlib/jnr/**/*.java"/>
-            </patternset>
-        </javac>
+      <javac source="1.8" target="1.8"
+          bootclasspath="${bootclasspath}"
+          classpath="${libpath}"
+          encoding="UTF-8"
+          srcdir="${src8}"
+          destdir="${classesdir}"
+          debug="${debug}"
+          optimize="true"
+          includeantruntime="false"
+          fork="true"
+          executable="${javac}"
+          >
+          <compilerarg value="-h"/>
+          <compilerarg path="${headersdir}"/>
+          <patternset>
+            <include name="org/violetlib/jnr/**/*.java"/>
+          </patternset>
+      </javac>
     </target>
 
-    <target name="compile9" if="javac9exists">
-        <mkdir dir="${classesdir}"/>
-        <javac source="1.8" target="1.8"
-            classpath="${libpath}"
-            encoding="UTF-8"
-            srcdir="${src9}"
-            destdir="${classesdir}"
-            debug="${debug}"
-            optimize="true"
-            includeantruntime="false"
-            fork="true"
-            executable="${javac9}"
-            >
-            <patternset>
-              <include name="org/violetlib/jnr/**/*.java"/>
-            </patternset>
-        </javac>
+    <target name="compile9">
+      <mkdir dir="${classesdir}"/>
+      <javac
+          classpath="${libpath}"
+          encoding="UTF-8"
+          srcdir="${src9}"
+          destdir="${classesdir}"
+          debug="${debug}"
+          optimize="true"
+          includeantruntime="false"
+          fork="true"
+          executable="${javac}"
+          >
+          <compilerarg value="--release"/>
+          <compilerarg value="9"/>
+          <patternset>
+            <include name="org/violetlib/jnr/**/*.java"/>
+          </patternset>
+      </javac>
     </target>
 
     <target name="compile-AquaNativeRendering-Java" depends="compile8,compile9">
@@ -140,7 +142,7 @@
 
             <arg value="-isysroot"/>
             <arg value="${SDKroot}"/>
-            <env key="MACOSX_DEPLOYMENT_TARGET" value="${SDKversion}"/>
+            <env key="MACOSX_DEPLOYMENT_TARGET" value="10.7"/>
 
             <arg value="-o"/>
             <arg value="${jnidir}/libVAquaRendering.dylib"/>

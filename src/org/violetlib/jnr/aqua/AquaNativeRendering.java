@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -16,9 +16,9 @@ import java.lang.reflect.Constructor;
 
 import org.jetbrains.annotations.*;
 
-import org.violetlib.jnr.aqua.impl.AquaNativePainter;
 import org.violetlib.jnr.aqua.impl.HybridAquaUIPainter;
 import org.violetlib.jnr.aqua.impl.NativeSupport;
+import org.violetlib.jnr.impl.ImageCache;
 
 /**
 	The main entry point to the Aqua Native Rendering library.
@@ -52,6 +52,11 @@ public class AquaNativeRendering
 		}
 
 		throw new UnsupportedOperationException("Unable to create a native painter");
+	}
+
+	public static void clearCache()
+	{
+		ImageCache.getInstance().flush();
 	}
 
 	private AquaNativeRendering()
@@ -116,55 +121,83 @@ public class AquaNativeRendering
 
 		isInitialized = true;
 
-		AquaNativePainter viewPainter = null;
+		AquaUIPainter viewPainter = null;
 		AquaUIPainter coreUIPainter = null;
 		AquaUIPainter jrsPainter = null;
 
-		try {
-			Class c = getClass("org.violetlib.jnr.aqua.impl.AugmentedAquaNativePainter");
-			if (AquaNativePainter.class.isAssignableFrom(c)) {
-				viewPainter = (AquaNativePainter) c.newInstance();
-			}
-		} catch (Exception ex) {
+		{
+			String name = "org.violetlib.jnr.aqua.impl.AugmentedAquaNativePainter";
+			viewPainter = getPainter(name, null);
 		}
 
 		int jrsVersion = NativeSupport.getJavaRuntimeSupportMajorVersion();
 		boolean useJRS = jrsVersion >= 15;
 
-		try {
-			Class c = getClass("org.violetlib.jnr.aqua.coreui.AugmentedCoreUIPainter");
-			if (AquaUIPainter.class.isAssignableFrom(c)) {
-				Constructor cons = c.getConstructor(Boolean.TYPE);
-				coreUIPainter = (AquaUIPainter) cons.newInstance(useJRS);
-			}
-		} catch (Exception ex) {
+		{
+			boolean useJRSToAccessCoreUI = useJRS;
+			String name = "org.violetlib.jnr.aqua.coreui.AugmentedCoreUIPainter";
+			coreUIPainter = getPainter(name, useJRSToAccessCoreUI);
 		}
 
 		if (useJRS) {
-			try {
-				Class c = getClass("org.violetlib.jnr.aqua.jrs.AugmentedJRSPainter");
-				if (AquaUIPainter.class.isAssignableFrom(c)) {
-					jrsPainter = (AquaUIPainter) c.newInstance();
-				}
-			} catch (Exception ex) {
-			}
+			String name = "org.violetlib.jnr.aqua.jrs.AugmentedJRSPainter";
+			jrsPainter = getPainter(name, null);
 		}
 
 		if (viewPainter != null && coreUIPainter != null) {
 			preferredPainter = new HybridAquaUIPainter(viewPainter, coreUIPainter, jrsPainter);
 		} else if (coreUIPainter != null) {
+			debug("Using Core UI painter as preferred painter");
 			preferredPainter = coreUIPainter;
 		} else if (viewPainter != null) {
+			debug("Using NSView painter as preferred painter");
 			preferredPainter = viewPainter;
 		} else {
+			debug("Using JRS painter as preferred painter");
 			preferredPainter = jrsPainter;	// last because it has the most limitations
 		}
 	}
 
-	protected static @NotNull Class getClass(@NotNull String name)
-		throws ClassNotFoundException
+	protected static void debug(@NotNull String s)
+	{
+		if (false) {
+			System.err.println(s);
+		}
+	}
+
+	protected static @Nullable AquaUIPainter getPainter(@NotNull String name, @Nullable Boolean parameter)
+	{
+		Class c = getClass(name);
+		if (c != null) {
+			if (AquaUIPainter.class.isAssignableFrom(c)) {
+				try {
+					if (parameter != null) {
+						Constructor cons = c.getConstructor(Boolean.TYPE);
+						return (AquaUIPainter) cons.newInstance(parameter);
+					} else {
+						Constructor cons = c.getConstructor();
+						return (AquaUIPainter) cons.newInstance();
+					}
+				} catch (Exception ex) {
+					System.err.println("Unable to instantiate painter class: " + name);
+					ex.printStackTrace();
+				}
+			} else {
+				System.err.println("Painter class is not valid: " + name);
+			}
+		} else {
+			debug("Painter class not found: " + name);
+		}
+		return null;
+	}
+
+	protected static @Nullable Class getClass(@NotNull String name)
 	{
 		ClassLoader loader = AquaNativeRendering.class.getClassLoader();
-		return Class.forName(name, true, loader);
+		try {
+			return Class.forName(name, true, loader);
+		} catch (ClassNotFoundException ex) {
+			return null;
+		}
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -149,8 +149,7 @@ public class CoreUIPainter
 				widget = CoreUIWidgets.BUTTON_HELP; break;
 			case BUTTON_RECESSED:
 
-				// A recessed button does not paint a background when OFF unless ROLLOVER or PRESSED
-				if (bs == ButtonState.OFF && st != State.ROLLOVER && st != State.PRESSED) {
+				if (!shouldPaintRecessedBackground(st, bs)) {
 					return NULL_RENDERER;
 				}
 
@@ -257,7 +256,7 @@ public class CoreUIPainter
 			BACKGROUND_TYPE_KEY, background,
 			SIZE_KEY, size,
 			STATE_KEY, toState(st),
-			IS_FOCUSED_KEY, g.isFocused(),
+			IS_FOCUSED_KEY, getFocused(g, g.isFocused()),
 			VALUE_KEY, buttonState,
 			DIRECTION_KEY, direction,
 			ANIMATION_FRAME_KEY, animationFrame
@@ -274,7 +273,7 @@ public class CoreUIPainter
 		BasicRenderer r =  getRenderer(
 			WIDGET_KEY, widget,
 			STATE_KEY, toState(g.getState()),
-			IS_FOCUSED_KEY, g.isFocused()
+			IS_FOCUSED_KEY, getFocused(g, g.isFocused())
 		);
 		return Renderer.create(r, rd);
 	}
@@ -434,7 +433,7 @@ public class CoreUIPainter
 		BasicRenderer r =  getRenderer(
 			WIDGET_KEY, widget,
 			STATE_KEY, toState(g.getState()),
-			IS_FOCUSED_KEY, g.isFocused(),
+			IS_FOCUSED_KEY, getFocused(g, g.isFocused()),
 			FRAME_ONLY_KEY, g.isFrameOnly()
 		);
 		return Renderer.create(r, rd);
@@ -455,7 +454,7 @@ public class CoreUIPainter
 				SIZE_KEY, tw == TextFieldWidget.TEXT_FIELD ? toSize(Size.LARGE) : toSize(g.getSize()),
 				STATE_KEY, toState(g.getState()),
 				VARIANT_KEY, variant,
-				IS_FOCUSED_KEY, g.isFocused()
+				IS_FOCUSED_KEY, getFocused(g, g.isFocused())
 			);
 			return Renderer.create(r, rd);
 		} else if (tw.isSearch()) {
@@ -517,7 +516,7 @@ public class CoreUIPainter
 					SIZE_KEY, toSize(g.getSize()),
 					STATE_KEY, toState(g.getState()),
 					VARIANT_KEY, variant,
-					IS_FOCUSED_KEY, g.isFocused()
+					IS_FOCUSED_KEY, getFocused(g, g.isFocused())
 				);
 				Renderer r = Renderer.create(br, rd);
 				r.composeTo(compositor);
@@ -611,7 +610,8 @@ public class CoreUIPainter
 			SIZE_KEY, toSize(sz),
 			STATE_KEY, toState(st),
 			USER_INTERFACE_LAYOUT_DIRECTION_KEY, toLayoutDirection(ld),
-			IS_FOCUSED_KEY, g.isFocused());
+			IS_FOCUSED_KEY, getFocused(g, g.isFocused())
+			);
 		return Renderer.create(r, rd);
 	}
 
@@ -1085,7 +1085,7 @@ public class CoreUIPainter
 			STATE_KEY, toState(g.getState()),
 			ORIENTATION_KEY, orientation,
 			DIRECTION_KEY, direction,
-			IS_FOCUSED_KEY, g.isFocused(),
+			IS_FOCUSED_KEY, getFocused(g, g.isFocused()),
 			VALUE_KEY, g.getValue()
 		);
 		RendererDescription rd = rendererDescriptions.getSliderThumbRendererDescription(g);
@@ -1209,7 +1209,7 @@ public class CoreUIPainter
 			SIZE_KEY, toSize(g.getSize()),
 			STATE_KEY, state,
 			PRESENTATION_STATE_KEY, toPresentationState(g.getState()),
-			IS_FOCUSED_KEY, g.isFocused(),
+			IS_FOCUSED_KEY, getFocused(g, g.isFocused()),
 			USER_INTERFACE_LAYOUT_DIRECTION_KEY, CoreUIUserInterfaceDirections.LEFT_TO_RIGHT,
 			DIRECTION_KEY, toDirection(g.getDirection()),
 			POSITION_KEY, toSegmentPosition(g.getPosition()),
@@ -1243,10 +1243,10 @@ public class CoreUIPainter
 
 		Object value = g.getSortArrowDirection() != ColumnSortArrowDirection.NONE;
 
-		BasicRenderer r =  getRenderer(
+		BasicRenderer r = getRenderer(
 			WIDGET_KEY, CoreUIWidgets.BUTTON_LIST_HEADER,
 			STATE_KEY, toState(g.getState()),
-			IS_FOCUSED_KEY, g.isFocused(),
+			IS_FOCUSED_KEY, getFocused(g, g.isFocused()),
 			DIRECTION_KEY, toDirection(g.getSortArrowDirection()),
 			//USER_INTERFACE_LAYOUT_DIRECTION_KEY, toLayoutDirection(g.getLayoutDirection()),
 			//NO_FRAME_KEY, CoreUIDirections.NONE,
@@ -1272,6 +1272,14 @@ public class CoreUIPainter
 			VARIANT_KEY, variant,
 			STATE_KEY, state);
 		return Renderer.create(r, rd);
+	}
+
+	protected boolean getFocused(@NotNull Configuration g, boolean b)
+	{
+		// This may be a temporary workaround. Since the introduction of focus rings, CoreUI has not drawn focused
+		// widgets differently. However, in the 10.14 beta, it draws focus borders, which are unwanted.
+
+		return false;
 	}
 
 	protected @NotNull Object toSize(@NotNull Size sz)
@@ -1576,6 +1584,12 @@ public class CoreUIPainter
 				nativePaint(data, rw, rh, xscale, yscale, args);
 			}
 		};
+	}
+
+	@Override
+	public @NotNull String toString()
+	{
+		return useJRS ? "Core UI via JRS" : "Core UI";
 	}
 
 	private static native void nativePaint(int[] data, int w, int h, float xscale, float yscale, Object[] args);
