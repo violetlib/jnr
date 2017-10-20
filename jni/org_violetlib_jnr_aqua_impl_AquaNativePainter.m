@@ -6,8 +6,6 @@
  * accompanying license terms.
  */
 
-#include <jni.h>
-
 #import <CoreFoundation/CoreFoundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <Cocoa/Cocoa.h>

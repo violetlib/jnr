@@ -38,7 +38,7 @@
     <property name="jnidir" value="${builddir}/jni"/>
     <property name="distdir" value="dist"/>
 
-    <property name="SDKversion" value="10.12"/>
+    <property name="SDKversion" value="10.13"/>
     <property name="SDKroot" value="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${SDKversion}.sdk"/>
     <property name="libpath" value="${base}/lib/IdeaAnnotations.jar"/>
     <property name="cc" value="/usr/bin/cc"/>
@@ -140,7 +140,7 @@
 
             <arg value="-isysroot"/>
             <arg value="${SDKroot}"/>
-            <env key="MACOSX_DEPLOYMENT_TARGET" value="${SDKversion}"/>
+            <env key="MACOSX_DEPLOYMENT_TARGET" value="10.7"/>
 
             <arg value="-o"/>
             <arg value="${jnidir}/libVAquaRendering.dylib"/>
