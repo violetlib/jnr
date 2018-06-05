@@ -14,12 +14,12 @@ import java.awt.Shape;
 import org.jetbrains.annotations.*;
 
 import org.violetlib.jnr.LayoutInfo;
+import org.violetlib.jnr.NullPainter;
 import org.violetlib.jnr.Painter;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.Configuration;
 import org.violetlib.jnr.aqua.LayoutConfiguration;
 import org.violetlib.jnr.aqua.impl.AquaUIPainterAbstractBase;
-import org.violetlib.jnr.NullPainter;
 
 /**
 	This painter does not paint. It provides the renderer to an evaluator.
