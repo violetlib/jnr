@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -220,8 +220,7 @@ public class AquaNativePainter
 		}
 
 		if (widget == ButtonWidget.BUTTON_RECESSED) {
-			// A recessed button does not paint a background when OFF unless ROLLOVER or PRESSED
-			if (bs == ButtonState.OFF && st != State.ROLLOVER && st != State.PRESSED) {
+			if (!shouldPaintRecessedBackground(st, bs)) {
 				return NULL_RENDERER;
 			}
 		}

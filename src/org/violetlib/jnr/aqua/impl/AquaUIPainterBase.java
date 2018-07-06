@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -16,12 +16,12 @@ import java.awt.geom.Rectangle2D;
 import org.jetbrains.annotations.*;
 
 import org.violetlib.jnr.LayoutInfo;
+import org.violetlib.jnr.NullPainter;
 import org.violetlib.jnr.Painter;
 import org.violetlib.jnr.SliderPainter;
 import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.impl.BasicRendererDescription;
 import org.violetlib.jnr.impl.MultiResolutionRendererDescription;
-import org.violetlib.jnr.NullPainter;
 import org.violetlib.jnr.impl.OffsetPainter;
 import org.violetlib.jnr.impl.Renderer;
 import org.violetlib.jnr.impl.RendererDebugInfo;
@@ -386,6 +386,15 @@ public abstract class AquaUIPainterBase
 	protected abstract @NotNull Renderer getSplitPaneDividerRenderer(@NotNull SplitPaneDividerConfiguration g);
 
 	protected abstract @NotNull Renderer getGradientRenderer(@NotNull GradientConfiguration g);
+
+	protected boolean shouldPaintRecessedBackground(@NotNull State state, @NotNull ButtonState bs)
+	{
+		if (state == State.PRESSED || state == State.ROLLOVER) {
+			return true;
+		}
+
+		return state == State.ACTIVE && bs == ButtonState.ON;
+	}
 
 	protected @Nullable RendererDebugInfo getSegmentedButtonRendererDebugInfo(@NotNull SegmentedButtonConfiguration g, int scaleFactor, int width, int height)
 	{

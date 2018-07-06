@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -12,9 +12,6 @@ import java.awt.geom.Rectangle2D;
 
 import org.jetbrains.annotations.*;
 
-import org.violetlib.jnr.impl.jrs.JRSUIConstants;
-import org.violetlib.jnr.impl.jrs.JRSUIState;
-import org.violetlib.jnr.impl.jrs.JRSUIControl;
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.Painter;
@@ -28,6 +25,9 @@ import org.violetlib.jnr.impl.BasicRendererDescription;
 import org.violetlib.jnr.impl.Renderer;
 import org.violetlib.jnr.impl.RendererDescription;
 import org.violetlib.jnr.impl.ReusableCompositor;
+import org.violetlib.jnr.impl.jrs.JRSUIConstants;
+import org.violetlib.jnr.impl.jrs.JRSUIControl;
+import org.violetlib.jnr.impl.jrs.JRSUIState;
 
 /**
 	A painter that renders Aqua widgets using the native rendering used by the Aqua look and feel, by way of the JDK
@@ -221,8 +221,7 @@ public class JRSPainter
 				break;
 			case BUTTON_RECESSED:
 
-				// A recessed button does not paint a background when OFF unless ROLLOVER or PRESSED
-				if (bs == ButtonState.OFF && st != State.ROLLOVER && st != State.PRESSED) {
+				if (!shouldPaintRecessedBackground(st, bs)) {
 					return NULL_RENDERER;
 				}
 
