@@ -1111,6 +1111,12 @@ public class AquaNativePainter
 		}
 	}
 
+	@Override
+	public @NotNull String toString()
+	{
+		return "NSView";
+	}
+
 	private static native void nativePaintIndeterminateProgressIndicator(int[] data, int rw, int rh, float w, float h, int size, int state, int orientation, boolean isSpinner, int frame);
 	private static native void nativePaintProgressIndicator(int[] data, int rw, int rh, float w, float h, int size, int state, int orientation, double value);
 	private static native void nativePaintButton(int[] data, int rw, int rh, float w, float h, int buttonType, int bezelStyle, int size, int state, boolean isFocused, int value, int layoutDirection);

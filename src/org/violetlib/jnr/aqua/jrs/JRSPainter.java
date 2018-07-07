@@ -1225,4 +1225,10 @@ public class JRSPainter
 		maker.set(g.getState() == State.ACTIVE ? JRSUIConstants.State.ACTIVE : JRSUIConstants.State.INACTIVE);
 		return Renderer.create(maker.getRenderer(), rd);
 	}
+
+	@Override
+	public @NotNull String toString()
+	{
+		return "JRS";
+	}
 }
