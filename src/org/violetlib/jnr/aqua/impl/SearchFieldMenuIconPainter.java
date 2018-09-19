@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -14,13 +14,14 @@ import java.awt.Graphics2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.TextFieldConfiguration;
 import org.violetlib.jnr.impl.JNRUtils;
 import org.violetlib.jnr.impl.PainterExtension;
+import org.violetlib.vappearances.VAppearance;
+
+import org.jetbrains.annotations.*;
 
 /**
 	Simulates the rendering of the search field menu icon on Yosemite.
@@ -31,20 +32,26 @@ public class SearchFieldMenuIconPainter
 {
 	protected final @NotNull TextFieldConfiguration tg;
 	protected final @NotNull Insetter searchButtonInsets;
+	protected final @NotNull VAppearance appearance;
 
 	protected Color ICON_COLOR = new Color(89, 89, 89);
+	protected Color DARK_ICON_COLOR = new Color(212, 212, 212);
 
-	public SearchFieldMenuIconPainter(@NotNull TextFieldConfiguration g, @NotNull Insetter searchButtonInsets)
+	public SearchFieldMenuIconPainter(@NotNull TextFieldConfiguration g,
+																		@NotNull Insetter searchButtonInsets,
+																		@NotNull VAppearance appearance
+																		)
 	{
 		this.searchButtonInsets = searchButtonInsets;
 		this.tg = g;
+		this.appearance = appearance;
 	}
 
 	@Override
 	public void paint(@NotNull Graphics2D g, float width, float height)
 	{
 		Rectangle2D bounds = searchButtonInsets.applyToBounds2D(new Rectangle2D.Float(0, 0, width, height));
-		g.setColor(ICON_COLOR);
+		g.setColor(appearance.isDark() ? DARK_ICON_COLOR : ICON_COLOR);
 
 		AquaUIPainter.Size sz = tg.getSize();
 

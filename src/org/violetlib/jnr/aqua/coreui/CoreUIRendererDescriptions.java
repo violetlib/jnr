@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -7,8 +7,6 @@
  */
 
 package org.violetlib.jnr.aqua.coreui;
-
-import org.jetbrains.annotations.*;
 
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.ButtonConfiguration;
@@ -18,23 +16,24 @@ import org.violetlib.jnr.aqua.ScrollBarConfiguration;
 import org.violetlib.jnr.aqua.SegmentedButtonConfiguration;
 import org.violetlib.jnr.aqua.SplitPaneDividerConfiguration;
 import org.violetlib.jnr.aqua.impl.NativeSupport;
-import org.violetlib.jnr.aqua.impl.ViewRendererDescriptions;
+import org.violetlib.jnr.aqua.impl.RendererDescriptionsBase;
 import org.violetlib.jnr.impl.BasicRendererDescription;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.JNRUtils;
 import org.violetlib.jnr.impl.MultiResolutionRendererDescription;
-import org.violetlib.jnr.impl.Renderer;
 import org.violetlib.jnr.impl.RendererDescription;
+
+import org.jetbrains.annotations.*;
 
 import static org.violetlib.jnr.impl.JNRUtils.*;
 
 /**
-	Renderer descriptions for Core UI based rendering on OS X 10.10 (Yosemite). This mostly includes rendering via the
-	Java Runtime Support framework.
+	Renderer descriptions for Core UI based rendering on OS X 10.10 and later. This mostly includes rendering via the Java
+	Runtime Support framework.
 */
 
 public class CoreUIRendererDescriptions
-	extends ViewRendererDescriptions
+	extends RendererDescriptionsBase
 {
 	@Override
 	public @NotNull RendererDescription getSplitPaneDividerRendererDescription(@NotNull SplitPaneDividerConfiguration g)
@@ -108,7 +107,7 @@ public class CoreUIRendererDescriptions
 			case BUTTON_TAB:
 			case BUTTON_SEGMENTED:
 			case BUTTON_SEGMENTED_SEPARATED:
-				yOffset = size2D(sz, -0.51f, -1, -2);	// regular size should be -1 at 1x
+				yOffset = size2D(sz, -0.51f, -1.49f, -2);	// regular size should be -1 at 1x
 				leftOffset = size(sz, -2, -2, -1);
 
 				if (bw == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED && g.getPosition() != AquaUIPainter.Position.ONLY) {
@@ -135,7 +134,10 @@ public class CoreUIRendererDescriptions
 				if (sz == AquaUIPainter.Size.MINI) {
 					rd = createVertical(0, 4);
 				}
-				yOffset = size2D(sz, 0, platformVersion >= 101100 ? -1.5f : -1, -2);
+				float smallYOffset = platformVersion >= 101100
+															 ? bw.isToolbar() ? -0.49f : -1.49f
+															 : -1;
+				yOffset = size2D(sz, 0, smallYOffset, -2);
 				if (bw.isSeparated()) {
 					return getTexturedSeparatedRendererDescription(g, rd, yOffset);
 				}
@@ -219,9 +221,10 @@ public class CoreUIRendererDescriptions
 		if (pos == AquaUIPainter.Position.FIRST) {
 		} else if (pos == AquaUIPainter.Position.MIDDLE) {
 			xOffset = 0;
-			extraWidth = 0.49f;
+			extraWidth = 0.51f;
 			if (hasRight && !hasLeft) {
 				xOffset = -0.49f;
+				extraWidth = 0.49f;
 			} else if (hasLeft && hasRight) {
 				extraWidth = 0;
 			} else if (!hasLeft && !hasRight) {
@@ -235,59 +238,6 @@ public class CoreUIRendererDescriptions
 
 		try {
 			return JNRUtils.adjustRendererDescription(rd, xOffset, yOffset, extraWidth, 0);
-		} catch (UnsupportedOperationException ex) {
-			NativeSupport.log("Unable to adjust segmented button renderer description for " + g);
-			return rd;
-		}
-	}
-
-	protected @NotNull RendererDescription adjustSegmentedRendererDescription(
-		@NotNull SegmentedButtonConfiguration g,
-		@NotNull RendererDescription rd,
-		float extraWidth,
-		float xOffset,
-		float yOffset,
-		float leftOffset,
-		float leftExtraWidth,
-		float rightExtraWidth,
-		float extraHeight
-	)
-	{
-		AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
-		boolean isSeparated = bw.isSeparated();
-
-		AquaUIPainter.Position pos = g.getPosition();
-
-		boolean atLeftEdge = pos == AquaUIPainter.Position.FIRST || pos == AquaUIPainter.Position.ONLY;
-		boolean atRightEdge = pos == AquaUIPainter.Position.LAST || pos == AquaUIPainter.Position.ONLY;
-
-		boolean isLeftDividerPossible = !isSeparated && (pos == AquaUIPainter.Position.MIDDLE || pos == AquaUIPainter.Position.LAST);
-		boolean isRightDividerPossible = !isSeparated && (pos == AquaUIPainter.Position.FIRST || pos == AquaUIPainter.Position.MIDDLE);
-
-		if (atLeftEdge) {
-			xOffset += leftOffset;
-			extraWidth += leftExtraWidth;
-		}
-
-		if (atRightEdge) {
-			extraWidth += rightExtraWidth;
-		}
-
-		// If a left divider is possible and not requested, widen the rendering and shift it left by one point so that no
-		// divider is painted in our raster. This is necessary because the divider space is allocated even if it is not
-		// painted. Similar for a right divider.
-
-		if (isLeftDividerPossible && g.getLeftDividerState() == SegmentedButtonConfiguration.DividerState.NONE) {
-			xOffset -= 1;
-			extraWidth += 1;
-		}
-
-		if (isRightDividerPossible && g.getRightDividerState() == SegmentedButtonConfiguration.DividerState.NONE) {
-			extraWidth += 1;
-		}
-
-		try {
-			return JNRUtils.adjustRendererDescription(rd, xOffset, yOffset, extraWidth, extraHeight);
 		} catch (UnsupportedOperationException ex) {
 			NativeSupport.log("Unable to adjust segmented button renderer description for " + g);
 			return rd;

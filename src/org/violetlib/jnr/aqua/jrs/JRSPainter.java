@@ -10,8 +10,6 @@ package org.violetlib.jnr.aqua.jrs;
 
 import java.awt.geom.Rectangle2D;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.Painter;
@@ -28,6 +26,9 @@ import org.violetlib.jnr.impl.ReusableCompositor;
 import org.violetlib.jnr.impl.jrs.JRSUIConstants;
 import org.violetlib.jnr.impl.jrs.JRSUIControl;
 import org.violetlib.jnr.impl.jrs.JRSUIState;
+import org.violetlib.vappearances.VAppearance;
+
+import org.jetbrains.annotations.*;
 
 /**
 	A painter that renders Aqua widgets using the native rendering used by the Aqua look and feel, by way of the JDK
@@ -64,6 +65,7 @@ public class JRSPainter
 
 	@Override
 	protected @NotNull Painter getPainter(@NotNull Configuration g,
+																				@NotNull VAppearance appearance,
 																				@NotNull Renderer r,
 																				float width,
 																				float height)
@@ -74,12 +76,12 @@ public class JRSPainter
 			if (!jr.isAnimating()) {
 				JRSUIState state = jr.getControlState();
 				if (state != null) {
-					return new JRSRenderedPainter(state, r, width, height);
+					return new JRSRenderedPainter(state, appearance, r, width, height);
 				}
 			}
 		}
 
-		return super.getPainter(g, r, width, height);
+		return super.getPainter(g, appearance, r, width, height);
 	}
 
 	protected void configureSize(@NotNull Size sz)
@@ -221,16 +223,20 @@ public class JRSPainter
 				break;
 			case BUTTON_RECESSED:
 
+				// CoreUI may paint a background when there should be no background.
+				// On 10.10, it incorrectly paints a background when the button is disabled.
+				// On 10.10 and 10.13, it incorrectly paints a background when the button state is OFF.
+
 				if (!shouldPaintRecessedBackground(st, bs)) {
 					return NULL_RENDERER;
 				}
 
 				hasRolloverEffect = true;
 
-				if (st == State.ACTIVE_DEFAULT || st == State.INACTIVE || st == State.DISABLED || st == State.DISABLED_INACTIVE) {
-					// these states render incorrectly on Yosemite
-					st = State.ACTIVE;
-				}
+				// CoreUI incorrectly paints a different background when the button is inactive.
+
+				st = adjustRecessedState(st);
+
 				maker.set(JRSUIConstants.Widget.BUTTON_PUSH_SCOPE);
 				break;
 			case BUTTON_INLINE:
@@ -274,17 +280,8 @@ public class JRSPainter
 			bs = ButtonState.STATELESS;
 		}
 
-		// Textured buttons paint the same background when disabled as they would when enabled
-		if (bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
-			if (st == State.DISABLED) {
-				st = State.ACTIVE;
-			} else if (st == State.DISABLED_INACTIVE) {
-				st = State.INACTIVE;
-			}
-		}
-
-		// Push buttons and rounded bevel buttons display the same when inactive as they would when active
-		if (bs == ButtonState.STATELESS || bw == ButtonWidget.BUTTON_BEVEL_ROUND) {
+		// Stateless buttons other than textured buttons display the same when inactive as they would when active
+		if (bs == ButtonState.STATELESS && !bw.isTextured()) {
 			if (st == State.INACTIVE) {
 				st = State.ACTIVE;
 			} else if (st == State.DISABLED_INACTIVE) {
@@ -978,7 +975,7 @@ public class JRSPainter
 
 		switch (g.getWidget())
 		{
-			case SPINNER:
+			case INDETERMINATE_SPINNER:
 				// Small spinners have a fixed size. Large spinners are scaled to fit. Other variants do not work.
 				maker.set(JRSUIConstants.Widget.PROGRESS_SPINNER);
 				if (sz != Size.SMALL) {
@@ -1004,6 +1001,10 @@ public class JRSPainter
 	@Override
 	protected @NotNull Renderer getProgressIndicatorRenderer(@NotNull ProgressIndicatorConfiguration g)
 	{
+		if (g.getWidget() == ProgressWidget.SPINNER) {
+			throw new UnsupportedOperationException();
+		}
+
 		RendererDescription rd = rendererDescriptions.getProgressIndicatorRendererDescription(g);
 
 		JRSUIConstants.Orientation orientation = g.getOrientation() == Orientation.VERTICAL ? JRSUIConstants.Orientation.VERTICAL : JRSUIConstants.Orientation.HORIZONTAL;
@@ -1048,8 +1049,8 @@ public class JRSPainter
 		Renderer thumbRenderer = getSliderThumbRenderer(g);
 		Insetter trackInsets = uiLayout.getSliderTrackPaintingInsets(g);
 		Insetter thumbInsets = uiLayout.getSliderThumbPaintingInsets(g, g.getValue());
-
-		return new LinearSliderRenderer(g, trackRenderer, trackInsets, tickMarkRenderer, thumbRenderer, thumbInsets);
+		boolean isThumbTranslucent = appearance != null && appearance.isDark();
+		return new LinearSliderRenderer(g, trackRenderer, trackInsets, tickMarkRenderer, thumbRenderer, thumbInsets, isThumbTranslucent);
 	}
 
 	protected @Nullable Renderer getSliderTickMarkRenderer(@NotNull SliderConfiguration g)

@@ -11,7 +11,7 @@ package org.violetlib.jnr.impl;
 /**
 	A raster description defines a raster used for native rendering. The width and height attributes define the size of
 	the raster. The X and Y attributes define the intended origin of the raster in the graphics coordinate space. All
-	values are specified in device independent pixels.
+	values are specified in device independent pixels (points).
 
 	@see RendererDescription
 */

@@ -17,6 +17,7 @@ import org.jetbrains.annotations.*;
 import org.violetlib.jnr.Painter;
 import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
+import org.violetlib.vappearances.VAppearance;
 
 /**
 	A hybrid painter that uses the best available implementation for each given configuration.
@@ -32,6 +33,7 @@ public class HybridAquaUIPainter
 	private final @NotNull AquaUILayoutInfo layout;
 	private int w;
 	private int h;
+	private @Nullable VAppearance appearance;
 
 	public HybridAquaUIPainter(@NotNull AquaUIPainter viewPainter,
 														 @NotNull AquaUIPainter coreUIPainter,
@@ -51,6 +53,12 @@ public class HybridAquaUIPainter
 	}
 
 	@Override
+	public void configureAppearance(@NotNull VAppearance appearance)
+	{
+		this.appearance = appearance;
+	}
+
+	@Override
 	public void configure(int w, int h)
 	{
 		this.w = w;
@@ -62,6 +70,9 @@ public class HybridAquaUIPainter
 		throws UnsupportedOperationException
 	{
 		AquaUIPainter p = select(g);
+		if (appearance != null) {
+			p.configureAppearance(appearance);
+		}
 		p.configure(w, h);
 		return p.getPainter(g);
 	}
@@ -120,9 +131,7 @@ public class HybridAquaUIPainter
 			}
 		} else if (g instanceof ProgressIndicatorConfiguration) {
 			ProgressIndicatorConfiguration bg = (ProgressIndicatorConfiguration) g;
-			if (bg.getWidget() == ProgressWidget.BAR && bg.getOrientation() == Orientation.HORIZONTAL) {
-				return coreUIPainter;
-			}
+			return coreUIPainter;
 		} else if (g instanceof IndeterminateProgressIndicatorConfiguration) {
 			IndeterminateProgressIndicatorConfiguration bg = (IndeterminateProgressIndicatorConfiguration) g;
 			return coreUIPainter;
@@ -140,6 +149,14 @@ public class HybridAquaUIPainter
 		} else if (g instanceof TitleBarConfiguration) {
 			return coreUIPainter;
 		} else if (g instanceof ScrollBarConfiguration) {
+			return coreUIPainter;
+		}
+
+		// The JRS painter does not support the dark appearance.
+		// TBD: check to see if the dark appearance is being used, if possible
+
+		int platformVersion = JNRPlatformUtils.getPlatformVersion();
+		if (platformVersion >= 101400) {
 			return coreUIPainter;
 		}
 

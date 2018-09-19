@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -24,6 +24,7 @@ import org.violetlib.jnr.aqua.ScrollBarThumbConfiguration;
 import org.violetlib.jnr.aqua.ScrollBarThumbLayoutConfiguration;
 import org.violetlib.jnr.aqua.SliderLayoutConfiguration;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
+import org.violetlib.vappearances.VAppearance;
 
 /**
 	An abstract base class containing common code that supports layout but not rendering.
@@ -39,6 +40,7 @@ public abstract class AquaUIPainterAbstractBase
 
 	protected int w;
 	protected int h;
+	protected @Nullable VAppearance appearance;
 	protected boolean forceVertical;	// for evaluation mode only
 	protected boolean isAlignmentEnabled = true;
 
@@ -76,6 +78,12 @@ public abstract class AquaUIPainterAbstractBase
 	public void setAlignmentEnabled(boolean b)
 	{
 		isAlignmentEnabled = b;
+	}
+
+	@Override
+	public void configureAppearance(@NotNull VAppearance appearance)
+	{
+		this.appearance = appearance;
 	}
 
 	@Override

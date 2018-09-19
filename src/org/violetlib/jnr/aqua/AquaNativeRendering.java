@@ -19,6 +19,7 @@ import org.jetbrains.annotations.*;
 import org.violetlib.jnr.aqua.impl.HybridAquaUIPainter;
 import org.violetlib.jnr.aqua.impl.NativeSupport;
 import org.violetlib.jnr.impl.ImageCache;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 /**
 	The main entry point to the Aqua Native Rendering library.
@@ -134,7 +135,15 @@ public class AquaNativeRendering
 		boolean useJRS = jrsVersion >= 15;
 
 		{
+			// JRS does not support dark appearance
+			// TBD: check to see if the dark appearance is being used, if possible
+
 			boolean useJRSToAccessCoreUI = useJRS;
+			int platformVersion = JNRPlatformUtils.getPlatformVersion();
+			if (platformVersion >= 101400) {
+				useJRSToAccessCoreUI = false;
+			}
+
 			String name = "org.violetlib.jnr.aqua.coreui.AugmentedCoreUIPainter";
 			coreUIPainter = getPainter(name, useJRSToAccessCoreUI);
 		}

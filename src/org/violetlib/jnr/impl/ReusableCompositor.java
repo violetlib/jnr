@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -69,12 +69,39 @@ public class ReusableCompositor
 		void composeTo(@NotNull ReusableCompositor compositor);
 	}
 
+	public interface PixelOperator
+	{
+		int combine(int destintationPixel, int sourcePixel);
+	}
+
 	/**
 		Create a reusable compositor. The raster width and height are zero.
 	*/
 
 	public ReusableCompositor()
 	{
+	}
+
+	/**
+		Create a reusable compositor using the specified buffer.
+	*/
+
+	public ReusableCompositor(@NotNull int[] data, int rw, int rh, int scaleFactor)
+	{
+		if (rw < 0 || rh < 0) {
+			throw new IllegalArgumentException("Invalid negative raster width and/or height");
+		}
+
+		if (scaleFactor < 1 || scaleFactor > 8) {
+			throw new IllegalArgumentException("Invalid or unsupported scale factor");
+		}
+
+		this.data = data;
+		this.rasterWidth = rw;
+		this.rasterHeight = rh;
+		this.scaleFactor = scaleFactor;
+		this.isConfigured = true;
+		this.isEmpty = true;
 	}
 
 	/**
@@ -129,6 +156,29 @@ public class ReusableCompositor
 	public float getHeight()
 	{
 		return ((float) rasterHeight) / scaleFactor;
+	}
+
+
+	/**
+		Create a compositor that is configured to the same raster size and scale factor as this one.
+	*/
+
+	public @NotNull ReusableCompositor createSimilar()
+	{
+		ReusableCompositor c = new ReusableCompositor();
+		c.reset(rasterWidth, rasterHeight, scaleFactor);
+		return c;
+	}
+
+	/**
+		Create a compositor containing a horizontally flipped copy of this one.
+	*/
+
+	public @NotNull ReusableCompositor createHorizontallyFlippedCopy()
+	{
+		ReusableCompositor output = createSimilar();
+		output.copyHorizontallyFlippedFrom(this);
+		return output;
 	}
 
 	/**
@@ -286,6 +336,38 @@ public class ReusableCompositor
 	}
 
 	/**
+		Copy pixels from a compositor, flipping horizontally.
+
+		@param source The compositor that is the source of the pixels.
+	*/
+
+	private void copyHorizontallyFlippedFrom(@NotNull ReusableCompositor source)
+	{
+		ensureConfigured();
+
+		if (data != null) {
+			int[] sourceData = source.data;
+			if (sourceData != null) {
+				isEmpty = true;
+				if (!source.isEmpty) {
+					int sourceSpan = source.getRasterWidth();
+					for (int row = 0; row < rasterHeight; row++) {
+						for (int col = 0; col < rasterWidth; col++) {
+							int sourceCol = rasterWidth - col - 1;
+							int pixel = sourceData[row * sourceSpan + sourceCol];
+							int alpha = (pixel >> 24) & 0xFF;
+							if (alpha != 0) {
+								isEmpty = false;
+								data[row * rasterWidth + col] = pixel;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
 		Render from a compositor into a region of the raster, composing with existing contents.
 
 		@param source The compositor that is the source of the pixels.
@@ -314,7 +396,7 @@ public class ReusableCompositor
 								int alpha = (pixel >> 24) & 0xFF;
 								if (alpha != 0) {
 									if (alpha != 0xFF) {
-										pixel = combine(data[row * rasterWidth + col], pixel);
+										pixel = JNRUtils.combine(data[row * rasterWidth + col], pixel);
 									}
 									data[row * rasterWidth + col] = pixel;
 								}
@@ -361,7 +443,7 @@ public class ReusableCompositor
 								int alpha = (pixel >> 24) & 0xFF;
 								if (alpha != 0) {
 									if (alpha != 0xFF) {
-										pixel = combine(data[row * rasterWidth + col], pixel);
+										pixel = JNRUtils.combine(data[row * rasterWidth + col], pixel);
 									}
 									data[row * rasterWidth + col] = pixel;
 								}
@@ -406,6 +488,60 @@ public class ReusableCompositor
 			float w = ((float) rasterWidth) / scaleFactor;
 			float h = ((float) rasterHeight) / scaleFactor;
 			r.render(data, rasterWidth, rasterHeight, w, h);
+		}
+	}
+
+	/**
+		Blend pixels from a source compostior into the raster.
+
+		@param source The compositor that is the source of the pixels.
+		@param op The blending operator.
+	*/
+
+	public void blendFrom(@NotNull ReusableCompositor source, @NotNull PixelOperator op)
+	{
+		blendFrom(source, op, 0, 0, rasterWidth, rasterHeight);
+	}
+
+	/**
+		Blend pixels from a source compositor into a region of the raster.
+
+		@param source The compositor that is the source of the pixels.
+		@param op The blending operator.
+		@param dx The X origin of the raster region.
+		@param dy The Y origin of the raster region.
+		@param dw The width of the raster region.
+		@param dh The height of the raster region.
+	*/
+
+	public void blendFrom(@NotNull ReusableCompositor source, @NotNull PixelOperator op, int dx, int dy, int dw, int dh)
+	{
+		ensureConfigured();
+
+		if (data != null) {
+			int[] sourceData = source.data;
+			if (sourceData != null) {
+				int sourceSpan = source.getRasterWidth();
+				for (int rowOffset = 0; rowOffset < dh; rowOffset++) {
+					int row = dy + rowOffset;
+					if (row >= 0 && row < rasterHeight) {
+						for (int colOffset = 0; colOffset < dw; colOffset++) {
+							int col = dx + colOffset;
+							if (col >= 0 && col < rasterWidth) {
+								int destinationIndex = row * rasterWidth + col;
+								int sourcePixel = sourceData[rowOffset * sourceSpan + colOffset];
+								int destinationPixel = data[destinationIndex];
+								int pixel = op.combine(destinationPixel, sourcePixel);
+								int alpha = (pixel >> 24) & 0xFF;
+								if (alpha != 0) {
+									data[destinationIndex] = pixel;
+									isEmpty = false;
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -464,35 +600,5 @@ public class ReusableCompositor
 		if (im != null) {
 			g.drawImage(im, null, null);
 		}
-	}
-
-	public static void compose(int[] data, int rw, int rh, int x, int y, int pixel)
-	{
-		int alpha = (pixel >> 24) & 0xFF;
-		if (alpha != 0 && x >= 0 && x < rw && y >= 0 && y < rh) {
-			int index = y * rw + x;
-			int oldPixel = data[index];
-			int newPixel = alpha != 0xFF ? combine(oldPixel, pixel) : pixel;
-			data[index] = newPixel;
-		}
-	}
-
-	private static int combine(int oldPixel, int newPixel)
-	{
-		int oldAlpha = (oldPixel >> 24) & 0xFF;
-		int oldRed = (oldPixel >> 16) & 0xFF;
-		int oldGreen = (oldPixel >> 8) & 0xFF;
-		int oldBlue = (oldPixel >> 0) & 0xFF;
-		int newAlpha = (newPixel >> 24) & 0xFF;
-		int newRed = (newPixel >> 16) & 0xFF;
-		int newGreen = (newPixel >> 8) & 0xFF;
-		int newBlue = (newPixel >> 0) & 0xFF;
-		int f = 255 - newAlpha;
-		int red = (newRed + ((oldRed * f) >> 8)) & 0xFF;
-		int green = (newGreen + ((oldGreen * f) >> 8)) & 0xFF;
-		int blue = (newBlue + ((oldBlue * f) >> 8)) & 0xFF;
-		int alpha =  ((255 * newAlpha + oldAlpha * f) / 255) & 0xFF;
-		int result = (alpha << 24) + (red << 16) + (green << 8) + blue;
-		return result;
 	}
 }
