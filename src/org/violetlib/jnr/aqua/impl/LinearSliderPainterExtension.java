@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -12,13 +12,14 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.aqua.AquaUILayoutInfo;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.SliderConfiguration;
 import org.violetlib.jnr.impl.JNRUtils;
 import org.violetlib.jnr.impl.PainterExtension;
+import org.violetlib.vappearances.VAppearance;
+
+import org.jetbrains.annotations.*;
 
 /**
 	Simulates the rendering of tick marks on linear sliders.
@@ -29,13 +30,18 @@ public class LinearSliderPainterExtension
 {
 	protected final @NotNull AquaUILayoutInfo uiLayout;
 	protected final @NotNull SliderConfiguration sg;
+	protected final @NotNull Color tickColor;
 
-	protected Color TICK_COLOR = new Color(10, 10, 10, 110);
+	protected final @NotNull Color LIGHT_TICK_COLOR = new Color(10, 10, 10, 110);
+	protected final @NotNull Color DARK_TICK_COLOR = new Color(255, 255, 255, 64);
 
-	public LinearSliderPainterExtension(@NotNull AquaUILayoutInfo uiLayout, @NotNull SliderConfiguration g)
+	public LinearSliderPainterExtension(@NotNull AquaUILayoutInfo uiLayout,
+																			@NotNull SliderConfiguration g,
+																			@Nullable VAppearance appearance)
 	{
 		this.uiLayout = uiLayout;
 		this.sg = g;
+		this.tickColor = appearance != null && appearance.isDark() ? DARK_TICK_COLOR : LIGHT_TICK_COLOR;
 	}
 
 	@Override
@@ -77,7 +83,7 @@ public class LinearSliderPainterExtension
 					x1 = temp;
 				}
 			}
-			SliderHorizontalTickPainter tp = new SliderHorizontalTickPainter(TICK_COLOR, w, h, x0, x1, y, tickCount);
+			SliderHorizontalTickPainter tp = new SliderHorizontalTickPainter(tickColor, w, h, x0, x1, y, tickCount);
 			tp.paint(g);
 		} else {
 			boolean isLeft = position == AquaUIPainter.TickMarkPosition.LEFT;
@@ -95,7 +101,7 @@ public class LinearSliderPainterExtension
 					y1 = temp;
 				}
 			}
-			SliderVerticalTickPainter tp = new SliderVerticalTickPainter(TICK_COLOR, w, h, x, y0, y1, tickCount);
+			SliderVerticalTickPainter tp = new SliderVerticalTickPainter(tickColor, w, h, x, y0, y1, tickCount);
 			tp.paint(g);
 		}
 	}

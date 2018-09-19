@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,25 +8,36 @@
 
 package org.violetlib.jnr.aqua.coreui;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.aqua.ButtonConfiguration;
+import org.violetlib.jnr.aqua.ComboBoxConfiguration;
+import org.violetlib.jnr.aqua.GroupBoxConfiguration;
 import org.violetlib.jnr.aqua.PopupButtonConfiguration;
+import org.violetlib.jnr.aqua.ScrollBarConfiguration;
 import org.violetlib.jnr.aqua.SegmentedButtonConfiguration;
 import org.violetlib.jnr.aqua.SliderConfiguration;
 import org.violetlib.jnr.aqua.SplitPaneDividerConfiguration;
 import org.violetlib.jnr.aqua.TableColumnHeaderConfiguration;
 import org.violetlib.jnr.aqua.impl.CircularSliderPainterExtension;
+import org.violetlib.jnr.aqua.impl.LegacyScrollBarPainterExtension;
 import org.violetlib.jnr.aqua.impl.LinearSliderPainterExtension;
+import org.violetlib.jnr.aqua.impl.OverlayScrollBarPainterExtension;
 import org.violetlib.jnr.aqua.impl.PopUpArrowPainter;
 import org.violetlib.jnr.aqua.impl.PullDownArrowPainter;
 import org.violetlib.jnr.aqua.impl.TableColumnHeaderCellPainterExtension;
 import org.violetlib.jnr.aqua.impl.ThinSplitPaneDividerPainterExtension;
+import org.violetlib.jnr.impl.AdjustDarkToolbarButtonRenderer;
+import org.violetlib.jnr.impl.BasicRenderer;
+import org.violetlib.jnr.impl.DarkGroupBoxRenderer;
+import org.violetlib.jnr.impl.DarkTabButtonRenderer;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.jnr.impl.Renderer;
 import org.violetlib.jnr.impl.ReusableCompositor;
 
+import org.jetbrains.annotations.*;
+
 import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.*;
 
 /**
 	This class augments the Core UI native painting code to work around its deficiencies.
@@ -63,12 +74,68 @@ public class AugmentedCoreUIPainter
 	}
 
 	@Override
+	protected @NotNull Renderer getGroupBoxRenderer(@NotNull GroupBoxConfiguration g)
+	{
+		if (appearance != null && appearance.isDark()) {
+			// workaround for CoreUI painting light mode group box even in dark mode
+			// CoreUI does not produce a mask
+			// the light mode rendering works as a mask — all of the non-transparent pixels are white
+			Renderer r = super.getGroupBoxRenderer(g);
+			BasicRenderer br = r.getBasicRenderer();
+			assert br != null;
+			DarkGroupBoxRenderer rr = new DarkGroupBoxRenderer(br, appearance);
+			return Renderer.create(rr, r.getRendererDescription());
+		}
+
+		return super.getGroupBoxRenderer(g);
+	}
+
+	@Override
 	protected @NotNull Renderer getButtonRenderer(@NotNull ButtonConfiguration g)
 	{
 		Renderer r = super.getButtonRenderer(g);
 		if (g.getButtonWidget() == ButtonWidget.BUTTON_COLOR_WELL) {
 			return new ColorWellRenderer(g, r);
 		}
+
+		return r;
+	}
+
+	@Override
+	protected @NotNull Renderer getComboBoxButtonRenderer(@NotNull ComboBoxConfiguration g)
+	{
+		Renderer r = super.getComboBoxButtonRenderer(g);
+
+		// workaround for incorrect colors in dark mode for buttons on the toolbar
+		if (appearance != null && appearance.isDark()) {
+			ComboBoxWidget w = g.getWidget();
+			if (w == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
+				BasicRenderer br = r.getBasicRenderer();
+				assert br != null;
+				AdjustDarkToolbarButtonRenderer rr = new AdjustDarkToolbarButtonRenderer(br);
+				r = Renderer.create(rr, r.getRendererDescription());
+			}
+		}
+
+		return r;
+	}
+
+	@Override
+	public @Nullable Renderer getBasicPopupButtonRenderer(@NotNull PopupButtonConfiguration g)
+	{
+		Renderer r = super.getBasicPopupButtonRenderer(g);
+
+		// workaround for incorrect colors in dark mode for buttons on the toolbar
+		if (r != null && appearance != null && appearance.isDark()) {
+			PopupButtonWidget w = g.getPopupButtonWidget();
+			if (w == BUTTON_POP_DOWN_TEXTURED_TOOLBAR || w == BUTTON_POP_UP_TEXTURED_TOOLBAR) {
+				BasicRenderer br = r.getBasicRenderer();
+				assert br != null;
+				AdjustDarkToolbarButtonRenderer rr = new AdjustDarkToolbarButtonRenderer(br);
+				r = Renderer.create(rr, r.getRendererDescription());
+			}
+		}
+
 		return r;
 	}
 
@@ -76,6 +143,27 @@ public class AugmentedCoreUIPainter
 	protected @NotNull Renderer getSegmentedButtonRenderer(@NotNull SegmentedButtonConfiguration g)
 	{
 		Renderer r = super.getSegmentedButtonRenderer(g);
+
+		if (appearance != null && appearance.isDark()) {
+			SegmentedButtonWidget w = g.getWidget();
+			if (w == BUTTON_SEGMENTED_TEXTURED_TOOLBAR || w == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR) {
+				// workaround for incorrect colors in dark mode for buttons on the toolbar
+				BasicRenderer br = r.getBasicRenderer();
+				assert br != null;
+				AdjustDarkToolbarButtonRenderer rr = new AdjustDarkToolbarButtonRenderer(br);
+				r = Renderer.create(rr, r.getRendererDescription());
+			} else if (w == BUTTON_TAB) {
+				// workaround for tab buttons painted with a translucent background
+				Renderer mr = super.getSegmentedButtonMaskRenderer(g);
+				BasicRenderer bmr = mr.getBasicRenderer();
+				assert bmr != null;
+				BasicRenderer br = r.getBasicRenderer();
+				assert br != null;
+				DarkTabButtonRenderer rr = new DarkTabButtonRenderer(bmr, br);
+				r = Renderer.create(rr, mr.getRendererDescription());
+			}
+		}
+
 		if (isCustomSegmentedButtonRendererNeeded(g)) {
 			return createCustomSegmentedButtonRenderer(g, r);
 		} else {
@@ -83,22 +171,145 @@ public class AugmentedCoreUIPainter
 		}
 	}
 
+	/**
+		Identify the possible need for adjustments to paint proper dividers in a segmented button.
+		The response is conservative. It implies an adjustment may be needed, but in actual practice it
+		might not. The issue is that the display scale factor is not known at this time.
+	*/
+
 	protected boolean isCustomSegmentedButtonRendererNeeded(@NotNull SegmentedButtonConfiguration g)
 	{
-		// The CoreUI rendering of segmented cells assumes a particular style of use, the result of which is that dividers
-		// are painted one pixel wide and at 1x only right side dividers are painted. We want dividers to be one point wide,
-		// which means they must be extended at 2x. Also, we want the ability to request a divider on the left side, so
-		// that at 1x we must conjure an appropriate divider.
+		if (g.getPosition() == Position.ONLY) {
+			return false;
+		}
 
-		// No special treatment is required for small square buttons.
+		return g.getLeftDividerState() != SegmentedButtonConfiguration.DividerState.NONE
+			|| g.getRightDividerState() != SegmentedButtonConfiguration.DividerState.NONE;
+	}
 
-		// We cannot tell until use whether we are at 1x or 2x, so we use a custom renderer whenever any divider is
-		// requested.
+	/**
+		This class defines the possible adjustments needed for a segmented button.
+		Adjustments are needed only when dividers are requested.
+		The adjustments involve painting a missing divider or extending a divider that is not wide enough.
+	*/
+
+	protected static class SegmentedButtonAdjustment
+	{
+		// These values are in pixels, not points.
+		public final int leftDividerActual;
+		public final int leftDividerRequested;
+		public final int rightDividerActual;
+		public final int rightDividerRequested;
+
+		public SegmentedButtonAdjustment(int leftDividerActual,
+																		 int leftDividerRequested,
+																		 int rightDividerActual,
+																		 int rightDividerRequested)
+		{
+			this.leftDividerActual = leftDividerActual;
+			this.leftDividerRequested = leftDividerRequested;
+			this.rightDividerActual = rightDividerActual;
+			this.rightDividerRequested = rightDividerRequested;
+		}
+
+		public SegmentedButtonAdjustment(int left, int right)
+		{
+			this.leftDividerActual = left;
+			this.rightDividerActual = right;
+			this.leftDividerRequested = 0;
+			this.rightDividerRequested = 0;
+		}
+	}
+
+	/**
+		Identify any adjustments needed to paint the proper dividers.
+		@param g
+		@return a description of the needed adjustments, or null if none.
+	*/
+
+	protected @Nullable SegmentedButtonAdjustment getSegmentedButtonAdjustment(
+		@NotNull SegmentedButtonConfiguration g, int scaleFactor)
+	{
+		// The CoreUI rendering of segmented button cells assumes a style of use that is different than Java.
+		// Here we identify the actual rendering of dividers and compare with the desired rendering.
+
+		if (g.getPosition() == Position.ONLY) {
+			return null;
+		}
 
 		SegmentedButtonWidget w = g.getWidget();
-		return w != SegmentedButtonWidget.BUTTON_SEGMENTED_SMALL_SQUARE
-			&& (g.getLeftDividerState() != SegmentedButtonConfiguration.DividerState.NONE
-			|| g.getRightDividerState() != SegmentedButtonConfiguration.DividerState.NONE);
+		if (w.isSeparated() && scaleFactor == 2) {
+			return null;
+		}
+
+		if (scaleFactor > 2) {
+			// unsupported
+			return null;
+		}
+
+		int leftDividerRequested = 0;
+		int rightDividerRequested = 0;
+
+		if (g.getLeftDividerState() != SegmentedButtonConfiguration.DividerState.NONE) {
+			leftDividerRequested = scaleFactor;
+		}
+
+		if (g.getRightDividerState() != SegmentedButtonConfiguration.DividerState.NONE) {
+			rightDividerRequested = scaleFactor;
+		}
+
+		SegmentedButtonAdjustment basic = getSegmentedDividerAvailable(g, scaleFactor);
+		int leftDividerActual = leftDividerRequested > 0 ? basic.leftDividerActual : 0;
+		int rightDividerActual = rightDividerRequested > 0 ? basic.rightDividerActual : 0;
+
+		return new SegmentedButtonAdjustment(leftDividerActual, leftDividerRequested,
+			rightDividerActual, rightDividerRequested);
+	}
+
+	private @NotNull SegmentedButtonAdjustment getSegmentedDividerAvailable(
+		@NotNull SegmentedButtonConfiguration g, int scaleFactor)
+	{
+		// Supported only for configurations that might need adjustment, used internally.
+
+		SegmentedButtonWidget w = g.getWidget();
+
+		int leftDividerActual;
+		int rightDividerActual;
+
+		int version = getSegmentedButtonRenderingVersion();
+
+		if (scaleFactor == 1) {
+			if (version == SEGMENTED_10_10 || version == SEGMENTED_10_11 || version == SEGMENTED_10_13_OLD) {
+				if (w == BUTTON_SEGMENTED_SMALL_SQUARE) {
+					leftDividerActual = 1;
+					rightDividerActual = 1;
+				} else {
+					leftDividerActual = 0;
+					rightDividerActual = 1;
+				}
+			} else {
+				leftDividerActual = 0;
+				rightDividerActual = 1;
+			}
+		} else {
+			if (version == SEGMENTED_10_13_OLD || version == SEGMENTED_10_13) {
+				if (w == BUTTON_SEGMENTED_SMALL_SQUARE) {
+					leftDividerActual = 2;
+					rightDividerActual = 2;
+				} else if (w == BUTTON_SEGMENTED_TEXTURED || w == BUTTON_SEGMENTED_SCURVE) {
+					leftDividerActual = 2;
+					rightDividerActual = 0;
+				} else {
+					leftDividerActual = 1;
+					rightDividerActual = 1;
+				}
+			} else {
+				leftDividerActual = 1;
+				rightDividerActual = 1;
+			}
+		}
+
+		return new SegmentedButtonAdjustment(leftDividerActual, 0, rightDividerActual, 0);
 	}
 
 	protected @NotNull Renderer createCustomSegmentedButtonRenderer(@NotNull SegmentedButtonConfiguration g,
@@ -122,62 +333,141 @@ public class AugmentedCoreUIPainter
 		@Override
 		public void composeTo(@NotNull ReusableCompositor compositor)
 		{
-			// This code is sensitive to the behavior of the CoreUI segment cell rendering, which is resolution dependent.
-			// It may not work for displays with a scale factor other than 1 or 2, which is all we have tested.
-
-			boolean isLeftExtensionNeeded = g.getLeftDividerState() != SegmentedButtonConfiguration.DividerState.NONE;
-			boolean isRightExtensionNeeded = g.getRightDividerState() != SegmentedButtonConfiguration.DividerState.NONE
-				&& compositor.getScaleFactor() > 1;
-			if (!isLeftExtensionNeeded && !isRightExtensionNeeded) {
-				// This case arises at 1x if only a right divider is requested. No special treatment needed.
+			int scaleFactor = compositor.getScaleFactor();
+			SegmentedButtonAdjustment adjustment = getSegmentedButtonAdjustment(g, scaleFactor);
+			if (adjustment == null) {
 				r.composeTo(compositor);
 			} else {
-				int leftInset = isLeftExtensionNeeded ? 1 : 0;
-				int rightInset = isRightExtensionNeeded ? 1 : 0;
 				int w = compositor.getRasterWidth();
 				int h = compositor.getRasterHeight();
 
-				// Paint the basic rendering
-				Renderer basic = Renderer.createRasterOffsetRenderer(r, leftInset, 0, w-leftInset-rightInset, h);
-				basic.composeTo(compositor);
+				// The left and right insets define the region that can be painted directly using the basic renderer
+				int leftInset = 0;
+				int rightInset = 0;
 
-				// To extend the left or right side with a divider, we copy the divider at the opposite end of an appropriately
-				// configured rendering of a middle cell.
+				// Capture the basic rendering in a reusable compositor so that it can be used as a source
+				ReusableCompositor basicSource = compositor.createSimilar();
+				r.composeTo(basicSource);
 
-				SegmentedButtonConfiguration rg = new SegmentedButtonConfiguration(g.getWidget(),
-					g.getSize(),
-					g.getState(),
-					g.isSelected(),
-					g.isFocused(),
-					g.getDirection(),
-					Position.MIDDLE,
-					g.getRightDividerState(),
-					g.getLeftDividerState());
+				if (adjustment.leftDividerRequested > adjustment.leftDividerActual) {
+					leftInset = adjustment.leftDividerRequested;
+				}
 
-				int sourceWidth = 100;
-				Renderer unconfiguredSource = AugmentedCoreUIPainter.super.getSegmentedButtonRenderer(rg);
-				ReusableCompositor source = new ReusableCompositor();
-				source.reset(sourceWidth, h, compositor.getScaleFactor());
-				unconfiguredSource.composeTo(source);
+				if (adjustment.rightDividerRequested > adjustment.rightDividerActual) {
+					rightInset = adjustment.rightDividerRequested;
+				}
+
+				// Paint the parts of the basic rendering that are completely valid,
+				// the interior and the dividers that are already of the requested width.
+				compositor.composeFrom(basicSource, leftInset, 0, leftInset, 0, w-leftInset-rightInset, h);
+
+				SegmentedRendering flipped = null;
 
 				if (leftInset > 0) {
-					// paint the rightmost raster column(s) of the native segment at the left side
-					compositor.composeFrom(source, sourceWidth-1, 0, 0, 0, leftInset, h);
+					int columnsNeeded = adjustment.leftDividerRequested;
+					ReusableCompositor dividerSource = basicSource;
+					int sx = 0;
+					int availableColumns = adjustment.leftDividerActual;
+
+					if (availableColumns == 0) {
+						// Created a flipped rendering and copy from it
+						flipped = createFlippedRendering(g, h, scaleFactor);
+						dividerSource = flipped.rendering;
+						availableColumns = flipped.dividers.leftDividerActual;
+					}
+
+					if (availableColumns > 0) {
+						int x = 0;
+						while (columnsNeeded > 0) {
+							int columns = Math.min(columnsNeeded, availableColumns);
+							compositor.composeFrom(dividerSource, sx, 0, x, 0, columns, h);
+							columnsNeeded -= columns;
+							x += columns;
+						}
+					} else {
+						System.err.println("Unsupported left divider from right:" + g);
+					}
 				}
 
 				if (rightInset > 0) {
-					// paint the leftmost raster column(s) of the native segment at the right side
-					compositor.composeFrom(source, w-rightInset, 0, rightInset, h);
+					int columnsNeeded = adjustment.rightDividerRequested;
+					ReusableCompositor dividerSource = basicSource;
+					int sx = w - adjustment.rightDividerActual;
+					int availableColumns = adjustment.rightDividerActual;
+
+					if (availableColumns == 0) {
+						// Created a flipped rendering and copy from it
+						if (flipped == null) {
+							flipped = createFlippedRendering(g, h, scaleFactor);
+						}
+						dividerSource = flipped.rendering;
+						availableColumns = flipped.dividers.rightDividerActual;
+						sx = dividerSource.getRasterWidth() - availableColumns;
+					}
+
+					if (availableColumns > 0) {
+						int x = w - adjustment.rightDividerRequested;
+						while (columnsNeeded > 0) {
+							int columns = Math.min(columnsNeeded, availableColumns);
+							compositor.composeFrom(dividerSource, sx, 0, x, 0, columns, h);
+							columnsNeeded -= columns;
+							x += columns;
+						}
+					} else {
+						System.err.println("Unsupported right divider from left: " + g);
+					}
 				}
 			}
 		}
+	}
+
+	protected static class SegmentedRendering
+	{
+		public final @NotNull ReusableCompositor rendering;
+		public final @NotNull SegmentedButtonAdjustment dividers;
+
+		public SegmentedRendering(@NotNull ReusableCompositor rendering, @NotNull SegmentedButtonAdjustment dividers)
+		{
+			this.rendering = rendering;
+			this.dividers = dividers;
+		}
+	}
+
+	/**
+		Create a horizontally flipped rendering of a segmented button as a source of unavailable dividers.
+		Flipping handles the 1x separated case, where the rendering is not symmetric.
+	*/
+
+	protected @NotNull SegmentedRendering createFlippedRendering(@NotNull SegmentedButtonConfiguration sg,
+																															 int height,
+																															 int scaleFactor)
+	{
+		SegmentedButtonConfiguration g = new SegmentedButtonConfiguration(sg.getWidget(),
+			sg.getSize(),
+			sg.getState(),
+			sg.isSelected(),
+			sg.isFocused(),
+			sg.getDirection(),
+			Position.MIDDLE,
+			sg.getRightDividerState(),
+			sg.getLeftDividerState());
+
+		int sourceWidth = 100;
+		Renderer unconfiguredSource = AugmentedCoreUIPainter.super.getSegmentedButtonRenderer(g);
+		ReusableCompositor source = new ReusableCompositor();
+		source.reset(sourceWidth, height, scaleFactor);
+		unconfiguredSource.composeTo(source);
+		ReusableCompositor output = source.createHorizontallyFlippedCopy();
+		SegmentedButtonAdjustment sourceDividers = getSegmentedDividerAvailable(g, scaleFactor);
+		SegmentedButtonAdjustment dividers = new SegmentedButtonAdjustment(sourceDividers.rightDividerActual, sourceDividers.leftDividerActual);
+		return new SegmentedRendering(output, dividers);
 	}
 
 	@Override
 	protected @NotNull Renderer getSplitPaneDividerRenderer(@NotNull SplitPaneDividerConfiguration g)
 	{
 		if (g.getWidget() == DividerWidget.THIN_DIVIDER) {
-			PainterExtension px = new ThinSplitPaneDividerPainterExtension(g);
+			PainterExtension px = new ThinSplitPaneDividerPainterExtension(g, appearance);
 			return Renderer.create(px);
 		} else {
 			return super.getSplitPaneDividerRenderer(g);
@@ -198,7 +488,7 @@ public class AugmentedCoreUIPainter
 	{
 		Renderer r = super.getSliderRenderer(g);
 		if (g.getWidget() == SliderWidget.SLIDER_CIRCULAR) {
-			Renderer pr = Renderer.create(new CircularSliderPainterExtension(g));
+			Renderer pr = Renderer.create(new CircularSliderPainterExtension(g, appearance));
 			return Renderer.createCompositeRenderer(r, pr);
 		}
 		return r;
@@ -208,9 +498,26 @@ public class AugmentedCoreUIPainter
 	protected @Nullable Renderer getSliderTickMarkRenderer(@NotNull SliderConfiguration g)
 	{
 		if (g.getWidget() != SliderWidget.SLIDER_CIRCULAR && g.hasTickMarks()) {
-			return Renderer.create(new LinearSliderPainterExtension(uiLayout, g));
+			return Renderer.create(new LinearSliderPainterExtension(uiLayout, g, appearance));
 		} else {
 			return null;
+		}
+	}
+
+	@Override
+	protected @NotNull Renderer getScrollBarRenderer(@NotNull ScrollBarConfiguration g)
+	{
+		int platformVersion = JNRPlatformUtils.getPlatformVersion();
+		ScrollBarWidget sw = g.getWidget();
+
+		if (platformVersion < 101400) {
+			return super.getScrollBarRenderer(g);
+		}
+
+		if (sw == ScrollBarWidget.LEGACY) {
+			return Renderer.create(new LegacyScrollBarPainterExtension(uiLayout, g, appearance));
+		} else {
+			return Renderer.create(new OverlayScrollBarPainterExtension(uiLayout, g));
 		}
 	}
 
@@ -220,9 +527,9 @@ public class AugmentedCoreUIPainter
 		Renderer r = super.getPopupArrowRenderer(g);
 		if (isArrowNeeded(g)) {
 			if (g.isPopUp()) {
-				return Renderer.create(new PopUpArrowPainter(g));
+				return Renderer.create(new PopUpArrowPainter(g, appearance));
 			} else {
-				return Renderer.create(new PullDownArrowPainter(g));
+				return Renderer.create(new PullDownArrowPainter(g, appearance));
 			}
 		}
 		return r;
@@ -233,5 +540,11 @@ public class AugmentedCoreUIPainter
 		PopupButtonWidget w = g.getPopupButtonWidget();
 		// Correct arrow color for recessed style
 		return w == BUTTON_POP_UP_RECESSED || w == BUTTON_POP_DOWN_RECESSED;
+	}
+
+	@Override
+	public @NotNull String toString()
+	{
+		return "Augmented " + super.toString();
 	}
 }

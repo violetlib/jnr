@@ -16,16 +16,16 @@ import java.awt.geom.Rectangle2D;
 import org.jetbrains.annotations.*;
 
 import org.violetlib.geom.LinearBounds;
+import org.violetlib.jnr.Insetter;
+import org.violetlib.jnr.LayoutInfo;
+import org.violetlib.jnr.aqua.*;
+import org.violetlib.jnr.impl.BasicLayoutInfo;
 import org.violetlib.jnr.impl.CenteredInsetter1;
 import org.violetlib.jnr.impl.CombinedInsetter;
 import org.violetlib.jnr.impl.DynamicInsetter1;
 import org.violetlib.jnr.impl.FixedInsetter1;
 import org.violetlib.jnr.impl.FloatingInsetter1;
-import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.impl.Insetter1;
-import org.violetlib.jnr.LayoutInfo;
-import org.violetlib.jnr.aqua.*;
-import org.violetlib.jnr.impl.BasicLayoutInfo;
 import org.violetlib.jnr.impl.Insetters;
 import org.violetlib.jnr.impl.JNRUtils;
 
@@ -1534,7 +1534,7 @@ public class YosemiteLayoutInfo
 			} else {
 				return BasicLayoutInfo.createFixedWidth(6);
 			}
-		} else if (pw == ProgressWidget.SPINNER){
+		} else if (pw == ProgressWidget.SPINNER || pw == ProgressWidget.INDETERMINATE_SPINNER) {
 			int d = size(sz, 32, 16, 12);
 			return BasicLayoutInfo.createFixed(d, d);
 		} else {

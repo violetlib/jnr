@@ -4,5 +4,10 @@
 /properties.txt
 /dist
 /out
+/lib
+/release/full/dist
+/release/full/out
+/release/view/dist
+/release/view/out
 /jni/org_*.h
 /VAquaRendering.iml

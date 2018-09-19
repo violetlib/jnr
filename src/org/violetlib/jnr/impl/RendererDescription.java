@@ -20,8 +20,8 @@ import org.jetbrains.annotations.*;
 
 	When a widget is rendered, it is rendered into a region defined by the desired layout. This region is defined by the
 	UI, so it should be the same for every implementation of the renderer. Native renderers render into a raster buffer.
-	The relationship between the raster buffer and the target region may be different for different renderers. This
-	class captures the data that expresses that relationship.
+	The relationship between the raster buffer and the target region may be different for different renderers. This class
+	captures the data that expresses that relationship.
 
 	A native renderer may require a raster buffer to have a specific size or a size that is larger than the target region.
 	There are several possible reasons for these requirements. Some native renderers use only a portion of the provided

@@ -9,5 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="VAquaRendering" />
     <orderEntry type="library" name="IdeaAnnotations" level="application" />
+    <orderEntry type="library" name="VAppearances" level="project" />
   </component>
 </module>

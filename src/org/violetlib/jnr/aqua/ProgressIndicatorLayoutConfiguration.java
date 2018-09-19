@@ -12,9 +12,9 @@ import java.util.Objects;
 
 import org.jetbrains.annotations.*;
 
+import org.violetlib.jnr.aqua.AquaUIPainter.Orientation;
 import org.violetlib.jnr.aqua.AquaUIPainter.ProgressWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
-import org.violetlib.jnr.aqua.AquaUIPainter.Orientation;
 
 /**
 	A layout configuration for a progress indicator.
@@ -32,7 +32,10 @@ public class ProgressIndicatorLayoutConfiguration
 																							@NotNull Orientation o)
 	{
 		// progress bars have only one size
-		this.size = pw == ProgressWidget.SPINNER ? size : Size.REGULAR;
+		// spinners can be regular or small
+		this.size = pw == ProgressWidget.SPINNER || pw == ProgressWidget.INDETERMINATE_SPINNER
+									? size == Size.MINI ? Size.SMALL : size
+									: Size.REGULAR;
 		this.o = o;
 		this.pw = pw;
 	}

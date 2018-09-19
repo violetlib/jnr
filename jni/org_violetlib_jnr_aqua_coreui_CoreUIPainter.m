@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -12,8 +12,10 @@
 #import <JavaNativeFoundation.h>
 #import <JavaRuntimeSupport.h>
 
-#include "org_violetlib_jnr_aqua_coreui_CoreUIPainter.h"
 #include "JNI.h"
+#include "org_violetlib_jnr_aqua_coreui_CoreUIPainter.h"
+#include "AppearanceSupport.h"
+#include "CoreUISupport.h"
 
 // This painter uses the Java RuntimeSupport framework to perform Core UI rendering.
 
@@ -22,8 +24,6 @@
 // works only if all parameters of interest are set every time.
 
 static JRSUIRendererRef renderer;
-
-#include "CoreUISupport.h"
 
 /*
  * Class:     org_violetlib_jnr_aqua_coreui_CoreUIPainter
@@ -37,10 +37,10 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_coreui_CoreUIPainter_nativeJR
 
 	jsize argsCount = (*env) -> GetArrayLength(env, args);
 	jsize keyCount = argsCount / 2;
-	
+
 	CFTypeRef keys[50];
 	CFTypeRef values[50];
-	
+
 	jsize argIndex = 0;
 	jsize argCount = 0;
 
@@ -67,9 +67,9 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_coreui_CoreUIPainter_nativeJR
 	if (renderer == nil) {
 		renderer = JRSUIRendererCreate();
 	}
-	
+
 	JRSUIControlRef control = JRSUIControlCreate(NO);
-	
+
 	for (int i = 0; i < argCount; i++) {
 		CFTypeRef key = keys[i];
 		CFTypeRef value = values[i];
@@ -89,6 +89,10 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_coreui_CoreUIPainter_nativeJR
 
 		NSRect bounds = NSMakeRect(0, 0, w / xscale, h / yscale);
 
+        if (configuredAppearance) {
+            // not currently useful, but may be useful some day
+            NSAppearance.currentAppearance = configuredAppearance;
+        }
 		JRSUIControlDraw(renderer, control, cgRef, bounds);
 
 		(*env)->ReleasePrimitiveArrayCritical(env, data, rawPixelData, 0);

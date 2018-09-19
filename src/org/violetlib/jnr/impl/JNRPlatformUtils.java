@@ -23,6 +23,12 @@ public class JNRPlatformUtils
 	private static @Nullable String platformVersionString;
 	private static int platformVersion = 0;
 
+	/**
+		Return an integer representing the platform version.
+
+		@return the coded platform version, e.g. 101401 for 10.14.1.
+	*/
+
 	public static synchronized int getPlatformVersion()
 	{
 		if (platformVersionString == null) {

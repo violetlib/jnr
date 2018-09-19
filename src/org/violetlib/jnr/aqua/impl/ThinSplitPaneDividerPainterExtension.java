@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -18,21 +18,31 @@ import org.jetbrains.annotations.*;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.SplitPaneDividerConfiguration;
 import org.violetlib.jnr.impl.PainterExtension;
+import org.violetlib.vappearances.VAppearance;
 
 /**
-	Simulates the rendering of a Yosemite thin style split pane divider.
+	Simulates the rendering of a thin style split pane divider.
 */
 
 public class ThinSplitPaneDividerPainterExtension
 	implements PainterExtension
 {
 	protected final @NotNull SplitPaneDividerConfiguration dg;
+	protected final @NotNull Color dividerColor;
 
-	protected Color COLOR = new Color(0, 0, 0, 24);
+	protected static final Color COLOR = new Color(128, 128, 128, 80);
 
-	public ThinSplitPaneDividerPainterExtension(@NotNull SplitPaneDividerConfiguration g)
+	public ThinSplitPaneDividerPainterExtension(@NotNull SplitPaneDividerConfiguration g,
+																							@Nullable VAppearance appearance)
 	{
 		this.dg = g;
+		this.dividerColor = determineDividerColor(g, appearance);
+	}
+
+	private @NotNull Color determineDividerColor(@NotNull SplitPaneDividerConfiguration g,
+																							 @Nullable VAppearance appearance)
+	{
+		return appearance != null ? appearance.getColors().get("separator") : COLOR;
 	}
 
 	@Override
@@ -47,7 +57,7 @@ public class ThinSplitPaneDividerPainterExtension
 			float y = (height - d) / 2;
 			s = new Rectangle2D.Double(0, y, width, d);
 		}
-		g.setColor(COLOR);
+		g.setColor(dividerColor);
 		g.fill(s);
 	}
 }

@@ -12,17 +12,16 @@ import java.awt.Dimension;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
-import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.aqua.impl.PopupArrowConfiguration;
 import org.violetlib.jnr.aqua.impl.SliderThumbConfiguration;
 import org.violetlib.jnr.impl.BasicLayoutInfo;
 import org.violetlib.jnr.impl.CombinedInsetter;
 
-import static org.violetlib.jnr.aqua.AquaUIPainter.TitleBarButtonWidget;
+import org.jetbrains.annotations.*;
+
+import static org.violetlib.jnr.aqua.AquaUIPainter.*;
 
 /**
 	Provides layout information for widgets based on the platform UI.
@@ -309,12 +308,12 @@ public abstract class AquaUILayoutInfo
 		@param bounds The bounds of the scroll bar.
 		@param g This parameter describes the scroll bar and the coordinate.
 		@param useExtent If true, the coordinate is interpreted as the location of the leading edge of the thumb, for the
-			purpose of repositioning the thumb. If false, the coordinate is interpreted as a fraction of the full track, for
-			the purpose of scroll-to-here.
+		purpose of repositioning the thumb. If false, the coordinate is interpreted as a fraction of the full track, for
+		the purpose of scroll-to-here.
 
 		@return the thumb position as a fraction of the scroll bar track, if in the range 0 to 1 (inclusive), or a value
-			less than 0 if the coordinate is outside the track in the area corresponding to low values, or a value greater
-			than 1 if the coordinate is outside the track in the area corresponding to high values.
+		less than 0 if the coordinate is outside the track in the area corresponding to low values, or a value greater
+		than 1 if the coordinate is outside the track in the area corresponding to high values.
 
 		The scroll bar track is the portion of the widget that the thumb can occupy.
 	*/
@@ -342,7 +341,7 @@ public abstract class AquaUILayoutInfo
 		@param g This parameter describes the scroll bar and the coordinate.
 
 		@return zero if the coordinate corresponds to the visible thumb, -1 if it is in the track at a lower position,
-			1 if it is in the track at a higher position, a large negative number otherwise.
+		1 if it is in the track at a higher position, a large negative number otherwise.
 
 		The scroll bar track is the portion of the widget that the thumb can occupy.
 	*/
@@ -428,7 +427,7 @@ public abstract class AquaUILayoutInfo
 		@param g The slider layout configuration.
 		@param thumbPosition The thumb position.
 		@return the X coordinate of the thumb center, if the slider is horizontal, or the Y coordinate of the thumb center,
-			if the slider is vertical.
+		if the slider is vertical.
 	*/
 
 	public abstract double getSliderThumbCenter(@NotNull Rectangle2D bounds,
@@ -508,7 +507,7 @@ public abstract class AquaUILayoutInfo
 		@param x The X coordinate of the location.
 		@param y The Y coordinate of the location.
 		@return the widget that identifies the button corresponding to the specified location, or null if the location does
-			not correspond to a button.
+		not correspond to a button.
 	*/
 
 	public abstract @Nullable TitleBarButtonWidget identifyTitleBarButton(@NotNull Rectangle2D bounds,
