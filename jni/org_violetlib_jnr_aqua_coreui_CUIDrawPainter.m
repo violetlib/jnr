@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -11,33 +11,34 @@
 #import <Cocoa/Cocoa.h>
 #import <JavaNativeFoundation.h>
 
-#include "org_violetlib_jnr_aqua_coreui_CoreUIPainter.h"
 #include "JNI.h"
-
-// This painter uses a private method of NSAppearance to perform Core UI rendering.
-
+#include "org_violetlib_jnr_aqua_coreui_CoreUIPainter.h"
 #include "CoreUISupport.h"
+#include "AppearanceSupport.h"
+
+// This painter uses private methods of NSAppearance to perform Core UI rendering.
 
 @interface NSAppearance (NSAppearancePrivate)
 - (void)_drawInRect: (NSRect) rect context: (CGContextRef) context options: (CFDictionaryRef) options;
+- (void)_createOrUpdateLayer: (CALayer **) layer options: (CFDictionaryRef) options;
 @end
 
 /*
  * Class:     org_violetlib_jnr_aqua_coreui_CoreUIPainter
  * Method:    nativePaint
- * Signature: ([IIIFF[Ljava/lang/Object;)V
+ * Signature: ([IIIFF[Ljava/lang/Object;[J)V
  */
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_coreui_CoreUIPainter_nativePaint
-  (JNIEnv *env, jclass cl, jintArray data, jint w, jint h, jfloat xscale, jfloat yscale, jobjectArray args)
+  (JNIEnv *env, jclass cl, jintArray data, jint w, jint h, jfloat xscale, jfloat yscale, jobjectArray args, jlongArray jLayerHolder)
 {
 	COCOA_ENTER(env);
 
 	jsize argsCount = (*env) -> GetArrayLength(env, args);
 	jsize keyCount = argsCount / 2;
-	
+
 	CFTypeRef keys[50];
 	CFTypeRef values[50];
-	
+
 	jsize argIndex = 0;
 	jsize argCount = 0;
 
@@ -78,10 +79,33 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_coreui_CoreUIPainter_nativePa
 
 		CGContextScaleCTM(cgRef, xscale, yscale);
 
-		NSAppearance *app = [NSAppearance currentAppearance];
-		NSRect bounds = NSMakeRect(0, 0, w / xscale, h / yscale);
+        NSAppearance *app = configuredAppearance;
 
-		[app _drawInRect: bounds context: cgRef options: d];
+        if (app == nil) {
+            id application = [NSApplication sharedApplication];
+            if ([application respondsToSelector:@selector(appearance)]) {
+                app = [application appearance];
+            }
+        }
+
+        if (app == nil) {
+            app = [NSAppearance currentAppearance];
+        }
+
+        if (jLayerHolder) {
+            jlong *layerHolder = (*env)->GetLongArrayElements(env, jLayerHolder, NULL);
+            CALayer **lv = (CALayer **) layerHolder;
+            [app _createOrUpdateLayer: lv options: d];
+            CALayer *layer = lv[0];
+            if (layer) {
+                [layer display];
+                [layer renderInContext: cgRef];
+            }
+            (*env)->ReleaseLongArrayElements(env, jLayerHolder, layerHolder, 0);
+        } else {
+		    NSRect bounds = NSMakeRect(0, 0, w / xscale, h / yscale);
+		    [app _drawInRect: bounds context: cgRef options: d];
+        }
 
 		(*env)->ReleasePrimitiveArrayCritical(env, data, rawPixelData, 0);
 		CFRelease(cgRef);

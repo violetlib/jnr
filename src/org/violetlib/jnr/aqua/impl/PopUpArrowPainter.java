@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -9,7 +9,6 @@
 package org.violetlib.jnr.aqua.impl;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Path2D;
 
@@ -18,6 +17,7 @@ import org.jetbrains.annotations.*;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.PopupButtonConfiguration;
 import org.violetlib.jnr.impl.PainterExtension;
+import org.violetlib.vappearances.VAppearance;
 
 /**
 	Simulates the rendering of a Yosemite pop up menu button arrow.
@@ -27,9 +27,9 @@ public class PopUpArrowPainter
 	extends PopUpArrowPainterBase
 	implements PainterExtension
 {
-	public PopUpArrowPainter(@NotNull PopupButtonConfiguration g)
+	public PopUpArrowPainter(@NotNull PopupButtonConfiguration g, @Nullable VAppearance appearance)
 	{
-		super(g);
+		super(g, appearance);
 	}
 
 	@Override
@@ -51,8 +51,6 @@ public class PopUpArrowPainter
 		double y4 = y2 + h + sep;
 		double y5 = y4 - h;
 
-		Color c = getColor();
-
 		Path2D p = new Path2D.Double();
 		p.moveTo(x1, y2);
 		p.lineTo(x2, y1);
@@ -60,7 +58,7 @@ public class PopUpArrowPainter
 		p.moveTo(x1, y5);
 		p.lineTo(x2, y4);
 		p.lineTo(x3, y5);
-		g.setColor(c);
+		g.setColor(color);
 		g.setStroke(new BasicStroke((float) stroke));
 		g.draw(p);
 	}

@@ -40,9 +40,11 @@
     <property name="jnidir" value="${builddir}/jni"/>
     <property name="distdir" value="dist"/>
 
-    <property name="SDKversion" value="10.13"/>
+    <property name="vAppearancesJAR" value="${base}/lib/VAppearances.jar"/>
+
+    <property name="SDKversion" value="10.14"/>
     <property name="SDKroot" value="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${SDKversion}.sdk"/>
-    <property name="libpath" value="${base}/lib/IdeaAnnotations.jar"/>
+    <property name="libpath" value="${base}/lib/IdeaAnnotations.jar:${base}/lib/VAppearances.jar"/>
     <property name="cc" value="/usr/bin/cc"/>
 
     <property name="debug" value="false"/>
@@ -63,7 +65,11 @@
       <echo file="${classesdir}/org/violetlib/jnr/aqua/BUILD.txt" message="${NOW}"/>
     </target>
 
-    <target name="compile8">
+    <target name="unjarVAppearances">
+        <unjar overwrite="false" dest="${classesdir}" src="${vAppearancesJAR}"/>
+    </target>
+
+    <target name="compile8" depends="unjarVAppearances">
       <mkdir dir="${classesdir}"/>
 
       <javac source="1.8" target="1.8"
@@ -166,6 +172,8 @@
             <arg value="-framework"/>
             <arg value="JavaRuntimeSupport"/>
 
+            <arg value="${jnisrc}/AppearanceSupport.m"/>
+            <arg value="${jnisrc}/org_violetlib_jnr_aqua_impl_AquaUIPainterBase.m"/>
             <arg value="${jnisrc}/org_violetlib_jnr_aqua_impl_AquaNativePainter.m"/>
         </exec>
 

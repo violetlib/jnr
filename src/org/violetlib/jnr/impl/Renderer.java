@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -22,6 +22,7 @@ public abstract class Renderer
 	implements ReusableCompositor.PixelSource
 {
 	private final static Renderer NULL_RENDERER = new NullRenderer();
+	private final static BasicRenderer NULL_BASIC_RENDERER = new NullBasicRenderer();
 
 	/**
 		Create a renderer using a basic (native) renderer.
@@ -76,6 +77,34 @@ public abstract class Renderer
 				return renderers.get(0);
 			default:
 				return new CompositeRenderer(renderers);
+		}
+	}
+
+	/**
+		Create a composite basic renderer.
+		@param brs The basic renderers to be composed.
+	*/
+
+	public static @NotNull BasicRenderer createCompositeBasicRenderer(@Nullable BasicRenderer... brs)
+	{
+		if (brs == null || brs.length == 0) {
+			return NULL_BASIC_RENDERER;
+		}
+
+		List<BasicRenderer> renderers  = new ArrayList<>();
+		for (BasicRenderer r : brs) {
+			if (r != null) {
+				renderers.add(r);
+			}
+		}
+
+		switch (renderers.size()) {
+			case 0:
+				return NULL_BASIC_RENDERER;
+			case 1:
+				return renderers.get(0);
+			default:
+				return new CompositeBasicRenderer(renderers);
 		}
 	}
 
@@ -219,11 +248,41 @@ class CompositeRenderer
 	}
 }
 
+class CompositeBasicRenderer
+	implements BasicRenderer
+{
+	private final @NotNull List<BasicRenderer> renderers;
+
+	public CompositeBasicRenderer(@NotNull List<BasicRenderer> renderers)
+	{
+		this.renderers = renderers;
+	}
+
+	@Override
+	public void render(@NotNull int[] data, int rw, int rh, float w, float h)
+	{
+		int scaleFactor = (int) Math.ceil(rw / w);
+		ReusableCompositor compositor = new ReusableCompositor(data, rw, rh, scaleFactor);
+		for (BasicRenderer renderer : renderers) {
+			compositor.composeRenderer(renderer);
+		}
+	}
+}
+
 class NullRenderer
 	extends Renderer
 {
 	@Override
 	public void composeTo(@NotNull ReusableCompositor compositor)
+	{
+	}
+}
+
+class NullBasicRenderer
+	implements BasicRenderer
+{
+	@Override
+	public void render(@NotNull int[] data, int rw, int rh, float w, float h)
 	{
 	}
 }

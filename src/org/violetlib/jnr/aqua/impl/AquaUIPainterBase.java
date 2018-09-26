@@ -12,8 +12,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
-
-import org.jetbrains.annotations.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.NullPainter;
@@ -26,7 +26,11 @@ import org.violetlib.jnr.impl.OffsetPainter;
 import org.violetlib.jnr.impl.Renderer;
 import org.violetlib.jnr.impl.RendererDebugInfo;
 import org.violetlib.jnr.impl.RendererDescription;
+import org.violetlib.vappearances.VAppearance;
 
+import org.jetbrains.annotations.*;
+
+import static org.violetlib.jnr.aqua.impl.AquaNativePainter.*;
 import static org.violetlib.jnr.impl.JNRUtils.*;
 
 /**
@@ -34,9 +38,9 @@ import static org.violetlib.jnr.impl.JNRUtils.*;
 	information is common to all implementations of native rendering.
 
 	<p>
-	This class currently supports only the UI for OS 10.10 (Yosemite). In the future, this class may provide results that
-	depend upon the current platform version. (Because this class is designed to support native rendering, it is not a
-	goal to support UIs other than that of the current platform version.)
+	This class currently supports only the UI for OS 10.10 (Yosemite) and later. In the future, this class may provide
+	results that depend upon the current platform version. (Because this class is designed to support native rendering, it
+	is not a goal to support UIs other than that of the current platform version.)
 	</p>
 */
 
@@ -48,9 +52,48 @@ public abstract class AquaUIPainterBase
 
 	protected final @NotNull RendererDescriptions rendererDescriptions;
 
+// The following distinguishable versions of segmented control layout and rendering have been identified.
+// Note that the stock JDK up to Java 11 (and possibly later) is linked against a 10.9 SDK.
+
+  public static final int SEGMENTED_10_10 = 0;           // rendering on macOS 10.10
+  public static final int SEGMENTED_10_11 = 1;           // rendering on macOS 10.11 and 10.12
+  public static final int SEGMENTED_10_13_OLD = 2;       // rendering on macOS 10.13 that is similar to 10.11, used when linked against an old SDK
+  public static final int SEGMENTED_10_13 = 3;           // a unique rendering on macOS 10.13, when linked against SDK 10.11 or later
+  public static final int SEGMENTED_10_14_OLD = 4;       // rendering on macOS 10.14 that is similar to 10.11, used when linked against an old SDK
+  public static final int SEGMENTED_10_14 = 5;           // rendering on macOS 10.14, when linked against SDK 10.11 or later
+
 	protected AquaUIPainterBase(@NotNull RendererDescriptions rds)
 	{
 		this.rendererDescriptions = rds;
+	}
+
+	private static int cachedSegmentedButtonRenderingVersion = -2;
+
+	/**
+		Identify the version of the native rendering of segmented controls.
+
+		@return the version, or -1 if this information is unavailable.
+	*/
+
+  public static int internalGetSegmentedButtonRenderingVersion()
+	{
+		if (cachedSegmentedButtonRenderingVersion >= -1) {
+			return cachedSegmentedButtonRenderingVersion;
+		}
+
+		cachedSegmentedButtonRenderingVersion = nativeDetermineSegmentedButtonRenderingVersion();
+		return cachedSegmentedButtonRenderingVersion;
+	}
+
+	/**
+		Identify the version of the native rendering of segmented controls.
+
+		@return the version, or -1 if this information is unavailable.
+	*/
+
+	public int getSegmentedButtonRenderingVersion()
+	{
+		return internalGetSegmentedButtonRenderingVersion();
 	}
 
 	@Override
@@ -322,7 +365,11 @@ public abstract class AquaUIPainterBase
 			return new NullPainter(info);
 		}
 
-		Painter p = getPainter(g, r, pWidth, pHeight);
+		if (appearance == null) {
+			throw new IllegalStateException("Appearance must be configured");
+		}
+
+		Painter p = getPainter(g, appearance, r, pWidth, pHeight);
 
 		if (xOffset != 0 || yOffset != 0) {
 			p = new OffsetPainter(p, xOffset, yOffset);
@@ -335,6 +382,7 @@ public abstract class AquaUIPainterBase
 		Create a widget painter based on a renderer.
 
 		@param g The widget configuration, which may be used to cache the rendered image.
+		@param appearance The appearance, which may be used to cache the rendered image.
 		@param r The renderer used to paint the widget.
 		@param width The width of the rendering, in device independent pixels.
 		@param height The height of the rendering, in device independent pixels.
@@ -342,11 +390,12 @@ public abstract class AquaUIPainterBase
 	*/
 
 	protected @NotNull Painter getPainter(@NotNull Configuration g,
+																				@NotNull VAppearance appearance,
 																				@NotNull Renderer r,
 																				float width,
 																				float height)
 	{
-		return new AquaRenderedPainter(g, r, width, height);
+		return new AquaRenderedPainter(g, appearance, r, width, height);
 	}
 
 	protected abstract @NotNull Renderer getButtonRenderer(@NotNull ButtonConfiguration g);
@@ -393,7 +442,19 @@ public abstract class AquaUIPainterBase
 			return true;
 		}
 
-		return state == State.ACTIVE && bs == ButtonState.ON;
+		return bs == ButtonState.ON;
+	}
+
+	protected State adjustRecessedState(State state)
+	{
+		// Borders for inactive, disabled, and active default states render incorrectly.
+		// Observed for 10.10.
+		// A border is displayed only for enabled ON states. It does not change when inactive.
+
+		if (state == State.ACTIVE_DEFAULT || state == State.INACTIVE || state == State.DISABLED || state == State.DISABLED_INACTIVE) {
+			return State.ACTIVE;
+		}
+		return state;
 	}
 
 	protected @Nullable RendererDebugInfo getSegmentedButtonRendererDebugInfo(@NotNull SegmentedButtonConfiguration g, int scaleFactor, int width, int height)
@@ -485,4 +546,24 @@ public abstract class AquaUIPainterBase
 			p.paint(g, x, y);
 		}
 	}
+
+	protected static void configureNativeAppearance(@NotNull VAppearance appearance)
+	{
+		String appearanceName = appearance.getName();
+		int appearanceID;
+		Integer id = appearanceIDMap.get(appearanceName);
+		if (id == null) {
+			appearanceID = nativeRegisterAppearance(appearanceName);
+			appearanceIDMap.put(appearanceName, appearanceID);
+		} else {
+			appearanceID = id;
+		}
+
+		nativeSetAppearance(appearanceID);
+	}
+
+	private static final Map<String,Integer> appearanceIDMap = new HashMap<>();
+
+	private static native int nativeRegisterAppearance(String appearanceName);
+	private static native void nativeSetAppearance(int appearanceID);
 }

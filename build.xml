@@ -1,27 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="VAquaRendering" default="jar" basedir=".">
+<project name="VAquaRendering" default="install" basedir=".">
 
-	<property name="docdir" location="api"/>
-	<property name="homebin" location="${user.home}/bin"/>
-	<property name="root" location="."/>
+    <property name="debug" value="true"/>
 
-	<import file="../build/library.xml"/>
-	<import file="../build/releases.xml"/>
+    <target name="build">
+        <ant dir="release/full"/>
+    </target>
 
-	<filelist id="lib.jars" dir="${lib}">
-	</filelist>
-
-	<filelist id="lib.jars" dir="${lib}">
-		<file name="JNRJava8Support.jar"/>
-		<file name="JNRJava9Support.jar"/>
-	</filelist>
-
-	<classpath/>
-
-  <target name="jar"
-          depends="clean, compile">
-    <define-library combined="true"/>
-  </target>
+    <target name="install" depends="build">
+        <copy todir="${user.home}/build/idea/production/VAquaRendering/" file="release/full/out/jni/libVAquaRendering.dylib"/>
+    </target>
 
 </project>

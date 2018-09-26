@@ -14,15 +14,22 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.geom.GeneralRoundRectangle;
 import org.violetlib.jnr.Insetter;
+import org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget;
+import org.violetlib.jnr.aqua.AquaUIPainter.ComboBoxWidget;
+import org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget;
+import org.violetlib.jnr.aqua.AquaUIPainter.Position;
+import org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget;
+import org.violetlib.jnr.aqua.AquaUIPainter.Size;
+import org.violetlib.jnr.aqua.AquaUIPainter.SliderWidget;
+import org.violetlib.jnr.aqua.AquaUIPainter.TextFieldWidget;
 import org.violetlib.jnr.aqua.*;
-import org.violetlib.jnr.aqua.AquaUIPainter.*;
 
-import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.*;
+import org.jetbrains.annotations.*;
+
 import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.*;
 
 /**
 	Provides outlines for widgets that can be used to draw focus rings. This version for OS 10.10 (Yosemite).
@@ -110,11 +117,10 @@ public class YosemiteOutliner
 			return bounds;
 		}
 
-		// A toolbar item is not strictly rectangular
-		// TBD
-
 		if (bw == BUTTON_TOOLBAR_ITEM) {
-			return bounds;
+			double corner = 7;
+			return new GeneralRoundRectangle(x, y, width, height,
+				corner, corner, corner, corner, 0, 0, 0, 0);
 		}
 
 		// all others are rounded rectangles
@@ -124,7 +130,7 @@ public class YosemiteOutliner
 		if (bw == BUTTON_PUSH) {
 			corner = 6;
 			x += size2D(sz, 0.5f, 0.5f, 0.5f);
-			y += size2D(sz, 0.5f, 1, 0.5f);
+			y += size2D(sz, 0.5f, 0.5f, 0.5f);
 			height += size2D(sz, -2, -2, -2);
 			width += size2D(sz, -1, -1, -1);
 		} else if (bw == BUTTON_BEVEL_ROUND) {
@@ -140,8 +146,8 @@ public class YosemiteOutliner
 			width += size2D(sz, -2, -2, -1);
 			height += size2D(sz, -2, -2, -2);
 		} else if (bw == BUTTON_INLINE) {
-			height -= 0.5;
-			corner = 14;
+			height -= 1;
+			corner = 16;
 		} else if (bw == BUTTON_RECESSED) {
 			corner = 6;
 		} else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR) {
@@ -176,17 +182,18 @@ public class YosemiteOutliner
 
 		boolean isLeft = pos == Position.FIRST;
 
-		// Cannot use rounded corners for left/right positions until we have support for half-rounded rectangle shapes.
-		// Could do the only position as rounded rectangles.
+		double corner = 8;
 
 		switch (bw)
 		{
 			case BUTTON_TAB:
 			case BUTTON_SEGMENTED:
 			case BUTTON_SEGMENTED_SEPARATED:
+				corner = 6;
+
 				x += size2D(sz, isLeft ? 0.5f : 0, 0, 0);
-				y += size2D(sz, 0.5f, 1, 1);
-				height += size2D(sz, -2, -3, -2);
+				y += size2D(sz, 0.5f, 0.5f, 0.5f);
+				height += size2D(sz, -2, -2, -2);
 				width += size2D(sz, -0.5f, 0, 0);
 
 				if (sz == Size.SMALL || sz == Size.MINI) {
@@ -202,19 +209,48 @@ public class YosemiteOutliner
 				}
 
 				break;
+
 			case BUTTON_SEGMENTED_INSET:
 				break;
+
 			case BUTTON_SEGMENTED_SCURVE:
 			case BUTTON_SEGMENTED_TEXTURED:
-			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
 			case BUTTON_SEGMENTED_TOOLBAR:
-			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
 				width += size2D(sz, 0, 0, 0);
 				height += size2D(sz, -1, -1, -1);
 				break;
-			case BUTTON_SEGMENTED_SMALL_SQUARE:
+
+			case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+				width += size2D(sz, 0, 0, 0);
+				height += size2D(sz, -1, -2, -1);
 				break;
+
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+			case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+				if (pos == Position.ONLY || pos == Position.FIRST) {
+					width -= 0.5;
+				}
+				if (pos == Position.MIDDLE) {
+					x -= 0.5;
+				}
+				height -= size2D(sz, 1, 0.5f, 1);
+				break;
+
+			case BUTTON_SEGMENTED_SMALL_SQUARE:
+				corner = 0;
+				break;
+		}
+
+		if (pos == Position.ONLY || bw.isSeparated()) {
+			return new RoundRectangle2D.Double(x, y, width, height, corner, corner);
+		}
+
+		if (pos == Position.FIRST) {
+			return new GeneralRoundRectangle(x, y, width, height, corner, corner, 0, 0, 0, 0, corner, corner);
+		}
+
+		if (pos == Position.LAST) {
+			return new GeneralRoundRectangle(x, y, width, height, 0, 0, corner, corner, corner, corner, 0, 0);
 		}
 
 		return new Rectangle2D.Double(x, y, width, height);

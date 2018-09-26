@@ -14,19 +14,22 @@ import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.security.PrivilegedAction;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.impl.BasicImageSupport;
 import org.violetlib.jnr.impl.BasicRenderer;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.RasterDescription;
 import org.violetlib.jnr.impl.Renderer;
 import org.violetlib.jnr.impl.RendererDebugInfo;
 import org.violetlib.jnr.impl.RendererDescription;
+import org.violetlib.jnr.impl.SegmentedRendererDebugInfo;
+import org.violetlib.vappearances.VAppearance;
+
+import org.jetbrains.annotations.*;
 
 /**
 	A painter that renders Aqua widgets by creating and rendering native views. This class supports only the UI for
-	Yosemite (OS X 10.10).
+	Yosemite (OS X 10.10) and later.
 
 	Although using native views should mean that the rendering will be consistent with whatever release of the operating
 	system is being used, there are some platform dependencies in this code (mostly layout related constants) such that
@@ -196,6 +199,14 @@ public class AquaNativePainter
 	}
 
 	@Override
+	public void configureAppearance(@NotNull VAppearance appearance)
+	{
+		super.configureAppearance(appearance);
+
+		configureNativeAppearance(appearance);
+	}
+
+	@Override
 	protected @NotNull Renderer getButtonRenderer(@NotNull ButtonConfiguration g)
 	{
 		ButtonWidget widget = g.getButtonWidget();
@@ -220,6 +231,8 @@ public class AquaNativePainter
 		}
 
 		if (widget == ButtonWidget.BUTTON_RECESSED) {
+			// Avoid painting a background for a button in the OFF state.
+			// Not sure why that would happen, but it does.
 			if (!shouldPaintRecessedBackground(st, bs)) {
 				return NULL_RENDERER;
 			}
@@ -413,7 +426,7 @@ public class AquaNativePainter
 	{
 		RendererDescription rd = rendererDescriptions.getIndeterminateProgressIndicatorRendererDescription(g);
 
-		boolean isSpinner = g.getWidget() == ProgressWidget.SPINNER;
+		boolean isSpinner = g.getWidget() == ProgressWidget.INDETERMINATE_SPINNER;
 		Size sz = g.getSize();
 
 		// Small spinners have a fixed size. Large spinners are scaled to fit. Other variants do not work.
@@ -432,6 +445,14 @@ public class AquaNativePainter
 	protected @NotNull Renderer getProgressIndicatorRenderer(@NotNull ProgressIndicatorConfiguration g)
 	{
 		RendererDescription rd = rendererDescriptions.getProgressIndicatorRendererDescription(g);
+
+		boolean isSpinner = g.getWidget() == ProgressWidget.SPINNER;
+		Size sz = g.getSize();
+
+		// Small spinners have a fixed size. Large spinners are scaled to fit. Other variants do not work.
+		if (isSpinner && sz != Size.SMALL) {
+			sz = Size.LARGE;
+		}
 
 		int size = toSize(g.getSize());
 		int state = toActiveState(g.getState());
@@ -563,10 +584,82 @@ public class AquaNativePainter
 		int segmentPosition = toSegmentPosition(g.getPosition());
 		int flags = toSegmentFlags(g);
 
-		BasicRenderer r = (data, rw, rh, w, h) -> nativePaintSegmentedButton(data, rw, rh, w, h, segmentStyle, segmentPosition, size,
-			state, g.isFocused(), flags, null, null);
+		BasicRenderer r = (data, rw, rh, w, h) -> nativePaintSegmentedButton(data, rw, rh, w, h, segmentStyle,
+			segmentPosition, size, state, g.isFocused(), flags, null, null);
 
 		return Renderer.create(r, rd);
+	}
+
+public static final int TEST_SEGMENTED_ONE_SEGMENT = -1;
+public static final int TEST_SEGMENTED_NO_SELECTION = -2;
+
+    /**
+		Render a segmented control for the purpose of debugging its layout.
+		@param g This configuration designates the widget and the size.
+		@param option This parameter determines the number of segments in the control and which segment, if any, is
+			displayed as selected. A value of 0 to 3 displays a segmented control with four segments and the segment with the
+			specified index is selected. A value of {@link #TEST_SEGMENTED_NO_SELECTION} displays a segmented control
+			containing four segments with no segment selected. A value of {@link #TEST_SEGMENTED_ONE_SEGMENT} renders a
+			segmented control containing one segment, not selected.
+		@param scaleFactor The scale factor for the display.
+		@param width The raster width in points.
+		@param height The raster height in points.
+		@param controlWidth The width of the segmented control in points.
+		@param controlHeight The height of the segmented control in points.
+		@return the rendered control display and associated information.
+	*/
+
+	public @Nullable SegmentedRendererDebugInfo
+	getSegmentedRendererDebugInfo(@NotNull SegmentedButtonConfiguration g,
+																int option,
+																int scaleFactor,
+																int width, int height,
+																float controlWidth, float controlHeight, float segmentWidth,
+																boolean isSelectAny)
+	{
+		int size = toSize(g.getSize());
+		int segmentStyle = toSegmentedStyle(g.getWidget());
+
+		int rw = (int) Math.ceil(scaleFactor * width);
+		int rh = (int) Math.ceil(scaleFactor * height);
+		int[] data = new int[rw * rh];
+
+		float[] debugOutput = new float[20];
+		nativeTestSegmentedButton(data, rw, rh, width, height, segmentStyle, option, size, controlWidth, controlHeight,
+			segmentWidth, isSelectAny, debugOutput);
+
+		Rectangle2D controlBounds = null;
+		Rectangle2D[] segmentBounds = null;
+		if (!isZero(debugOutput, 0, 4)) {
+			controlBounds = extractBounds(debugOutput, 0);
+		}
+		int start = 4;
+		if (!isZero(debugOutput, start, 16)) {
+			int count = option == TEST_SEGMENTED_ONE_SEGMENT ? 1 : 4;
+			segmentBounds = new Rectangle2D[count];
+			int offset = start;
+			for (int i = 0; i < count; i++) {
+				segmentBounds[i] = extractBounds(debugOutput, offset);
+				offset += 4;
+			}
+		}
+		Image im = BasicImageSupport.createImage(data, rw, rh);
+		return new SegmentedRendererDebugInfo(im, controlBounds, segmentBounds);
+	}
+
+	private static boolean isZero(@NotNull float[] fs, int start, int count)
+	{
+		for (int i = 0; i < count; i++) {
+			if (fs[start + i] != 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static @NotNull Rectangle2D extractBounds(@NotNull float[] fs, int start)
+	{
+		return new Rectangle2D.Float(fs[start], fs[start+1], fs[start+2], fs[start+3]);
 	}
 
 	@Override
@@ -610,6 +703,15 @@ public class AquaNativePainter
 		Image im = BasicImageSupport.createImage(debugData, imageWidth, imageHeight);
 		Rectangle2D frame = new Rectangle2D.Float(xOffset, yOffset, w, h);
 		return new RendererDebugInfo(im, frame, info);
+	}
+
+	public @Nullable float[] getSegmentedButtonLayoutParameters(@NotNull SegmentedButtonLayoutConfiguration g)
+	{
+		int size = toSize(g.getSize());
+		int segmentStyle = toSegmentedStyle(g.getWidget());
+		float[] debugOutput = new float[8];
+		int result = nativeDetermineSegmentedButtonLayoutParameters(segmentStyle, size, debugOutput);
+		return result == 0 ? debugOutput : null;
 	}
 
 	public static final int SEGMENT_POSITION_FIRST = 0;
@@ -906,6 +1008,8 @@ public class AquaNativePainter
 
 	protected int toBezelStyle(@NotNull ButtonWidget bw)
 	{
+		int platformVersion = JNRPlatformUtils.getPlatformVersion();
+
 		switch (bw) {
 			case BUTTON_PUSH:
 				return NSRoundedBezelStyle;
@@ -938,7 +1042,7 @@ public class AquaNativePainter
 			case BUTTON_ROUND:
 				return NSCircularBezelStyle;
 			case BUTTON_ROUND_TOOLBAR:
-				return NSCircularBezelStyle_Toolbar;
+				return platformVersion >= 101100 ? NSCircularBezelStyle_Toolbar : NSCircularBezelStyle;
 		}
 		throw new UnsupportedOperationException();
 	}
@@ -1138,8 +1242,20 @@ public class AquaNativePainter
 	private static native int[] nativeGetTitleBarButtonLayoutInfo(int windowType);
 	private static native void nativeGetSliderThumbBounds(float[] a, float w, float h, int sliderType, int size, double value, int numberOfTickMarks, int position);
 
-	// The following methods represent a failed experiment. Although I am not sure why, asking a view for its size
-	// does not always provide the information needed here.
+	public static native boolean isLayerPaintingEnabled();
+	public static native void setLayerPaintingEnabled(boolean b);
+
+	private static native void nativeTestSegmentedButton(int[] data, int rw, int rh, float w, float h,
+																											 int segmentType, int option, int size,
+																											 float cw, float ch, float segmentWidth,
+																											 boolean isSelectAny,
+																											 float[] debugOutput);
+
+	private static native int nativeDetermineSegmentedButtonLayoutParameters(int segmentStyle, int size, float[] data);
+  public static native int nativeDetermineSegmentedButtonRenderingVersion();
+
+	// The following methods represent a failed experiment. Although I am not sure why, asking a view for its size does
+	// not always provide the information needed here.
 
 	private static native int nativeDetermineButtonFixedHeight(int buttonType, int bezelStyle, int size);
 	private static native int nativeDetermineButtonFixedWidth(int buttonType, int bezelStyle, int size);
