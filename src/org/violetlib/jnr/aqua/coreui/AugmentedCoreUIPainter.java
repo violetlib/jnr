@@ -28,7 +28,6 @@ import org.violetlib.jnr.aqua.impl.ThinSplitPaneDividerPainterExtension;
 import org.violetlib.jnr.impl.AdjustDarkToolbarButtonRenderer;
 import org.violetlib.jnr.impl.BasicRenderer;
 import org.violetlib.jnr.impl.DarkGroupBoxRenderer;
-import org.violetlib.jnr.impl.DarkTabButtonRenderer;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.jnr.impl.Renderer;
@@ -152,15 +151,6 @@ public class AugmentedCoreUIPainter
 				assert br != null;
 				AdjustDarkToolbarButtonRenderer rr = new AdjustDarkToolbarButtonRenderer(br);
 				r = Renderer.create(rr, r.getRendererDescription());
-			} else if (w == BUTTON_TAB) {
-				// workaround for tab buttons painted with a translucent background
-				Renderer mr = super.getSegmentedButtonMaskRenderer(g);
-				BasicRenderer bmr = mr.getBasicRenderer();
-				assert bmr != null;
-				BasicRenderer br = r.getBasicRenderer();
-				assert br != null;
-				DarkTabButtonRenderer rr = new DarkTabButtonRenderer(bmr, br);
-				r = Renderer.create(rr, mr.getRendererDescription());
 			}
 		}
 
