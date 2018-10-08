@@ -11,8 +11,6 @@ package org.violetlib.jnr.eval;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.NullPainter;
 import org.violetlib.jnr.Painter;
@@ -21,28 +19,30 @@ import org.violetlib.jnr.aqua.Configuration;
 import org.violetlib.jnr.aqua.LayoutConfiguration;
 import org.violetlib.jnr.aqua.impl.AquaUIPainterAbstractBase;
 
+import org.jetbrains.annotations.*;
+
 /**
-	This painter does not paint. It provides the renderer to an evaluator.
+  This painter does not paint. It provides the renderer to an evaluator.
 */
 
 public abstract class AquaEvaluatingPainter
-	extends AquaUIPainterAbstractBase
-	implements AquaUIPainter
+  extends AquaUIPainterAbstractBase
+  implements AquaUIPainter
 {
-	@Override
-	public @NotNull Shape getOutline(@NotNull LayoutConfiguration g)
-	{
-		return new Rectangle(0, 0, 0, 0);
-	}
+    @Override
+    public @NotNull Shape getOutline(@NotNull LayoutConfiguration g)
+    {
+        return new Rectangle(0, 0, 0, 0);
+    }
 
-	@Override
-	public @NotNull Painter getPainter(@NotNull Configuration g)
-		throws UnsupportedOperationException
-	{
-		LayoutInfo layoutInfo = uiLayout.getLayoutInfo((LayoutConfiguration) g);
-		evaluate(g, layoutInfo);
-		return new NullPainter(layoutInfo);
-	}
+    @Override
+    public @NotNull Painter getPainter(@NotNull Configuration g)
+      throws UnsupportedOperationException
+    {
+        LayoutInfo layoutInfo = uiLayout.getLayoutInfo((LayoutConfiguration) g);
+        evaluate(g, layoutInfo);
+        return new NullPainter(layoutInfo);
+    }
 
-	protected abstract void evaluate(@NotNull Configuration g, @NotNull LayoutInfo layoutInfo);
+    protected abstract void evaluate(@NotNull Configuration g, @NotNull LayoutInfo layoutInfo);
 }

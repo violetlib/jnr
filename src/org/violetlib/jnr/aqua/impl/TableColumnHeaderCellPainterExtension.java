@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,21 +8,23 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.TableColumnHeaderConfiguration;
+import org.violetlib.jnr.impl.Colors;
+import org.violetlib.jnr.impl.ImageUtils;
 import org.violetlib.jnr.impl.PainterExtension;
+import org.violetlib.vappearances.VAppearance;
+
+import org.jetbrains.annotations.*;
 
 /**
-	Simulates the rendering of a Yosemite table header cell.
+	Simulates the rendering of a table header cell.
 */
 
 public class TableColumnHeaderCellPainterExtension
@@ -36,12 +38,15 @@ public class TableColumnHeaderCellPainterExtension
 	// Java expects a divider to be painted along the right edge.
 
 	protected final @NotNull TableColumnHeaderConfiguration tg;
+	protected final @NotNull Colors colors;
+	protected final boolean isDark;
 
-	protected @NotNull Color COLOR = new Color(60, 60, 60, 34);	// works with standard tables and Finder tables
-
-	public TableColumnHeaderCellPainterExtension(@NotNull TableColumnHeaderConfiguration g)
+	public TableColumnHeaderCellPainterExtension(@NotNull TableColumnHeaderConfiguration g,
+																							 @Nullable VAppearance appearance)
 	{
 		this.tg = g;
+		this.colors = Colors.getColors(appearance);
+		this.isDark = appearance != null && appearance.isDark();
 	}
 
 	@Override
@@ -69,7 +74,7 @@ public class TableColumnHeaderCellPainterExtension
 			float x0 = width - 1;
 			float y0 = dividerGap;
 			Rectangle2D r = new Rectangle2D.Float(x0, y0, 1, dividerHeight);
-			g.setColor(COLOR);
+			g.setColor(colors.get("tableHeaderDivider"));
 			g.fill(r);
 		}
 
@@ -86,6 +91,9 @@ public class TableColumnHeaderCellPainterExtension
 					break;
 			}
 			if (im != null) {
+				if (isDark) {
+					im = ImageUtils.invertForDarkMode(im);
+				}
 				int imageWidth = im.getWidth(null);
 				int imageHeight = im.getHeight(null);
 				float x = tg.isLeftToRight() ? width - 1 - arrowGap - imageWidth + 1	// +1 because image has insets

@@ -13,6 +13,7 @@ import java.awt.Graphics2D;
 
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.SliderConfiguration;
+import org.violetlib.jnr.impl.Colors;
 import org.violetlib.jnr.impl.JNRUtils;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
@@ -20,24 +21,21 @@ import org.violetlib.vappearances.VAppearance;
 import org.jetbrains.annotations.*;
 
 /**
-	Simulates the rendering of circular sliders (dials).
+	Simulates the rendering of circular sliders (dials) over a background with no dimple or tick marks.
 */
 
 public class CircularSliderPainterExtension
 	implements PainterExtension
 {
 	protected final @NotNull SliderConfiguration sg;
-	protected final @NotNull Color tickColor;
 	protected final @Nullable VAppearance appearance;
-
-	protected final @NotNull Color LIGHT_TICK_COLOR = new Color(10, 10, 10, 110);
-	protected final @NotNull Color DARK_TICK_COLOR = new Color(255, 255, 255, 64);
+	protected final @NotNull Colors colors;
 
 	public CircularSliderPainterExtension(@NotNull SliderConfiguration g, @Nullable VAppearance appearance)
 	{
 		this.sg = g;
 		this.appearance = appearance;
-		this.tickColor = appearance != null && appearance.isDark() ? DARK_TICK_COLOR : LIGHT_TICK_COLOR;
+		this.colors = Colors.getColors(appearance);
 	}
 
 	@Override
@@ -62,6 +60,7 @@ public class CircularSliderPainterExtension
 		double p1 = tickCount > 1 ? 1 : 0.5;
 		double zeroAngle = Math.PI/2;
 		float radius = JNRUtils.size2D(sg.getSize(), 15.5f, 10.5f, 10.5f);
+		Color tickColor = colors.get("circularSliderTick");
 		SliderCircularTickPainter p = new SliderCircularTickPainter(
 			tickColor, 1, 1, x, y, radius, zeroAngle, tickCount, p0, p1);
 		p.paint(g);

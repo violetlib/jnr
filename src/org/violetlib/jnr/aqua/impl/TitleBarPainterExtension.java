@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -18,15 +18,17 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.AquaUIPainter.State;
 import org.violetlib.jnr.aqua.AquaUIPainter.TitleBarButtonWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.TitleBarWidget;
 import org.violetlib.jnr.aqua.TitleBarConfiguration;
 import org.violetlib.jnr.aqua.TitleBarConfiguration.ResizeAction;
+import org.violetlib.jnr.impl.Colors;
 import org.violetlib.jnr.impl.PainterExtension;
+import org.violetlib.vappearances.VAppearance;
+
+import org.jetbrains.annotations.*;
 
 import static org.violetlib.jnr.aqua.TitleBarConfiguration.ResizeAction.*;
 
@@ -49,15 +51,15 @@ public class TitleBarPainterExtension
 
 	protected final @NotNull TitleBarConfiguration tg;
 	protected final @NotNull TitleBarLayoutInfo layoutInfo;
+	protected final @NotNull Colors colors;
 
-	protected final @NotNull Color RED_COLOR = new Color(255, 96, 88);
-	protected final @NotNull Color YELLOW_COLOR = new Color(255, 189, 46);
-	protected final @NotNull Color GREEN_COLOR = new Color(40, 201, 64);
-
-	public TitleBarPainterExtension(@NotNull TitleBarLayoutInfo layoutInfo, @NotNull TitleBarConfiguration tg)
+	public TitleBarPainterExtension(@NotNull TitleBarLayoutInfo layoutInfo,
+																	@NotNull TitleBarConfiguration tg,
+																	@Nullable VAppearance appearance)
 	{
 		this.tg = tg;
 		this.layoutInfo = layoutInfo;
+		this.colors = Colors.getColors(appearance);
 	}
 
 	@Override
@@ -98,13 +100,13 @@ public class TitleBarPainterExtension
 			switch (bw)
 			{
 				case CLOSE_BOX:
-					g.setPaint(RED_COLOR);
+					g.setPaint(colors.get("titleBarCloseButton"));
 					break;
 				case MINIMIZE_BOX:
-					g.setPaint(YELLOW_COLOR);
+					g.setPaint(colors.get("titleBarMinimizeButton"));
 					break;
 				case RESIZE_BOX:
-					g.setPaint(GREEN_COLOR);
+					g.setPaint(colors.get("titleBarResizeButton"));
 			}
 			g.fill(s);
 

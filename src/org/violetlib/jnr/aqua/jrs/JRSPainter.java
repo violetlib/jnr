@@ -1032,14 +1032,22 @@ public class JRSPainter
 
 		// Tinting option is not working
 
+		State st = g.getState();
+		if (st == State.ROLLOVER) {
+			st = State.ACTIVE;
+		}
+
 		if (sw == SliderWidget.SLIDER_CIRCULAR) {
+			if (st == State.PRESSED) {
+				st = State.ACTIVE;
+			}
 			int degrees = (int) Math.round(value * 360);
 			maker.reset();
 			maker.set(JRSUIConstants.Widget.DIAL);
 			maker.set(JRSUIConstants.Focused.NO);
 			maker.set(JRSUIConstants.NoIndicator.YES);	// because the wrong kind of dimple would be painted
 			configureSize(sz);
-			configureState(g.getState());
+			configureState(st);
 			maker.setValue(degrees);
 			return Renderer.create(maker.getRenderer(), rd);
 		}
@@ -1068,6 +1076,11 @@ public class JRSPainter
 		// Mini sliders are not supported (must be consistent with layout code)
 		final Size sz = g.getSize() == Size.MINI ? Size.SMALL : g.getSize();
 
+		State st = g.getState();
+		if (st == State.ROLLOVER) {
+			st = State.ACTIVE;
+		}
+
 		double value = g.getValue();
 		if (sw == SliderWidget.SLIDER_HORIZONTAL_RIGHT_TO_LEFT) {
 			sw = SliderWidget.SLIDER_HORIZONTAL;
@@ -1088,7 +1101,7 @@ public class JRSPainter
 		maker.set(JRSUIConstants.Widget.SLIDER);
 		maker.set(JRSUIConstants.NoIndicator.YES);
 		configureSize(sz);
-		configureState(g.getState());
+		configureState(st);
 		maker.set(orientation);
 		maker.set(direction);
 		maker.set(g.isFocused() ? JRSUIConstants.Focused.YES : JRSUIConstants.Focused.NO);
@@ -1109,12 +1122,17 @@ public class JRSPainter
 		// Mini sliders are not supported (must be consistent with layout code)
 		final Size sz = g.getSize() == Size.MINI ? Size.SMALL : g.getSize();
 
+		State st = g.getState();
+		if (st == State.ROLLOVER) {
+			st = State.ACTIVE;
+		}
+
 		JRSUIConstants.Orientation orientation = g.isVertical() ? JRSUIConstants.Orientation.VERTICAL : JRSUIConstants.Orientation.HORIZONTAL;
 		JRSUIConstants.Direction direction = g.hasTickMarks() ? toDirection(g.getTickMarkPosition()) : JRSUIConstants.Direction.NONE;
 		maker.reset();
 		maker.set(JRSUIConstants.Widget.SLIDER_THUMB);
 		configureSize(sz);
-		configureState(g.getState());
+		configureState(st);
 		maker.set(orientation);
 		maker.set(direction);
 		maker.set(g.isFocused() ? JRSUIConstants.Focused.YES : JRSUIConstants.Focused.NO);

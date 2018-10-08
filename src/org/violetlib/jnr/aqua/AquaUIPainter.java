@@ -8,9 +8,11 @@
 
 package org.violetlib.jnr.aqua;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
+import java.util.Map;
 
 import org.violetlib.jnr.Painter;
 import org.violetlib.vappearances.VAppearance;
@@ -517,6 +519,12 @@ public interface AquaUIPainter
 	*/
 
 	@NotNull AquaUIPainter copy();
+
+	/**
+		Return the custom colors for the specified appearance.
+	*/
+
+	@NotNull Map<String,Color> getColors(@NotNull VAppearance appearance);
 
 	/**
 		Configure the system appearance to be used by the painter.

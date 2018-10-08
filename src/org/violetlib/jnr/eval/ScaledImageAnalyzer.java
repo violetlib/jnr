@@ -14,43 +14,43 @@ import java.awt.image.BufferedImage;
 import org.jetbrains.annotations.*;
 
 /**
-	Analyze an image that may be scaled for HiDPI. Return attributes measured in layout points.
+  Analyze an image that may be scaled for HiDPI. Return attributes measured in layout points.
 
-	@see ImageAnalyzer
+  @see ImageAnalyzer
 */
 
 public class ScaledImageAnalyzer
 {
-	private final float scale;
-	private final @NotNull ImageAnalyzer analyzer;
-	private final @NotNull Rectangle effectiveBounds;
+    private final float scale;
+    private final @NotNull ImageAnalyzer analyzer;
+    private final @NotNull Rectangle effectiveBounds;
 
-	public ScaledImageAnalyzer(int scale, @NotNull BufferedImage b)
-	{
-		this.scale = scale;
-		this.analyzer = new ImageAnalyzer(b);
-		Rectangle r = analyzer.getEffectiveBounds();
+    public ScaledImageAnalyzer(int scale, @NotNull BufferedImage b)
+    {
+        this.scale = scale;
+        this.analyzer = new ImageAnalyzer(b);
+        Rectangle r = analyzer.getEffectiveBounds();
 
-		this.effectiveBounds = r != null ? r : new Rectangle(0, 0, 0, 0);
-	}
+        this.effectiveBounds = r != null ? r : new Rectangle(0, 0, 0, 0);
+    }
 
-	public float getX()
-	{
-		return effectiveBounds.x / scale;
-	}
+    public float getX()
+    {
+        return effectiveBounds.x / scale;
+    }
 
-	public float getY()
-	{
-		return effectiveBounds.y / scale;
-	}
+    public float getY()
+    {
+        return effectiveBounds.y / scale;
+    }
 
-	public float getWidth()
-	{
-		return effectiveBounds.width / scale;
-	}
+    public float getWidth()
+    {
+        return effectiveBounds.width / scale;
+    }
 
-	public float getHeight()
-	{
-		return effectiveBounds.height / scale;
-	}
+    public float getHeight()
+    {
+        return effectiveBounds.height / scale;
+    }
 }

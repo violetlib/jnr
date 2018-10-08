@@ -15,6 +15,7 @@ import java.awt.geom.Rectangle2D;
 import org.violetlib.jnr.aqua.AquaUILayoutInfo;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.SliderConfiguration;
+import org.violetlib.jnr.impl.Colors;
 import org.violetlib.jnr.impl.JNRUtils;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
@@ -30,10 +31,7 @@ public class LinearSliderPainterExtension
 {
 	protected final @NotNull AquaUILayoutInfo uiLayout;
 	protected final @NotNull SliderConfiguration sg;
-	protected final @NotNull Color tickColor;
-
-	protected final @NotNull Color LIGHT_TICK_COLOR = new Color(10, 10, 10, 110);
-	protected final @NotNull Color DARK_TICK_COLOR = new Color(255, 255, 255, 64);
+	protected final @NotNull Colors colors;
 
 	public LinearSliderPainterExtension(@NotNull AquaUILayoutInfo uiLayout,
 																			@NotNull SliderConfiguration g,
@@ -41,7 +39,7 @@ public class LinearSliderPainterExtension
 	{
 		this.uiLayout = uiLayout;
 		this.sg = g;
-		this.tickColor = appearance != null && appearance.isDark() ? DARK_TICK_COLOR : LIGHT_TICK_COLOR;
+		this.colors = Colors.getColors(appearance);
 	}
 
 	@Override
@@ -56,9 +54,12 @@ public class LinearSliderPainterExtension
 
 	protected void paintLinearTickMarks(@NotNull Graphics2D g, float width, float height)
 	{
+		Color tickColor = colors.get("linearSliderTick");
+
 		AquaUIPainter.SliderWidget sw = sg.getWidget();
 		AquaUIPainter.Size sz = sg.getSize();
-		boolean isHorizontal = sw == AquaUIPainter.SliderWidget.SLIDER_HORIZONTAL || sw == AquaUIPainter.SliderWidget.SLIDER_HORIZONTAL_RIGHT_TO_LEFT;
+		boolean isHorizontal = sw == AquaUIPainter.SliderWidget.SLIDER_HORIZONTAL
+														 || sw == AquaUIPainter.SliderWidget.SLIDER_HORIZONTAL_RIGHT_TO_LEFT;
 		int tickCount = sg.getNumberOfTickMarks();
 		AquaUIPainter.TickMarkPosition position = sg.getTickMarkPosition();
 		Rectangle2D bounds = new Rectangle2D.Float(0, 0, width, height);

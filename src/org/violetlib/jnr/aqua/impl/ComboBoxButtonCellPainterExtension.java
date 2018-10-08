@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -9,30 +9,31 @@
 package org.violetlib.jnr.aqua.impl;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Path2D;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.ComboBoxConfiguration;
+import org.violetlib.jnr.impl.Colors;
 import org.violetlib.jnr.impl.PainterExtension;
+import org.violetlib.vappearances.VAppearance;
+
+import org.jetbrains.annotations.*;
 
 /**
-	Simulates the rendering of a Yosemite combo box button cell (a combo box in a table cell).
+	Simulates the rendering of a combo box button cell (a combo box in a table cell).
 */
 
 public class ComboBoxButtonCellPainterExtension
 	implements PainterExtension
 {
 	protected final @NotNull ComboBoxConfiguration gg;
+	protected final @NotNull Colors colors;
 
-	protected @NotNull Color COLOR = new Color(7, 7, 7, 150);
-
-	public ComboBoxButtonCellPainterExtension(@NotNull ComboBoxConfiguration g)
+	public ComboBoxButtonCellPainterExtension(@NotNull ComboBoxConfiguration g, @Nullable VAppearance appearance)
 	{
 		this.gg = g;
+		this.colors = Colors.getColors(appearance);
 	}
 
 	@Override
@@ -62,7 +63,7 @@ public class ComboBoxButtonCellPainterExtension
 		p2.moveTo(x1, y5);
 		p2.lineTo(x2, y4);
 		p2.lineTo(x3, y5);
-		g.setColor(COLOR);
+		g.setColor(colors.get("comboBoxArrow"));
 		g.setStroke(new BasicStroke(1.5f));
 		g.fill(p1);
 		g.fill(p2);
