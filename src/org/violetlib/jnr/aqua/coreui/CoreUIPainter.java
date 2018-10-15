@@ -1017,7 +1017,7 @@ public class CoreUIPainter
 
 		SliderWidget sw = g.getWidget();
 		// Mini sliders are not supported (must be consistent with layout code)
-		final Size sz = g.getSize() == Size.MINI ? Size.SMALL : g.getSize();
+		Size sz = g.getSize() == Size.MINI ? Size.SMALL : g.getSize();
 
 		// Tinting option is not working
 
@@ -1025,10 +1025,15 @@ public class CoreUIPainter
 
 			int degrees = (int) Math.round(g.getValue() * 360);
 
+			State st = g.getState();
+			if (st == State.PRESSED || st == State.ROLLOVER) {
+				st = State.ACTIVE;
+			}
+
 			BasicRenderer r =  getRenderer(
 				WIDGET_KEY, CoreUIWidgets.DIAL,
 				SIZE_KEY, toSize(sz),
-				STATE_KEY, toState(g.getState()),
+				STATE_KEY, toState(st),
 				IS_FOCUSED_KEY, false,
 				NO_INDICATOR_KEY, true,	// because the wrong kind of dimple would be painted
 				VALUE_KEY, degrees
@@ -1072,6 +1077,9 @@ public class CoreUIPainter
 		}
 
 		State st = g.getState();
+		if (st == State.ROLLOVER) {
+			st = State.ACTIVE;
+		}
 		boolean isTinted = st != State.DISABLED && st != State.DISABLED_INACTIVE && !g.hasTickMarks();
 		String orientation = sw == SliderWidget.SLIDER_VERTICAL ? CoreUIOrientations.VERTICAL : CoreUIOrientations.HORIZONTAL;
 		Object direction = g.hasTickMarks() ? toDirection(g.getTickMarkPosition()) : CoreUIDirections.NONE;
@@ -1080,7 +1088,7 @@ public class CoreUIPainter
 			WIDGET_KEY, CoreUIWidgets.SLIDER,
 			NO_INDICATOR_KEY, true,
 			SIZE_KEY, toSize(sz),
-			STATE_KEY, toState(g.getState()),
+			STATE_KEY, toState(st),
 			ORIENTATION_KEY, orientation,
 			DIRECTION_KEY, direction,
 			USER_INTERFACE_LAYOUT_DIRECTION_KEY, uiDirection,
@@ -1107,12 +1115,17 @@ public class CoreUIPainter
 		// Mini sliders are not supported (must be consistent with layout code)
 		final Size sz = g.getSize() == Size.MINI ? Size.SMALL : g.getSize();
 
+		State st = g.getState();
+		if (st == State.ROLLOVER) {
+			st = State.ACTIVE;
+		}
+
 		String orientation = sw == SliderWidget.SLIDER_VERTICAL ? CoreUIOrientations.VERTICAL : CoreUIOrientations.HORIZONTAL;
 		Object direction = g.hasTickMarks() ? toDirection(g.getTickMarkPosition()) : CoreUIDirections.NONE;
 		BasicRenderer r = getRenderer(
 			WIDGET_KEY, CoreUIWidgets.SLIDER_THUMB,
 			SIZE_KEY, toSize(sz),
-			STATE_KEY, toState(g.getState()),
+			STATE_KEY, toState(st),
 			ORIENTATION_KEY, orientation,
 			DIRECTION_KEY, direction,
 			IS_FOCUSED_KEY, getFocused(g, g.isFocused()),

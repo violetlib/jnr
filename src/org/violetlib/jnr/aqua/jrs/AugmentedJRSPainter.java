@@ -39,7 +39,7 @@ public class AugmentedJRSPainter
 	{
 		// Do not use the native renderer. Use our simulation instead.
 
-		PainterExtension px = new TableColumnHeaderCellPainterExtension(g);
+		PainterExtension px = new TableColumnHeaderCellPainterExtension(g, appearance);
 		return Renderer.create(px);
 	}
 
@@ -47,7 +47,7 @@ public class AugmentedJRSPainter
 	protected @NotNull Renderer getSplitPaneDividerRenderer(@NotNull SplitPaneDividerConfiguration g)
 	{
 		if (g.getWidget() == DividerWidget.THICK_DIVIDER) {
-			PainterExtension px = new ThickSplitPaneDividerPainterExtension(g);
+			PainterExtension px = new ThickSplitPaneDividerPainterExtension(g, appearance);
 			return Renderer.create(px);
 		} else if (g.getWidget() == DividerWidget.THIN_DIVIDER) {
 			PainterExtension px = new ThinSplitPaneDividerPainterExtension(g, appearance);
@@ -62,7 +62,7 @@ public class AugmentedJRSPainter
 	{
 		ComboBoxWidget bw = g.getWidget();
 		if (bw == ComboBoxWidget.BUTTON_COMBO_BOX_CELL) {
-			PainterExtension px = new ComboBoxButtonCellPainterExtension(g);
+			PainterExtension px = new ComboBoxButtonCellPainterExtension(g, appearance);
 			return Renderer.create(px);
 		} else {
 			return super.getComboBoxButtonRenderer(g);
@@ -116,7 +116,7 @@ public class AugmentedJRSPainter
 		if (sw == ScrollBarWidget.LEGACY) {
 			return Renderer.create(new LegacyScrollBarPainterExtension(uiLayout, g, appearance));
 		} else {
-			return Renderer.create(new OverlayScrollBarPainterExtension(uiLayout, g));
+			return Renderer.create(new OverlayScrollBarPainterExtension(uiLayout, g, appearance));
 		}
 	}
 

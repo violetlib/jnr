@@ -8,16 +8,19 @@
 
 package org.violetlib.jnr.aqua.impl;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
-
-import org.jetbrains.annotations.*;
+import java.util.Map;
 
 import org.violetlib.jnr.Painter;
 import org.violetlib.jnr.aqua.*;
+import org.violetlib.jnr.impl.Colors;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.vappearances.VAppearance;
+
+import org.jetbrains.annotations.*;
 
 /**
 	A hybrid painter that uses the best available implementation for each given configuration.
@@ -50,6 +53,13 @@ public class HybridAquaUIPainter
 	public @NotNull HybridAquaUIPainter copy()
 	{
 		return new HybridAquaUIPainter(viewPainter, coreUIPainter, jrsPainter);
+	}
+
+	@Override
+	public @NotNull Map<String,Color> getColors(@NotNull VAppearance appearance)
+	{
+		Colors colors = Colors.getColors(appearance);
+		return colors.getColors();
 	}
 
 	@Override

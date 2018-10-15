@@ -12,18 +12,18 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
-import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
-
-import org.jetbrains.annotations.*;
 
 import org.violetlib.jnr.aqua.AquaUILayoutInfo;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.AquaUIPainter.ScrollBarKnobWidget;
 import org.violetlib.jnr.aqua.ScrollBarConfiguration;
+import org.violetlib.jnr.impl.Colors;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
+
+import org.jetbrains.annotations.*;
 
 /**
 	Simulates the rendering of legacy scroll bars.
@@ -35,27 +35,8 @@ public class LegacyScrollBarPainterExtension
 	private final @NotNull AquaUILayoutInfo uiLayout;
 	private final @NotNull ScrollBarConfiguration g;
 	private final boolean showThumb;
-	private final boolean isLight;
-	private final boolean isHighContrast;
 	private final boolean isRollover;
-
-	// the light style is used in dark mode and vice versa
-
-	private final Color LIGHT_THUMB = new Color(255, 255, 255, 80);
-	private final Color LIGHT_THUMB_BORDER = new Color(0, 0, 0, 26);
-	private final Color LIGHT_TRACK = new Color(68, 68, 68, 217);
-	private final Color LIGHT_TRACK_BORDER = new Color(63, 63, 63, 217);
-	private final Color LIGHT_ROLLOVER_THUMB = new Color(169, 169, 169, 235);
-	private final Color LIGHT_ROLLOVER_THUMB_BORDER = LIGHT_THUMB_BORDER; // new Color(59, 59, 59, 217);
-
-	private final Color LIGHT_TRACK_BORDER_HIGH_CONTRAST = LIGHT_TRACK_BORDER;	// TBD
-
-	private final Color DARK_THUMB = new Color(0, 0, 0, 56);
-	private final Color DARK_TRACK = new Color(250, 250, 250);
-	private final Color DARK_TRACK_BORDER = new Color(237, 237, 237);
-	private final Color DARK_ROLLOVER_THUMB = new Color(0, 0, 0, 128);
-
-	private final Color DARK_TRACK_BORDER_HIGH_CONTRAST = new Color(200, 200, 200);
+	private final @NotNull Colors colors;
 
 	public LegacyScrollBarPainterExtension(@NotNull AquaUILayoutInfo uiLayout,
 																				 @NotNull ScrollBarConfiguration g,
@@ -63,10 +44,10 @@ public class LegacyScrollBarPainterExtension
 	{
 		this.uiLayout = uiLayout;
 		this.g = g;
-		this.isLight = appearance != null && appearance.isDark();
-		this.isHighContrast = appearance != null && appearance.isHighContrast();
+		boolean isDark = appearance != null && appearance.isDark();
 		this.showThumb = g.getKnobWidget() != ScrollBarKnobWidget.NONE;
 		isRollover = g.getState() == AquaUIPainter.State.ROLLOVER;
+		colors = Colors.getColors(appearance);
 	}
 
 	@Override
@@ -79,45 +60,35 @@ public class LegacyScrollBarPainterExtension
 
 		{
 			// paint the track
-			Rectangle2D r = new Rectangle2D.Float(0, 0, width, height);
-			r.setFrameFromCenter(r.getCenterX(), r.getCenterY(), r.getMinX(), r.getMinY());
-
+			Rectangle2D bounds = new Rectangle2D.Float(0, 0, width, height);
 			g.setColor(getTrackBackgroundColor());
-			g.fill(r);
+			g.fill(bounds);
 
 			// The border is painted only on the long edges
-
-			float borderThickness = getTrackBorderThickness();
-			Color borderColor = getTrackBorderColor();
-
-			if (isLight) {
-				Rectangle2D inner = new Rectangle2D.Float(0, 0, width, height);
+			Color innerBorderColor = getInnerBorderColor();
+			Color outerBorderColor = getOuterBorderColor();
+			if (innerBorderColor != null || outerBorderColor != null) {
+				int w = (int) width;
+				int h = (int) height;
 				if (isVertical) {
-					inner.setFrameFromCenter(r.getCenterX(), r.getCenterY(), r.getMinX() + borderThickness, r.getMinY());
+					if (innerBorderColor != null) {
+						g.setColor(innerBorderColor);
+						g.fillRect(0, 0, 1, h);
+					}
+					if (outerBorderColor != null) {
+						g.setColor(outerBorderColor);
+						g.fillRect(w-1, 0, 1, h);
+					}
 				} else {
-					inner.setFrameFromCenter(r.getCenterX(), r.getCenterY(), r.getMinX(), r.getMinY() + borderThickness);
+					if (innerBorderColor != null) {
+						g.setColor(innerBorderColor);
+						g.fillRect(0, 0, w, 1);
+					}
+					if (outerBorderColor != null) {
+						g.setColor(outerBorderColor);
+						g.fillRect(0, h-1, w, 1);
+					}
 				}
-				Rectangle2D border = r.createIntersection(inner);
-				g.setColor(borderColor);
-				g.fill(border);
-
-			} else {
-				double o = borderThickness / 2;
-				Path2D borderPath = new Path2D.Float();
-				if (isVertical) {
-					borderPath.moveTo(r.getX() + o, r.getY() + o);
-					borderPath.lineTo(r.getX() + o, r.getY() + r.getHeight() - o);
-					borderPath.moveTo(r.getX() + r.getWidth() - o, r.getY() + o);
-					borderPath.lineTo(r.getX() + r.getWidth() - o, r.getY() + r.getHeight() - o);
-				} else {
-					borderPath.moveTo(r.getX() + o, r.getY() + o);
-					borderPath.lineTo(r.getX() + r.getWidth() - o, r.getY() + o);
-					borderPath.moveTo(r.getX() + o, r.getY() + r.getHeight() - o);
-					borderPath.lineTo(r.getX() + r.getWidth() - o, r.getY() + r.getHeight() - o);
-				}
-				g.setColor(borderColor);
-				g.setStroke(new BasicStroke(borderThickness));
-				g.draw(borderPath);
 			}
 		}
 
@@ -134,7 +105,8 @@ public class LegacyScrollBarPainterExtension
 				Shape thumbBorderShape = createThumbShape(width, height);
 				g.clip(thumbShape);
 				if (false) {
-					g.clip(new Rectangle2D.Float(0, 0, width / 2, height / 2)); // for testing
+					// for testing
+					g.clip(new Rectangle2D.Float(0, 0, width / 2, height / 2));
 				}
 				g.draw(thumbBorderShape);
 			}
@@ -156,23 +128,20 @@ public class LegacyScrollBarPainterExtension
 		if (isVertical) {
 			double w = width - leftTop - rightBottom;
 			return new RoundRectangle2D.Double(leftTop, thumbBounds.getY(), w, thumbBounds.getHeight(), w, w);
-
 		} else {
 			double h = height - leftTop - rightBottom;
 			return new RoundRectangle2D.Double(thumbBounds.getX(), leftTop, thumbBounds.getWidth(), h, h, h);
 		}
 	}
 
-	protected @NotNull Color getTrackBorderColor()
+	protected @Nullable Color getInnerBorderColor()
 	{
-		return isLight
-						 ? (isHighContrast ? LIGHT_TRACK_BORDER_HIGH_CONTRAST : LIGHT_TRACK_BORDER)
-						 : (isHighContrast ? DARK_TRACK_BORDER_HIGH_CONTRAST : DARK_TRACK_BORDER);
+		return colors.getOptional("legacyScrollBarInnerBorder");
 	}
 
-	protected float getTrackBorderThickness()
+	protected @Nullable Color getOuterBorderColor()
 	{
-		return isLight ? 1f : 0.8f;
+		return colors.getOptional("legacyScrollBarOuterBorder");
 	}
 
 	protected float getThumbBorderThickness()
@@ -182,16 +151,28 @@ public class LegacyScrollBarPainterExtension
 
 	protected @NotNull Color getTrackBackgroundColor()
 	{
-		return isLight ? LIGHT_TRACK : DARK_TRACK;
+		return colors.get("legacyScrollBarTrack");
 	}
 
 	protected @NotNull Color getThumbColor()
 	{
-		return isLight ? (isRollover ? LIGHT_ROLLOVER_THUMB : LIGHT_THUMB) : (isRollover ? DARK_ROLLOVER_THUMB : DARK_THUMB);
+		if (isRollover) {
+			Color c = colors.getOptional("legacyScrollBarThumb_rollover");
+			if (c != null) {
+				return c;
+			}
+		}
+		return colors.get("legacyScrollBarThumb");
 	}
 
 	protected @Nullable Color getThumbBorderColor()
 	{
-		return isLight ? (isRollover ? LIGHT_ROLLOVER_THUMB_BORDER : LIGHT_THUMB_BORDER) : null;
+		if (isRollover) {
+			Color c = colors.getOptional("legacyScrollBarThumbBorder_rollover");
+			if (c != null) {
+				return c;
+			}
+		}
+		return colors.getOptional("legacyScrollBarThumbBorder");
 	}
 }

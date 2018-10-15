@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -12,8 +12,6 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
-
-import org.jetbrains.annotations.*;
 
 import org.violetlib.geom.LinearBounds;
 import org.violetlib.jnr.Insetter;
@@ -28,6 +26,8 @@ import org.violetlib.jnr.impl.FloatingInsetter1;
 import org.violetlib.jnr.impl.Insetter1;
 import org.violetlib.jnr.impl.Insetters;
 import org.violetlib.jnr.impl.JNRUtils;
+
+import org.jetbrains.annotations.*;
 
 import static org.violetlib.jnr.aqua.AquaUIPainter.*;
 import static org.violetlib.jnr.impl.JNRUtils.*;
@@ -661,8 +661,8 @@ public class YosemiteLayoutInfo
 				return BasicLayoutInfo.createFixedWidth(hasTickMarks ? size(sz, 24, 18, 18) : size(sz, 18, 14, 14));
 
 			case SLIDER_CIRCULAR:
-				int width = hasTickMarks ? size(sz, 32, 22, 22) : size(sz, 24, 18, 18);
-				int height = hasTickMarks ? size(sz, 32, 22, 22) : size(sz, 25, 19, 19);
+				int width = hasTickMarks ? size(sz, 36, 25, 25) : size(sz, 28, 21, 21);
+				int height = hasTickMarks ? size(sz, 36, 25, 25) : size(sz, 28, 21, 21);
 				return BasicLayoutInfo.createFixed(width, height);
 
 			default:

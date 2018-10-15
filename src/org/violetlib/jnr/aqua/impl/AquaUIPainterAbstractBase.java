@@ -8,11 +8,11 @@
 
 package org.violetlib.jnr.aqua.impl;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
-
-import org.jetbrains.annotations.*;
+import java.util.Map;
 
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
@@ -23,8 +23,11 @@ import org.violetlib.jnr.aqua.PopupButtonLayoutConfiguration;
 import org.violetlib.jnr.aqua.ScrollBarThumbConfiguration;
 import org.violetlib.jnr.aqua.ScrollBarThumbLayoutConfiguration;
 import org.violetlib.jnr.aqua.SliderLayoutConfiguration;
+import org.violetlib.jnr.impl.Colors;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.vappearances.VAppearance;
+
+import org.jetbrains.annotations.*;
 
 /**
 	An abstract base class containing common code that supports layout but not rendering.
@@ -78,6 +81,13 @@ public abstract class AquaUIPainterAbstractBase
 	public void setAlignmentEnabled(boolean b)
 	{
 		isAlignmentEnabled = b;
+	}
+
+	@Override
+	public @NotNull Map<String,Color> getColors(@NotNull VAppearance appearance)
+	{
+		Colors colors = Colors.getColors(appearance);
+		return colors.getColors();
 	}
 
 	@Override
@@ -174,7 +184,7 @@ public abstract class AquaUIPainterAbstractBase
 		@param g The slider layout configuration.
 		@param thumbPosition The thumb position.
 		@return the X coordinate of the thumb center, if the slider is horizontal, or the Y coordinate of the thumb center,
-			if the slider is vertical.
+		if the slider is vertical.
 	*/
 
 	public final double getSliderThumbCenter(@NotNull Rectangle2D bounds,
@@ -228,8 +238,8 @@ public abstract class AquaUIPainterAbstractBase
 	}
 
 	/**
-	 	Return the configured bounds adjusted for the alignment that is required when the layout bounds exceeds one or more
-	 	fixed sizes.
+		Return the configured bounds adjusted for the alignment that is required when the layout bounds exceeds one or more
+		fixed sizes.
 	*/
 
 	protected @NotNull Rectangle2D getCenteredBounds(@Nullable LayoutInfo layoutInfo)
