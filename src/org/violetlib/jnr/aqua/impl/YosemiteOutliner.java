@@ -25,6 +25,7 @@ import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 import org.violetlib.jnr.aqua.AquaUIPainter.SliderWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.TextFieldWidget;
 import org.violetlib.jnr.aqua.*;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 import org.jetbrains.annotations.*;
 
@@ -32,7 +33,7 @@ import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
 import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.*;
 
 /**
-	Provides outlines for widgets that can be used to draw focus rings. This version for OS 10.10 (Yosemite).
+	Provides outlines for widgets that can be used to draw focus rings. This version for macOS 10.10+.
 */
 
 public class YosemiteOutliner
@@ -259,6 +260,8 @@ public class YosemiteOutliner
 	@Override
 	protected @Nullable Shape getComboBoxOutline(@NotNull Rectangle2D bounds, @NotNull ComboBoxLayoutConfiguration g)
 	{
+		int platformVersion = JNRPlatformUtils.getPlatformVersion();
+
 		double x = bounds.getX();
 		double y = bounds.getY();
 		double width = bounds.getWidth();
@@ -283,6 +286,12 @@ public class YosemiteOutliner
 
 		} else if (widget == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED || widget == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
 			double corner = 4;
+			if (platformVersion >= 101400) {
+				x += 0.5f;
+				width -= 1;
+				height -= 1;
+				corner = 8;
+			}
 			return new GeneralRoundRectangle(x, y, width, height, corner, corner, corner, corner, corner, corner, corner, corner);
 
 		} else {
