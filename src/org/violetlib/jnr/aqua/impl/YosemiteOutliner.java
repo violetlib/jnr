@@ -286,10 +286,12 @@ public class YosemiteOutliner
 
 		} else if (widget == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED || widget == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
 			double corner = 4;
-			if (platformVersion >= 101400) {
+			if (platformVersion >= 101300) {
 				x += 0.5f;
 				width -= 1;
 				height -= 1;
+				corner = 8;
+			} else if (platformVersion >= 101100) {
 				corner = 8;
 			}
 			return new GeneralRoundRectangle(x, y, width, height, corner, corner, corner, corner, corner, corner, corner, corner);
