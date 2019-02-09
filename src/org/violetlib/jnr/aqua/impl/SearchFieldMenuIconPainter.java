@@ -9,7 +9,6 @@
 package org.violetlib.jnr.aqua.impl;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
@@ -17,6 +16,7 @@ import java.awt.geom.Rectangle2D;
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.TextFieldConfiguration;
+import org.violetlib.jnr.impl.Colors;
 import org.violetlib.jnr.impl.JNRUtils;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
@@ -24,7 +24,7 @@ import org.violetlib.vappearances.VAppearance;
 import org.jetbrains.annotations.*;
 
 /**
-	Simulates the rendering of the search field menu icon on Yosemite.
+	Simulates the rendering of the search field menu icon.
 */
 
 public class SearchFieldMenuIconPainter
@@ -32,26 +32,26 @@ public class SearchFieldMenuIconPainter
 {
 	protected final @NotNull TextFieldConfiguration tg;
 	protected final @NotNull Insetter searchButtonInsets;
-	protected final @NotNull VAppearance appearance;
-
-	protected Color ICON_COLOR = new Color(89, 89, 89);
-	protected Color DARK_ICON_COLOR = new Color(212, 212, 212);
+	protected final @NotNull Colors colors;
 
 	public SearchFieldMenuIconPainter(@NotNull TextFieldConfiguration g,
 																		@NotNull Insetter searchButtonInsets,
-																		@NotNull VAppearance appearance
-																		)
+																		@Nullable VAppearance appearance
+	)
 	{
 		this.searchButtonInsets = searchButtonInsets;
 		this.tg = g;
-		this.appearance = appearance;
+		this.colors = Colors.getColors(appearance);
 	}
 
 	@Override
 	public void paint(@NotNull Graphics2D g, float width, float height)
 	{
 		Rectangle2D bounds = searchButtonInsets.applyToBounds2D(new Rectangle2D.Float(0, 0, width, height));
-		g.setColor(appearance.isDark() ? DARK_ICON_COLOR : ICON_COLOR);
+
+		AquaUIPainter.State st = tg.getState();
+		boolean isActive = st == AquaUIPainter.State.ACTIVE || st == AquaUIPainter.State.PRESSED || st == AquaUIPainter.State.ROLLOVER;
+		g.setColor(isActive ? colors.get("searchFieldIcon") : colors.get("searchFieldIcon_inactive"));
 
 		AquaUIPainter.Size sz = tg.getSize();
 

@@ -28,7 +28,6 @@ import org.violetlib.jnr.aqua.impl.ThinSplitPaneDividerPainterExtension;
 import org.violetlib.jnr.impl.AdjustDarkToolbarButtonRenderer;
 import org.violetlib.jnr.impl.BasicRenderer;
 import org.violetlib.jnr.impl.DarkGroupBoxRenderer;
-import org.violetlib.jnr.impl.DarkTabButtonRenderer;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.jnr.impl.Renderer;
@@ -47,8 +46,8 @@ public class AugmentedCoreUIPainter
 	extends CoreUIPainter
 {
 	/**
-		Create a painter that uses Core UI rendering by way of the Java Runtime Support framework, supplemented with
-		Java rendering.
+		Create a painter that uses Core UI rendering by way of the Java Runtime Support framework, supplemented with Java
+		rendering.
 	*/
 
 	public AugmentedCoreUIPainter()
@@ -59,7 +58,7 @@ public class AugmentedCoreUIPainter
 		Create a painter that uses Core UI rendering, supplemented with Java rendering.
 
 		@param useJRS If true, the Java Runtime Support framework is used to access Core UI rendering. If false, a private
-			method is used to access Core UI rendering.
+		method is used to access Core UI rendering.
 	*/
 
 	public AugmentedCoreUIPainter(boolean useJRS)
@@ -152,15 +151,6 @@ public class AugmentedCoreUIPainter
 				assert br != null;
 				AdjustDarkToolbarButtonRenderer rr = new AdjustDarkToolbarButtonRenderer(br);
 				r = Renderer.create(rr, r.getRendererDescription());
-			} else if (w == BUTTON_TAB) {
-				// workaround for tab buttons painted with a translucent background
-				Renderer mr = super.getSegmentedButtonMaskRenderer(g);
-				BasicRenderer bmr = mr.getBasicRenderer();
-				assert bmr != null;
-				BasicRenderer br = r.getBasicRenderer();
-				assert br != null;
-				DarkTabButtonRenderer rr = new DarkTabButtonRenderer(bmr, br);
-				r = Renderer.create(rr, mr.getRendererDescription());
 			}
 		}
 
@@ -172,9 +162,9 @@ public class AugmentedCoreUIPainter
 	}
 
 	/**
-		Identify the possible need for adjustments to paint proper dividers in a segmented button.
-		The response is conservative. It implies an adjustment may be needed, but in actual practice it
-		might not. The issue is that the display scale factor is not known at this time.
+		Identify the possible need for adjustments to paint proper dividers in a segmented button. The response is
+		conservative. It implies an adjustment may be needed, but in actual practice it might not. The issue is that the
+		display scale factor is not known at this time.
 	*/
 
 	protected boolean isCustomSegmentedButtonRendererNeeded(@NotNull SegmentedButtonConfiguration g)
@@ -184,13 +174,12 @@ public class AugmentedCoreUIPainter
 		}
 
 		return g.getLeftDividerState() != SegmentedButtonConfiguration.DividerState.NONE
-			|| g.getRightDividerState() != SegmentedButtonConfiguration.DividerState.NONE;
+						 || g.getRightDividerState() != SegmentedButtonConfiguration.DividerState.NONE;
 	}
 
 	/**
-		This class defines the possible adjustments needed for a segmented button.
-		Adjustments are needed only when dividers are requested.
-		The adjustments involve painting a missing divider or extending a divider that is not wide enough.
+		This class defines the possible adjustments needed for a segmented button. Adjustments are needed only when dividers
+		are requested. The adjustments involve painting a missing divider or extending a divider that is not wide enough.
 	*/
 
 	protected static class SegmentedButtonAdjustment
@@ -479,7 +468,7 @@ public class AugmentedCoreUIPainter
 	{
 		// Do not use the native renderer. Use our simulation instead.
 
-		PainterExtension px = new TableColumnHeaderCellPainterExtension(g);
+		PainterExtension px = new TableColumnHeaderCellPainterExtension(g, appearance);
 		return Renderer.create(px);
 	}
 
@@ -517,7 +506,7 @@ public class AugmentedCoreUIPainter
 		if (sw == ScrollBarWidget.LEGACY) {
 			return Renderer.create(new LegacyScrollBarPainterExtension(uiLayout, g, appearance));
 		} else {
-			return Renderer.create(new OverlayScrollBarPainterExtension(uiLayout, g));
+			return Renderer.create(new OverlayScrollBarPainterExtension(uiLayout, g, appearance));
 		}
 	}
 

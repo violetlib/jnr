@@ -396,7 +396,7 @@ static void installContentView(NSView *view, BOOL inToolbar)
     [currentWindow setToolbar: inToolbar];
     [currentWindow setView: view];
     if (view) {
-        view.appearance = configuredAppearance;
+        currentWindow.appearance = configuredAppearance;
         [currentWindow displayIfNeeded];
     }
 }
@@ -576,6 +576,16 @@ static void setControlState(NSView* v, int st)
 static void displayView(NSView *view, NSGraphicsContext *gc, NSRect frameRect)
 {
     if (useLayer && view.layer) {
+        [view.layer display];
+        [view.layer renderInContext: gc.CGContext];
+    } else {
+        [view displayRectIgnoringOpacity: frameRect inContext: gc];
+    }
+}
+
+static void displayViewPreferringLayer(NSView *view, NSGraphicsContext *gc, NSRect frameRect)
+{
+    if (view.layer) {
         [view.layer display];
         [view.layer renderInContext: gc.CGContext];
     } else {

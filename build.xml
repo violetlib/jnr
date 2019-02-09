@@ -9,7 +9,7 @@
     </target>
 
     <target name="install" depends="build">
-        <copy todir="${user.home}/build/idea/production/VAquaRendering/" file="release/full/out/jni/libVAquaRendering.dylib"/>
+        <copy todir="${user.home}/build/out/production/VAquaRendering/" file="release/full/out/jni/libVAquaRendering.dylib"/>
     </target>
 
 </project>

@@ -13,12 +13,12 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.SplitPaneDividerConfiguration;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
+
+import org.jetbrains.annotations.*;
 
 /**
 	Simulates the rendering of a thin style split pane divider.
@@ -30,7 +30,7 @@ public class ThinSplitPaneDividerPainterExtension
 	protected final @NotNull SplitPaneDividerConfiguration dg;
 	protected final @NotNull Color dividerColor;
 
-	protected static final Color COLOR = new Color(128, 128, 128, 80);
+	protected static final Color DEFAULT_COLOR = new Color(128, 128, 128, 80);
 
 	public ThinSplitPaneDividerPainterExtension(@NotNull SplitPaneDividerConfiguration g,
 																							@Nullable VAppearance appearance)
@@ -42,7 +42,7 @@ public class ThinSplitPaneDividerPainterExtension
 	private @NotNull Color determineDividerColor(@NotNull SplitPaneDividerConfiguration g,
 																							 @Nullable VAppearance appearance)
 	{
-		return appearance != null ? appearance.getColors().get("separator") : COLOR;
+		return appearance != null ? appearance.getColors().get("separator") : DEFAULT_COLOR;
 	}
 
 	@Override

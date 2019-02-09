@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2018 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -12,20 +12,23 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Shape;
-import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
-
-import org.jetbrains.annotations.*;
 
 import org.violetlib.jnr.aqua.AquaUILayoutInfo;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.AquaUIPainter.ScrollBarKnobWidget;
 import org.violetlib.jnr.aqua.ScrollBarConfiguration;
+import org.violetlib.jnr.impl.Colors;
 import org.violetlib.jnr.impl.PainterExtension;
+import org.violetlib.vappearances.VAppearance;
+
+import org.jetbrains.annotations.*;
+
+import static org.violetlib.jnr.aqua.AquaUIPainter.ScrollBarKnobWidget.*;
 
 /**
-	Simulates the rendering of Yosemite overlay scroll bars.
+	Simulates the rendering of overlay scroll bars.
 */
 
 public class OverlayScrollBarPainterExtension
@@ -35,24 +38,38 @@ public class OverlayScrollBarPainterExtension
 	private final @NotNull ScrollBarConfiguration g;
 	private final @NotNull ScrollBarKnobWidget kw;
 	private final boolean isRollover;
+	private final @NotNull Colors colors;
 
-	private final Color LIGHT_TRACK = new Color(68, 68, 68, 217);
-	private final Color LIGHT_TRACK_BORDER = new Color(63, 63, 63, 217);
-	private final Color LIGHT_THUMB = new Color(255, 255, 255, 128);
-	private final Color LIGHT_THUMB_BORDER = new Color(0, 0, 0, 26);
-	private final Color LIGHT_ROLLOVER_THUMB = new Color(169, 169, 169, 235);
-	private final Color LIGHT_ROLLOVER_THUMB_BORDER = new Color(59, 59, 59, 217);
-
-	private final Color DARK_THUMB = new Color(0, 0, 0, 128);
-	private final Color DARK_TRACK = new Color(250, 250, 250, 191);
-	private final Color DARK_TRACK_BORDER = new Color(220, 220, 220, 200);
-
-	public OverlayScrollBarPainterExtension(@NotNull AquaUILayoutInfo uiLayout, @NotNull ScrollBarConfiguration g)
+	public OverlayScrollBarPainterExtension(@NotNull AquaUILayoutInfo uiLayout,
+																					@NotNull ScrollBarConfiguration g,
+																					@Nullable VAppearance appearance)
 	{
 		this.uiLayout = uiLayout;
 		this.g = g;
 		this.kw = g.getKnobWidget();
 		this.isRollover = g.getWidget() == AquaUIPainter.ScrollBarWidget.OVERLAY_ROLLOVER;
+
+		// Overlay scroll bars support a light and dark style. The light style is the default for dark mode.
+		// The dark style is default for light mode. Both styles are altered when the high contrast option
+		// is enabled.
+
+		boolean isDark = getCorrespondingAppearanceIsDark(appearance, kw);
+		boolean isHighContrast = appearance != null && appearance.isHighContrast();
+		this.colors = Colors.getColors(isDark, isHighContrast);
+	}
+
+	private boolean getCorrespondingAppearanceIsDark(@Nullable VAppearance appearance, @NotNull ScrollBarKnobWidget w)
+	{
+		if (w == DEFAULT) {
+			// Use the default style for the appearance.
+			return appearance != null && appearance.isDark();
+		} else if (w == LIGHT) {
+			// The light style is defined by the dark appearance
+			return true;
+		} else {
+			// The dark style is defined by the light appearance.
+			return false;
+		}
 	}
 
 	@Override
@@ -65,38 +82,35 @@ public class OverlayScrollBarPainterExtension
 
 		if (isRollover) {
 			// In the rollover state, we paint a track
-			Rectangle2D r = new Rectangle2D.Float(0, 0, width, height);
-			r.setFrameFromCenter(r.getCenterX(), r.getCenterY(), r.getMinX(), r.getMinY());
-
+			Rectangle2D bounds = new Rectangle2D.Float(0, 0, width, height);
 			g.setColor(getTrackBackgroundColor());
-			g.fill(r);
+			g.fill(bounds);
 
-			float borderThickness = getTrackBorderThickness();
-
-			if (kw == ScrollBarKnobWidget.LIGHT) {
-				Rectangle2D inner = new Rectangle2D.Float(0, 0, width, height);
-				inner.setFrameFromCenter(r.getCenterX(), r.getCenterY(), r.getMinX() + borderThickness, r.getMinY() + borderThickness);
-				Rectangle2D border = r.createIntersection(inner);
-				g.setColor(getTrackBorderColor());
-				g.fill(border);
-
-			} else {
-				double o = borderThickness / 2;
-				Path2D borderPath = new Path2D.Float();
+			// The border is painted only on the long edges
+			Color innerBorderColor = getInnerBorderColor();
+			Color outerBorderColor = getOuterBorderColor();
+			if (innerBorderColor != null || outerBorderColor != null) {
+				int w = (int) width;
+				int h = (int) height;
 				if (isVertical) {
-					borderPath.moveTo(r.getX() + o, r.getY() + o);
-					borderPath.lineTo(r.getX() + o, r.getY() + r.getHeight() - o);
-					borderPath.moveTo(r.getX() + r.getWidth() - o, r.getY() + o);
-					borderPath.lineTo(r.getX() + r.getWidth() - o, r.getY() + r.getHeight() - o);
+					if (innerBorderColor != null) {
+						g.setColor(innerBorderColor);
+						g.fillRect(0, 0, 1, h);
+					}
+					if (outerBorderColor != null) {
+						g.setColor(outerBorderColor);
+						g.fillRect(w-1, 0, 1, h);
+					}
 				} else {
-					borderPath.moveTo(r.getX() + o, r.getY() + o);
-					borderPath.lineTo(r.getX() + r.getWidth() - o, r.getY() + o);
-					borderPath.moveTo(r.getX() + o, r.getY() + r.getHeight() - o);
-					borderPath.lineTo(r.getX() + r.getWidth() - o, r.getY() + r.getHeight() - o);
+					if (innerBorderColor != null) {
+						g.setColor(innerBorderColor);
+						g.fillRect(0, 0, w, 1);
+					}
+					if (outerBorderColor != null) {
+						g.setColor(outerBorderColor);
+						g.fillRect(0, h-1, w, 1);
+					}
 				}
-				g.setColor(getTrackBorderColor());
-				g.setStroke(new BasicStroke(borderThickness));
-				g.draw(borderPath);
 			}
 		}
 
@@ -142,24 +156,14 @@ public class OverlayScrollBarPainterExtension
 		}
 	}
 
-	protected @NotNull Color getTrackBorderColor()
+	protected @Nullable Color getInnerBorderColor()
 	{
-		switch (kw) {
-			case LIGHT:
-				return LIGHT_TRACK_BORDER;
-			default:
-				return DARK_TRACK_BORDER;
-		}
+		return colors.get("overlayScrollTrackBorder");
 	}
 
-	protected float getTrackBorderThickness()
+	protected @Nullable Color getOuterBorderColor()
 	{
-		switch (kw) {
-			case LIGHT:
-				return 1f;
-			default:
-				return 0.8f;
-		}
+		return colors.get("overlayScrollTrackBorder");
 	}
 
 	protected float getThumbBorderThickness()
@@ -174,31 +178,30 @@ public class OverlayScrollBarPainterExtension
 
 	protected @NotNull Color getTrackBackgroundColor()
 	{
-		switch (kw) {
-			case LIGHT:
-				return LIGHT_TRACK;
-			default:
-				return DARK_TRACK;
-		}
+		return colors.get("overlayScrollTrack");
 	}
 
 	protected @NotNull Color getThumbColor()
 	{
-		switch (kw) {
-			case LIGHT:
-				return isRollover ? LIGHT_ROLLOVER_THUMB : LIGHT_THUMB;
-			default:
-				return DARK_THUMB;
+		if (isRollover) {
+			Color c = colors.getOptional("overlayThumb_rollover");
+			if (c != null) {
+				return c;
+			}
 		}
+
+		return colors.get("overlayThumb");
 	}
 
 	protected @Nullable Color getThumbBorderColor()
 	{
-		switch (kw) {
-			case LIGHT:
-				return isRollover ? LIGHT_ROLLOVER_THUMB_BORDER : LIGHT_THUMB_BORDER;
-			default:
-				return null;
+		if (isRollover) {
+			Color c = colors.getOptional("overlayThumbBorder_rollover");
+			if (c != null) {
+				return c;
+			}
 		}
+
+		return colors.getOptional("overlayThumbBorder");
 	}
 }

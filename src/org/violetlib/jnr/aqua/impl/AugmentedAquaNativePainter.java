@@ -36,7 +36,7 @@ public class AugmentedAquaNativePainter
 	{
 		// Do not use the native renderer. Use our simulation instead.
 
-		PainterExtension px = new TableColumnHeaderCellPainterExtension(g);
+		PainterExtension px = new TableColumnHeaderCellPainterExtension(g, appearance);
 		return Renderer.create(px);
 	}
 
@@ -54,7 +54,7 @@ public class AugmentedAquaNativePainter
 
 	protected @Nullable PainterExtension getTitleBarButtonPainter(@NotNull TitleBarConfiguration g)
 	{
-		return new TitleBarPainterExtension(getTitleBarLayoutInfo(), g);
+		return new TitleBarPainterExtension(getTitleBarLayoutInfo(), g, appearance);
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class AugmentedAquaNativePainter
 		if (sw == ScrollBarWidget.LEGACY) {
 			return super.getScrollBarRenderer(g);
 		} else {
-			PainterExtension px = new OverlayScrollBarPainterExtension(uiLayout, g);
+			PainterExtension px = new OverlayScrollBarPainterExtension(uiLayout, g, appearance);
 			return Renderer.create(px);
 		}
 	}
