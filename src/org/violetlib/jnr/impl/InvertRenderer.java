@@ -11,29 +11,29 @@ package org.violetlib.jnr.impl;
 import org.jetbrains.annotations.*;
 
 /**
-	A basic renderer that inverts the output of a specified basic renderer.
+  A basic renderer that inverts the output of a specified basic renderer.
 */
 
 public class InvertRenderer
-	extends PostProcessedRenderer
+  extends PostProcessedRenderer
 {
-	private final float alphaMultiplier;
+    private final float alphaMultiplier;
 
-	public InvertRenderer(@NotNull BasicRenderer r, float alphaMultiplier)
-	{
-		super(r);
+    public InvertRenderer(@NotNull BasicRenderer r, float alphaMultiplier)
+    {
+        super(r);
 
-		this.alphaMultiplier = alphaMultiplier;
-	}
+        this.alphaMultiplier = alphaMultiplier;
+    }
 
-	@Override
-	protected int processPixel(int row, int col, int red, int green, int blue, int alpha)
-	{
-		red = 255 - red;
-		green = 255 - green;
-		blue = 255 - blue;
-		alpha = (int) (alpha * alphaMultiplier);
+    @Override
+    protected int processPixel(int row, int col, int red, int green, int blue, int alpha)
+    {
+        red = 255 - red;
+        green = 255 - green;
+        blue = 255 - blue;
+        alpha = (int) (alpha * alphaMultiplier);
 
-		return createPixel(red, green, blue, alpha);
-	}
+        return createPixel(red, green, blue, alpha);
+    }
 }

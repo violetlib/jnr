@@ -10,31 +10,31 @@ package org.violetlib.jnr.impl;
 
 import java.awt.Graphics;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.Painter;
+
+import org.jetbrains.annotations.*;
 
 /**
 
 */
 
 public class OffsetPainter
-	implements Painter
+  implements Painter
 {
-	private final @NotNull Painter p;
-	private final float xOffset;
-	private final float yOffset;
+    private final @NotNull Painter p;
+    private final float xOffset;
+    private final float yOffset;
 
-	public OffsetPainter(@NotNull Painter p, float xOffset, float yOffset)
-	{
-		this.p = p;
-		this.xOffset = xOffset;
-		this.yOffset = yOffset;
-	}
+    public OffsetPainter(@NotNull Painter p, float xOffset, float yOffset)
+    {
+        this.p = p;
+        this.xOffset = xOffset;
+        this.yOffset = yOffset;
+    }
 
-	@Override
-	public void paint(@NotNull Graphics g, float x, float y)
-	{
-		p.paint(g, x + xOffset, y + yOffset);
-	}
+    @Override
+    public void paint(@NotNull Graphics g, float x, float y)
+    {
+        p.paint(g, x + xOffset, y + yOffset);
+    }
 }

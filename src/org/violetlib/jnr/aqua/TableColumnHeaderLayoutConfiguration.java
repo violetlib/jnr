@@ -10,61 +10,65 @@ package org.violetlib.jnr.aqua;
 
 import java.util.Objects;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.aqua.AquaUIPainter.UILayoutDirection;
 
+import org.jetbrains.annotations.*;
+
 /**
-	A layout configuration for a table column header.
+  A layout configuration for a table column header.
 */
 
 public class TableColumnHeaderLayoutConfiguration
-	extends LayoutConfiguration
+  extends LayoutConfiguration
 {
-	private final @NotNull UILayoutDirection ld;
-	private final boolean isSortable;
+    private final @NotNull UILayoutDirection ld;
+    private final boolean isSortable;
 
-	public TableColumnHeaderLayoutConfiguration(@NotNull UILayoutDirection ld, boolean isSortable)
-	{
-		this.ld = ld;
-		this.isSortable = isSortable;
-	}
+    public TableColumnHeaderLayoutConfiguration(@NotNull UILayoutDirection ld, boolean isSortable)
+    {
+        this.ld = ld;
+        this.isSortable = isSortable;
+    }
 
-	public @NotNull UILayoutDirection getLayoutDirection()
-	{
-		return ld;
-	}
+    public @NotNull UILayoutDirection getLayoutDirection()
+    {
+        return ld;
+    }
 
-	public boolean isLeftToRight()
-	{
-		return ld == UILayoutDirection.LEFT_TO_RIGHT;
-	}
+    public boolean isLeftToRight()
+    {
+        return ld == UILayoutDirection.LEFT_TO_RIGHT;
+    }
 
-	public boolean isSortable()
-	{
-		return isSortable;
-	}
+    public boolean isSortable()
+    {
+        return isSortable;
+    }
 
-	@Override
-	public boolean equals(@Nullable Object o)
-	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		TableColumnHeaderLayoutConfiguration that = (TableColumnHeaderLayoutConfiguration) o;
-		return ld == that.ld && isSortable == that.isSortable;
-	}
+    @Override
+    public boolean equals(@Nullable Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        TableColumnHeaderLayoutConfiguration that = (TableColumnHeaderLayoutConfiguration) o;
+        return ld == that.ld && isSortable == that.isSortable;
+    }
 
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(ld, isSortable);
-	}
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(ld, isSortable);
+    }
 
-	@Override
-	public @NotNull String toString()
-	{
-		String lds = ld == UILayoutDirection.RIGHT_TO_LEFT ? " RTL" : "";
-		String ss = isSortable ? " - Sortable" : "";
-		return "Table Column Header" + ss + lds;
-	}
+    @Override
+    public @NotNull String toString()
+    {
+        String lds = ld == UILayoutDirection.RIGHT_TO_LEFT ? " RTL" : "";
+        String ss = isSortable ? " - Sortable" : "";
+        return "Table Column Header" + ss + lds;
+    }
 }

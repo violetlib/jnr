@@ -223,9 +223,9 @@ static void windowDebug(NSWindow *w)
 {
     NSRect frame = NSMakeRect(0, 0, 10000, 10000);
     self = [super initWithContentRect: frame
-           			styleMask: style
-           			backing: NSBackingStoreNonretained
-           			defer: YES];
+                            styleMask: style
+                              backing: NSBackingStoreNonretained
+                                defer: YES];
 
     if (self) {
         self.contentView = [[MyContentView alloc] initWithFrame: frame];
@@ -359,31 +359,31 @@ static void initOnMainThread()
     NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
     osVersion = (version.majorVersion * 100 + version.minorVersion) * 100 + version.patchVersion;
 
-	if (!fakeParentWindow) {
-		fakeParentWindow = [[FakeParentWindow alloc] initWithStyle: NSWindowStyleMaskBorderless];
-		currentWindow = fakeParentWindow;
-	}
+    if (!fakeParentWindow) {
+        fakeParentWindow = [[FakeParentWindow alloc] initWithStyle: NSWindowStyleMaskBorderless];
+        currentWindow = fakeParentWindow;
+    }
 
     // A textured window background is needed for textured separated segmented controls and
     // for inactive textured segmented controls.
-	if (!fakeTexturedWindow) {
-		fakeTexturedWindow = [[FakeParentWindow alloc] initWithStyle: NSWindowStyleMaskTexturedBackground];
-	}
+    if (!fakeTexturedWindow) {
+        fakeTexturedWindow = [[FakeParentWindow alloc] initWithStyle: NSWindowStyleMaskTexturedBackground];
+    }
 
-	if (!fakeDocumentWindow) {
-		fakeDocumentWindow = [[FakeParentWindow alloc] initWithStyle:
-		(NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskMiniaturizable|NSWindowStyleMaskResizable)];
-	}
+    if (!fakeDocumentWindow) {
+        fakeDocumentWindow = [[FakeParentWindow alloc] initWithStyle:
+        (NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskMiniaturizable|NSWindowStyleMaskResizable)];
+    }
 
-	if (!myPanel) {
-		NSRect rect = NSMakeRect(0, 0, 10000, 10000);
-		myPanel = [[MyPanel alloc] initWithContentRect: rect
-			styleMask: (NSWindowStyleMaskUtilityWindow|NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskMiniaturizable|NSWindowStyleMaskResizable)
-			backing: NSBackingStoreNonretained
-			defer: YES
-			];
-		myPanel.contentView = [[MyContentView alloc] initWithFrame: rect];
-	}
+    if (!myPanel) {
+        NSRect rect = NSMakeRect(0, 0, 10000, 10000);
+        myPanel = [[MyPanel alloc] initWithContentRect: rect
+            styleMask: (NSWindowStyleMaskUtilityWindow|NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskMiniaturizable|NSWindowStyleMaskResizable)
+            backing: NSBackingStoreNonretained
+            defer: YES
+            ];
+        myPanel.contentView = [[MyContentView alloc] initWithFrame: rect];
+    }
 }
 
 static void initialize()
@@ -419,26 +419,26 @@ static NSGraphicsContext *setupRaw(int *data, int rw, int rh, int w, int h)
 
   //rasterBuffer = (unsigned char *) data;
 
-// 	NSBitmapImageRep *bmpImageRep = [[NSBitmapImageRep alloc]
-// 									  initWithBitmapDataPlanes:NULL
-// 									  pixelsWide:rw
-// 									  pixelsHigh:rh
-// 									  bitsPerSample:8
-// 									  samplesPerPixel:4
-// 									  hasAlpha:YES
-// 									  isPlanar:NO
-// 									  colorSpaceName:NSCalibratedRGBColorSpace
-// 									  bitmapFormat:NSAlphaFirstBitmapFormat
-// 									  bytesPerRow:0
-// 									  bitsPerPixel:0
-// 									  ];
-// 	// There isn't a colorspace name constant for sRGB so retag
-// 	// using the sRGBColorSpace method
-// 	bmpImageRep = [bmpImageRep bitmapImageRepByRetaggingWithColorSpace: [NSColorSpace sRGBColorSpace]];
-// 	// Setting the user size communicates the dpi
-// 	[bmpImageRep setSize:NSMakeSize(w, h)];
-// 	// Create a bitmap context
-// 	currentGraphicsContext = [NSGraphicsContext graphicsContextWithBitmapImageRep:bmpImageRep];
+//     NSBitmapImageRep *bmpImageRep = [[NSBitmapImageRep alloc]
+//                                       initWithBitmapDataPlanes:NULL
+//                                       pixelsWide:rw
+//                                       pixelsHigh:rh
+//                                       bitsPerSample:8
+//                                       samplesPerPixel:4
+//                                       hasAlpha:YES
+//                                       isPlanar:NO
+//                                       colorSpaceName:NSCalibratedRGBColorSpace
+//                                       bitmapFormat:NSAlphaFirstBitmapFormat
+//                                       bytesPerRow:0
+//                                       bitsPerPixel:0
+//                                       ];
+//     // There isn't a colorspace name constant for sRGB so retag
+//     // using the sRGBColorSpace method
+//     bmpImageRep = [bmpImageRep bitmapImageRepByRetaggingWithColorSpace: [NSColorSpace sRGBColorSpace]];
+//     // Setting the user size communicates the dpi
+//     [bmpImageRep setSize:NSMakeSize(w, h)];
+//     // Create a bitmap context
+//     currentGraphicsContext = [NSGraphicsContext graphicsContextWithBitmapImageRep:bmpImageRep];
 
   CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
   currentCGContext = CGBitmapContextCreate(data, rw, rh, 8, rw * 4, colorspace, kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host);
@@ -511,34 +511,34 @@ static void performGraphics(JNIEnv *env, jintArray pixelData, jint rw, jint rh, 
 
 static void setControlSize(NSView* v, int sz)
 {
-	// Large not supported
+    // Large not supported
 
-	NSControlSize size = NSControlSizeRegular;
+    NSControlSize size = NSControlSizeRegular;
 
-	switch (sz)
-	{
-		case MiniSize:
-			size = NSControlSizeMini;
-			break;
-		case SmallSize:
-			size = NSControlSizeSmall;
-			break;
-	}
+    switch (sz)
+    {
+        case MiniSize:
+            size = NSControlSizeMini;
+            break;
+        case SmallSize:
+            size = NSControlSizeSmall;
+            break;
+    }
 
-	if ([v respondsToSelector: @selector(setControlSize:)]) {
-		[(id)v setControlSize: size];
-	} else {
-		if ([v respondsToSelector: @selector(cell)]) {
-			NSCell *cell = [(id)v cell];
-			[(id)cell setControlSize: size];
-		} else {
-			//NSLog(@"setControlSize: is not defined on %@", v);
-		}
-	}
+    if ([v respondsToSelector: @selector(setControlSize:)]) {
+        [(id)v setControlSize: size];
+    } else {
+        if ([v respondsToSelector: @selector(cell)]) {
+            NSCell *cell = [(id)v cell];
+            [(id)cell setControlSize: size];
+        } else {
+            //NSLog(@"setControlSize: is not defined on %@", v);
+        }
+    }
 
-	if ([v respondsToSelector: @selector(setFont:)]) {
-		[(id)v setFont: [NSFont systemFontOfSize: [NSFont systemFontSizeForControlSize: size]]];
-	}
+    if ([v respondsToSelector: @selector(setFont:)]) {
+        [(id)v setFont: [NSFont systemFontOfSize: [NSFont systemFontSizeForControlSize: size]]];
+    }
 }
 
 static void setControlState(NSView* v, int st)
@@ -785,7 +785,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         NSColorWell *view = [[NSColorWell alloc] initWithFrame: frameRect];
         installContentView(view, NO);
         setControlState(view, st);
-        [view setIntegerValue: st == PressedState];		// does not work
+        [view setIntegerValue: st == PressedState];        // does not work
         displayView(view, gc, frameRect);
     });
 
@@ -940,7 +940,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
     // The middle divider inset is the extra width added to the middle segments to account for the dividers other than
     // the first divider.
 
-    float dividerVisualWidth = 1;		// visual width of the dividers
+    float dividerVisualWidth = 1;        // visual width of the dividers
     float dividerLayoutWidth = 1;       // layout width of the dividers
     float outerLeftInset = 0;
     float outerRightInset = 0;
@@ -1523,7 +1523,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         setControlSize(view, sz);
         [view setLabel: @"Text" forSegment: 0];
         [view sizeToFit];
-        result = [view bounds].size.height;		// all segmented controls are fixed height
+        result = [view bounds].size.height;        // all segmented controls are fixed height
 
         // For unknown reasons, this height is too small!
     });
@@ -1795,8 +1795,8 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         [view setButtonBordered: type != 2 /* ARROWS_ONLY */ ];
         [[view cell] setUserInterfaceLayoutDirection: layoutDirection];
         [view setDrawsBackground: drawTextBackground];
-        //[buttonView highlight: st == PressedState];			// does not work
-        //[buttonView setIntegerValue: st == PressedState];		// does not work
+        //[buttonView highlight: st == PressedState];            // does not work
+        //[buttonView setIntegerValue: st == PressedState];        // does not work
         if (type > 0) {
             // INDICATOR_ONLY or ARROWS_ONLY
             NSUserInterfaceLayoutDirection dir = [view userInterfaceLayoutDirection];
@@ -1860,8 +1860,8 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         [[view cell] setBordered: isBordered];
         [[view cell] setUserInterfaceLayoutDirection: layoutDirection];
 
-        //[view highlight: st == PressedState];			// does not work
-        //[view setIntegerValue: st == PressedState];	// does not work
+        //[view highlight: st == PressedState];            // does not work
+        //[view setIntegerValue: st == PressedState];    // does not work
 
         [view setBezelStyle: theBezelStyle];
         [view setButtonType: buttonType];
@@ -2079,8 +2079,8 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         // The design requires that cell dividers on both sides be rendered into the buffer.
         // It does not allow a top border to be rendered into the buffer.
 
-        float leftInset = 12;	// prevent the fake first column from being rendered into the buffer
-        float topInset = 4.49;	// prevent the top border from being rendered into the buffer
+        float leftInset = 12;    // prevent the fake first column from being rendered into the buffer
+        float topInset = 4.49;    // prevent the top border from being rendered into the buffer
         int cellWidth = w - 4;
 
         int cw = w + 1 + 20;
@@ -2127,7 +2127,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
         setControlState(table, state);
 
-        [cell setUserInterfaceLayoutDirection: layoutDirection];	// not working
+        [cell setUserInterfaceLayoutDirection: layoutDirection];    // not working
 
         NSView *view = [table headerView];
 
@@ -2385,7 +2385,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         NSRect frameRect = NSMakeRect(0, 0, w, h);
         installContentView(nil, NO);
 
-        isActive = state == ActiveState;	// only Active and Inactive are supported
+        isActive = state == ActiveState;    // only Active and Inactive are supported
 
         currentWindow = type == 0 ? fakeDocumentWindow : myPanel;
         [currentWindow setFrame: frameRect display:NO];

@@ -17,39 +17,39 @@ import org.violetlib.vappearances.VAppearance;
 import org.jetbrains.annotations.*;
 
 /**
-	A painter that uses a renderer and caches the rendered image. The cache key is based on the renderer configuration.
+  A painter that uses a renderer and caches the rendered image. The cache key is based on the renderer configuration.
 */
 
 public class AquaRenderedPainter
-	extends CachingRendererPainter
+  extends CachingRendererPainter
 {
-	private final @NotNull Configuration g;
-	private final @NotNull VAppearance appearance;
+    private final @NotNull Configuration g;
+    private final @NotNull VAppearance appearance;
 
-	/**
-		Create a widget painter based on a renderer.
+    /**
+      Create a widget painter based on a renderer.
 
-		@param g The widget configuration, which may be used to cache the rendered image.
-		@param r The renderer used to paint the widget.
-		@param width The width of the rendering, in device independent pixels.
-		@param height The height of the rendering, in device independent pixels.
-	*/
+      @param g The widget configuration, which may be used to cache the rendered image.
+      @param r The renderer used to paint the widget.
+      @param width The width of the rendering, in device independent pixels.
+      @param height The height of the rendering, in device independent pixels.
+    */
 
-	public AquaRenderedPainter(@NotNull Configuration g,
-														 @NotNull VAppearance appearance,
-														 @NotNull Renderer r,
-														 float width,
-														 float height)
-	{
-		super(r, width, height);
+    public AquaRenderedPainter(@NotNull Configuration g,
+                               @NotNull VAppearance appearance,
+                               @NotNull Renderer r,
+                               float width,
+                               float height)
+    {
+        super(r, width, height);
 
-		this.g = g;
-		this.appearance = appearance;
-	}
+        this.g = g;
+        this.appearance = appearance;
+    }
 
-	@Override
-	protected @Nullable ImageCache.PixelsKey createKey(int scaleFactor, int rasterWidth, int rasterHeight)
-	{
-		return new AquaPixelsKey(scaleFactor, rasterWidth, rasterHeight, g, appearance);
-	}
+    @Override
+    protected @Nullable ImageCache.PixelsKey createKey(int scaleFactor, int rasterWidth, int rasterHeight)
+    {
+        return new AquaPixelsKey(scaleFactor, rasterWidth, rasterHeight, g, appearance);
+    }
 }

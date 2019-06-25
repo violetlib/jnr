@@ -2,15 +2,15 @@
 
 <project name="JNRJava8Support" default="jar" basedir=".">
 
-	<property name="homebin" location="${user.home}/bin"/>
+    <property name="homebin" location="${user.home}/bin"/>
 
-	<import file="../../build/library.xml"/>
+    <import file="../../build/library.xml"/>
 
   <filelist id="lib.jars" dir="${lib}">
-		<file name="VAquaRendering.jar"/>
+        <file name="VAquaRendering.jar"/>
   </filelist>
 
-	<classpath/>
+    <classpath/>
 
   <target name="jar"
           depends="clean, compile">

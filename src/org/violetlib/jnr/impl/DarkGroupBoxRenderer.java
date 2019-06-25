@@ -8,28 +8,28 @@
 
 package org.violetlib.jnr.impl;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.vappearances.VAppearance;
 
+import org.jetbrains.annotations.*;
+
 /**
-	A basic renderer that creates a dark mode group box renderer from a light mode group box renderer.
+  A basic renderer that creates a dark mode group box renderer from a light mode group box renderer.
 */
 
 public class DarkGroupBoxRenderer
-	implements BasicRenderer
+  implements BasicRenderer
 {
-	private final @NotNull BasicRenderer renderer;
+    private final @NotNull BasicRenderer renderer;
 
-	public DarkGroupBoxRenderer(@NotNull BasicRenderer boxRenderer, @NotNull VAppearance appearance)
-	{
-		float multiplier = appearance.isHighContrast() ? 1f : 1.2f;
-		renderer = new ScaledAlphaRenderer(boxRenderer, multiplier);
-	}
+    public DarkGroupBoxRenderer(@NotNull BasicRenderer boxRenderer, @NotNull VAppearance appearance)
+    {
+        float multiplier = appearance.isHighContrast() ? 1f : 1.2f;
+        renderer = new ScaledAlphaRenderer(boxRenderer, multiplier);
+    }
 
-	@Override
-	public void render(@NotNull int[] data, int rw, int rh, float w, float h)
-	{
-		renderer.render(data, rw, rh, w, h);
-	}
+    @Override
+    public void render(@NotNull int[] data, int rw, int rh, float w, float h)
+    {
+        renderer.render(data, rw, rh, w, h);
+    }
 }

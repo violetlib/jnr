@@ -9,12 +9,12 @@
 package org.violetlib.jnr.aqua.coreui;
 
 /**
-	Presentation states supported by Core UI.
+  Presentation states supported by Core UI.
 */
 
 public class CoreUIPresentationStates
 {
-	public static final String ACTIVE = "kCUIPresentationStateActiveKey";		// strange choice of value as it is not a key
-	public static final String ACTIVE_MAIN = "kCUIPresentationStateActiveMain";
-	public static final String INACTIVE = "kCUIPresentationStateInactive";
+    public static final String ACTIVE = "kCUIPresentationStateActiveKey";  // strange choice of value as it is not a key
+    public static final String ACTIVE_MAIN = "kCUIPresentationStateActiveMain";
+    public static final String INACTIVE = "kCUIPresentationStateInactive";
 }

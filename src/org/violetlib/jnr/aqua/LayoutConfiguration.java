@@ -9,12 +9,12 @@
 package org.violetlib.jnr.aqua;
 
 /**
-	A layout configuration defines the parameters needed to determine layout information.
+  A layout configuration defines the parameters needed to determine layout information.
 */
 
 public abstract class LayoutConfiguration
 {
-	protected LayoutConfiguration()
-	{
-	}
+    protected LayoutConfiguration()
+    {
+    }
 }

@@ -11,15 +11,15 @@ package org.violetlib.jnr.aqua;
 import org.jetbrains.annotations.*;
 
 /**
-	A layout configuration for a group box.
+  A layout configuration for a group box.
 */
 
 public class GroupBoxLayoutConfiguration
-	extends LayoutConfiguration
+  extends LayoutConfiguration
 {
-	@Override
-	public @NotNull String toString()
-	{
-		return "Group Box";
-	}
+    @Override
+    public @NotNull String toString()
+    {
+        return "Group Box";
+    }
 }

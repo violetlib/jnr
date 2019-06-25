@@ -9,41 +9,41 @@
 package org.violetlib.jnr;
 
 /**
-	A generalization of insets using floating point attributes.
+  A generalization of insets using floating point attributes.
 */
 
 public class Insets2D
 {
-	private final float top;
-	private final float left;
-	private final float bottom;
-	private final float right;
+    private final float top;
+    private final float left;
+    private final float bottom;
+    private final float right;
 
-	public Insets2D(float top, float left, float bottom, float right)
-	{
-		this.top = top;
-		this.left = left;
-		this.bottom = bottom;
-		this.right = right;
-	}
+    public Insets2D(float top, float left, float bottom, float right)
+    {
+        this.top = top;
+        this.left = left;
+        this.bottom = bottom;
+        this.right = right;
+    }
 
-	public float getTop()
-	{
-		return top;
-	}
+    public float getTop()
+    {
+        return top;
+    }
 
-	public float getLeft()
-	{
-		return left;
-	}
+    public float getLeft()
+    {
+        return left;
+    }
 
-	public float getBottom()
-	{
-		return bottom;
-	}
+    public float getBottom()
+    {
+        return bottom;
+    }
 
-	public float getRight()
-	{
-		return right;
-	}
+    public float getRight()
+    {
+        return right;
+    }
 }

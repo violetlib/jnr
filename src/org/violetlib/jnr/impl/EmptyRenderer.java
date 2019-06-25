@@ -11,14 +11,14 @@ package org.violetlib.jnr.impl;
 import org.jetbrains.annotations.*;
 
 /**
-	A render that does nothing.
+  A render that does nothing.
 */
 
 public class EmptyRenderer
-	implements BasicRenderer
+  implements BasicRenderer
 {
-	@Override
-	public void render(@NotNull int[] data, int rw, int rh, float w, float h)
-	{
-	}
+    @Override
+    public void render(@NotNull int[] data, int rw, int rh, float w, float h)
+    {
+    }
 }

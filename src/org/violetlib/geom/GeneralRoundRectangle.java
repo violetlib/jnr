@@ -11,14 +11,17 @@ package org.violetlib.geom;
 // Based on RoundRectangle2D, see copyright below.
 
 import java.awt.Shape;
-import java.awt.geom.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.RectangularShape;
 
 import org.jetbrains.annotations.*;
 
 /**
- * A generalized rounded rectangle where each corner has its own arc width and arc height.
- * Based on RoundRectangle2D.
- */
+  * A generalized rounded rectangle where each corner has its own arc width and arc height.
+  * Based on RoundRectangle2D.
+*/
 public class GeneralRoundRectangle extends RectangularShape implements ExpandableOutline.ExpandableShape
 {
     // TBD: contains and intersects are not implemented
@@ -136,22 +139,22 @@ public class GeneralRoundRectangle extends RectangularShape implements Expandabl
     public @NotNull Shape createExpandedShape(float offset)
     {
         return new GeneralRoundRectangle(x - offset, y - offset, width + 2 * offset, height + 2 * offset,
-					tlaw > 0 ? tlaw + offset : 0,
-					tlah > 0 ? tlah + offset : 0,
-					traw > 0 ? traw + offset : 0,
-					trah > 0 ? trah + offset : 0,
-					braw > 0 ? braw + offset : 0,
-					brah > 0 ? brah + offset : 0,
-					blaw > 0 ? blaw + offset : 0,
-					blah > 0 ? blah + offset : 0
-          );
+          tlaw > 0 ? tlaw + offset : 0,
+          tlah > 0 ? tlah + offset : 0,
+          traw > 0 ? traw + offset : 0,
+          trah > 0 ? trah + offset : 0,
+          braw > 0 ? braw + offset : 0,
+          brah > 0 ? brah + offset : 0,
+          blaw > 0 ? blaw + offset : 0,
+          blah > 0 ? blah + offset : 0
+        );
     }
 
     @Override
     public @NotNull Shape createTranslatedShape(double x, double y)
     {
         return new GeneralRoundRectangle(x + this.x, y + this.y, width, height,
-					tlaw, tlah, traw, trah, braw, brah, blaw, blah);
+          tlaw, tlah, traw, trah, braw, brah, blaw, blah);
     }
 
     public Rectangle2D getBounds2D() {
@@ -160,10 +163,10 @@ public class GeneralRoundRectangle extends RectangularShape implements Expandabl
 
     public void setFrame(double x, double y, double w, double h) {
         set(x, y, w, h,
-                getTopLeftArcWidth(), getTopLeftArcHeight(),
-                getTopRightArcWidth(), getTopRightArcHeight(),
-                getBottomRightArcWidth(), getBottomRightArcHeight(),
-                getBottomLeftArcWidth(), getBottomLeftArcHeight());
+          getTopLeftArcWidth(), getTopLeftArcHeight(),
+          getTopRightArcWidth(), getTopRightArcHeight(),
+          getBottomRightArcWidth(), getBottomRightArcHeight(),
+          getBottomLeftArcWidth(), getBottomLeftArcHeight());
     }
 
     public boolean contains(double x, double y) {
@@ -259,9 +262,9 @@ public class GeneralRoundRectangle extends RectangularShape implements Expandabl
             return false;
         }
         return (contains(x, y) &&
-                contains(x + w, y) &&
-                contains(x, y + h) &&
-                contains(x + w, y + h));
+                  contains(x + w, y) &&
+                  contains(x, y + h) &&
+                  contains(x + w, y + h));
     }
 
     public PathIterator getPathIterator(AffineTransform at) {
@@ -291,17 +294,17 @@ public class GeneralRoundRectangle extends RectangularShape implements Expandabl
         if (obj instanceof GeneralRoundRectangle) {
             GeneralRoundRectangle rr2d = (GeneralRoundRectangle) obj;
             return ((getX() == rr2d.getX()) &&
-                    (getY() == rr2d.getY()) &&
-                    (getWidth() == rr2d.getWidth()) &&
-                    (getHeight() == rr2d.getHeight()) &&
-                    (getTopLeftArcWidth() == rr2d.getTopLeftArcWidth()) &&
-                    (getTopLeftArcHeight() == rr2d.getTopLeftArcHeight()) &&
-                    (getTopRightArcWidth() == rr2d.getTopRightArcWidth()) &&
-                    (getTopRightArcHeight() == rr2d.getTopRightArcHeight()) &&
-                    (getBottomRightArcWidth() == rr2d.getBottomRightArcWidth()) &&
-                    (getBottomRightArcHeight() == rr2d.getBottomRightArcHeight()) &&
-                    (getBottomLeftArcWidth() == rr2d.getBottomLeftArcWidth()) &&
-                    (getBottomLeftArcHeight() == rr2d.getBottomLeftArcHeight())
+                      (getY() == rr2d.getY()) &&
+                      (getWidth() == rr2d.getWidth()) &&
+                      (getHeight() == rr2d.getHeight()) &&
+                      (getTopLeftArcWidth() == rr2d.getTopLeftArcWidth()) &&
+                      (getTopLeftArcHeight() == rr2d.getTopLeftArcHeight()) &&
+                      (getTopRightArcWidth() == rr2d.getTopRightArcWidth()) &&
+                      (getTopRightArcHeight() == rr2d.getTopRightArcHeight()) &&
+                      (getBottomRightArcWidth() == rr2d.getBottomRightArcWidth()) &&
+                      (getBottomRightArcHeight() == rr2d.getBottomRightArcHeight()) &&
+                      (getBottomLeftArcWidth() == rr2d.getBottomLeftArcWidth()) &&
+                      (getBottomLeftArcHeight() == rr2d.getBottomLeftArcHeight())
             );
         }
         return false;

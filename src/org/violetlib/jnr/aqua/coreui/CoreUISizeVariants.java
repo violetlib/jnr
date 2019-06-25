@@ -9,13 +9,13 @@
 package org.violetlib.jnr.aqua.coreui;
 
 /**
-	Size variants supported by Core UI.
+  Size variants supported by Core UI.
 */
 
 public class CoreUISizeVariants
 {
-	public static final String MINI = "mini";
-	public static final String SMALL = "small";
-	public static final String REGULAR = "regular";
-	public static final String LARGE = "large";
+    public static final String MINI = "mini";
+    public static final String SMALL = "small";
+    public static final String REGULAR = "regular";
+    public static final String LARGE = "large";
 }

@@ -11,29 +11,29 @@ package org.violetlib.jnr.impl;
 import org.jetbrains.annotations.*;
 
 /**
-	A basic renderer that alters the output of a basic renderer by scaling the alpha channel.
+  A basic renderer that alters the output of a basic renderer by scaling the alpha channel.
 */
 
 public class ScaledAlphaRenderer
-	extends PostProcessedRenderer
+  extends PostProcessedRenderer
 {
-	private final float multiplier;
+    private final float multiplier;
 
-	public ScaledAlphaRenderer(@NotNull BasicRenderer r, float multiplier)
-	{
-		super(r);
+    public ScaledAlphaRenderer(@NotNull BasicRenderer r, float multiplier)
+    {
+        super(r);
 
-		this.multiplier = multiplier;
-	}
+        this.multiplier = multiplier;
+    }
 
-	@Override
-	protected int processPixel(int row, int col, int red, int green, int blue, int alpha)
-	{
-		if (alpha > 0) {
-			alpha = Math.round(alpha * multiplier);
-			return createPixel(red, green, blue, alpha);
-		} else {
-			return 0;
-		}
-	}
+    @Override
+    protected int processPixel(int row, int col, int red, int green, int blue, int alpha)
+    {
+        if (alpha > 0) {
+            alpha = Math.round(alpha * multiplier);
+            return createPixel(red, green, blue, alpha);
+        } else {
+            return 0;
+        }
+    }
 }

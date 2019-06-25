@@ -31,53 +31,53 @@
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_coreui_CoreUIPainter_nativePaint
   (JNIEnv *env, jclass cl, jintArray data, jint w, jint h, jfloat xscale, jfloat yscale, jobjectArray args, jlongArray jLayerHolder)
 {
-	COCOA_ENTER(env);
+    COCOA_ENTER(env);
 
-	jsize argsCount = (*env) -> GetArrayLength(env, args);
-	jsize keyCount = argsCount / 2;
+    jsize argsCount = (*env) -> GetArrayLength(env, args);
+    jsize keyCount = argsCount / 2;
 
-	CFTypeRef keys[50];
-	CFTypeRef values[50];
+    CFTypeRef keys[50];
+    CFTypeRef values[50];
 
-	jsize argIndex = 0;
-	jsize argCount = 0;
+    jsize argIndex = 0;
+    jsize argCount = 0;
 
-	for (int i = 0; i < keyCount; i++) {
-		jobject jkey = (*env) -> GetObjectArrayElement(env, args, argIndex++);
-		jobject jvalue = (*env) -> GetObjectArrayElement(env, args, argIndex++);
-		if (!(*env)->IsSameObject(env, jvalue, NULL)) {
-			CFTypeRef key = CopyCFTypeToJava(env, jkey);
-			CFTypeRef value = CopyCFTypeToJava(env, jvalue);
-			if (key == nil) {
-				NSLog(@"Invalid CoreUI key");
-				continue;
-			}
-			if (value == nil) {
-				NSLog(@"Invalid CoreUI value");
-				continue;
-			}
-		keys[argCount] = key;
-		values[argCount] = value;
-		argCount++;
-		}
-	}
+    for (int i = 0; i < keyCount; i++) {
+        jobject jkey = (*env) -> GetObjectArrayElement(env, args, argIndex++);
+        jobject jvalue = (*env) -> GetObjectArrayElement(env, args, argIndex++);
+        if (!(*env)->IsSameObject(env, jvalue, NULL)) {
+            CFTypeRef key = CopyCFTypeToJava(env, jkey);
+            CFTypeRef value = CopyCFTypeToJava(env, jvalue);
+            if (key == nil) {
+                NSLog(@"Invalid CoreUI key");
+                continue;
+            }
+            if (value == nil) {
+                NSLog(@"Invalid CoreUI value");
+                continue;
+            }
+        keys[argCount] = key;
+        values[argCount] = value;
+        argCount++;
+        }
+    }
 
-	CFDictionaryRef d = CFDictionaryCreate(kCFAllocatorDefault, (const void **) keys, (const void **) values, argCount,
-		&kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    CFDictionaryRef d = CFDictionaryCreate(kCFAllocatorDefault, (const void **) keys, (const void **) values, argCount,
+        &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
 
-	for (int i = 0; i < argCount; i++) {
-		CFRelease(keys[i]);
-		CFRelease(values[i]);
-	}
+    for (int i = 0; i < argCount; i++) {
+        CFRelease(keys[i]);
+        CFRelease(values[i]);
+    }
 
-	jboolean isCopy = JNI_FALSE;
-	void *rawPixelData = (*env)->GetPrimitiveArrayCritical(env, data, &isCopy);
-	if (rawPixelData) {
-		CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-		CGContextRef cgRef = CGBitmapContextCreate(rawPixelData, w, h, 8, w * 4, colorspace, kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host);
-		CGColorSpaceRelease(colorspace);
+    jboolean isCopy = JNI_FALSE;
+    void *rawPixelData = (*env)->GetPrimitiveArrayCritical(env, data, &isCopy);
+    if (rawPixelData) {
+        CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+        CGContextRef cgRef = CGBitmapContextCreate(rawPixelData, w, h, 8, w * 4, colorspace, kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Host);
+        CGColorSpaceRelease(colorspace);
 
-		CGContextScaleCTM(cgRef, xscale, yscale);
+        CGContextScaleCTM(cgRef, xscale, yscale);
 
         NSAppearance *app = configuredAppearance;
 
@@ -103,15 +103,15 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_coreui_CoreUIPainter_nativePa
             }
             (*env)->ReleaseLongArrayElements(env, jLayerHolder, layerHolder, 0);
         } else {
-		    NSRect bounds = NSMakeRect(0, 0, w / xscale, h / yscale);
-		    [app _drawInRect: bounds context: cgRef options: d];
+            NSRect bounds = NSMakeRect(0, 0, w / xscale, h / yscale);
+            [app _drawInRect: bounds context: cgRef options: d];
         }
 
-		(*env)->ReleasePrimitiveArrayCritical(env, data, rawPixelData, 0);
-		CFRelease(cgRef);
-	}
+        (*env)->ReleasePrimitiveArrayCritical(env, data, rawPixelData, 0);
+        CFRelease(cgRef);
+    }
 
-	CFRelease(d);
+    CFRelease(d);
 
-	COCOA_EXIT(env);
+    COCOA_EXIT(env);
 }

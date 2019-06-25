@@ -12,37 +12,34 @@ import java.awt.Graphics;
 
 import org.jetbrains.annotations.*;
 
-import org.violetlib.jnr.ConfiguredPainter;
-import org.violetlib.jnr.LayoutInfo;
-
 /**
-	A painter that does nothing.
+  A painter that does nothing.
 */
 
 public class NullPainter
-	implements ConfiguredPainter
+  implements ConfiguredPainter
 {
-	private final @Nullable LayoutInfo layoutInfo;
+    private final @Nullable LayoutInfo layoutInfo;
 
-	public NullPainter(@Nullable LayoutInfo layoutInfo)
-	{
-		this.layoutInfo = layoutInfo;
-	}
+    public NullPainter(@Nullable LayoutInfo layoutInfo)
+    {
+        this.layoutInfo = layoutInfo;
+    }
 
-	@Override
-	public float getFixedWidth()
-	{
-		return layoutInfo != null ? layoutInfo.getFixedVisualWidth() : 0;
-	}
+    @Override
+    public float getFixedWidth()
+    {
+        return layoutInfo != null ? layoutInfo.getFixedVisualWidth() : 0;
+    }
 
-	@Override
-	public float getFixedHeight()
-	{
-		return layoutInfo != null ? layoutInfo.getFixedVisualHeight() : 0;
-	}
+    @Override
+    public float getFixedHeight()
+    {
+        return layoutInfo != null ? layoutInfo.getFixedVisualHeight() : 0;
+    }
 
-	@Override
-	public void paint(@NotNull Graphics g, float x, float y)
-	{
-	}
+    @Override
+    public void paint(@NotNull Graphics g, float x, float y)
+    {
+    }
 }

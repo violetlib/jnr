@@ -13,64 +13,70 @@ import java.util.Objects;
 import org.jetbrains.annotations.*;
 
 /**
-	A layout configuration for a scroll bar thumb.
+  A layout configuration for a scroll bar thumb.
 */
 
 public class ScrollBarThumbLayoutConfiguration
-	extends ScrollBarLayoutConfiguration
+  extends ScrollBarLayoutConfiguration
 {
-	private final int value;
-	private final float thumbExtent;
+    private final int value;
+    private final float thumbExtent;
 
-	public ScrollBarThumbLayoutConfiguration(@NotNull ScrollBarConfiguration g, int value)
-	{
-		super(g);
+    public ScrollBarThumbLayoutConfiguration(@NotNull ScrollBarConfiguration g, int value)
+    {
+        super(g);
 
-		this.value = value;
-		this.thumbExtent = g.getThumbExtent();
-	}
+        this.value = value;
+        this.thumbExtent = g.getThumbExtent();
+    }
 
-	public ScrollBarThumbLayoutConfiguration(@NotNull AquaUIPainter.ScrollBarWidget bw,
-																					 @NotNull AquaUIPainter.Size size,
-																					 @NotNull AquaUIPainter.Orientation o,
-																					 float thumbExtent,
-																					 int value)
-	{
-		super(bw, size, o);
+    public ScrollBarThumbLayoutConfiguration(@NotNull AquaUIPainter.ScrollBarWidget bw,
+                                             @NotNull AquaUIPainter.Size size,
+                                             @NotNull AquaUIPainter.Orientation o,
+                                             float thumbExtent,
+                                             int value)
+    {
+        super(bw, size, o);
 
-		this.value = value;
-		this.thumbExtent = thumbExtent;
-	}
+        this.value = value;
+        this.thumbExtent = thumbExtent;
+    }
 
-	public int getValue()
-	{
-		return value;
-	}
+    public int getValue()
+    {
+        return value;
+    }
 
-	public float getThumbExtent()
-	{
-		return thumbExtent;
-	}
+    public float getThumbExtent()
+    {
+        return thumbExtent;
+    }
 
-	@Override
-	public boolean equals(@Nullable Object o)
-	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		if (!super.equals(o)) return false;
-		ScrollBarThumbLayoutConfiguration that = (ScrollBarThumbLayoutConfiguration) o;
-		return value == that.value;
-	}
+    @Override
+    public boolean equals(@Nullable Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        ScrollBarThumbLayoutConfiguration that = (ScrollBarThumbLayoutConfiguration) o;
+        return value == that.value;
+    }
 
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(super.hashCode(), value);
-	}
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(super.hashCode(), value);
+    }
 
-	@Override
-	public @NotNull String toString()
-	{
-		return super.toString() + " " + value;
-	}
+    @Override
+    public @NotNull String toString()
+    {
+        return super.toString() + " " + value;
+    }
 }

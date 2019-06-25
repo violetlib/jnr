@@ -10,65 +10,69 @@ package org.violetlib.jnr.aqua;
 
 import java.util.Objects;
 
-import org.jetbrains.annotations.*;
-
+import org.violetlib.jnr.aqua.AquaUIPainter.Position;
 import org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
-import org.violetlib.jnr.aqua.AquaUIPainter.Position;
+
+import org.jetbrains.annotations.*;
 
 /**
-	A layout configuration for a segmented button.
+  A layout configuration for a segmented button.
 */
 
 public class SegmentedButtonLayoutConfiguration
-	extends LayoutConfiguration
+  extends LayoutConfiguration
 {
-	private final @NotNull SegmentedButtonWidget bw;
-	private final @NotNull Size size;
-	private final @NotNull Position position;
+    private final @NotNull SegmentedButtonWidget bw;
+    private final @NotNull Size size;
+    private final @NotNull Position position;
 
-	public SegmentedButtonLayoutConfiguration(@NotNull SegmentedButtonWidget bw,
-																						@NotNull Size size,
-																						@NotNull Position position)
-	{
-		this.bw = bw;
-		this.size = size;
-		this.position = position;
-	}
+    public SegmentedButtonLayoutConfiguration(@NotNull SegmentedButtonWidget bw,
+                                              @NotNull Size size,
+                                              @NotNull Position position)
+    {
+        this.bw = bw;
+        this.size = size;
+        this.position = position;
+    }
 
-	public @NotNull SegmentedButtonWidget getWidget()
-	{
-		return bw;
-	}
+    public @NotNull SegmentedButtonWidget getWidget()
+    {
+        return bw;
+    }
 
-	public @NotNull Size getSize()
-	{
-		return size;
-	}
+    public @NotNull Size getSize()
+    {
+        return size;
+    }
 
-	public @NotNull Position getPosition()
-	{
-		return position;
-	}
+    public @NotNull Position getPosition()
+    {
+        return position;
+    }
 
-	@Override
-	public boolean equals(@Nullable Object o)
-	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		SegmentedButtonLayoutConfiguration that = (SegmentedButtonLayoutConfiguration) o;
-		return bw == that.bw && size == that.size && position == that.position;
-	}
+    @Override
+    public boolean equals(@Nullable Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SegmentedButtonLayoutConfiguration that = (SegmentedButtonLayoutConfiguration) o;
+        return bw == that.bw && size == that.size && position == that.position;
+    }
 
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(bw, size, position);
-	}
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(bw, size, position);
+    }
 
-	@Override
-	public @NotNull String toString()
-	{
-		return bw + " " + size + " " + position;
-	}
+    @Override
+    public @NotNull String toString()
+    {
+        return bw + " " + size + " " + position;
+    }
 }

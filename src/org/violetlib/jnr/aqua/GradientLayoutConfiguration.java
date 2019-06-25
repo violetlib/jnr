@@ -11,15 +11,15 @@ package org.violetlib.jnr.aqua;
 import org.jetbrains.annotations.*;
 
 /**
- A layout configuration for a gradient painter.
+  A layout configuration for a gradient painter.
 */
 
 public class GradientLayoutConfiguration
-	extends LayoutConfiguration
+  extends LayoutConfiguration
 {
-	@Override
-	public @NotNull String toString()
-	{
-		return "Gradient";
-	}
+    @Override
+    public @NotNull String toString()
+    {
+        return "Gradient";
+    }
 }

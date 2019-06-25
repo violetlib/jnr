@@ -22,41 +22,41 @@ import org.violetlib.vappearances.VAppearance;
 import org.jetbrains.annotations.*;
 
 /**
-	Simulates the rendering of a thick style split pane divider.
+  Simulates the rendering of a thick style split pane divider.
 */
 
 public class ThickSplitPaneDividerPainterExtension
-	implements PainterExtension
+  implements PainterExtension
 {
-	protected final @NotNull SplitPaneDividerConfiguration g;
-	protected final @NotNull Colors colors;
+    protected final @NotNull SplitPaneDividerConfiguration g;
+    protected final @NotNull Colors colors;
 
-	public ThickSplitPaneDividerPainterExtension(@NotNull SplitPaneDividerConfiguration g,
-																							 @Nullable VAppearance appearance)
-	{
-		this.g = g;
-		this.colors = Colors.getColors(appearance);
-	}
+    public ThickSplitPaneDividerPainterExtension(@NotNull SplitPaneDividerConfiguration g,
+                                                 @Nullable VAppearance appearance)
+    {
+        this.g = g;
+        this.colors = Colors.getColors(appearance);
+    }
 
-	@Override
-	public void paint(@NotNull Graphics2D g, float width, float height)
-	{
-		// TBD: shadow
+    @Override
+    public void paint(@NotNull Graphics2D g, float width, float height)
+    {
+        // TBD: shadow
 
-		Color dimpleColor = colors.get("thickDividerDimple");
-		Color dimpleBorderColor = colors.getOptional("thickDividerDimpleBorder");
+        Color dimpleColor = colors.get("thickDividerDimple");
+        Color dimpleBorderColor = colors.getOptional("thickDividerDimpleBorder");
 
-		float d = 6;
-		float x = (width - d) / 2;
-		float y = (height - d) / 2;
-		Shape s = new Ellipse2D.Double(x, y, d, d);
-		g.setColor(dimpleColor);
-		g.fill(s);
-		if (dimpleBorderColor != null) {
-			g.setColor(dimpleBorderColor);
-			g.setStroke(new BasicStroke(1));
-			s = new Ellipse2D.Double(x+0.5, y+0.5, d-1, d-1);
-			g.draw(s);
-		}
-	}
+        float d = 6;
+        float x = (width - d) / 2;
+        float y = (height - d) / 2;
+        Shape s = new Ellipse2D.Double(x, y, d, d);
+        g.setColor(dimpleColor);
+        g.fill(s);
+        if (dimpleBorderColor != null) {
+            g.setColor(dimpleBorderColor);
+            g.setStroke(new BasicStroke(1));
+            s = new Ellipse2D.Double(x+0.5, y+0.5, d-1, d-1);
+            g.draw(s);
+        }
+    }
 }

@@ -10,50 +10,50 @@ package org.violetlib.jnr.aqua.impl;
 
 import java.awt.geom.Rectangle2D;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.aqua.PopupButtonConfiguration;
 import org.violetlib.jnr.impl.Renderer;
 import org.violetlib.jnr.impl.ReusableCompositor;
 
+import org.jetbrains.annotations.*;
+
 /**
-	A popup renderer where the button is rendered separately from the arrows.
+  A popup renderer where the button is rendered separately from the arrows.
 */
 
 public class PopupRenderer
-	extends Renderer
+  extends Renderer
 {
-	protected final @NotNull PopupButtonConfiguration g;
-	protected final @Nullable Renderer buttonRenderer;
-	protected final @Nullable Renderer arrowsRenderer;
-	protected final @Nullable Insetter arrowsInsets;
+    protected final @NotNull PopupButtonConfiguration g;
+    protected final @Nullable Renderer buttonRenderer;
+    protected final @Nullable Renderer arrowsRenderer;
+    protected final @Nullable Insetter arrowsInsets;
 
-	public PopupRenderer(@NotNull PopupButtonConfiguration g,
-											 @Nullable Renderer buttonRenderer,
-											 @Nullable Renderer arrowsRenderer,
-											 @Nullable Insetter arrowsInsets)
-	{
-		this.g = g;
-		this.buttonRenderer = buttonRenderer;
-		this.arrowsRenderer = arrowsRenderer;
-		this.arrowsInsets = arrowsInsets;
-	}
+    public PopupRenderer(@NotNull PopupButtonConfiguration g,
+                         @Nullable Renderer buttonRenderer,
+                         @Nullable Renderer arrowsRenderer,
+                         @Nullable Insetter arrowsInsets)
+    {
+        this.g = g;
+        this.buttonRenderer = buttonRenderer;
+        this.arrowsRenderer = arrowsRenderer;
+        this.arrowsInsets = arrowsInsets;
+    }
 
-	@Override
-	public void composeTo(@NotNull ReusableCompositor compositor)
-	{
-		float w = compositor.getWidth();
-		float h = compositor.getHeight();
+    @Override
+    public void composeTo(@NotNull ReusableCompositor compositor)
+    {
+        float w = compositor.getWidth();
+        float h = compositor.getHeight();
 
-		if (buttonRenderer != null) {
-			buttonRenderer.composeTo(compositor);
-		}
+        if (buttonRenderer != null) {
+            buttonRenderer.composeTo(compositor);
+        }
 
-		if (arrowsRenderer != null && arrowsInsets != null) {
-			Rectangle2D bounds = arrowsInsets.apply2D(w, h);
-			Renderer r = Renderer.createOffsetRenderer(arrowsRenderer, bounds);
-			r.composeTo(compositor);
-		}
-	}
+        if (arrowsRenderer != null && arrowsInsets != null) {
+            Rectangle2D bounds = arrowsInsets.apply2D(w, h);
+            Renderer r = Renderer.createOffsetRenderer(arrowsRenderer, bounds);
+            r.composeTo(compositor);
+        }
+    }
 }

@@ -23,61 +23,61 @@ import org.jetbrains.annotations.*;
 */
 
 public class JNR8MultiResolutionImage
-	extends Image
-	implements sun.awt.image.MultiResolutionImage
+  extends Image
+  implements sun.awt.image.MultiResolutionImage
 {
-	private final int baseImageWidth;
-	private final int baseImageHeight;
-	private final @NotNull BufferedImage im;
+    private final int baseImageWidth;
+    private final int baseImageHeight;
+    private final @NotNull BufferedImage im;
 
-	public JNR8MultiResolutionImage(int baseImageWidth, int baseImageHeight, @NotNull BufferedImage im)
-	{
-		this.baseImageWidth = baseImageWidth;
-		this.baseImageHeight = baseImageHeight;
-		this.im = im;
-	}
+    public JNR8MultiResolutionImage(int baseImageWidth, int baseImageHeight, @NotNull BufferedImage im)
+    {
+        this.baseImageWidth = baseImageWidth;
+        this.baseImageHeight = baseImageHeight;
+        this.im = im;
+    }
 
-	@Override
-	public Image getResolutionVariant(int width, int height)
-	{
-		return im;
-	}
+    @Override
+    public Image getResolutionVariant(int width, int height)
+    {
+        return im;
+    }
 
-	@Override
-	public List<Image> getResolutionVariants()
-	{
-		List<Image> result = new ArrayList<>();
-		result.add(im);
-		return result;
-	}
+    @Override
+    public List<Image> getResolutionVariants()
+    {
+        List<Image> result = new ArrayList<>();
+        result.add(im);
+        return result;
+    }
 
-	@Override
-	public int getWidth(ImageObserver observer)
-	{
-		return baseImageWidth;
-	}
+    @Override
+    public int getWidth(ImageObserver observer)
+    {
+        return baseImageWidth;
+    }
 
-	@Override
-	public int getHeight(ImageObserver observer)
-	{
-		return baseImageHeight;
-	}
+    @Override
+    public int getHeight(ImageObserver observer)
+    {
+        return baseImageHeight;
+    }
 
-	@Override
-	public Object getProperty(String name, ImageObserver observer)
-	{
-		return im.getProperty(name, observer);
-	}
+    @Override
+    public Object getProperty(String name, ImageObserver observer)
+    {
+        return im.getProperty(name, observer);
+    }
 
-	@Override
-	public ImageProducer getSource()
-	{
-		return im.getSource();
-	}
+    @Override
+    public ImageProducer getSource()
+    {
+        return im.getSource();
+    }
 
-	@Override
-	public Graphics getGraphics()
-	{
-		return im.getGraphics();
-	}
+    @Override
+    public Graphics getGraphics()
+    {
+        return im.getGraphics();
+    }
 }
