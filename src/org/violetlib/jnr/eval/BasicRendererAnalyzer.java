@@ -36,7 +36,8 @@ public class BasicRendererAnalyzer
 
     public BasicRendererAnalyzer(@NotNull Renderer r, int scaleFactor, boolean forceVertical)
     {
-        this(r, scaleFactor, forceVertical ? DEFAULT_HEIGHT : DEFAULT_WIDTH, forceVertical ? DEFAULT_WIDTH : DEFAULT_HEIGHT);
+        this(r, scaleFactor, forceVertical ? DEFAULT_HEIGHT : DEFAULT_WIDTH,
+          forceVertical ? DEFAULT_WIDTH : DEFAULT_HEIGHT);
     }
 
     public BasicRendererAnalyzer(@NotNull Renderer r, int scaleFactor, int testWidth, int testHeight)
@@ -117,7 +118,8 @@ public class BasicRendererAnalyzer
                         bottomInset = ch - b.y - b.height;
                         break;
                     } else if (actualHeight > fh) {
-                        NativeSupport.log("Unexpectedly got larger height than the supposed fixed height: " + actualHeight + " " + fh);
+                        NativeSupport.log("Unexpectedly got larger height than the supposed fixed height: "
+                                            + actualHeight + " " + fh);
                         break;
                     }
                 }
@@ -139,7 +141,8 @@ public class BasicRendererAnalyzer
                         rightInset = cw - b.x - b.width;
                         break;
                     } else if (actualWidth > fw) {
-                        NativeSupport.log("Unexpectedly got larger width than the supposed fixed width: " + actualWidth + " " + fw);
+                        NativeSupport.log("Unexpectedly got larger width than the supposed fixed width: "
+                                            + actualWidth + " " + fw);
                         break;
                     }
                 }

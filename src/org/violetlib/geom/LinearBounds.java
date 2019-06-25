@@ -9,27 +9,27 @@
 package org.violetlib.geom;
 
 /**
- A bounds along one axis.
+  A bounds along one axis.
 */
 
 public class LinearBounds
 {
-	private final double origin;
-	private final double length;
+    private final double origin;
+    private final double length;
 
-	public LinearBounds(double origin, double length)
-	{
-		this.origin = origin;
-		this.length = length;
-	}
+    public LinearBounds(double origin, double length)
+    {
+        this.origin = origin;
+        this.length = length;
+    }
 
-	public double getOrigin()
-	{
-		return origin;
-	}
+    public double getOrigin()
+    {
+        return origin;
+    }
 
-	public double getLength()
-	{
-		return length;
-	}
+    public double getLength()
+    {
+        return length;
+    }
 }

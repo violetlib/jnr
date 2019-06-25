@@ -36,7 +36,7 @@ public final class JRSUIConstants {
      */
     public static final int FOCUS_SIZE = 4;
 
-    private static native long getPtrForConstant(final int constant);
+    private static native long getPtrForConstant(int constant);
 
     static class Key {
         @Native protected static final int _value = 20;
@@ -57,7 +57,7 @@ public final class JRSUIConstants {
         final int constant;
         private long ptr;
 
-        private Key(final int constant) {
+        private Key(int constant) {
             this.constant = constant;
         }
 
@@ -93,7 +93,7 @@ public final class JRSUIConstants {
 
         final double doubleValue;
 
-        DoubleValue(final double doubleValue) {
+        DoubleValue(double doubleValue) {
             this.doubleValue = doubleValue;
         }
 
@@ -101,16 +101,16 @@ public final class JRSUIConstants {
             return TYPE_CODE;
         }
 
-        public void putValueInBuffer(final ByteBuffer buffer) {
+        public void putValueInBuffer(ByteBuffer buffer) {
             buffer.putDouble(doubleValue);
         }
 
-        public boolean equals(final Object obj) {
+        public boolean equals(Object obj) {
             return (obj instanceof JRSUIConstants.DoubleValue) && (((JRSUIConstants.DoubleValue)obj).doubleValue == doubleValue);
         }
 
         public int hashCode() {
-            final long bits = Double.doubleToLongBits(doubleValue);
+            long bits = Double.doubleToLongBits(doubleValue);
             return (int)(bits ^ (bits >>> 32));
         }
 
@@ -124,7 +124,7 @@ public final class JRSUIConstants {
         final long mask;
         final byte shift;
 
-        PropertyEncoding(final long mask, final byte shift) {
+        PropertyEncoding(long mask, byte shift) {
             this.mask = mask;
             this.shift = shift;
         }
@@ -135,7 +135,7 @@ public final class JRSUIConstants {
         final long value;
         final byte ordinal;
 
-        Property(final JRSUIConstants.PropertyEncoding encoding, final byte ordinal) {
+        Property(JRSUIConstants.PropertyEncoding encoding, byte ordinal) {
             this.encoding = encoding;
             this.value = ((long)ordinal) << encoding.shift;
             this.ordinal = ordinal;
@@ -146,7 +146,7 @@ public final class JRSUIConstants {
          * @param encodedState the incoming JRSUI encoded state
          * @return the composite of the provided JRSUI encoded state and this value
          */
-        public long apply(final long encodedState) {
+        public long apply(long encodedState) {
             return (encodedState & ~encoding.mask) | value;
         }
 
@@ -156,13 +156,13 @@ public final class JRSUIConstants {
     }
 
     public static class Size extends JRSUIConstants.Property
-		{
+    {
         @Native private static final byte SHIFT = 0;
         @Native private static final byte SIZE = 3;
         @Native private static final long MASK = (long)0x7 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding size = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        Size(final byte value) {
+        Size(byte value) {
             super(size, value);
         }
 
@@ -177,13 +177,13 @@ public final class JRSUIConstants {
     }
 
     public static class State extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.Size.SHIFT + JRSUIConstants.Size.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.Size.SHIFT + JRSUIConstants.Size.SIZE);
         @Native private static final byte SIZE = 4;
         @Native private static final long MASK = (long)0xF << SHIFT;
         private static final JRSUIConstants.PropertyEncoding state = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        State(final byte value) {
+        State(byte value) {
             super(state, value);
         }
 
@@ -204,13 +204,13 @@ public final class JRSUIConstants {
     }
 
     public static class Direction extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.State.SHIFT + JRSUIConstants.State.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.State.SHIFT + JRSUIConstants.State.SIZE);
         @Native private static final byte SIZE = 4;
         @Native private static final long MASK = (long)0xF << SHIFT;
         private static final JRSUIConstants.PropertyEncoding direction = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        Direction(final byte value) {
+        Direction(byte value) {
             super(direction, value);
         }
 
@@ -235,13 +235,13 @@ public final class JRSUIConstants {
     }
 
     public static class Orientation extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.Direction.SHIFT + JRSUIConstants.Direction.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.Direction.SHIFT + JRSUIConstants.Direction.SIZE);
         @Native private static final byte SIZE = 2;
         @Native private static final long MASK = (long)0x3 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding orientation = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        Orientation(final byte value) {
+        Orientation(byte value) {
             super(orientation, value);
         }
 
@@ -252,13 +252,13 @@ public final class JRSUIConstants {
     }
 
     public static class AlignmentVertical extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.Orientation.SHIFT + JRSUIConstants.Orientation.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.Orientation.SHIFT + JRSUIConstants.Orientation.SIZE);
         @Native private static final byte SIZE = 2;
         @Native private static final long MASK = (long)0x3 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding alignmentVertical = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        AlignmentVertical(final byte value){
+        AlignmentVertical(byte value){
             super(alignmentVertical, value);
         }
 
@@ -271,13 +271,13 @@ public final class JRSUIConstants {
     }
 
     public static class AlignmentHorizontal extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.AlignmentVertical.SHIFT + JRSUIConstants.AlignmentVertical.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.AlignmentVertical.SHIFT + JRSUIConstants.AlignmentVertical.SIZE);
         @Native private static final byte SIZE = 2;
         @Native private static final long MASK = (long)0x3 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding alignmentHorizontal = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        AlignmentHorizontal(final byte value){
+        AlignmentHorizontal(byte value){
             super(alignmentHorizontal, value);
         }
 
@@ -290,13 +290,13 @@ public final class JRSUIConstants {
     }
 
     public static class SegmentPosition extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.AlignmentHorizontal.SHIFT + JRSUIConstants.AlignmentHorizontal.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.AlignmentHorizontal.SHIFT + JRSUIConstants.AlignmentHorizontal.SIZE);
         @Native private static final byte SIZE = 3;
         @Native private static final long MASK = (long)0x7 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding segmentPosition = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        SegmentPosition(final byte value) {
+        SegmentPosition(byte value) {
             super(segmentPosition, value);
         }
 
@@ -311,13 +311,13 @@ public final class JRSUIConstants {
     }
 
     public static class ScrollBarPart extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.SegmentPosition.SHIFT + JRSUIConstants.SegmentPosition.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.SegmentPosition.SHIFT + JRSUIConstants.SegmentPosition.SIZE);
         @Native private static final byte SIZE = 4;
         @Native private static final long MASK = (long)0xF << SHIFT;
         private static final JRSUIConstants.PropertyEncoding scrollBarPart = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        ScrollBarPart(final byte value) {
+        ScrollBarPart(byte value) {
             super(scrollBarPart, value);
         }
 
@@ -340,13 +340,13 @@ public final class JRSUIConstants {
     }
 
     public static class Variant extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.ScrollBarPart.SHIFT + JRSUIConstants.ScrollBarPart.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.ScrollBarPart.SHIFT + JRSUIConstants.ScrollBarPart.SIZE);
         @Native private static final byte SIZE = 4;
         @Native private static final long MASK = (long)0xF << SHIFT;
         private static final JRSUIConstants.PropertyEncoding variant = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        Variant(final byte value) {
+        Variant(byte value) {
             super(variant, value);
         }
 
@@ -372,13 +372,13 @@ public final class JRSUIConstants {
     }
 
     public static class WindowType extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.Variant.SHIFT + JRSUIConstants.Variant.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.Variant.SHIFT + JRSUIConstants.Variant.SIZE);
         @Native private static final byte SIZE = 2;
         @Native private static final long MASK = (long)0x3 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding windowType = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        WindowType(final byte value){
+        WindowType(byte value){
             super(windowType, value);
         }
 
@@ -391,13 +391,13 @@ public final class JRSUIConstants {
     }
 
     public static class Focused extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.WindowType.SHIFT + JRSUIConstants.WindowType.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.WindowType.SHIFT + JRSUIConstants.WindowType.SIZE);
         @Native private static final byte SIZE = 1;
         @Native private static final long MASK = (long)0x1 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding focused = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        Focused(final byte value) {
+        Focused(byte value) {
             super(focused, value);
         }
 
@@ -408,13 +408,13 @@ public final class JRSUIConstants {
     }
 
     public static class IndicatorOnly extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.Focused.SHIFT + JRSUIConstants.Focused.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.Focused.SHIFT + JRSUIConstants.Focused.SIZE);
         @Native private static final byte SIZE = 1;
         @Native private static final long MASK = (long)0x1 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding indicatorOnly = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        IndicatorOnly(final byte value) {
+        IndicatorOnly(byte value) {
             super(indicatorOnly, value);
         }
 
@@ -425,13 +425,13 @@ public final class JRSUIConstants {
     }
 
     public static class NoIndicator extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.IndicatorOnly.SHIFT + JRSUIConstants.IndicatorOnly.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.IndicatorOnly.SHIFT + JRSUIConstants.IndicatorOnly.SIZE);
         @Native private static final byte SIZE = 1;
         @Native private static final long MASK = (long)0x1 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding noIndicator = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        NoIndicator(final byte value) {
+        NoIndicator(byte value) {
             super(noIndicator, value);
         }
 
@@ -442,13 +442,13 @@ public final class JRSUIConstants {
     }
 
     public static class ArrowsOnly extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.NoIndicator.SHIFT + JRSUIConstants.NoIndicator.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.NoIndicator.SHIFT + JRSUIConstants.NoIndicator.SIZE);
         @Native private static final byte SIZE = 1;
         @Native private static final long MASK = (long)0x1 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding focused = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        ArrowsOnly(final byte value) {
+        ArrowsOnly(byte value) {
             super(focused, value);
         }
 
@@ -459,13 +459,13 @@ public final class JRSUIConstants {
     }
 
     public static class FrameOnly extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.ArrowsOnly.SHIFT + JRSUIConstants.ArrowsOnly.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.ArrowsOnly.SHIFT + JRSUIConstants.ArrowsOnly.SIZE);
         @Native private static final byte SIZE = 1;
         @Native private static final long MASK = (long)0x1 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding focused = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        FrameOnly(final byte value) {
+        FrameOnly(byte value) {
             super(focused, value);
         }
 
@@ -476,13 +476,13 @@ public final class JRSUIConstants {
     }
 
     public static class SegmentTrailingSeparator extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.FrameOnly.SHIFT + JRSUIConstants.FrameOnly.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.FrameOnly.SHIFT + JRSUIConstants.FrameOnly.SIZE);
         @Native private static final byte SIZE = 1;
         @Native private static final long MASK = (long)0x1 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding focused = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        SegmentTrailingSeparator(final byte value) {
+        SegmentTrailingSeparator(byte value) {
             super(focused, value);
         }
 
@@ -493,13 +493,13 @@ public final class JRSUIConstants {
     }
 
     public static class SegmentLeadingSeparator extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.SegmentTrailingSeparator.SHIFT + JRSUIConstants.SegmentTrailingSeparator.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.SegmentTrailingSeparator.SHIFT + JRSUIConstants.SegmentTrailingSeparator.SIZE);
         @Native private static final byte SIZE = 1;
         @Native private static final long MASK = (long)0x1 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding leadingSeparator = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        SegmentLeadingSeparator(final byte value) {
+        SegmentLeadingSeparator(byte value) {
             super(leadingSeparator, value);
         }
 
@@ -510,13 +510,13 @@ public final class JRSUIConstants {
     }
 
     public static class NothingToScroll extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.SegmentLeadingSeparator.SHIFT + JRSUIConstants.SegmentLeadingSeparator.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.SegmentLeadingSeparator.SHIFT + JRSUIConstants.SegmentLeadingSeparator.SIZE);
         @Native private static final byte SIZE = 1;
         @Native private static final long MASK = (long)0x1 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding focused = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        NothingToScroll(final byte value) {
+        NothingToScroll(byte value) {
             super(focused, value);
         }
 
@@ -527,13 +527,13 @@ public final class JRSUIConstants {
     }
 
     public static class WindowTitleBarSeparator extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.NothingToScroll.SHIFT + JRSUIConstants.NothingToScroll.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.NothingToScroll.SHIFT + JRSUIConstants.NothingToScroll.SIZE);
         @Native private static final byte SIZE = 1;
         @Native private static final long MASK = (long)0x1 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding focused = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        WindowTitleBarSeparator(final byte value) {
+        WindowTitleBarSeparator(byte value) {
             super(focused, value);
         }
 
@@ -544,13 +544,13 @@ public final class JRSUIConstants {
     }
 
     public static class WindowClipCorners extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.WindowTitleBarSeparator.SHIFT + JRSUIConstants.WindowTitleBarSeparator.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.WindowTitleBarSeparator.SHIFT + JRSUIConstants.WindowTitleBarSeparator.SIZE);
         @Native private static final byte SIZE = 1;
         @Native private static final long MASK = (long)0x1 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding focused = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        WindowClipCorners(final byte value) {
+        WindowClipCorners(byte value) {
             super(focused, value);
         }
 
@@ -561,13 +561,13 @@ public final class JRSUIConstants {
     }
 
     public static class ShowArrows extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.WindowClipCorners.SHIFT + JRSUIConstants.WindowClipCorners.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.WindowClipCorners.SHIFT + JRSUIConstants.WindowClipCorners.SIZE);
         @Native private static final byte SIZE = 1;
         @Native private static final long MASK = (long)0x1 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding showArrows = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        ShowArrows(final byte value) {
+        ShowArrows(byte value) {
             super(showArrows, value);
         }
 
@@ -578,13 +578,13 @@ public final class JRSUIConstants {
     }
 
     public static class BooleanValue extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.ShowArrows.SHIFT + JRSUIConstants.ShowArrows.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.ShowArrows.SHIFT + JRSUIConstants.ShowArrows.SIZE);
         @Native private static final byte SIZE = 1;
         @Native private static final long MASK = (long)0x1 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding booleanValue = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        BooleanValue(final byte value) {
+        BooleanValue(byte value) {
             super(booleanValue, value);
         }
 
@@ -595,13 +595,13 @@ public final class JRSUIConstants {
     }
 
     public static class Animating extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.BooleanValue.SHIFT + JRSUIConstants.BooleanValue.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.BooleanValue.SHIFT + JRSUIConstants.BooleanValue.SIZE);
         @Native private static final byte SIZE = 1;
         @Native private static final long MASK = (long)0x1 << SHIFT;
         private static final JRSUIConstants.PropertyEncoding animating = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        Animating(final byte value) {
+        Animating(byte value) {
             super(animating, value);
         }
 
@@ -612,13 +612,13 @@ public final class JRSUIConstants {
     }
 
     public static class Widget extends JRSUIConstants.Property
-		{
-        @Native private static final byte SHIFT = JRSUIConstants.Animating.SHIFT + JRSUIConstants.Animating.SIZE;
+    {
+        @Native private static final byte SHIFT = (byte) (JRSUIConstants.Animating.SHIFT + JRSUIConstants.Animating.SIZE);
         @Native private static final byte SIZE = 7;
         @Native private static final long MASK = (long)0x7F << SHIFT;
         private static final JRSUIConstants.PropertyEncoding widget = new JRSUIConstants.PropertyEncoding(MASK, SHIFT);
 
-        Widget(final byte constant) {
+        Widget(byte constant) {
             super(widget, constant);
         }
 
@@ -810,7 +810,7 @@ public final class JRSUIConstants {
         public static final JRSUIConstants.Hit HIT = new JRSUIConstants.Hit(_hit);
 
         final int hit;
-        Hit(final int hit) { this.hit = hit; }
+        Hit(int hit) { this.hit = hit; }
 
         public boolean isHit() {
             return hit > 0;
@@ -833,7 +833,7 @@ public final class JRSUIConstants {
     }
 
     public static class ScrollBarHit extends JRSUIConstants.Hit
-		{
+    {
         @Native private static final int _thumb = 2;
         public static final JRSUIConstants.ScrollBarHit THUMB = new JRSUIConstants.ScrollBarHit(_thumb);
 
@@ -854,7 +854,7 @@ public final class JRSUIConstants {
         ScrollBarHit(final int hit) { super(hit); }
     }
 
-    static JRSUIConstants.Hit getHit(final int hit) {
+    static JRSUIConstants.Hit getHit(int hit) {
         switch (hit) {
             case JRSUIConstants.Hit._none:
                 return JRSUIConstants.Hit.NONE;

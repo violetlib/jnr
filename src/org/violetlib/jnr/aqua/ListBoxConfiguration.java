@@ -10,64 +10,68 @@ package org.violetlib.jnr.aqua;
 
 import java.util.Objects;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.aqua.AquaUIPainter.State;
 
+import org.jetbrains.annotations.*;
+
 /**
-	A configuration for a list box.
+  A configuration for a list box.
 */
 
 public class ListBoxConfiguration
-	extends ListBoxLayoutConfiguration
-	implements Configuration
+  extends ListBoxLayoutConfiguration
+  implements Configuration
 {
-	private final @NotNull State state;
-	private final boolean isFocused;
-	private final boolean isFrameOnly;
+    private final @NotNull State state;
+    private final boolean isFocused;
+    private final boolean isFrameOnly;
 
-	public ListBoxConfiguration(@NotNull State state, boolean isFocused, boolean isFrameOnly)
-	{
-		this.state = state;
-		this.isFocused = isFocused;
-		this.isFrameOnly = isFrameOnly;
-	}
+    public ListBoxConfiguration(@NotNull State state, boolean isFocused, boolean isFrameOnly)
+    {
+        this.state = state;
+        this.isFocused = isFocused;
+        this.isFrameOnly = isFrameOnly;
+    }
 
-	public @NotNull State getState()
-	{
-		return state;
-	}
+    public @NotNull State getState()
+    {
+        return state;
+    }
 
-	public boolean isFocused()
-	{
-		return isFocused;
-	}
+    public boolean isFocused()
+    {
+        return isFocused;
+    }
 
-	public boolean isFrameOnly()
-	{
-		return isFrameOnly;
-	}
+    public boolean isFrameOnly()
+    {
+        return isFrameOnly;
+    }
 
-	@Override
-	public boolean equals(@Nullable Object o)
-	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		ListBoxConfiguration that = (ListBoxConfiguration) o;
-		return state == that.state && isFocused == that.isFocused && isFrameOnly == that.isFrameOnly;
-	}
+    @Override
+    public boolean equals(@Nullable Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ListBoxConfiguration that = (ListBoxConfiguration) o;
+        return state == that.state && isFocused == that.isFocused && isFrameOnly == that.isFrameOnly;
+    }
 
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(state, isFocused, isFrameOnly);
-	}
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(state, isFocused, isFrameOnly);
+    }
 
-	@Override
-	public @NotNull String toString()
-	{
-		String fs = isFocused ? " focused" : "";
-		String frs = isFrameOnly ? " frame only" : "";
-		return super.toString() + frs + " " + state + fs;
-	}
+    @Override
+    public @NotNull String toString()
+    {
+        String fs = isFocused ? " focused" : "";
+        String frs = isFrameOnly ? " frame only" : "";
+        return super.toString() + frs + " " + state + fs;
+    }
 }

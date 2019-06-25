@@ -10,66 +10,72 @@ package org.violetlib.jnr.aqua;
 
 import java.util.Objects;
 
-import org.jetbrains.annotations.*;
-
-import org.violetlib.jnr.aqua.AquaUIPainter.TextFieldWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 import org.violetlib.jnr.aqua.AquaUIPainter.State;
+import org.violetlib.jnr.aqua.AquaUIPainter.TextFieldWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.UILayoutDirection;
 
+import org.jetbrains.annotations.*;
+
 /**
-	A configuration for a text field.
+  A configuration for a text field.
 */
 
 public class TextFieldConfiguration
-	extends TextFieldLayoutConfiguration
-	implements Configuration
+  extends TextFieldLayoutConfiguration
+  implements Configuration
 {
-	private final @NotNull State state;
-	private final boolean isFocused;
+    private final @NotNull State state;
+    private final boolean isFocused;
 
-	public TextFieldConfiguration(@NotNull TextFieldWidget tw,
-																@NotNull Size sz,
-																@NotNull State state,
-																boolean isFocused,
-																@NotNull UILayoutDirection ld)
-	{
-		super(tw, sz, ld);
+    public TextFieldConfiguration(@NotNull TextFieldWidget tw,
+                                  @NotNull Size sz,
+                                  @NotNull State state,
+                                  boolean isFocused,
+                                  @NotNull UILayoutDirection ld)
+    {
+        super(tw, sz, ld);
 
-		this.state = state;
-		this.isFocused = isFocused;
-	}
+        this.state = state;
+        this.isFocused = isFocused;
+    }
 
-	public @NotNull State getState()
-	{
-		return state;
-	}
+    public @NotNull State getState()
+    {
+        return state;
+    }
 
-	public boolean isFocused()
-	{
-		return isFocused;
-	}
+    public boolean isFocused()
+    {
+        return isFocused;
+    }
 
-	@Override
-	public boolean equals(@Nullable Object o)
-	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		if (!super.equals(o)) return false;
-		TextFieldConfiguration that = (TextFieldConfiguration) o;
-		return state == that.state && isFocused == that.isFocused;
-	}
+    @Override
+    public boolean equals(@Nullable Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        TextFieldConfiguration that = (TextFieldConfiguration) o;
+        return state == that.state && isFocused == that.isFocused;
+    }
 
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(super.hashCode(), state, isFocused);
-	}
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(super.hashCode(), state, isFocused);
+    }
 
-	@Override
-	public @NotNull String toString()
-	{
-		String fs = isFocused ? " focused" : "";
-		return super.toString() + " " + state + fs;
-	}
+    @Override
+    public @NotNull String toString()
+    {
+        String fs = isFocused ? " focused" : "";
+        return super.toString() + " " + state + fs;
+    }
 }

@@ -37,10 +37,16 @@ package org.violetlib.jnr.impl;
 // AppContext usage replaced with static INSTANCE
 // Statistics gathering added
 
-import java.awt.*;
-import java.lang.ref.*;
-import java.util.*;
-import java.util.concurrent.locks.*;
+import java.awt.Image;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.SoftReference;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import org.jetbrains.annotations.*;
 
 /**
  * ImageCache - A fixed pixel count sized cache of Images keyed by arbitrary
@@ -52,8 +58,8 @@ import java.util.concurrent.locks.*;
 final public class ImageCache {
 
     protected static boolean debugFlag = false;
-   	private static int hitCount;
-   	private static int missCount;
+    private static int hitCount;
+    private static int missCount;
 
     // Ordered Map keyed by args hash, ordered by most recent accessed entry.
     private final LinkedHashMap<PixelsKey, ImageSoftReference> map
@@ -69,13 +75,13 @@ final public class ImageCache {
     // Reference queue for tracking lost softreferences to images in the cache
     private final ReferenceQueue<Image> referenceQueue = new ReferenceQueue<>();
 
-		private static final ImageCache INSTANCE = new ImageCache();
+    private static final ImageCache INSTANCE = new ImageCache();
 
     public static ImageCache getInstance() {
         return INSTANCE;
     }
 
-    ImageCache(final int maxPixelCount) {
+    ImageCache(int maxPixelCount) {
         this.maxPixelCount = maxPixelCount;
     }
 
@@ -92,8 +98,8 @@ final public class ImageCache {
         }
     }
 
-    public Image getImage(final PixelsKey key){
-        final ImageSoftReference ref;
+    public Image getImage(@NotNull PixelsKey key){
+        ImageSoftReference ref;
         lock.readLock().lock();
         try {
             ref = map.get(key);
@@ -120,7 +126,7 @@ final public class ImageCache {
      * @param key The key with which the specified image is to be associated
      * @param image  The image to store in cache
      */
-    public void setImage(final PixelsKey key, final Image image) {
+    public void setImage(@NotNull PixelsKey key, @NotNull Image image) {
 
         lock.writeLock().lock();
         try {
@@ -137,7 +143,7 @@ final public class ImageCache {
             }
 
             // add new image to pixel count
-            final int newPixelCount = key.getPixelCount();
+            int newPixelCount = key.getPixelCount();
             currentPixelCount += newPixelCount;
             // clean out lost references if not enough space
             if (currentPixelCount > maxPixelCount) {
@@ -150,14 +156,14 @@ final public class ImageCache {
 
             // remove old items till there is enough free space
             if (currentPixelCount > maxPixelCount) {
-                final Iterator<Map.Entry<PixelsKey, ImageSoftReference>>
-                        mapIter = map.entrySet().iterator();
+                Iterator<Map.Entry<PixelsKey, ImageSoftReference>> mapIter = map.entrySet().iterator();
                 while ((currentPixelCount > maxPixelCount) && mapIter.hasNext()) {
-                    final Map.Entry<PixelsKey, ImageSoftReference> entry =
-                            mapIter.next();
+                    Map.Entry<PixelsKey, ImageSoftReference> entry = mapIter.next();
                     mapIter.remove();
-                    final Image img = entry.getValue().get();
-                    if (img != null) img.flush();
+                    Image img = entry.getValue().get();
+                    if (img != null) {
+                        img.flush();
+                    }
                     currentPixelCount -= entry.getValue().key.getPixelCount();
                 }
             }
@@ -178,8 +184,7 @@ final public class ImageCache {
 
         final PixelsKey key;
 
-        ImageSoftReference(final PixelsKey key, final Image referent,
-                final ReferenceQueue<? super Image> q) {
+        ImageSoftReference(PixelsKey key, Image referent, ReferenceQueue<? super Image> q) {
             super(referent, q);
             this.key = key;
         }

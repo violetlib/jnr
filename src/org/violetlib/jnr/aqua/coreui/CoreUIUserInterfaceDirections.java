@@ -9,11 +9,11 @@
 package org.violetlib.jnr.aqua.coreui;
 
 /**
-	User interface directions supported by Core UI.
+  User interface directions supported by Core UI.
 */
 
 public class CoreUIUserInterfaceDirections
 {
-	public static final String LEFT_TO_RIGHT = "kCUIUserInterfaceLayoutDirectionLeftToRight";
-	public static final String RIGHT_TO_LEFT = "kCUIUserInterfaceLayoutDirectionRightToLeft";
+    public static final String LEFT_TO_RIGHT = "kCUIUserInterfaceLayoutDirectionLeftToRight";
+    public static final String RIGHT_TO_LEFT = "kCUIUserInterfaceLayoutDirectionRightToLeft";
 }

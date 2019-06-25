@@ -10,47 +10,51 @@ package org.violetlib.jnr.aqua;
 
 import java.util.Objects;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 
+import org.jetbrains.annotations.*;
+
 /**
-	A layout configuration for spinner arrows.
+  A layout configuration for spinner arrows.
 */
 
 public class SpinnerArrowsLayoutConfiguration
-	extends LayoutConfiguration
+  extends LayoutConfiguration
 {
-	private final @NotNull Size size;
+    private final @NotNull Size size;
 
-	public SpinnerArrowsLayoutConfiguration(@NotNull Size size)
-	{
-		this.size = size;
-	}
+    public SpinnerArrowsLayoutConfiguration(@NotNull Size size)
+    {
+        this.size = size;
+    }
 
-	public @NotNull Size getSize()
-	{
-		return size;
-	}
+    public @NotNull Size getSize()
+    {
+        return size;
+    }
 
-	@Override
-	public boolean equals(@Nullable Object o)
-	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		SpinnerArrowsLayoutConfiguration that = (SpinnerArrowsLayoutConfiguration) o;
-		return size == that.size;
-	}
+    @Override
+    public boolean equals(@Nullable Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SpinnerArrowsLayoutConfiguration that = (SpinnerArrowsLayoutConfiguration) o;
+        return size == that.size;
+    }
 
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(size);
-	}
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(size);
+    }
 
-	@Override
-	public @NotNull String toString()
-	{
-		return "Spinner Arrows " + size;
-	}
+    @Override
+    public @NotNull String toString()
+    {
+        return "Spinner Arrows " + size;
+    }
 }

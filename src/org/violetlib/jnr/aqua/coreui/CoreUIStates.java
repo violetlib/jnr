@@ -9,15 +9,15 @@
 package org.violetlib.jnr.aqua.coreui;
 
 /**
-	View states supported by Core UI.
+  View states supported by Core UI.
 */
 
 public class CoreUIStates
 {
-	public static final String ACTIVE = "normal";
-	public static final String DISABLED = "disabled";
-	public static final String INACTIVE = "inactive";
-	public static final String PRESSED = "pressed";
-	public static final String PULSED = "pulsed";
-	public static final String ROLLOVER = "rollover";
+    public static final String ACTIVE = "normal";
+    public static final String DISABLED = "disabled";
+    public static final String INACTIVE = "inactive";
+    public static final String PRESSED = "pressed";
+    public static final String PULSED = "pulsed";
+    public static final String ROLLOVER = "rollover";
 }

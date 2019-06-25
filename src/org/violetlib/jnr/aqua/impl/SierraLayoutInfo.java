@@ -9,10 +9,10 @@
 package org.violetlib.jnr.aqua.impl;
 
 /**
-	Layout information for OS 10.12 widgets.
+  Layout information for OS 10.12 widgets.
 */
 
 public class SierraLayoutInfo
-	extends ElCapitanLayoutInfo
+  extends ElCapitanLayoutInfo
 {
 }

@@ -18,27 +18,27 @@ import java.awt.image.BufferedImage;
 import org.jetbrains.annotations.*;
 
 /**
-	Java platform specific support for Java 9 and later.
+  Java platform specific support for Java 9 and later.
 */
 
 public class Java9Support
-	implements JavaSupport.JavaSupportImpl
+  implements JavaSupport.JavaSupportImpl
 {
-	@Override
-	public int getScaleFactor(@NotNull Graphics g)
-	{
-		// This works in Java 9. Before that, it returned 1.
-		Graphics2D gg = (Graphics2D) g;
-		GraphicsConfiguration gc = gg.getDeviceConfiguration();
-		AffineTransform t = gc.getDefaultTransform();
-		double sx = t.getScaleX();
-		double sy = t.getScaleY();
-		return (int) Math.max(sx, sy);
-	}
+    @Override
+    public int getScaleFactor(@NotNull Graphics g)
+    {
+        // This works in Java 9. Before that, it returned 1.
+        Graphics2D gg = (Graphics2D) g;
+        GraphicsConfiguration gc = gg.getDeviceConfiguration();
+        AffineTransform t = gc.getDefaultTransform();
+        double sx = t.getScaleX();
+        double sy = t.getScaleY();
+        return (int) Math.max(sx, sy);
+    }
 
-	@Override
-	public Image createMultiResolutionImage(int baseImageWidth, int baseImageHeight, @NotNull BufferedImage im)
-	{
-		return new JNR9MultiResolutionImage(baseImageWidth, baseImageHeight, im);
-	}
+    @Override
+    public Image createMultiResolutionImage(int baseImageWidth, int baseImageHeight, @NotNull BufferedImage im)
+    {
+        return new JNR9MultiResolutionImage(baseImageWidth, baseImageHeight, im);
+    }
 }

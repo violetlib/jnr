@@ -9,13 +9,13 @@
 package org.violetlib.jnr;
 
 /**
-	This interface is supported by painters that provide information about layout sizes.
+  This interface is supported by painters that provide information about layout sizes.
 */
 
 public interface ConfiguredPainter
-	extends Painter
+  extends Painter
 {
-	float getFixedWidth();
+    float getFixedWidth();
 
-	float getFixedHeight();
+    float getFixedHeight();
 }

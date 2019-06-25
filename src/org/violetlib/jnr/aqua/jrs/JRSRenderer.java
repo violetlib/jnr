@@ -8,51 +8,51 @@
 
 package org.violetlib.jnr.aqua.jrs;
 
-import org.jetbrains.annotations.*;
-
+import org.violetlib.jnr.impl.BasicRenderer;
 import org.violetlib.jnr.impl.jrs.JRSUIConstants;
 import org.violetlib.jnr.impl.jrs.JRSUIControl;
 import org.violetlib.jnr.impl.jrs.JRSUIState;
-import org.violetlib.jnr.impl.BasicRenderer;
+
+import org.jetbrains.annotations.*;
 
 /**
-	A renderer that use the Java Runtime Support framework to perform the rendering.
+  A renderer that use the Java Runtime Support framework to perform the rendering.
 */
 
 public class JRSRenderer
-	implements BasicRenderer
+  implements BasicRenderer
 {
-	protected final @NotNull JRSUIControl control;
-	protected final @NotNull JRSUIState state;
+    protected final @NotNull JRSUIControl control;
+    protected final @NotNull JRSUIState state;
 
-	public JRSRenderer(@NotNull JRSUIControl control, @NotNull JRSUIState state)
-	{
-		this.control = control;
-		this.state = state;
-	}
+    public JRSRenderer(@NotNull JRSUIControl control, @NotNull JRSUIState state)
+    {
+        this.control = control;
+        this.state = state;
+    }
 
-	public @Nullable JRSUIState getControlState()
-	{
-		return state;
-	}
+    public @Nullable JRSUIState getControlState()
+    {
+        return state;
+    }
 
-	public boolean isAnimating()
-	{
-		return state.is(JRSUIConstants.Animating.YES);
-	}
+    public boolean isAnimating()
+    {
+        return state.is(JRSUIConstants.Animating.YES);
+    }
 
-	@Override
-	public void render(@NotNull int[] data, int rw, int rh, float w, float h)
-	{
-		// Apparently JRS does not expect fractional sizes in 1x
-		float ww = (float) Math.ceil(w);
-		float hh = (float) Math.ceil(h);
-		if (ww == rw && hh == rh) {
-			w = ww;
-			h = hh;
-		}
+    @Override
+    public void render(@NotNull int[] data, int rw, int rh, float w, float h)
+    {
+        // Apparently JRS does not expect fractional sizes in 1x
+        float ww = (float) Math.ceil(w);
+        float hh = (float) Math.ceil(h);
+        if (ww == rw && hh == rh) {
+            w = ww;
+            h = hh;
+        }
 
-		control.set(state);
-		control.paint(data, rw, rh, 0, 0, w, h);
-	}
+        control.set(state);
+        control.paint(data, rw, rh, 0, 0, w, h);
+    }
 }

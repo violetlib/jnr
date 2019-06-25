@@ -39,11 +39,11 @@ public class JRSUIState {
         return prototype.derive();
     }
 
-    JRSUIState(final JRSUIConstants.Widget widget) {
+    JRSUIState(JRSUIConstants.Widget widget) {
         this(widget.apply(0));
     }
 
-    JRSUIState(final long encodedState) {
+    JRSUIState(long encodedState) {
         this.encodedState = derivedEncodedState = encodedState;
     }
 
@@ -53,7 +53,7 @@ public class JRSUIState {
 
     public <T extends JRSUIState> T derive() {
         if (isDerivationSame()) return (T)this;
-        final T derivation = (T)createDerivation();
+        T derivation = (T)createDerivation();
 
 //        if (!states.add(derivation)) {
 //            System.out.println("dupe: " + states.size());
@@ -70,17 +70,19 @@ public class JRSUIState {
         derivedEncodedState = encodedState;
     }
 
-    public void set(final JRSUIConstants.Property property) {
+    public void set(JRSUIConstants.Property property) {
         derivedEncodedState = property.apply(derivedEncodedState);
     }
 
-    public void apply(final JRSUIControl control) {
+    public void apply(JRSUIControl control) {
         control.setEncodedState(encodedState);
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        if (!(obj instanceof JRSUIState)) return false;
+    public boolean equals(Object obj) {
+        if (!(obj instanceof JRSUIState)) {
+            return false;
+        }
         return encodedState == ((JRSUIState)obj).encodedState && getClass().equals(obj.getClass());
     }
 
@@ -94,11 +96,11 @@ public class JRSUIState {
     }
 
     public static class AnimationFrameState extends JRSUIState
-		{
+    {
         final int animationFrame;
         int derivedAnimationFrame;
 
-        AnimationFrameState(final long encodedState, final int animationFrame) {
+        AnimationFrameState(long encodedState, int animationFrame) {
             super(encodedState);
             this.animationFrame = derivedAnimationFrame = animationFrame;
         }
@@ -119,19 +121,21 @@ public class JRSUIState {
             derivedAnimationFrame = animationFrame;
         }
 
-        public void setAnimationFrame(final int frame) {
+        public void setAnimationFrame(int frame) {
             this.derivedAnimationFrame = frame;
         }
 
         @Override
-        public void apply(final JRSUIControl control) {
+        public void apply(JRSUIControl control) {
             super.apply(control);
             control.set(Key.ANIMATION_FRAME, animationFrame);
         }
 
         @Override
-        public boolean equals(final Object obj) {
-            if (!(obj instanceof AnimationFrameState)) return false;
+        public boolean equals(Object obj) {
+            if (!(obj instanceof AnimationFrameState)) {
+                return false;
+            }
             return animationFrame == ((AnimationFrameState)obj).animationFrame && super.equals(obj);
         }
 
@@ -142,11 +146,11 @@ public class JRSUIState {
     }
 
     public static class ValueState extends JRSUIState
-		{
+    {
         final double value;
         double derivedValue;
 
-        ValueState(final long encodedState, final double value) {
+        ValueState(long encodedState, double value) {
             super(encodedState);
             this.value = derivedValue = value;
         }
@@ -167,32 +171,34 @@ public class JRSUIState {
             derivedValue = value;
         }
 
-        public void setValue(final double value) {
+        public void setValue(double value) {
             derivedValue = value;
         }
 
         @Override
-        public void apply(final JRSUIControl control) {
+        public void apply(JRSUIControl control) {
             super.apply(control);
             control.set(Key.VALUE, value);
         }
 
         @Override
-        public boolean equals(final Object obj) {
-            if (!(obj instanceof ValueState)) return false;
+        public boolean equals(Object obj) {
+            if (!(obj instanceof ValueState)) {
+                return false;
+            }
             return value == ((ValueState)obj).value && super.equals(obj);
         }
 
         @Override
         public int hashCode() {
-            final long bits = Double.doubleToRawLongBits(value);
+            long bits = Double.doubleToRawLongBits(value);
             return super.hashCode() ^ (int)bits ^ (int)(bits >>> 32);
         }
     }
 
     public static class TitleBarHeightState extends JRSUIState.ValueState
-		{
-        TitleBarHeightState(final long encodedState, final double value) {
+    {
+        TitleBarHeightState(long encodedState, double value) {
             super(encodedState, value);
         }
 
@@ -202,20 +208,20 @@ public class JRSUIState {
         }
 
         @Override
-        public void apply(final JRSUIControl control) {
+        public void apply(JRSUIControl control) {
             super.apply(control);
             control.set(Key.WINDOW_TITLE_BAR_HEIGHT, value);
         }
     }
 
     public static class ScrollBarState extends JRSUIState.ValueState
-		{
+    {
         final double thumbProportion;
         double derivedThumbProportion;
         final double thumbStart;
         double derivedThumbStart;
 
-        ScrollBarState(final long encodedState, final double value, final double thumbProportion, final double thumbStart) {
+        ScrollBarState(long encodedState, double value, double thumbProportion, double thumbStart) {
             super(encodedState, value);
             this.thumbProportion = derivedThumbProportion = thumbProportion;
             this.thumbStart = derivedThumbStart = thumbStart;
@@ -238,30 +244,32 @@ public class JRSUIState {
             derivedThumbStart = thumbStart;
         }
 
-        public void setThumbPercent(final double thumbPercent) {
+        public void setThumbPercent(double thumbPercent) {
             derivedThumbProportion = thumbPercent;
         }
 
-        public void setThumbStart(final double thumbStart) {
+        public void setThumbStart(double thumbStart) {
             derivedThumbStart = thumbStart;
         }
 
         @Override
-        public void apply(final JRSUIControl control) {
+        public void apply(JRSUIControl control) {
             super.apply(control);
             control.set(Key.THUMB_PROPORTION, thumbProportion);
             control.set(Key.THUMB_START, thumbStart);
         }
 
         @Override
-        public boolean equals(final Object obj) {
-            if (!(obj instanceof ScrollBarState)) return false;
+        public boolean equals(Object obj) {
+            if (!(obj instanceof ScrollBarState)) {
+                return false;
+            }
             return (thumbProportion == ((ScrollBarState)obj).thumbProportion) && (thumbStart == ((ScrollBarState)obj).thumbStart) && super.equals(obj);
         }
 
         @Override
         public int hashCode() {
-            final long bits = Double.doubleToRawLongBits(thumbProportion) ^ Double.doubleToRawLongBits(thumbStart);
+            long bits = Double.doubleToRawLongBits(thumbProportion) ^ Double.doubleToRawLongBits(thumbStart);
             return super.hashCode() ^ (int)bits ^ (int)(bits >>> 32);
         }
     }

@@ -41,17 +41,17 @@ static void throwException(JNIEnv *env)
 
 static CFTypeRef CopyCFTypeToJava(JNIEnv *env, jobject obj)
 {
-	if (integerClass == 0) {
-		integerClass = (*env) -> NewGlobalRef(env, (*env) -> FindClass(env, "java/lang/Integer"));
-		integerValueMethod = (*env) -> GetMethodID(env, integerClass, "intValue", "()I");
-		longClass = (*env) -> NewGlobalRef(env, (*env) -> FindClass(env, "java/lang/Long"));
-		longValueMethod = (*env) -> GetMethodID(env, longClass, "longValue", "()J");
-		stringClass = (*env) -> NewGlobalRef(env, (*env) -> FindClass(env, "java/lang/String"));
-		booleanClass = (*env) -> NewGlobalRef(env, (*env) -> FindClass(env, "java/lang/Boolean"));
-		booleanValueMethod = (*env) -> GetMethodID(env, booleanClass, "booleanValue", "()Z");
-		doubleClass = (*env) -> NewGlobalRef(env, (*env) -> FindClass(env, "java/lang/Double"));
-		doubleValueMethod = (*env) -> GetMethodID(env, doubleClass, "doubleValue", "()D");
-	}
+    if (integerClass == 0) {
+        integerClass = (*env) -> NewGlobalRef(env, (*env) -> FindClass(env, "java/lang/Integer"));
+        integerValueMethod = (*env) -> GetMethodID(env, integerClass, "intValue", "()I");
+        longClass = (*env) -> NewGlobalRef(env, (*env) -> FindClass(env, "java/lang/Long"));
+        longValueMethod = (*env) -> GetMethodID(env, longClass, "longValue", "()J");
+        stringClass = (*env) -> NewGlobalRef(env, (*env) -> FindClass(env, "java/lang/String"));
+        booleanClass = (*env) -> NewGlobalRef(env, (*env) -> FindClass(env, "java/lang/Boolean"));
+        booleanValueMethod = (*env) -> GetMethodID(env, booleanClass, "booleanValue", "()Z");
+        doubleClass = (*env) -> NewGlobalRef(env, (*env) -> FindClass(env, "java/lang/Double"));
+        doubleValueMethod = (*env) -> GetMethodID(env, doubleClass, "doubleValue", "()D");
+    }
 
     if ((*env) -> IsInstanceOf(env, obj, integerClass)) {
       jint value = (*env) -> CallIntMethod(env, obj, integerValueMethod);
@@ -64,11 +64,11 @@ static CFTypeRef CopyCFTypeToJava(JNIEnv *env, jobject obj)
     }
 
     if ((*env) -> IsInstanceOf(env, obj, stringClass)) {
-	    jsize slen = (*env) -> GetStringLength(env, obj);
-	    const jchar *schars = (*env) -> GetStringChars(env, obj, NULL);
-	    CFStringRef result = CFStringCreateWithCharacters(NULL, schars, slen);
-	    (*env) -> ReleaseStringChars(env, obj, schars);
-	    return result;
+        jsize slen = (*env) -> GetStringLength(env, obj);
+        const jchar *schars = (*env) -> GetStringChars(env, obj, NULL);
+        CFStringRef result = CFStringCreateWithCharacters(NULL, schars, slen);
+        (*env) -> ReleaseStringChars(env, obj, schars);
+        return result;
     }
 
     if ((*env) -> IsInstanceOf(env, obj, booleanClass)) {
@@ -81,6 +81,6 @@ static CFTypeRef CopyCFTypeToJava(JNIEnv *env, jobject obj)
       return CFNumberCreate(NULL, kCFNumberDoubleType, &value);
     }
 
-	throwException(env);
-	return NULL;
+    throwException(env);
+    return NULL;
 }

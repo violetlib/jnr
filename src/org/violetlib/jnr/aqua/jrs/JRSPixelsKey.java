@@ -43,59 +43,59 @@ import org.violetlib.vappearances.VAppearance;
 import org.jetbrains.annotations.*;
 
 public class JRSPixelsKey
-	implements ImageCache.PixelsKey
+  implements ImageCache.PixelsKey
 {
-     private final int pixelCount;
-     private final int hash;
+    private final int pixelCount;
+    private final int hash;
 
-     // key parts
-     private final int scaleFactor;
-     private final int w;
-     private final int h;
-     private final @NotNull JRSUIState state;
-     private final @NotNull VAppearance appearance;
+    // key parts
+    private final int scaleFactor;
+    private final int w;
+    private final int h;
+    private final @NotNull JRSUIState state;
+    private final @NotNull VAppearance appearance;
 
-		public JRSPixelsKey(int scaleFactor, int w, int h, @NotNull JRSUIState state, @NotNull VAppearance appearance)
-		{
-			this.pixelCount = w * h;
-			this.scaleFactor = scaleFactor;
-			this.w = w;
-			this.h = h;
-			this.state = state;
-			this.appearance = appearance;
-			this.hash = hash();
-		}
+    public JRSPixelsKey(int scaleFactor, int w, int h, @NotNull JRSUIState state, @NotNull VAppearance appearance)
+    {
+        this.pixelCount = w * h;
+        this.scaleFactor = scaleFactor;
+        this.w = w;
+        this.h = h;
+        this.state = state;
+        this.appearance = appearance;
+        this.hash = hash();
+    }
 
-     @Override
-     public int getPixelCount()
-		 {
-         return pixelCount;
-     }
+    @Override
+    public int getPixelCount()
+    {
+        return pixelCount;
+    }
 
-     private int hash()
-		 {
-         int hash = scaleFactor;
-         hash = 31 * hash + w;
-         hash = 31 * hash + h;
-         hash = 31 * hash + state.hashCode();
-         hash = 31 * hash + appearance.hashCode();
-         return hash;
-     }
+    private int hash()
+    {
+        int hash = scaleFactor;
+        hash = 31 * hash + w;
+        hash = 31 * hash + h;
+        hash = 31 * hash + state.hashCode();
+        hash = 31 * hash + appearance.hashCode();
+        return hash;
+    }
 
-     @Override
-     public int hashCode()
-		 {
-         return hash;
-     }
+    @Override
+    public int hashCode()
+    {
+        return hash;
+    }
 
-     @Override
-     public boolean equals(@Nullable Object obj)
-		 {
-         if (obj instanceof JRSPixelsKey) {
-					 JRSPixelsKey key = (JRSPixelsKey) obj;
-             return scaleFactor == key.scaleFactor && w == key.w && h == key.h
+    @Override
+    public boolean equals(@Nullable Object obj)
+    {
+        if (obj instanceof JRSPixelsKey) {
+            JRSPixelsKey key = (JRSPixelsKey) obj;
+            return scaleFactor == key.scaleFactor && w == key.w && h == key.h
                      && state.equals(key.state) && appearance.equals(key.appearance);
-         }
-         return false;
-     }
- }
+        }
+        return false;
+    }
+}

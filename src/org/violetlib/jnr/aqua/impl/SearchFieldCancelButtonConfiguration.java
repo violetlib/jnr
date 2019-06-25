@@ -10,44 +10,48 @@ package org.violetlib.jnr.aqua.impl;
 
 import java.util.Objects;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.aqua.Configuration;
 import org.violetlib.jnr.aqua.LayoutConfiguration;
 import org.violetlib.jnr.aqua.TextFieldConfiguration;
 
+import org.jetbrains.annotations.*;
+
 /**
-	A pseudo configuration for internal and evaluation use. Should not be used by clients.
+  A pseudo configuration for internal and evaluation use. Should not be used by clients.
 */
 
 public class SearchFieldCancelButtonConfiguration
-	extends LayoutConfiguration
-	implements Configuration
+  extends LayoutConfiguration
+  implements Configuration
 {
-	private final @NotNull TextFieldConfiguration g;
+    private final @NotNull TextFieldConfiguration g;
 
-	public SearchFieldCancelButtonConfiguration(@NotNull TextFieldConfiguration g)
-	{
-		this.g = g;
-	}
+    public SearchFieldCancelButtonConfiguration(@NotNull TextFieldConfiguration g)
+    {
+        this.g = g;
+    }
 
-	public @NotNull TextFieldConfiguration getTextFieldConfiguration()
-	{
-		return g;
-	}
+    public @NotNull TextFieldConfiguration getTextFieldConfiguration()
+    {
+        return g;
+    }
 
-	@Override
-	public boolean equals(@Nullable Object o)
-	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		SearchFieldCancelButtonConfiguration that = (SearchFieldCancelButtonConfiguration) o;
-		return g == that.g;
-	}
+    @Override
+    public boolean equals(@Nullable Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SearchFieldCancelButtonConfiguration that = (SearchFieldCancelButtonConfiguration) o;
+        return g == that.g;
+    }
 
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(g);
-	}
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(g);
+    }
 }

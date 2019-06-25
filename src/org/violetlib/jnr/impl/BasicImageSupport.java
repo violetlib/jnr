@@ -20,49 +20,49 @@ import java.awt.image.WritableRaster;
 import org.jetbrains.annotations.*;
 
 /**
-	Basic support for creating images from INT_ARGB_PRE raster data.
+  Basic support for creating images from INT_ARGB_PRE raster data.
 */
 
 public class BasicImageSupport
 {
-	private static final @NotNull ColorModel colorModel = createColorModel();
+    private static final @NotNull ColorModel colorModel = createColorModel();
 
-	public static @NotNull ColorModel getColorModel()
-	{
-		return colorModel;
-	}
+    public static @NotNull ColorModel getColorModel()
+    {
+        return colorModel;
+    }
 
-	public static @NotNull BufferedImage createImage(@NotNull int[] buffer, int w, int h)
-	{
-		return createImage(buffer, w, h, w);
-	}
+    public static @NotNull BufferedImage createImage(@NotNull int[] buffer, int w, int h)
+    {
+        return createImage(buffer, w, h, w);
+    }
 
-	public static @NotNull BufferedImage createImage(@NotNull int[] buffer, int w, int h, int scan)
-	{
-		return createBufferedImage(colorModel, buffer, w, h, scan);
-	}
+    public static @NotNull BufferedImage createImage(@NotNull int[] buffer, int w, int h, int scan)
+    {
+        return createBufferedImage(colorModel, buffer, w, h, scan);
+    }
 
-	/**
-		Create a color model for INT_ARGB_PRE.
-	*/
+    /**
+      Create a color model for INT_ARGB_PRE.
+    */
 
-	private static @NotNull ColorModel createColorModel()
-	{
-		return new DirectColorModel(
-			ColorSpace.getInstance(ColorSpace.CS_sRGB),
-			32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000, true, DataBuffer.TYPE_INT
-		);
-	}
+    private static @NotNull ColorModel createColorModel()
+    {
+        return new DirectColorModel(
+          ColorSpace.getInstance(ColorSpace.CS_sRGB),
+          32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000, true, DataBuffer.TYPE_INT
+        );
+    }
 
-	private static @NotNull BufferedImage createBufferedImage(@NotNull ColorModel cm, @NotNull int[] buffer, int w, int h, int scan)
-	{
-		DataBuffer db = new DataBufferInt(buffer, buffer.length);
-		int[] bandMasks = new int[4];
-		bandMasks[0] = 0x00ff0000;
-		bandMasks[1] = 0x0000ff00;
-		bandMasks[2] = 0x000000ff;
-		bandMasks[3] = 0xff000000;
-		WritableRaster r = Raster.createPackedRaster(db, w, h, scan, bandMasks, null);
-		return new BufferedImage(cm, r, true, null);
-	}
+    private static @NotNull BufferedImage createBufferedImage(@NotNull ColorModel cm, @NotNull int[] buffer, int w, int h, int scan)
+    {
+        DataBuffer db = new DataBufferInt(buffer, buffer.length);
+        int[] bandMasks = new int[4];
+        bandMasks[0] = 0x00ff0000;
+        bandMasks[1] = 0x0000ff00;
+        bandMasks[2] = 0x000000ff;
+        bandMasks[3] = 0xff000000;
+        WritableRaster r = Raster.createPackedRaster(db, w, h, scan, bandMasks, null);
+        return new BufferedImage(cm, r, true, null);
+    }
 }

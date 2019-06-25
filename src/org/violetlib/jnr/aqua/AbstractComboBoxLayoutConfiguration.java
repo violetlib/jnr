@@ -8,22 +8,23 @@
 
 package org.violetlib.jnr.aqua;
 
-import org.jetbrains.annotations.*;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 import org.violetlib.jnr.aqua.AquaUIPainter.UILayoutDirection;
 
+import org.jetbrains.annotations.*;
+
 /**
-	A common base class for an editable or non-editable combo box layout configuration.
+  A common base class for an editable or non-editable combo box layout configuration.
 */
 
 public abstract class AbstractComboBoxLayoutConfiguration
-	extends LayoutConfiguration
+  extends LayoutConfiguration
 {
-	public abstract @NotNull Size getSize();
+    public abstract @NotNull Size getSize();
 
-	public abstract @NotNull UILayoutDirection getLayoutDirection();
+    public abstract @NotNull UILayoutDirection getLayoutDirection();
 
-	public abstract boolean isCell();
+    public abstract boolean isCell();
 
-	public abstract boolean isLeftToRight();
+    public abstract boolean isLeftToRight();
 }
