@@ -9,6 +9,10 @@
         <ant dir="release/full"/>
     </target>
 
+    <target name="clean">
+        <ant dir="release/full" target="clean"/>
+    </target>
+
     <target name="install" depends="build">
         <copy todir="${user.home}/build/out/production/VAquaRendering/" file="release/full/out/jni/libVAquaRendering.dylib"/>
     </target>
