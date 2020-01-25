@@ -1086,8 +1086,14 @@ public class YosemiteLayoutInfo
         } else if (sw == SliderWidget.SLIDER_CIRCULAR) {
             double xcenter = left + w / 2.0;
             double ycenter = top + h / 2.0;
-            double angle = Math.atan2(x - xcenter, y - ycenter);
-            return ((angle + Math.PI) / (2 * Math.PI));
+            double angle = Math.atan2(y - ycenter, x - xcenter);
+            // Because Y increases downward, we get the desired clockwise increase.
+            // The remaining conversion ensures that the midpoint of the range is at the bottom of the dial.
+            angle += Math.PI / 2;
+            if (angle < 0) {
+                angle += 2 * Math.PI;
+            }
+            return angle / (2 * Math.PI);
 
         } else {
             return 0;
