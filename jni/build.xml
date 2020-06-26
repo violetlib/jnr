@@ -2,89 +2,89 @@
 
 <typedef name="jni" classname="com.cbfiddle.ant.JNILibrary"/>
 
-	<property name="buildroot" location="${user.home}/build"/>
-	<property name="products" location="${buildroot}/products"/>
-	<property name="dist" location="${products}/jni"/>
+    <property name="buildroot" location="${user.home}/build"/>
+    <property name="products" location="${buildroot}/products"/>
+    <property name="dist" location="${products}/jni"/>
 
-	<target name="headers">
-		<javah class="org.violetlib.jnr.aqua.impl.AquaNativePainter"
+    <target name="headers">
+        <javah class="org.violetlib.jnr.aqua.impl.AquaNativePainter"
            classpath="/Users/alan/build/working/VAquaRendering/classes"
            destdir="."/>
-		<javah class="org.violetlib.jnr.aqua.impl.NativeSupport"
+        <javah class="org.violetlib.jnr.aqua.impl.NativeSupport"
            classpath="/Users/alan/build/working/VAquaRendering/classes"
            destdir="."/>
-		<javah class="org.violetlib.jnr.aqua.coreui.CoreUIPainter"
+        <javah class="org.violetlib.jnr.aqua.coreui.CoreUIPainter"
            classpath="/Users/alan/build/working/VAquaRendering/classes"
            destdir="."/>
-		<javah class="org.violetlib.jnr.impl.jrs.JRSUIControl"
+        <javah class="org.violetlib.jnr.impl.jrs.JRSUIControl"
            classpath="/Users/alan/build/working/VAquaRendering/classes"
            destdir="."/>
-		<javah class="org.violetlib.jnr.impl.jrs.JRSUIConstants"
+        <javah class="org.violetlib.jnr.impl.jrs.JRSUIConstants"
            classpath="/Users/alan/build/working/VAquaRendering/classes"
            destdir="."/>
-	</target>
+    </target>
 
-	<target name="VAquaRenderingJNI" depends="headers">
+    <target name="VAquaRenderingJNI" depends="headers">
 
-	<mkdir dir="${dist}"/>
+    <mkdir dir="${dist}"/>
 
-	<jni
-		version="1"
-		compatibilityversion="1"
-		outputfile="${dist}/libVAquaRendering.dylib"
-		arch="x86_64"
-		librarypath="/usr/local/lib"
-		includepath="/usr/local/include"
-		>
+    <jni
+        version="1"
+        compatibilityversion="1"
+        outputfile="${dist}/libVAquaRendering.dylib"
+        arch="x86_64"
+        librarypath="/usr/local/lib"
+        includepath="/usr/local/include"
+        >
 
-		<fileset dir=".">
-			<include name="*.c"/>
-			<include name="*.m"/>
-		</fileset>
+        <fileset dir=".">
+            <include name="*.c"/>
+            <include name="*.m"/>
+        </fileset>
 
-		<compilerOption>-fobjc-arc</compilerOption>
+        <compilerOption>-fobjc-arc</compilerOption>
 
-		<framework>CoreFoundation</framework>
-		<framework>Cocoa</framework>
-		<framework>JavaVM</framework>
-		<framework>JavaNativeFoundation</framework>
-		<framework>JavaRuntimeSupport</framework>
+        <framework>CoreFoundation</framework>
+        <framework>Cocoa</framework>
+        <framework>JavaVM</framework>
+        <framework>JavaNativeFoundation</framework>
+        <framework>JavaRuntimeSupport</framework>
 
-	</jni>
+    </jni>
 
-	<copy file="${dist}/libVAquaRendering.dylib" preservelastmodified="true" tofile="${basedir}/../resources/libVAquaRendering.dylib"/>
-	<copy file="${dist}/libVAquaRendering.dylib" preservelastmodified="true" tofile="${buildroot}/idea/production/VAquaRendering/libVAquaRendering.dylib"/>
+    <copy file="${dist}/libVAquaRendering.dylib" preservelastmodified="true" tofile="${basedir}/../resources/libVAquaRendering.dylib"/>
+    <copy file="${dist}/libVAquaRendering.dylib" preservelastmodified="true" tofile="${buildroot}/idea/production/VAquaRendering/libVAquaRendering.dylib"/>
 
-	</target>
+    </target>
 
-	<target name="VAquaRenderingPureJNI">
+    <target name="VAquaRenderingPureJNI">
 
-	<mkdir dir="${dist}"/>
+    <mkdir dir="${dist}"/>
 
-	<jni
-		version="1"
-		compatibilityversion="1"
-		outputfile="${dist}/libVAquaRendering.dylib"
-		arch="x86_64"
-		librarypath="/usr/local/lib"
-		includepath="/usr/local/include"
-		>
+    <jni
+        version="1"
+        compatibilityversion="1"
+        outputfile="${dist}/libVAquaRendering.dylib"
+        arch="x86_64"
+        librarypath="/usr/local/lib"
+        includepath="/usr/local/include"
+        >
 
-		<fileset dir=".">
-			<include name="*.c"/>
-			<include name="*.m"/>
-			<exclude name="org_violetlib_jnr_aqua_coreui_CUIDrawPainter.m"/>
-		</fileset>
+        <fileset dir=".">
+            <include name="*.c"/>
+            <include name="*.m"/>
+            <exclude name="org_violetlib_jnr_aqua_coreui_CUIDrawPainter.m"/>
+        </fileset>
 
-		<compilerOption>-fobjc-arc</compilerOption>
+        <compilerOption>-fobjc-arc</compilerOption>
 
-		<framework>CoreFoundation</framework>
-		<framework>Cocoa</framework>
-		<framework>JavaVM</framework>
-		<framework>JavaNativeFoundation</framework>
-		<framework>JavaRuntimeSupport</framework>
+        <framework>CoreFoundation</framework>
+        <framework>Cocoa</framework>
+        <framework>JavaVM</framework>
+        <framework>JavaNativeFoundation</framework>
+        <framework>JavaRuntimeSupport</framework>
 
-	</jni>
+    </jni>
 
-	</target>
+    </target>
 </project>

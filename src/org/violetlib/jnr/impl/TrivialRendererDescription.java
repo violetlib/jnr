@@ -17,32 +17,32 @@ import org.jetbrains.annotations.*;
 */
 
 public final class TrivialRendererDescription
-	implements RendererDescription
+  implements RendererDescription
 {
-	private static final @NotNull TrivialRendererDescription INSTANCE = new TrivialRendererDescription();
+    private static final @NotNull TrivialRendererDescription INSTANCE = new TrivialRendererDescription();
 
-	public static @NotNull TrivialRendererDescription getInstance()
-	{
-		return INSTANCE;
-	}
+    public static @NotNull TrivialRendererDescription getInstance()
+    {
+        return INSTANCE;
+    }
 
-	private TrivialRendererDescription()
-	{
-	}
+    private TrivialRendererDescription()
+    {
+    }
 
-	@Override
-	public @NotNull RasterDescription getRasterBounds(@NotNull Rectangle2D target, int scaleFactor)
-	{
-		float x = (float) target.getX();
-		float y = (float) target.getY();
-		float rasterWidth = (float) target.getWidth();
-		float rasterHeight = (float) target.getHeight();
-		return new RasterDescription(x, y, rasterWidth, rasterHeight);
-	}
+    @Override
+    public @NotNull RasterDescription getRasterBounds(@NotNull Rectangle2D target, int scaleFactor)
+    {
+        float x = (float) target.getX();
+        float y = (float) target.getY();
+        float rasterWidth = (float) target.getWidth();
+        float rasterHeight = (float) target.getHeight();
+        return new RasterDescription(x, y, rasterWidth, rasterHeight);
+    }
 
-	@Override
-	public boolean isTrivial()
-	{
-		return true;
-	}
+    @Override
+    public boolean isTrivial()
+    {
+        return true;
+    }
 }

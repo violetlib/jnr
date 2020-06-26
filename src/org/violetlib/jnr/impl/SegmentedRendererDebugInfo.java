@@ -14,50 +14,50 @@ import java.awt.geom.Rectangle2D;
 import org.jetbrains.annotations.*;
 
 /**
-	Information for debugging a segmented control renderer.
+  Information for debugging a segmented control renderer.
 */
 
 public class SegmentedRendererDebugInfo
 {
-	protected final @Nullable Image fullImage;
-	protected final @Nullable Rectangle2D controlBounds;
-	protected final @Nullable Rectangle2D[] segmentBounds;
+    protected final @Nullable Image fullImage;
+    protected final @Nullable Rectangle2D controlBounds;
+    protected final @Nullable Rectangle2D[] segmentBounds;
 
-	public SegmentedRendererDebugInfo(@Nullable Image fullImage,
-																		@Nullable Rectangle2D controlBounds,
-																		@Nullable Rectangle2D[] segmentBounds)
-	{
-		this.fullImage = fullImage;
-		this.controlBounds = controlBounds;
-		this.segmentBounds = segmentBounds;
-	}
+    public SegmentedRendererDebugInfo(@Nullable Image fullImage,
+                                      @Nullable Rectangle2D controlBounds,
+                                      @Nullable Rectangle2D[] segmentBounds)
+    {
+        this.fullImage = fullImage;
+        this.controlBounds = controlBounds;
+        this.segmentBounds = segmentBounds;
+    }
 
-	/**
-		If the renderer subsets a larger image, return the larger image.
-		@return the image, or null if none.
-	*/
+    /**
+      If the renderer subsets a larger image, return the larger image.
+      @return the image, or null if none.
+    */
 
-	public @Nullable Image getFullImage()
-	{
-		return fullImage;
-	}
+    public @Nullable Image getFullImage()
+    {
+        return fullImage;
+    }
 
-	/**
-		Return the actual bounds of the segmented control.
-		@return the bounds, or null if not known.
-	*/
+    /**
+      Return the actual bounds of the segmented control.
+      @return the bounds, or null if not known.
+    */
 
-	public @Nullable Rectangle2D getControlBounds()
-	{
-		return controlBounds;
-	}
+    public @Nullable Rectangle2D getControlBounds()
+    {
+        return controlBounds;
+    }
 
-	/**
-		Return the bounds of the individual segments.
-	*/
+    /**
+      Return the bounds of the individual segments.
+    */
 
-	public @Nullable Rectangle2D[] getSegmentBounds()
-	{
-		return segmentBounds;
-	}
+    public @Nullable Rectangle2D[] getSegmentBounds()
+    {
+        return segmentBounds;
+    }
 }

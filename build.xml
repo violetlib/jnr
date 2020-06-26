@@ -3,9 +3,14 @@
 <project name="VAquaRendering" default="install" basedir=".">
 
     <property name="debug" value="true"/>
+    <property name="bootclasspath" location="${user.home}/javalib/boot/rt8.jar" />
 
     <target name="build">
         <ant dir="release/full"/>
+    </target>
+
+    <target name="clean">
+        <ant dir="release/full" target="clean"/>
     </target>
 
     <target name="install" depends="build">

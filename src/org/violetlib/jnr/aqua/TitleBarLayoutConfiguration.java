@@ -10,47 +10,51 @@ package org.violetlib.jnr.aqua;
 
 import java.util.Objects;
 
-import org.jetbrains.annotations.*;
-
 import org.violetlib.jnr.aqua.AquaUIPainter.TitleBarWidget;
 
+import org.jetbrains.annotations.*;
+
 /**
-	A layout configuration for a title bar.
+  A layout configuration for a title bar.
 */
 
 public class TitleBarLayoutConfiguration
-	extends LayoutConfiguration
+  extends LayoutConfiguration
 {
-	private final @NotNull TitleBarWidget tw;
+    private final @NotNull TitleBarWidget tw;
 
-	public TitleBarLayoutConfiguration(@NotNull TitleBarWidget tw)
-	{
-		this.tw = tw;
-	}
+    public TitleBarLayoutConfiguration(@NotNull TitleBarWidget tw)
+    {
+        this.tw = tw;
+    }
 
-	public @NotNull TitleBarWidget getWidget()
-	{
-		return tw;
-	}
+    public @NotNull TitleBarWidget getWidget()
+    {
+        return tw;
+    }
 
-	@Override
-	public boolean equals(@Nullable Object o)
-	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		TitleBarLayoutConfiguration that = (TitleBarLayoutConfiguration) o;
-		return tw == that.tw ;
-	}
+    @Override
+    public boolean equals(@Nullable Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        TitleBarLayoutConfiguration that = (TitleBarLayoutConfiguration) o;
+        return tw == that.tw ;
+    }
 
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(tw);
-	}
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(tw);
+    }
 
-	@Override
-	public @NotNull String toString()
-	{
-		return tw.toString();
-	}
+    @Override
+    public @NotNull String toString()
+    {
+        return tw.toString();
+    }
 }

@@ -11,15 +11,15 @@ package org.violetlib.jnr.aqua;
 import org.jetbrains.annotations.*;
 
 /**
-	A layout configuration for a scroll column sizer.
+  A layout configuration for a scroll column sizer.
 */
 
 public class ScrollColumnSizerLayoutConfiguration
-	extends LayoutConfiguration
+  extends LayoutConfiguration
 {
-	@Override
-	public @NotNull String toString()
-	{
-		return "Scroll Column Sizer";
-	}
+    @Override
+    public @NotNull String toString()
+    {
+        return "Scroll Column Sizer";
+    }
 }

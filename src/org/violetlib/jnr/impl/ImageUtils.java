@@ -24,58 +24,58 @@ import org.jetbrains.annotations.*;
 
 public class ImageUtils
 {
-	public static @NotNull Image invertForDarkMode(@NotNull Image source)
-	{
-		return createFilteredImage(source, new InvertImageForDarkModeFilter());
-	}
+    public static @NotNull Image invertForDarkMode(@NotNull Image source)
+    {
+        return createFilteredImage(source, new InvertImageForDarkModeFilter());
+    }
 
-	private static Image createFilteredImage(Image image, ImageFilter filter)
-	{
-		ImageProducer prod = new FilteredImageSource(image.getSource(), filter);
-		return waitForImage(Toolkit.getDefaultToolkit().createImage(prod));
-	}
+    private static Image createFilteredImage(Image image, ImageFilter filter)
+    {
+        ImageProducer prod = new FilteredImageSource(image.getSource(), filter);
+        return waitForImage(Toolkit.getDefaultToolkit().createImage(prod));
+    }
 
-	private static class InvertImageForDarkModeFilter extends RGBImageFilter
-	{
-		public InvertImageForDarkModeFilter()
-		{
-			canFilterIndexColorModel = true;
-		}
+    private static class InvertImageForDarkModeFilter extends RGBImageFilter
+    {
+        public InvertImageForDarkModeFilter()
+        {
+            canFilterIndexColorModel = true;
+        }
 
-		public int filterRGB(int x, int y, int rgb)
-		{
-			// Use NTSC conversion formula.
-			int gray = (int)((0.30 * ((rgb >> 16) & 0xff) + 0.59 * ((rgb >> 8) & 0xff) + 0.11 * (rgb & 0xff)) / 3);
-			gray = (int) ((255 - gray) * 0.7);
-			if (gray < 0) gray = 0;
-			if (gray > 255) gray = 255;
-			return (rgb & 0xff000000) | (gray << 16) | (gray << 8) | (gray << 0);
-		}
-	}
+        public int filterRGB(int x, int y, int rgb)
+        {
+            // Use NTSC conversion formula.
+            int gray = (int)((0.30 * ((rgb >> 16) & 0xff) + 0.59 * ((rgb >> 8) & 0xff) + 0.11 * (rgb & 0xff)) / 3);
+            gray = (int) ((255 - gray) * 0.7);
+            if (gray < 0) gray = 0;
+            if (gray > 255) gray = 255;
+            return (rgb & 0xff000000) | (gray << 16) | (gray << 8) | (gray << 0);
+        }
+    }
 
-	private static @NotNull Image waitForImage(@NotNull Image image)
-	{
-		boolean[] mutex = new boolean[] { false };
-		ImageObserver observer = (Image img, int infoflags, int x, int y, int width, int height) -> {
-			if ((width != -1 && height != -1 && (infoflags & ImageObserver.ALLBITS) != 0) || (infoflags & ImageObserver.ABORT) != 0) {
-				synchronized (mutex) {
-					mutex[0] = true;
-					mutex.notify();
-				}
-				return false;
-			} else {
-				return true;
-			}
-		};
-		synchronized (mutex) {
-			while (!mutex[0] && image.getWidth(observer) == -1) {
-				try {
-					mutex.wait();
-				} catch (InterruptedException e) {
-					break;
-				}
-			}
-		}
-		return image;
-	}
+    private static @NotNull Image waitForImage(@NotNull Image image)
+    {
+        boolean[] mutex = new boolean[] { false };
+        ImageObserver observer = (Image img, int infoflags, int x, int y, int width, int height) -> {
+            if ((width != -1 && height != -1 && (infoflags & ImageObserver.ALLBITS) != 0) || (infoflags & ImageObserver.ABORT) != 0) {
+                synchronized (mutex) {
+                    mutex[0] = true;
+                    mutex.notify();
+                }
+                return false;
+            } else {
+                return true;
+            }
+        };
+        synchronized (mutex) {
+            while (!mutex[0] && image.getWidth(observer) == -1) {
+                try {
+                    mutex.wait();
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        }
+        return image;
+    }
 }

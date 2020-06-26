@@ -9,11 +9,11 @@
 package org.violetlib.jnr.aqua.coreui;
 
 /**
-	Orientations supported by Core UI.
+  Orientations supported by Core UI.
 */
 
 public class CoreUIOrientations
 {
-	public static final String HORIZONTAL = "kCUIOrientHorizontal";
-	public static final String VERTICAL = "kCUIOrientVertical";
+    public static final String HORIZONTAL = "kCUIOrientHorizontal";
+    public static final String VERTICAL = "kCUIOrientVertical";
 }

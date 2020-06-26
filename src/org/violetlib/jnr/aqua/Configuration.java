@@ -9,7 +9,7 @@
 package org.violetlib.jnr.aqua;
 
 /**
-	A configuration describes the parameters that define a rendering.
+  A configuration describes the parameters that define a rendering.
 */
 
 public interface Configuration

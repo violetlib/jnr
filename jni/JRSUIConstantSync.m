@@ -83,23 +83,23 @@ static CFTypeRef animationStartTimeKey = NULL;
 static CFTypeRef animationTimeKey = NULL;
 
 
-#define JRS_CONSTANT(clazz, constant)                                \
+#define JRS_CONSTANT(clazz, constant)                                  \
     kJRSUI_ ## clazz ## _ ## constant
 
-#define JNI_CONSTANT(clazz, constant)                                \
+#define JNI_CONSTANT(clazz, constant)                                  \
     org_violetlib_jnr_impl_jrs_JRSUIConstants_ ## clazz ## __ ## constant
 
 #define CONSTANT_CHECK(clazz, constant)                                \
     ( JRS_CONSTANT(clazz, constant) == JNI_CONSTANT(clazz, constant) )
 
-#define CONSISTENCY_CHECK(clazz, constant)                            \
+#define CONSISTENCY_CHECK(clazz, constant)                             \
     if ( !CONSTANT_CHECK(clazz, constant) ) return NO;
 
 #define ASSIGN_KEY(key)                                                \
-    key ## Key = JRSUIGetKey(JRS_CONSTANT(Key, key));                \
+    key ## Key = JRSUIGetKey(JRS_CONSTANT(Key, key));                  \
     if (key ## Key == NULL) return NO;
 
-#define ASSIGN_KEY_IF_EXISTS(key, constant)                          \
+#define ASSIGN_KEY_IF_EXISTS(key, constant)                            \
     key ## Key = JRSUIGetKey(constant);
 
 static BOOL init_and_check_constant_coherency() {
@@ -308,20 +308,20 @@ BOOL _InitializeJRSProperties() {
 #define SHIFT(property) \
     org_violetlib_jnr_impl_jrs_JRSUIConstants_ ## property ## _SHIFT
 
-#define IF_CHANGED_SET_USING(property, setter)                        \
+#define IF_CHANGED_SET_USING(property, setter)                       \
 {                                                                    \
-    jlong value = (newProperties & MASK(property));                    \
-    if ((value - (oldProperties & MASK(property))) != 0L) {            \
-        setter(control, value >> SHIFT(property));                    \
+    jlong value = (newProperties & MASK(property));                  \
+    if ((value - (oldProperties & MASK(property))) != 0L) {          \
+        setter(control, value >> SHIFT(property));                   \
     }                                                                \
 }
 
-#define IF_CHANGED_SET_KEYED_BOOLEAN(property, key, getter)            \
+#define IF_CHANGED_SET_KEYED_BOOLEAN(property, key, getter)          \
 {                                                                    \
-    jlong value = (newProperties & MASK(property));                    \
-    if ((value - (oldProperties & MASK(property))) != 0L) {            \
+    jlong value = (newProperties & MASK(property));                  \
+    if ((value - (oldProperties & MASK(property))) != 0L) {          \
         CFTypeRef cfValue = getter(value >> SHIFT(property));        \
-        if (cfValue) {                                                \
+        if (cfValue) {                                               \
             JRSUIControlSetValueByKey(control, key, cfValue);        \
         }                                                            \
     }                                                                \

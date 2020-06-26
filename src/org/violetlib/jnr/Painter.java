@@ -13,18 +13,18 @@ import java.awt.Graphics;
 import org.jetbrains.annotations.*;
 
 /**
-	A painter renders a fixed size rendering at a client specified origin.
+  A painter renders a fixed size rendering at a client specified origin.
 */
 
 public interface Painter
 {
-	/**
-		Draw the rendering.
+    /**
+      Draw the rendering.
 
-		@param g The graphics context where the rendering should be drawn.
-		@param x The X coordinate of the origin of the rendering.
-		@param y The Y coordinate of the origin of the rendering.
-	*/
+      @param g The graphics context where the rendering should be drawn.
+      @param x The X coordinate of the origin of the rendering.
+      @param y The Y coordinate of the origin of the rendering.
+    */
 
-	void paint(@NotNull Graphics g, float x, float y);
+    void paint(@NotNull Graphics g, float x, float y);
 }

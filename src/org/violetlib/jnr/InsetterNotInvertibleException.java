@@ -9,15 +9,15 @@
 package org.violetlib.jnr;
 
 /**
-	This exception is thrown when an operation that requires an invertible insetter is performed on an insetter that is
-	not invertible.
+  This exception is thrown when an operation that requires an invertible insetter is performed on an insetter that is
+  not invertible.
 */
 
 public class InsetterNotInvertibleException
-	extends IllegalStateException
+  extends IllegalStateException
 {
-	public InsetterNotInvertibleException()
-	{
-		super("Insetter is not invertible. Cannot determine a component size from the size of the region.");
-	}
+    public InsetterNotInvertibleException()
+    {
+        super("Insetter is not invertible. Cannot determine a component size from the size of the region.");
+    }
 }

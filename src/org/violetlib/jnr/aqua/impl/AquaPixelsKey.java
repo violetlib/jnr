@@ -15,62 +15,62 @@ import org.violetlib.vappearances.VAppearance;
 import org.jetbrains.annotations.*;
 
 /**
-	The key used by the AquaNativePainter to cache images.
+  The key used by the AquaNativePainter to cache images.
 */
 
 public class AquaPixelsKey
-	implements ImageCache.PixelsKey
+  implements ImageCache.PixelsKey
 {
-	private final int pixelCount;
-	private final int hash;
+    private final int pixelCount;
+    private final int hash;
 
-	private final int scaleFactor;
-	private final int w;
-	private final int h;
-	private final @NotNull Configuration g;
-	private final @NotNull VAppearance appearance;
+    private final int scaleFactor;
+    private final int w;
+    private final int h;
+    private final @NotNull Configuration g;
+    private final @NotNull VAppearance appearance;
 
-	public AquaPixelsKey(int scaleFactor, int w, int h, @NotNull Configuration g, @NotNull VAppearance appearance)
-	{
-		this.pixelCount = w * h;
-		this.scaleFactor = scaleFactor;
-		this.w = w;
-		this.h = h;
-		this.g = g;
-		this.appearance = appearance;
-		this.hash = hash();
-	}
+    public AquaPixelsKey(int scaleFactor, int w, int h, @NotNull Configuration g, @NotNull VAppearance appearance)
+    {
+        this.pixelCount = w * h;
+        this.scaleFactor = scaleFactor;
+        this.w = w;
+        this.h = h;
+        this.g = g;
+        this.appearance = appearance;
+        this.hash = hash();
+    }
 
-	@Override
-	public int getPixelCount()
-	{
-		return pixelCount;
-	}
+    @Override
+    public int getPixelCount()
+    {
+        return pixelCount;
+    }
 
-	private int hash()
-	{
-		int hash = scaleFactor;
-		hash = 31 * hash + w;
-		hash = 31 * hash + h;
-		hash = 31 * hash + g.hashCode();
-		hash = 31 * hash + appearance.hashCode();
-		return hash;
-	}
+    private int hash()
+    {
+        int hash = scaleFactor;
+        hash = 31 * hash + w;
+        hash = 31 * hash + h;
+        hash = 31 * hash + g.hashCode();
+        hash = 31 * hash + appearance.hashCode();
+        return hash;
+    }
 
-	@Override
-	public int hashCode()
-	{
-		return hash;
-	}
+    @Override
+    public int hashCode()
+    {
+        return hash;
+    }
 
-	@Override
-	public boolean equals(@Nullable Object obj)
-	{
-		if (obj != null && obj.getClass() == AquaPixelsKey.class) {
-			AquaPixelsKey that = (AquaPixelsKey) obj;
-			return scaleFactor == that.scaleFactor && w == that.w && h == that.h && g.equals(that.g)
-							 && appearance.equals(that.appearance);
-		}
-		return false;
-	}
+    @Override
+    public boolean equals(@Nullable Object obj)
+    {
+        if (obj != null && obj.getClass() == AquaPixelsKey.class) {
+            AquaPixelsKey that = (AquaPixelsKey) obj;
+            return scaleFactor == that.scaleFactor && w == that.w && h == that.h && g.equals(that.g)
+                     && appearance.equals(that.appearance);
+        }
+        return false;
+    }
 }

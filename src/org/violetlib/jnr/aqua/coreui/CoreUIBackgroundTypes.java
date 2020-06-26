@@ -9,12 +9,12 @@
 package org.violetlib.jnr.aqua.coreui;
 
 /**
-	Background types supported by Core UI.
+  Background types supported by Core UI.
 */
 
 public class CoreUIBackgroundTypes
 {
-	public static final String BACKGROUND_BORDERLESS = "kCUIBackgroundTypeBorderless";
-	public static final String BACKGROUND_LIGHT = "backgroundTypeLight";
-	public static final String BACKGROUND_MENU_BAR = "backgroundTypeMenuBar";
+    public static final String BACKGROUND_BORDERLESS = "kCUIBackgroundTypeBorderless";
+    public static final String BACKGROUND_LIGHT = "backgroundTypeLight";
+    public static final String BACKGROUND_MENU_BAR = "backgroundTypeMenuBar";
 }

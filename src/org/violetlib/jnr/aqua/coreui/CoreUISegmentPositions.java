@@ -9,13 +9,13 @@
 package org.violetlib.jnr.aqua.coreui;
 
 /**
-	Segment positions supported by Core UI.
+  Segment positions supported by Core UI.
 */
 
 public class CoreUISegmentPositions
 {
-	public static final String FIRST = "kCUISegmentPositionFirst";
-	public static final String MIDDLE = "kCUISegmentPositionMiddle";
-	public static final String LAST = "kCUISegmentPositionLast";
-	public static final String ONLY = "kCUISegmentPositionOnly";
+    public static final String FIRST = "kCUISegmentPositionFirst";
+    public static final String MIDDLE = "kCUISegmentPositionMiddle";
+    public static final String LAST = "kCUISegmentPositionLast";
+    public static final String ONLY = "kCUISegmentPositionOnly";
 }

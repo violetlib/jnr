@@ -42,8 +42,7 @@
 
     <property name="vAppearancesJAR" value="${base}/lib/VAppearances.jar"/>
 
-    <property name="SDKversion" value="10.14"/>
-    <property name="SDKroot" value="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${SDKversion}.sdk"/>
+    <property name="SDKroot" value="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"/>
     <property name="libpath" value="${base}/lib/IdeaAnnotations.jar:${base}/lib/VAppearances.jar"/>
     <property name="cc" value="/usr/bin/cc"/>
 

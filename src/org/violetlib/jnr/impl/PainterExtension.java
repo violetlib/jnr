@@ -13,18 +13,18 @@ import java.awt.Graphics2D;
 import org.jetbrains.annotations.*;
 
 /**
-	A painter extension is a way of extending the behavior of a native painter using AWT graphics.
+  A painter extension is a way of extending the behavior of a native painter using AWT graphics.
 */
 
 public interface PainterExtension
 {
-	/**
-		Draw as needed into the graphics context.
+    /**
+      Draw as needed into the graphics context.
 
-		@param g The graphics context.
-		@param width The width of the region to draw into, in graphics coordinates (device independent).
-		@param height The height of the region to draw into, in graphics coordinates (device independent).
-	*/
+      @param g The graphics context.
+      @param width The width of the region to draw into, in graphics coordinates (device independent).
+      @param height The height of the region to draw into, in graphics coordinates (device independent).
+    */
 
-	void paint(@NotNull Graphics2D g, float width, float height);
+    void paint(@NotNull Graphics2D g, float width, float height);
 }

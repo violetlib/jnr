@@ -25,10 +25,16 @@
 
 package org.violetlib.jnr.impl.jrs;
 
-import java.nio.*;
-import java.util.*;
+import java.nio.Buffer;
+import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 
-import org.violetlib.jnr.impl.jrs.JRSUIConstants.*;
+import org.violetlib.jnr.impl.jrs.JRSUIConstants.DoubleValue;
+import org.violetlib.jnr.impl.jrs.JRSUIConstants.Hit;
 
 public final class JRSUIControl {
     private static native int initNativeJRSUI();
@@ -97,7 +103,7 @@ public final class JRSUIControl {
     private long currentEncodedProperties;
     private final boolean flipped;
 
-    public JRSUIControl(final boolean flipped){
+    public JRSUIControl(boolean flipped){
         this.flipped = flipped;
         cfDictionaryPtr = getCFDictionary(flipped);
         if (cfDictionaryPtr == 0) throw new RuntimeException("Unable to create native representation");
@@ -105,7 +111,7 @@ public final class JRSUIControl {
         changes = new HashMap<JRSUIConstants.Key, DoubleValue>();
     }
 
-    JRSUIControl(final JRSUIControl other) {
+    JRSUIControl(JRSUIControl other) {
         flipped = other.flipped;
         cfDictionaryPtr = getCFDictionary(flipped);
         if (cfDictionaryPtr == 0) throw new RuntimeException("Unable to create native representation");
@@ -128,21 +134,21 @@ public final class JRSUIControl {
         CHANGE_WONT_FIT_IN_BUFFER;
     }
 
-    private JRSUIControl.BufferState loadBufferWithChanges(final JRSUIControl.ThreadLocalByteBuffer localByteBuffer) {
-        final ByteBuffer buffer = localByteBuffer.buffer;
-		    ((Buffer)buffer).rewind();
+    private JRSUIControl.BufferState loadBufferWithChanges(JRSUIControl.ThreadLocalByteBuffer localByteBuffer) {
+        ByteBuffer buffer = localByteBuffer.buffer;
+        ((Buffer)buffer).rewind();
 
-        for (final JRSUIConstants.Key key : new HashSet<JRSUIConstants.Key>(changes.keySet())) {
-            final int changeIndex = buffer.position();
-            final JRSUIConstants.DoubleValue value = changes.get(key);
+        for (JRSUIConstants.Key key : new HashSet<JRSUIConstants.Key>(changes.keySet())) {
+            int changeIndex = buffer.position();
+            JRSUIConstants.DoubleValue value = changes.get(key);
 
             try {
                 buffer.putLong(key.getConstantPtr());
                 buffer.put(value.getTypeCode());
                 value.putValueInBuffer(buffer);
-            } catch (final BufferOverflowException e) {
+            } catch (BufferOverflowException e) {
                 return handleBufferOverflow(buffer, changeIndex);
-            } catch (final RuntimeException e) {
+            } catch (RuntimeException e) {
                 System.err.println(this);
                 throw e;
             }
@@ -159,7 +165,7 @@ public final class JRSUIControl {
         return JRSUIControl.BufferState.ALL_CHANGES_IN_BUFFER;
     }
 
-    private JRSUIControl.BufferState handleBufferOverflow(final ByteBuffer buffer, final int changeIndex) {
+    private JRSUIControl.BufferState handleBufferOverflow(ByteBuffer buffer, int changeIndex) {
         if (changeIndex == 0) {
             buffer.putLong(0, 0);
             return JRSUIControl.BufferState.CHANGE_WONT_FIT_IN_BUFFER;
@@ -169,8 +175,8 @@ public final class JRSUIControl {
         return JRSUIControl.BufferState.SOME_CHANGES_IN_BUFFER;
     }
 
-    private synchronized void set(final JRSUIConstants.Key key, final JRSUIConstants.DoubleValue value) {
-        final JRSUIConstants.DoubleValue existingValue = nativeMap.get(key);
+    private synchronized void set(JRSUIConstants.Key key, JRSUIConstants.DoubleValue value) {
+        JRSUIConstants.DoubleValue existingValue = nativeMap.get(key);
 
         if (existingValue != null && existingValue.equals(value)) {
             changes.remove(key);
@@ -180,21 +186,21 @@ public final class JRSUIControl {
         changes.put(key, value);
     }
 
-    public void set(final JRSUIState state) {
+    public void set(JRSUIState state) {
         state.apply(this);
     }
 
-    void setEncodedState(final long state) {
+    void setEncodedState(long state) {
         currentEncodedProperties = state;
     }
 
-    void set(final JRSUIConstants.Key key, final double value) {
+    void set(JRSUIConstants.Key key, double value) {
         set(key, new JRSUIConstants.DoubleValue(value));
     }
 
 //    private static final Color blue = new Color(0x00, 0x00, 0xFF, 0x40);
 //    private static void paintDebug(Graphics2D g, double x, double y, double w, double h) {
-//        final Color prev = g.getColor();
+//        Color prev = g.getColor();
 //        g.setColor(blue);
 //        g.drawRect((int)x, (int)y, (int)w, (int)h);
 //        g.setColor(prev);
@@ -204,18 +210,18 @@ public final class JRSUIControl {
 //    private static int paintsWithChangesThatFit = 0;
 //    private static int paintsWithChangesThatOverflowed = 0;
 
-    public void paint(final int[] data, final int imgW, final int imgH, final double x, final double y, final double w, final double h) {
+    public void paint(int[] data, int imgW, int imgH, double x, double y, double w, double h) {
         paintImage(data, imgW, imgH, x, y, w, h);
         priorEncodedProperties = currentEncodedProperties;
     }
 
-    private synchronized int paintImage(final int[] data, final int imgW, final int imgH, final double x, final double y, final double w, final double h) {
+    private synchronized int paintImage(int[] data, int imgW, int imgH, double x, double y, double w, double h) {
         if (changes.isEmpty()) {
 //            paintsWithNoChange++;
             return paintImage(data, imgW, imgH, cfDictionaryPtr, priorEncodedProperties, currentEncodedProperties, x, y, w, h);
         }
 
-        final JRSUIControl.ThreadLocalByteBuffer localByteBuffer = getThreadLocalBuffer();
+        JRSUIControl.ThreadLocalByteBuffer localByteBuffer = getThreadLocalBuffer();
         JRSUIControl.BufferState bufferState = loadBufferWithChanges(localByteBuffer);
 
         // fast tracking this, since it's the likely scenario
@@ -225,7 +231,7 @@ public final class JRSUIControl {
         }
 
         while (bufferState == JRSUIControl.BufferState.SOME_CHANGES_IN_BUFFER) {
-            final int status = syncChanges(cfDictionaryPtr, localByteBuffer.ptr);
+            int status = syncChanges(cfDictionaryPtr, localByteBuffer.ptr);
             if (status != SUCCESS) throw new RuntimeException("JRSUI failed to sync changes into the native buffer: " + this);
             bufferState = loadBufferWithChanges(localByteBuffer);
         }
@@ -239,18 +245,18 @@ public final class JRSUIControl {
         return paintChangesImage(data, imgW, imgH, cfDictionaryPtr, priorEncodedProperties, currentEncodedProperties, x, y, w, h, localByteBuffer.ptr);
     }
 
-    public void paint(final long cgContext, final double x, final double y, final double w, final double h) {
+    public void paint(long cgContext, double x, double y, double w, double h) {
         paintToCGContext(cgContext, x, y, w, h);
         priorEncodedProperties = currentEncodedProperties;
     }
 
-    private synchronized int paintToCGContext(final long cgContext, final double x, final double y, final double w, final double h) {
+    private synchronized int paintToCGContext(long cgContext, double x, double y, double w, double h) {
         if (changes.isEmpty()) {
 //            paintsWithNoChange++;
             return paintToCGContext(cgContext, cfDictionaryPtr, priorEncodedProperties, currentEncodedProperties, x, y, w, h);
         }
 
-        final JRSUIControl.ThreadLocalByteBuffer localByteBuffer = getThreadLocalBuffer();
+        JRSUIControl.ThreadLocalByteBuffer localByteBuffer = getThreadLocalBuffer();
         JRSUIControl.BufferState bufferState = loadBufferWithChanges(localByteBuffer);
 
         // fast tracking this, since it's the likely scenario
@@ -260,7 +266,7 @@ public final class JRSUIControl {
         }
 
         while (bufferState == JRSUIControl.BufferState.SOME_CHANGES_IN_BUFFER) {
-            final int status = syncChanges(cfDictionaryPtr, localByteBuffer.ptr);
+            int status = syncChanges(cfDictionaryPtr, localByteBuffer.ptr);
             if (status != SUCCESS) throw new RuntimeException("JRSUI failed to sync changes into the native buffer: " + this);
             bufferState = loadBufferWithChanges(localByteBuffer);
         }
@@ -275,15 +281,15 @@ public final class JRSUIControl {
     }
 
 
-    JRSUIConstants.Hit getHitForPoint(final int x, final int y, final int w, final int h, final int hitX, final int hitY) {
+    JRSUIConstants.Hit getHitForPoint(int x, int y, int w, int h, int hitX, int hitY) {
         sync();
         // reflect hitY about the midline of the control before sending to native
-        final Hit hit = JRSUIConstants.getHit(getNativeHitPart(cfDictionaryPtr, priorEncodedProperties, currentEncodedProperties, x, y, w, h, hitX, 2 * y + h - hitY));
+        Hit hit = JRSUIConstants.getHit(getNativeHitPart(cfDictionaryPtr, priorEncodedProperties, currentEncodedProperties, x, y, w, h, hitX, 2 * y + h - hitY));
         priorEncodedProperties = currentEncodedProperties;
         return hit;
     }
 
-    void getPartBounds(final double[] rect, final int x, final int y, final int w, final int h, final int part) {
+    void getPartBounds(double[] rect, int x, int y, int w, int h, int part) {
         if (rect == null) throw new NullPointerException("Cannot load null rect");
         if (rect.length != 4) throw new IllegalArgumentException("Rect must have four elements");
 
@@ -292,9 +298,9 @@ public final class JRSUIControl {
         priorEncodedProperties = currentEncodedProperties;
     }
 
-    double getScrollBarOffsetChange(final int x, final int y, final int w, final int h, final int offset, final int visibleAmount, final int extent) {
+    double getScrollBarOffsetChange(int x, int y, int w, int h, int offset, int visibleAmount, int extent) {
         sync();
-        final double offsetChange = getNativeScrollBarOffsetChange(cfDictionaryPtr, priorEncodedProperties, currentEncodedProperties, x, y, w, h, offset, visibleAmount, extent);
+        double offsetChange = getNativeScrollBarOffsetChange(cfDictionaryPtr, priorEncodedProperties, currentEncodedProperties, x, y, w, h, offset, visibleAmount, extent);
         priorEncodedProperties = currentEncodedProperties;
         return offsetChange;
     }
@@ -302,16 +308,16 @@ public final class JRSUIControl {
     private void sync() {
         if (changes.isEmpty()) return;
 
-        final JRSUIControl.ThreadLocalByteBuffer localByteBuffer = getThreadLocalBuffer();
+        JRSUIControl.ThreadLocalByteBuffer localByteBuffer = getThreadLocalBuffer();
         JRSUIControl.BufferState bufferState = loadBufferWithChanges(localByteBuffer);
         if (bufferState == JRSUIControl.BufferState.ALL_CHANGES_IN_BUFFER) {
-            final int status = syncChanges(cfDictionaryPtr, localByteBuffer.ptr);
+            int status = syncChanges(cfDictionaryPtr, localByteBuffer.ptr);
             if (status != SUCCESS) throw new RuntimeException("JRSUI failed to sync changes into the native buffer: " + this);
             return;
         }
 
         while (bufferState == JRSUIControl.BufferState.SOME_CHANGES_IN_BUFFER) {
-            final int status = syncChanges(cfDictionaryPtr, localByteBuffer.ptr);
+            int status = syncChanges(cfDictionaryPtr, localByteBuffer.ptr);
             if (status != SUCCESS) throw new RuntimeException("JRSUI failed to sync changes into the native buffer: " + this);
             bufferState = loadBufferWithChanges(localByteBuffer);
         }
@@ -330,18 +336,26 @@ public final class JRSUIControl {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        if (!(obj instanceof JRSUIControl)) return false;
-        final JRSUIControl other = (JRSUIControl)obj;
-        if (currentEncodedProperties != other.currentEncodedProperties) return false;
-        if (!nativeMap.equals(other.nativeMap)) return false;
-        if (!changes.equals(other.changes)) return false;
+    public boolean equals(Object obj) {
+        if (!(obj instanceof JRSUIControl)) {
+            return false;
+        }
+        JRSUIControl other = (JRSUIControl)obj;
+        if (currentEncodedProperties != other.currentEncodedProperties) {
+            return false;
+        }
+        if (!nativeMap.equals(other.nativeMap)) {
+            return false;
+        }
+        if (!changes.equals(other.changes)) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder("JRSUIControl[inNative:");
+        StringBuilder builder = new StringBuilder("JRSUIControl[inNative:");
         builder.append(Arrays.toString(nativeMap.entrySet().toArray()));
         builder.append(", changes:");
         builder.append(Arrays.toString(changes.entrySet().toArray()));

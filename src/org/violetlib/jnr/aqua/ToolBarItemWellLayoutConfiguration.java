@@ -11,15 +11,15 @@ package org.violetlib.jnr.aqua;
 import org.jetbrains.annotations.*;
 
 /**
-	A configuration for a tool bar item well. For internal use.
+  A configuration for a tool bar item well. For internal use.
 */
 
 public class ToolBarItemWellLayoutConfiguration
-	extends LayoutConfiguration
+  extends LayoutConfiguration
 {
-	@Override
-	public @NotNull String toString()
-	{
-		return "Tool Bar Item Well";
-	}
+    @Override
+    public @NotNull String toString()
+    {
+        return "Tool Bar Item Well";
+    }
 }

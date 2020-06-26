@@ -11,15 +11,15 @@ package org.violetlib.jnr.aqua;
 import org.jetbrains.annotations.*;
 
 /**
-	A layout configuration for a list box.
+  A layout configuration for a list box.
 */
 
 public class ListBoxLayoutConfiguration
-	extends LayoutConfiguration
+  extends LayoutConfiguration
 {
-	@Override
-	public @NotNull String toString()
-	{
-		return "List Box";
-	}
+    @Override
+    public @NotNull String toString()
+    {
+        return "List Box";
+    }
 }
