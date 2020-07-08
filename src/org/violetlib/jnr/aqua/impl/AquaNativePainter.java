@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -604,17 +604,22 @@ public class AquaNativePainter
         return Renderer.create(r, rd);
     }
 
-    public static final int TEST_SEGMENTED_ONE_SEGMENT = -1;
-    public static final int TEST_SEGMENTED_NO_SELECTION = -2;
+    public static final int TEST_SEGMENTED_ONE_SEGMENT_MASK = (1 << 10);
+    public static final int TEST_SEGMENTED_FOUR_SEGMENT_MASK = (1 << 11);
 
     /**
       Render a segmented control for the purpose of debugging its layout.
       @param g This configuration designates the widget and the size.
-      @param option This parameter determines the number of segments in the control and which segment, if any, is
-      displayed as selected. A value of 0 to 3 displays a segmented control with four segments and the segment with the
-      specified index is selected. A value of {@link #TEST_SEGMENTED_NO_SELECTION} displays a segmented control
-      containing four segments with no segment selected. A value of {@link #TEST_SEGMENTED_ONE_SEGMENT} renders a
-      segmented control containing one segment, not selected.
+
+      @param option This parameter is a bit mask that determines the number of segments in the control and which
+      segments, if any, are displayed as selected. If the bit identified by @{code TEST_SEGMENTED_ONE_SEGMENT_MASK} is
+      true, one segment is displayed. If the bit identified by @{code TEST_SEGMENTED_ONE_SEGMENT_MASK} is true, one
+      segment is displayed. Exactly one of these two bits must be set. The segment at index {@code i} is displayed as
+      selected if the bit identified by the mask {@code 1<<i} is true. Older versions of this library interpret this
+      parameter differently. If the parameter is -1, a single segment is displayed as not selected. If the parameter is
+      -2, four segments are dispalyed as unselected. If this parameter has a value between 0 and 3, four segments are
+      displayed and the indicated segment is displayed as selected.
+
       @param scaleFactor The scale factor for the display.
       @param width The raster width in points.
       @param height The raster height in points.
@@ -638,6 +643,11 @@ public class AquaNativePainter
         int rh = (int) Math.ceil(scaleFactor * height);
         int[] data = new int[rw * rh];
 
+        boolean isOneSegmentRequested = (option & TEST_SEGMENTED_ONE_SEGMENT_MASK) != 0;
+        boolean isFourSegmentsRequested = (option & TEST_SEGMENTED_FOUR_SEGMENT_MASK) != 0;
+
+        boolean isOneSegment = isOneSegmentRequested && !isFourSegmentsRequested || option == -1;
+
         float[] debugOutput = new float[20];
         nativeTestSegmentedButton(data, rw, rh, width, height, segmentStyle, option, size, controlWidth, controlHeight,
           segmentWidth, isSelectAny, debugOutput);
@@ -649,7 +659,7 @@ public class AquaNativePainter
         }
         int start = 4;
         if (!isZero(debugOutput, start, 16)) {
-            int count = option == TEST_SEGMENTED_ONE_SEGMENT ? 1 : 4;
+            int count = isOneSegment ? 1 : 4;
             segmentBounds = new Rectangle2D[count];
             int offset = start;
             for (int i = 0; i < count; i++) {
@@ -1070,9 +1080,8 @@ public class AquaNativePainter
             case BUTTON_RADIO:
                 return NSRadioButton;
             case BUTTON_RECESSED:
-                return NSPushOnPushOffButton;
+            case BUTTON_INLINE:
             case BUTTON_DISCLOSURE:
-                return NSPushOnPushOffButton;
             case BUTTON_DISCLOSURE_TRIANGLE:
                 return NSPushOnPushOffButton;
         }

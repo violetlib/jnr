@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -224,19 +224,19 @@ public interface AquaUIPainter
         BUTTON_DISCLOSURE,
         BUTTON_DISCLOSURE_TRIANGLE,
         BUTTON_HELP,                  // not suitable for a toggle button
-        BUTTON_GRADIENT,              // a square button with no border - recommended for icon buttons - push, toggle, or menu
+        BUTTON_GRADIENT,              // a square button with no border - recommended for icon buttons - push, toggle, or menu (small square)
         BUTTON_RECESSED,              // a recessed scope (toggle) button; fixed height; displayed without border when not selected
         BUTTON_INLINE,                // a short, fixed height button with rounded ends, used as a push button or indicator inside lists
         BUTTON_ROUNDED_RECT,          // fixed height, displays as an rectangle outline with rounded corners and no background, darkens when pressed, in IB
-        BUTTON_TEXTURED,              // fixed height, recommended for use in window frame, previously called scurve
+        BUTTON_TEXTURED,              // fixed height, recommended for use in window frame, previously called scurve, now called textured rounded
         BUTTON_TEXTURED_TOOLBAR,      // introduced in 10.11 for textured buttons on the tool bar (taller)
         BUTTON_TOOLBAR_ITEM,          // a tool bar item
         BUTTON_COLOR_WELL,            // a color well
 
         // The following styles are no longer recommended
 
-        BUTTON_BEVEL,                 // Bevel button with square corners (not recommended in Yosemite)
-        BUTTON_BEVEL_ROUND,           // Bevel button with rounded corners (not recommended in Yosemite)
+        BUTTON_BEVEL,                 // Bevel button with square corners (I call this Square)
+        BUTTON_BEVEL_ROUND,           // Bevel button with rounded corners (I call this Bevel)
         BUTTON_ROUND,                 // a round white button with a border
         BUTTON_ROUND_INSET,           // a round transparent button with an outline, probably obsolete
         BUTTON_ROUND_TEXTURED,        // a round white borderless button with a shadow

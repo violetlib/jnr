@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -20,6 +20,7 @@ import org.violetlib.jnr.aqua.impl.PopupRenderer;
 import org.violetlib.jnr.aqua.impl.TitleBarRendererBase;
 import org.violetlib.jnr.impl.BasicRenderer;
 import org.violetlib.jnr.impl.BasicRendererDescription;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.Renderer;
 import org.violetlib.jnr.impl.RendererDescription;
 import org.violetlib.jnr.impl.ReusableCompositor;
@@ -280,14 +281,8 @@ public class JRSPainter
             bs = ButtonState.STATELESS;
         }
 
-        // Stateless buttons other than textured buttons display the same when inactive as they would when active
-        if (bs == ButtonState.STATELESS && !bw.isTextured()) {
-            if (st == State.INACTIVE) {
-                st = State.ACTIVE;
-            } else if (st == State.DISABLED_INACTIVE) {
-                st = State.DISABLED;
-            }
-        }
+        // Some buttons display the same when inactive as they do when active
+        st = fixState(bw, bs, st);
 
         configureSize(g.getSize());
         configureState(st);
@@ -652,6 +647,7 @@ public class JRSPainter
         Position pos = g.getPosition();
 
         SegmentedButtonWidget bw = g.getWidget();
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
 
         maker.reset();
 

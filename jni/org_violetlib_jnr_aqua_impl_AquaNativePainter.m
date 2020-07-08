@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -801,6 +801,9 @@ static const int SEGMENTED_10_13_OLD = 2;       // rendering on macOS 10.13 that
 static const int SEGMENTED_10_13 = 3;           // a unique rendering on macOS 10.13, when linked against SDK 10.11 or later
 static const int SEGMENTED_10_14_OLD = 4;       // rendering on macOS 10.14 that is similar to 10.11, used when linked against an old SDK
 static const int SEGMENTED_10_14 = 5;           // rendering on macOS 10.14, when linked against SDK 10.11 or later
+static const int SEGMENTED_11_0 = 6;            // rendering on macOS 11.0, when linked against SDK 11.0 or later
+
+// Note that 11.0 was originally known as 10.16.
 
 // The key differences:
 //
@@ -824,6 +827,8 @@ static const int SEGMENTED_10_14 = 5;           // rendering on macOS 10.14, whe
 // 1. The layout is not changed. The painted background is wider than the segment.
 // 2. The layout is changed so that both dividers are part of the selected segment.
 // 3. The adjacent dividers are not painted. The background therefore does not need to be adjusted.
+//
+// The key difference in SEGMENTED_11_0 is that the basic tab/exclusive segmented style is more like separated.
 
 static int segmentedVersion = -1;
 
@@ -839,13 +844,15 @@ static int setupSegmented()
         segmentedVersion = SEGMENTED_10_10;
     } else if (osVersion < 101300) {
         segmentedVersion = SEGMENTED_10_11;
-    } else {
+    } else if (osVersion < 101600) {
         Boolean isNewStyle = _CFExecutableLinkedOnOrAfter(11);
         if (osVersion < 101400) {
             segmentedVersion = isNewStyle ? SEGMENTED_10_13 : SEGMENTED_10_13_OLD;
         } else {
             segmentedVersion = isNewStyle ? SEGMENTED_10_14 : SEGMENTED_10_14_OLD;
         }
+    } else {
+        segmentedVersion = SEGMENTED_11_0;
     }
 
     return segmentedVersion;
@@ -897,8 +904,8 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
     // The native styles are:
     // NSSegmentStyleRounded - used for tabbed panes and for the default style
-    // NSSegmentStyleRoundRect - used for the INSET style
-    // NSSegmentStyleTexturedSquare - used for the TEXTURED styles
+    // NSSegmentStyleRoundRect - used for the INSET style (also known as Rounded Rect)
+    // NSSegmentStyleTexturedSquare - used for the other TEXTURED styles
     // NSSegmentStyleSmallSquare - used for the SMALL SQUARE style
     // NSSegmentStyleSeparated - used for the SEPARATED styles
     // NSSegmentStyleTexturedRounded - used for the discouraged TOOLBAR style
@@ -935,18 +942,25 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
     // The corner inset is the extra width that is added to the first and last segment to account for rounded corners.
     // It also includes any extra blank space on either side of the control.
-    // The first divider inset is the extra width that is added to the first segment to account for the first
-    // divider (whether or not it is painted inside the first segment).
-    // The middle divider inset is the extra width added to the middle segments to account for the dividers other than
-    // the first divider.
 
-    float dividerVisualWidth = 1;        // visual width of the dividers
-    float dividerLayoutWidth = 1;       // layout width of the dividers
+    // The divider inset is the extra width that is added to the all segments other than the last segment to account for the
+    // divider that may be drawn for the segment (whether or not it is painted inside the segment).
+
+    // The outer right inset is the extra space (in addition to the corner inset) added to the right side of the control.
+
     float outerLeftInset = 0;
     float outerRightInset = 0;
     float cornerInset = 0;
-    float firstDividerInset = 1;
-    float middleDividerInset = 1;
+    float dividerInset = 1;
+
+    // The divider visual width describes the layout area in which a divider is actually painted. It is used to adjust
+    // the control configuration and extraction region to hide or reveal dividers. The divider visual width should be
+    // zero when no divider is painted, even if the divider inset is non-zero. The divider actual visual width
+    // is used in one special case where 1 pixel wide dividers were drawn on a 2x display. Both parameters are in
+    // units of points.
+
+    float dividerVisualWidth = 1;        // in integral points
+    float dividerActualVisualWidth = 0;  // in points, may be fractional, zero to use dividerVisualWidth
 
     // The top inset adjusts vertically.
 
@@ -1031,7 +1045,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
             dividerPosition2x = CENTER;
         }
 
-        cornerInset = outerLeftInset + left - dividerLayoutWidth;
+        cornerInset = outerLeftInset + left - dividerVisualWidth;
 
         if (oss == NSSegmentStyleSeparated_Textured && sz == MiniSize) {
             topInset = 1;
@@ -1049,7 +1063,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
     } else if (version == SEGMENTED_10_13 || version == SEGMENTED_10_14) {
 
         if (version == SEGMENTED_10_13 && !is1x) {
-            dividerVisualWidth = 0.5f;
+            dividerActualVisualWidth = 0.5f;
         }
 
         if (oss == NSSegmentStyleRounded || oss == NSSegmentStyleSeparated_Rounded) {
@@ -1075,17 +1089,50 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         } else {
             cornerInset = 3;
         }
+
+    } else if (version == SEGMENTED_11_0) {
+        if (oss == NSSegmentStyleRounded) {
+            cornerInset = 2;
+            outerRightInset = 2;
+            dividerInset = 3;
+            // A segment in the ON/Mixed ("selected") state does not display dividers
+            if (st > 0) {
+                dividerVisualWidth = 0;
+            } else {
+                dividerVisualWidth = 3;
+            }
+        } else if (oss == NSSegmentStyleSeparated_Rounded) {
+            cornerInset = 3;
+        } else if (oss == NSSegmentStyleSeparated_Toolbar || oss == NSSegmentStyleSeparated_Textured) {
+            cornerInset = 1;
+            dividerInset = dividerVisualWidth = 5;
+            outerRightInset = 4;
+        } else if (oss == NSSegmentStyleTexturedSquare || oss == NSSegmentStyleCapsule || oss == NSSegmentStyleTexturedSquare_Toolbar) {
+            cornerInset = 5;
+            dividerInset = 5;
+            outerLeftInset = 1;
+            // A segment in the ON/Mixed ("selected") state does not display dividers
+            if (st > 0) {
+                dividerVisualWidth = 0;
+            }
+        } else if (oss == NSSegmentStyleTexturedRounded) {
+            // A segment in the ON/Mixed ("selected") state does not display dividers
+            if (st > 0) {
+                dividerVisualWidth = 0;
+            }
+        }
     }
 
-    // The following parameters relate the nominal width of a segment to the actual width of a segment.
-    // If we want a particular actual width, the width we specify must be adjusted.
+    // The following parameters relate the requested width of a segment to the actual width of a segment, which is
+    // often wider than requested to allow room for dividers. If we want a particular actual width, the width we
+    // specify must be reduced by the extra amount defined by these parameters.
 
-    float leftExtra = cornerInset + firstDividerInset - outerLeftInset;
-    float middleExtra = middleDividerInset;
-    float rightExtra = cornerInset - outerLeftInset + outerRightInset;
+    float leftExtra = cornerInset + dividerInset - outerLeftInset;
+    float middleExtra = dividerInset;
+    float rightExtra = cornerInset + outerRightInset - outerLeftInset;
 
     //NSLog(@" displayed style %d", segmentStyle);  // debug
-    //NSLog(@" state %d, flags %d", st, flags);  // debug
+    //NSLog(@" button state %d, flags %d", st, flags);  // debug
     //NSLog(@" requested width %f", w); // debug
 
     // A segmented control with one segment is painted directly.
@@ -1152,46 +1199,53 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
           }
         }
 
-        // There is a special case for a separated style in 2x when the "divider" is centered. What this basically means
-        // is that we always want to show the entire segment, as the half divider on either side is the border or
-        // space that we want to be visible.
-
-        BOOL isSeparatedCentered2X = isSeparated && !is1x && dividerPosition == CENTER;
-
         if (segmentIndex > 0) {
           // the width of the left segment is otherSegmentWidth + leftExtra
           xOffset = segmentIndex * (otherSegmentWidth + middleExtra) + (leftExtra - middleExtra);
           widthAdjustment += leftExtra;
-          // adjust so that a divider is not visible by default
-          if (dividerPosition != LEFT && !isSeparatedCentered2X) {
-            //NSLog(@"Shifting and widening to hide divider");
-            xOffset += dividerLayoutWidth;
-            segmentWidth += dividerLayoutWidth;
-            widthAdjustment += dividerLayoutWidth;
-          }
         }
 
         if (segmentIndex < 3) {
           // the width of the right segment is otherSegmentWidth + rightExtra
           widthAdjustment += rightExtra;
-          // adjust so that a divider is not visible by default
-          if (dividerPosition != RIGHT && !isSeparatedCentered2X) {
-            //NSLog(@"Widening to hide divider");
-            segmentWidth += dividerLayoutWidth;
-            widthAdjustment += dividerLayoutWidth;
-          }
         }
 
-        if (!isSeparatedCentered2X) {
+        // The next step is to adjust the segment width and extracted region location to either hide or reveal dividers,
+        // as needed to satisfy the requested set of dividers. This adjustment is inhibited in the case of a
+        // separated style in 2x when the "divider" is centered. What this basically means
+        // is that we always want to show the entire segment, as the half divider on either side is the border or
+        // space that we want to be visible.
+
+        BOOL isSeparatedCentered2X = isSeparated && !is1x && dividerPosition == CENTER;
+        if (!isSeparatedCentered2X && dividerVisualWidth > 0) {
+            if (segmentIndex > 0) {
+              // adjust so that the left divider is not visible by default
+              if (dividerPosition != LEFT) {
+                //NSLog(@"Shifting and widening to hide left divider");
+                xOffset += dividerVisualWidth;
+                segmentWidth += dividerVisualWidth;
+                widthAdjustment += dividerVisualWidth;
+              }
+            }
+
+            if (segmentIndex < 3) {
+              // adjust so that the right divider is not visible by default
+              if (dividerPosition != RIGHT) {
+                //NSLog(@"Widening to hide right divider");
+                segmentWidth += dividerVisualWidth;
+                widthAdjustment += dividerVisualWidth;
+              }
+            }
+
             BOOL drawLeadingDivider = segmentIndex > 0 && (flags & SEGMENT_FLAG_DRAW_LEADING_SEPARATOR) != 0;
             BOOL drawTrailingDivider = segmentIndex < 3 && (flags & SEGMENT_FLAG_DRAW_TRAILING_SEPARATOR) != 0;
-
             if (drawLeadingDivider) {
-              xOffset -= dividerVisualWidth;
-              int adjustment = (int) ceil(dividerVisualWidth);
+              float actualVisualWidth = dividerActualVisualWidth > 0 ? dividerActualVisualWidth : dividerVisualWidth;
+              xOffset -= actualVisualWidth;
+              int adjustment = (int) ceil(actualVisualWidth);
               if (dividerPosition == CENTER) {
-                xOffset -= dividerLayoutWidth;
-                adjustment += dividerLayoutWidth;
+                xOffset -= dividerVisualWidth;
+                adjustment += dividerVisualWidth;
               }
               segmentWidth -= adjustment;
               widthAdjustment -= adjustment;
@@ -1199,11 +1253,11 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
             }
 
             if (drawTrailingDivider) {
-              segmentWidth -= dividerLayoutWidth;
-              widthAdjustment -= dividerLayoutWidth;
+              segmentWidth -= dividerVisualWidth;
+              widthAdjustment -= dividerVisualWidth;
               if (dividerPosition == CENTER) {
-                segmentWidth -= dividerLayoutWidth;
-                widthAdjustment -= dividerLayoutWidth;
+                segmentWidth -= dividerVisualWidth;
+                widthAdjustment -= dividerVisualWidth;
               }
               //NSLog(@"Shrinking to reveal right divider");
             }
@@ -1211,7 +1265,10 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
         //NSLog(@" Adjusted segment width: %.1f", segmentWidth);
 
-        cw = outerLeftInset + w + 3 * (dividerLayoutWidth + otherSegmentWidth) + widthAdjustment;
+        // The following computation of the control frame width seems redundant.
+        // It may be conservative.
+
+        cw = outerLeftInset + w + 3 * (dividerInset + otherSegmentWidth) + widthAdjustment;
     }
 
     float ch = h + topInset;
@@ -1334,7 +1391,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
             a[DEBUG_SEGMENT_HEIGHT] = crh;
             a[DEBUG_SEGMENT_X_OFFSET] = outerLeftInset + xOffset;
             a[DEBUG_SEGMENT_Y_OFFSET] = topInset;
-            a[DEBUG_SEGMENT_DIVIDER_WIDTH] = dividerLayoutWidth;
+            a[DEBUG_SEGMENT_DIVIDER_WIDTH] = dividerInset;
             a[DEBUG_SEGMENT_OUTER_LEFT_INSET] = outerLeftInset;
             a[DEBUG_SEGMENT_LEFT_INSET] = leftExtra;
             a[DEBUG_SEGMENT_RIGHT_INSET] = rightExtra;
@@ -1348,8 +1405,8 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
     COCOA_EXIT(env);
 }
 
-static const int TEST_SEGMENTED_ONE_SEGMENT = -1;
-static const int TEST_SEGMENTED_NO_SELECTION = -2;
+static const int TEST_SEGMENTED_ONE_SEGMENT_MASK = (1 << 10);
+static const int TEST_SEGMENTED_FOUR_SEGMENT_MASK = (1 << 11);
 
 /*
  * Class:     org_violetlib_jnr_aqua_impl_AquaNativePainter
@@ -1368,7 +1425,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
     // Paint an entire segmented control for debugging purposes (primarily layout debugging).
     // The nominal segment width is 20 points.
     // Paint either a control with 1 segment or with 4.
-    // In the 4 segment case, one segment may be selected.
+    // In the 4 segment case, either one segment may be selected or any number of segments may be selected.
 
     jint oss = segmentStyle;
 
@@ -1409,17 +1466,22 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
         // Create and configure the segmented control
 
-        if (option == TEST_SEGMENTED_ONE_SEGMENT) {
+        BOOL isOldStatus = ((option & TEST_SEGMENTED_ONE_SEGMENT_MASK) != 0) == ((option & TEST_SEGMENTED_FOUR_SEGMENT_MASK) != 0);
+        BOOL isOneSegment = isOldStatus ? option == -1 : (option & TEST_SEGMENTED_ONE_SEGMENT_MASK) != 0;
+
+        if (isOneSegment) {
             [view setSegmentCount: 1];
             [view setLabel: @"" forSegment: 0];
             [view setWidth: segmentWidth forSegment: 0];
-            [view setSelected: NO forSegment: 0];
+            BOOL isSelected = !isOldStatus && (option & 1);
+            [view setSelected: isSelected forSegment: 0];
         } else {
             [view setSegmentCount: 4];
             for (int i = 0; i < 4; i++) {
                 [view setLabel: @"" forSegment: i];
                 [view setWidth: segmentWidth forSegment: i];
-                [view setSelected: (option == i) forSegment: i];
+                BOOL isSelected = isOldStatus ? (option == i) : (option & (1 << i)) != 0;
+                [view setSelected: isSelected forSegment: i];
             }
         }
 
@@ -2387,28 +2449,28 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
         isActive = state == ActiveState;    // only Active and Inactive are supported
 
-        currentWindow = type == 0 ? fakeDocumentWindow : myPanel;
-        [currentWindow setFrame: frameRect display:NO];
-        [currentWindow setDocumentEdited: isDirty];
+        NSWindow *window = type == 0 ? fakeDocumentWindow : myPanel;
+        [window setFrame: frameRect display:NO];
+        [window setDocumentEdited: isDirty];
 
         // Surprisingly, when highlighted, the buttons also paint the icons.
 
-        NSWindowCollectionBehavior behavior = [currentWindow collectionBehavior];
+        NSWindowCollectionBehavior behavior = [window collectionBehavior];
         if (resizeIsFullScreen) {
             behavior |= NSWindowCollectionBehaviorFullScreenPrimary;
         } else {
             behavior &= ~NSWindowCollectionBehaviorFullScreenPrimary;
         }
-        [currentWindow setCollectionBehavior:behavior];
+        [window setCollectionBehavior:behavior];
 
         // We can force a button to display as inactive.
 
-        NSButton *minimizeButton = [currentWindow standardWindowButton: NSWindowMiniaturizeButton];
+        NSButton *minimizeButton = [window standardWindowButton: NSWindowMiniaturizeButton];
         if (minimizeButton) {
             configureTitleBarButton(minimizeButton, minimizeState);
         }
 
-        NSButton *resizeButton = [currentWindow standardWindowButton: NSWindowZoomButton];
+        NSButton *resizeButton = [window standardWindowButton: NSWindowZoomButton];
         if (resizeButton) {
             configureTitleBarButton(resizeButton, resizeState);
             // Not clear it is possible to get the window to paint a full screen exit icon.
@@ -2418,7 +2480,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
         // Displaying the window does not work, but displaying the super view does.
 
-        NSButton *closeButton = [currentWindow standardWindowButton: NSWindowCloseButton];
+        NSButton *closeButton = [window standardWindowButton: NSWindowCloseButton];
         if (closeButton) {
             configureTitleBarButton(closeButton, closeState);
             //NSView *top = getTopView(closeButton.window);

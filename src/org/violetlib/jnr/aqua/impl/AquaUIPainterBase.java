@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -21,6 +21,7 @@ import org.violetlib.jnr.Painter;
 import org.violetlib.jnr.SliderPainter;
 import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.impl.BasicRendererDescription;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.MultiResolutionRendererDescription;
 import org.violetlib.jnr.impl.OffsetPainter;
 import org.violetlib.jnr.impl.Renderer;
@@ -60,6 +61,7 @@ public abstract class AquaUIPainterBase
     public static final int SEGMENTED_10_13 = 3;       // a unique rendering on macOS 10.13, when linked against SDK 10.11 or later
     public static final int SEGMENTED_10_14_OLD = 4;   // rendering on macOS 10.14 that is similar to 10.11, used when linked against an old SDK
     public static final int SEGMENTED_10_14 = 5;       // rendering on macOS 10.14, when linked against SDK 10.11 or later
+    public static final int SEGMENTED_11_0 = 6;        // rendering on macOS 11.0, when linked against SDK 11.0 or later
 
     protected AquaUIPainterBase(@NotNull RendererDescriptions rds)
     {
@@ -279,6 +281,69 @@ public abstract class AquaUIPainterBase
 //                return ButtonWidget.BUTTON_ROUND;
 //        }
         return bw;
+    }
+
+    /**
+      Many buttons do not alter their appearance when inactive. In many cases using CoreUI, the way to accomplish that
+      is to change the inactive state to the active equivalent.
+    */
+
+    protected @NotNull State fixState(@NotNull ButtonWidget bw, @NotNull ButtonState bs, @NotNull State st)
+    {
+        if (st != State.INACTIVE && st != State.DISABLED_INACTIVE) {
+            return st;
+        }
+
+        return isSensitiveToInactiveState(bw, bs, st) ? st : convertToActiveState(st);
+    }
+
+    protected boolean isSensitiveToInactiveState(@NotNull ButtonWidget bw, @NotNull ButtonState bs, @NotNull State st)
+    {
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+
+        // Push buttons are sensitive if they are in the "on" state
+        if (bw == ButtonWidget.BUTTON_PUSH) {
+            return bs == ButtonState.ON;
+        }
+
+        // Round buttons are sensitive if they are in the "on" state, starting with macOS 10.15
+        if (bw == ButtonWidget.BUTTON_ROUND) {
+            return bs == ButtonState.ON && platformVersion >= 101500;
+        }
+
+        // Starting with macOS 10.15, there are no additional sensitive buttons
+        if (platformVersion >= 101500) {
+            return false;
+        }
+
+        // Textured buttons are sensitive, both stateless buttons and toggle buttons.
+        if (bw.isTextured()) {
+            return true;
+        }
+
+        // Stateless buttons of other types are insensitive.
+        if (bs == ButtonState.STATELESS) {
+            return false;
+        }
+
+        // Recessed buttons in the "on" state are sensitive
+        if (bw == ButtonWidget.BUTTON_RECESSED && bs == ButtonState.ON) {
+            return true;
+        }
+
+        // Everything else is insensitive
+        return false;
+    }
+
+    protected @NotNull State convertToActiveState(@NotNull State st)
+    {
+        if (st == State.INACTIVE) {
+            return State.ACTIVE;
+        }
+        if (st == State.DISABLED_INACTIVE) {
+            return State.DISABLED;
+        }
+        return st;
     }
 
     protected @Nullable Renderer getSearchFieldFindButtonRenderer(@NotNull TextFieldConfiguration g)
