@@ -53,9 +53,14 @@ static const int TextFieldSearchWithMenuAndCancel = 5;
 static const int RightToLeftSlider = 1002;
 static const int UpsideDownSlider = 1003;
 
+// The following distinguishable versions of slider layout and rendering have been identified.
+static const int SLIDER_10_10 = 0;             // rendering on macOS 10.10+
+static const int SLIDER_11_0 = 2;              // rendering on macOS 11.0, when linked against SDK 11.0 or later
+
 // Special codes for non-standard segmented control styles
 static const int NSSegmentStyleSeparated_Rounded = 80;
 static const int NSSegmentStyleSeparated_Textured = 81;
+static const int NSSegmentStyleSlider = 82;
 static const int NSSegmentStyleTexturedSquare_Toolbar = 1000 + NSSegmentStyleTexturedSquare;
 static const int NSSegmentStyleSeparated_Toolbar = 1000 + NSSegmentStyleSeparated_Textured;
 
@@ -593,6 +598,26 @@ static void displayViewPreferringLayer(NSView *view, NSGraphicsContext *gc, NSRe
     }
 }
 
+static int sliderVersion = -1;
+
+static int setupSlider()
+{
+    if (sliderVersion >= 0) {
+        return sliderVersion;
+    }
+
+    initialize();
+
+    if (osVersion < 101600) {
+        sliderVersion = SLIDER_10_10;
+    } else {
+        Boolean isNewStyle = _CFExecutableLinkedOnOrAfter(11);
+        sliderVersion = isNewStyle ? SLIDER_11_0 : SLIDER_10_10;
+    }
+
+    return sliderVersion;
+}
+
 /*
  * Class:     org_violetlib_jnr_aqua_impl_AquaNativePainter
  * Method:    isLayerPaintingEnabled
@@ -1092,9 +1117,15 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
     } else if (version == SEGMENTED_11_0) {
         if (oss == NSSegmentStyleRounded) {
-            cornerInset = 2;
-            outerRightInset = 2;
-            dividerInset = 3;
+            if (sz == MiniSize) {
+                dividerInset = 5;
+                cornerInset = 1;
+                outerRightInset = 4;
+            } else {
+                dividerInset = 3;
+                cornerInset = 2;
+                outerRightInset = 2;
+            }
             // A segment in the ON/Mixed ("selected") state does not display dividers
             if (st > 0) {
                 dividerVisualWidth = 0;
@@ -1103,6 +1134,11 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
             }
         } else if (oss == NSSegmentStyleSeparated_Rounded) {
             cornerInset = 3;
+            if (sz == MiniSize) {
+                dividerInset = 3;
+                cornerInset = 2;
+                outerRightInset = 2;
+            }
         } else if (oss == NSSegmentStyleSeparated_Toolbar || oss == NSSegmentStyleSeparated_Textured) {
             cornerInset = 1;
             dividerInset = dividerVisualWidth = 5;
@@ -1539,6 +1575,25 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
     }
 
     COCOA_EXIT(env);
+}
+
+/*
+ * Class:     org_violetlib_jnr_aqua_impl_AquaNativePainter
+ * Method:    nativeDetermineSliderRenderingVersion
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativeDetermineSliderRenderingVersion
+  (JNIEnv *env, jclass cl)
+{
+    jint result = -1;
+
+    COCOA_ENTER(env);
+
+    result = setupSlider();
+
+    COCOA_EXIT(env);
+
+    return result;
 }
 
 /*
@@ -2207,7 +2262,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
     COCOA_EXIT(env);
 }
 
-static BOOL setupSlider(NSSlider *view, jfloat w, jfloat h, jint sliderType, jint sz, jint state, jint numberOfTickMarks, jint tickMarkPosition, jdouble value)
+static BOOL setupSliderView(NSSlider *view, jfloat w, jfloat h, jint sliderType, jint sz, jint state, jint numberOfTickMarks, jint tickMarkPosition, jdouble value)
 {
     NSSliderCell *cell = [view cell];
 
@@ -2268,7 +2323,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         NSSlider* view = [[NSSlider alloc] initWithFrame: frameRect];
         installContentView(view, NO);
 
-        setupSlider(view, w, h, sliderType, sz, state, numberOfTickMarks, tickMarkPosition, value);
+        setupSliderView(view, w, h, sliderType, sz, state, numberOfTickMarks, tickMarkPosition, value);
 
         displayView(view, gc, frameRect);
     });
@@ -2314,7 +2369,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         ThumbCapturingSliderCell *cell = [[ThumbCapturingSliderCell alloc] init];
         [view setCell: cell];
 
-        setupSlider(view, w, h, sliderType, sz, ActiveState, numberOfTickMarks, tickMarkPosition, value);
+        setupSliderView(view, w, h, sliderType, sz, ActiveState, numberOfTickMarks, tickMarkPosition, value);
 
         displayView(view, gc, frameRect);
 

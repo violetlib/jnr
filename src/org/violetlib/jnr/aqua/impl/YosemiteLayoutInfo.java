@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -39,6 +39,11 @@ import static org.violetlib.jnr.impl.JNRUtils.*;
 public class YosemiteLayoutInfo
   extends AquaUILayoutInfo
 {
+    public YosemiteLayoutInfo(boolean isViewBased)
+    {
+        super(isViewBased);
+    }
+
     @Override
     protected @NotNull LayoutInfo getButtonLayoutInfo(@NotNull ButtonLayoutConfiguration g)
     {
@@ -229,6 +234,7 @@ public class YosemiteLayoutInfo
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
+            case BUTTON_SEGMENTED_SLIDER:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 22, 19, 16));
 
             case BUTTON_SEGMENTED_INSET:
@@ -269,6 +275,7 @@ public class YosemiteLayoutInfo
         switch (bw) {
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
+            case BUTTON_SEGMENTED_SLIDER:
                 break;
             case BUTTON_SEGMENTED_SEPARATED:
                 endAdjust = 0;
@@ -644,8 +651,7 @@ public class YosemiteLayoutInfo
     @Override
     protected @NotNull LayoutInfo getSliderLayoutInfo(@NotNull SliderLayoutConfiguration g)
     {
-        // Mini sliders are not supported (must be consistent with rendering code)
-        final Size sz = g.getSize() == Size.MINI ? Size.SMALL : g.getSize();
+        Size sz = g.getSize();
         boolean hasTickMarks = g.hasTickMarks();
 
         // There is some extra space at the ends, but it is not needed. The knob does not clip even at the extremes.
@@ -654,11 +660,11 @@ public class YosemiteLayoutInfo
         {
             case SLIDER_HORIZONTAL:
             case SLIDER_HORIZONTAL_RIGHT_TO_LEFT:
-                return BasicLayoutInfo.createFixedHeight(hasTickMarks ? size(sz, 24, 18, 18) : size(sz, 18, 14, 14));
+                return BasicLayoutInfo.createFixedHeight(hasTickMarks ? size(sz, 24, 18, 16) : size(sz, 18, 14, 12));
 
             case SLIDER_VERTICAL:
             case SLIDER_UPSIDE_DOWN:
-                return BasicLayoutInfo.createFixedWidth(hasTickMarks ? size(sz, 24, 18, 18) : size(sz, 18, 14, 14));
+                return BasicLayoutInfo.createFixedWidth(hasTickMarks ? size(sz, 24, 18, 16) : size(sz, 18, 14, 12));
 
             case SLIDER_CIRCULAR:
                 int width = hasTickMarks ? size(sz, 36, 25, 25) : size(sz, 28, 21, 21);
@@ -875,7 +881,6 @@ public class YosemiteLayoutInfo
       @param isForPainting True to return the size for painting. False to return the size for computing an outline.
       @return the layout information.
     */
-
     protected @NotNull LayoutInfo getSliderThumbLayoutInfo(@NotNull SliderLayoutConfiguration g, boolean isForPainting)
     {
         SliderWidget sw = g.getWidget();
@@ -895,13 +900,36 @@ public class YosemiteLayoutInfo
                 return BasicLayoutInfo.createFixed(width, height);
             }
         } else {
-            // On a 2x display, the visual diameter is 16 points (regular) and 12 points (small). However, to take advantage
-            // of that more accurate visual diameter would require a custom 2x renderer description to top-left align the
-            // circle.
+            // On a 2x display, the visual diameter is 16 points (regular) and 12 points (small). However, to take
+            // advantage of that more accurate visual diameter would require a custom 2x renderer description to
+            // top-left align the circle.
             float width = size(sz, 17, 13, 13);
             float height = isForPainting ? size(sz, 18, 14, 14) : width;
             return BasicLayoutInfo.createFixed(width, height);
         }
+    }
+
+    @Override
+    public @NotNull Insetter getSliderTickMarkPaintingInsets(@NotNull SliderLayoutConfiguration g)
+    {
+        return Insetter.trivial();
+    }
+
+    // supports evaluation
+    @Override
+    public @NotNull LayoutInfo getSliderTickLayoutInfo(@NotNull SliderLayoutConfiguration g)
+    {
+        if (g.isLinear() && g.hasTickMarks()) {
+            Size sz = g.getSize();
+            float thickness = JNRUtils.size(sz, 2, 2, 1);
+            float length = JNRUtils.size(sz, 8, 8, 7);
+            if (g.isHorizontal()) {
+                return BasicLayoutInfo.createFixed(thickness, length);
+            } else {
+                return BasicLayoutInfo.createFixed(length, thickness);
+            }
+        }
+        return BasicLayoutInfo.createFixed(0, 0);
     }
 
     @Override

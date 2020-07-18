@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Alan Snyder.
+ * Copyright (c) 2018-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -189,6 +189,7 @@ public abstract class RendererDescriptionsBase
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
+            case BUTTON_SEGMENTED_SLIDER:
                 switch (sz) {
                     case LARGE:
                     case REGULAR:
@@ -465,52 +466,76 @@ public abstract class RendererDescriptionsBase
     }
 
     @Override
+    public @NotNull RendererDescription getSliderTickMarkRendererDescription(@NotNull SliderConfiguration g)
+    {
+        return new BasicRendererDescription(0, 0, 0, 0);
+    }
+
+    @Override
     public @NotNull RendererDescription getSliderThumbRendererDescription(@NotNull SliderConfiguration g)
     {
         AquaUIPainter.Size sz = g.getSize();
 
         if (g.isHorizontal() || g.isVertical()) {
             if (!g.hasTickMarks()) {
+                float xh = 0;
+                if (AquaUIPainterBase.internalGetSliderRenderingVersion() == AquaUIPainterBase.SLIDER_11_0) {
+                    if (sz == Size.REGULAR) {
+                        xh = 4;
+                    }
+                }
                 float yOffset1 = -1;
                 float yOffset2 = g.isHorizontal() ? size2D(sz, -0.5f, 0, 0) : size2D(sz, -0.5f, -0.5f, -0.5f);
-                RendererDescription rd1 = new BasicRendererDescription(0, yOffset1, 0, 0);
-                RendererDescription rd2 = new BasicRendererDescription(0, yOffset2, 0, 0);
+                RendererDescription rd1 = new BasicRendererDescription(0, yOffset1, 0, xh);
+                RendererDescription rd2 = new BasicRendererDescription(0, yOffset2, 0, xh);
                 return new MultiResolutionRendererDescription(rd1, rd2);
             }
             if (g.isHorizontal()) {
+                float xh = 0;
+                if (AquaUIPainterBase.internalGetSliderRenderingVersion() == AquaUIPainterBase.SLIDER_11_0) {
+                    if (sz == Size.REGULAR) {
+                        xh = 3;
+                    }
+                }
                 // The goal is to visually center the pointer horizontally in the layout width
                 float xOffset1 = 0;
                 float xOffset2 = size2D(sz, 0, 0, 0);
                 if (g.getTickMarkPosition() == AquaUIPainter.TickMarkPosition.ABOVE) {
                     float yOffset1 = 0;
                     float yOffset2 = size2D(sz, 0, 0, 0);
-                    float ha = size2D(sz, 1, 0, 0);
-                    RendererDescription rd1 = new BasicRendererDescription(xOffset1, yOffset1, 0, ha);
-                    RendererDescription rd2 = new BasicRendererDescription(xOffset2, yOffset2, 0, ha);
+                    xh += size2D(sz, 1, 0, 0);
+                    RendererDescription rd1 = new BasicRendererDescription(xOffset1, yOffset1, 0, xh);
+                    RendererDescription rd2 = new BasicRendererDescription(xOffset2, yOffset2, 0, xh);
                     return new MultiResolutionRendererDescription(rd1, rd2);
                 } else {
                     float yOffset1 = size2D(sz, -1, 0, 0);
                     float yOffset2 = size2D(sz, 0, 0, 0);
-                    float ha = 1;
-                    RendererDescription rd1 = new BasicRendererDescription(xOffset1, yOffset1, 0, ha);
-                    RendererDescription rd2 = new BasicRendererDescription(xOffset2, yOffset2, 0, ha);
+                    xh += 1;
+                    RendererDescription rd1 = new BasicRendererDescription(xOffset1, yOffset1, 0, xh);
+                    RendererDescription rd2 = new BasicRendererDescription(xOffset2, yOffset2, 0, xh);
                     return new MultiResolutionRendererDescription(rd1, rd2);
                 }
             } else {
                 // Vertical sliders
+                float xh = 0;
+                if (AquaUIPainterBase.internalGetSliderRenderingVersion() == AquaUIPainterBase.SLIDER_11_0) {
+                    if (sz == Size.REGULAR) {
+                        xh = 3;
+                    }
+                }
                 // The goal is to visually center the pointer vertically in the layout height, ignoring the shadow
                 float yOffset1 = 0;
                 float yOffset2 = size2D(sz, 0, 0.5f, 0.5f);
                 if (g.getTickMarkPosition() == AquaUIPainter.TickMarkPosition.LEFT) {
                     float wa = size2D(sz, 1, 2, 2);
-                    float ha = size(sz, 1, 0, 0);
-                    RendererDescription rd1 = new BasicRendererDescription(0, yOffset1, wa, ha);
-                    RendererDescription rd2 = new BasicRendererDescription(0, yOffset2, wa, ha);
+                    xh += size(sz, 1, 0, 0);
+                    RendererDescription rd1 = new BasicRendererDescription(0, yOffset1, wa, xh);
+                    RendererDescription rd2 = new BasicRendererDescription(0, yOffset2, wa, xh);
                     return new MultiResolutionRendererDescription(rd1, rd2);
                 } else {
-                    float ha = size(sz, 1, 0, 0);
-                    RendererDescription rd1 = new BasicRendererDescription(0, yOffset1, 0, ha);
-                    RendererDescription rd2 = new BasicRendererDescription(0, yOffset2, 0, ha);
+                    xh += size(sz, 1, 0, 0);
+                    RendererDescription rd1 = new BasicRendererDescription(0, yOffset1, 0, xh);
+                    RendererDescription rd2 = new BasicRendererDescription(0, yOffset2, 0, xh);
                     return new MultiResolutionRendererDescription(rd1, rd2);
                 }
             }

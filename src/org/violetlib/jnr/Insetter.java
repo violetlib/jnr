@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -13,6 +13,8 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
+
+import org.violetlib.jnr.impl.CombinedInsetter;
 
 import org.jetbrains.annotations.*;
 
@@ -45,6 +47,15 @@ import org.jetbrains.annotations.*;
 
 public interface Insetter
 {
+    /**
+      Return an insetter with all zero insets.
+     */
+
+    static @NotNull Insetter trivial()
+    {
+        return CombinedInsetter.trivial();
+    }
+
     /**
       Map from (outer) component bounds to (inner) region bounds by subtracting the insets from the component bounds.
 
@@ -143,4 +154,12 @@ public interface Insetter
     */
 
     @Nullable Insets asInsets();
+
+    /**
+      Return an insetter that is equivalent to applying the specified insetter to the results of this one.
+    */
+
+    default @NotNull Insetter prepend(@NotNull Insetter p) {
+        return new InsetterSequenceImpl(this, p);
+    }
 }

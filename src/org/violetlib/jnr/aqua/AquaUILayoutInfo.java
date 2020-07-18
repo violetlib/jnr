@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -16,6 +16,7 @@ import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.aqua.impl.PopupArrowConfiguration;
 import org.violetlib.jnr.aqua.impl.SliderThumbConfiguration;
+import org.violetlib.jnr.aqua.impl.SliderTickConfiguration;
 import org.violetlib.jnr.impl.BasicLayoutInfo;
 import org.violetlib.jnr.impl.CombinedInsetter;
 
@@ -24,11 +25,18 @@ import org.jetbrains.annotations.*;
 import static org.violetlib.jnr.aqua.AquaUIPainter.*;
 
 /**
-  Provides layout information for widgets based on the platform UI.
+  Provides layout information for widgets based on the platform UI and (rarely) the type of native rendering.
 */
 
 public abstract class AquaUILayoutInfo
 {
+    protected final boolean isViewBased;
+
+    public AquaUILayoutInfo(boolean isViewBased)
+    {
+        this.isViewBased = isViewBased;
+    }
+
     /**
       Return the layout information for the specified widget configuration.
       @param g The configuration.
@@ -122,6 +130,12 @@ public abstract class AquaUILayoutInfo
         if (g instanceof SliderThumbConfiguration) {
             SliderThumbConfiguration gg = (SliderThumbConfiguration) g;
             return getSliderThumbLayoutInfo(gg.getSliderConfiguration());
+        }
+
+        // for testing
+        if (g instanceof SliderTickConfiguration) {
+            SliderTickConfiguration gg = (SliderTickConfiguration) g;
+            return getSliderTickLayoutInfo(gg.getSliderConfiguration());
         }
 
         // for testing
@@ -360,6 +374,16 @@ public abstract class AquaUILayoutInfo
     public abstract @NotNull LayoutInfo getSliderThumbLayoutInfo(@NotNull SliderLayoutConfiguration g);
 
     /**
+      Return the layout info for a slider tick mark.
+
+      @param g This parameter specifies the layout configuration of the slider.
+      @return the layout info.
+    */
+
+    // this method supports evaluation
+    public abstract @NotNull LayoutInfo getSliderTickLayoutInfo(@NotNull SliderLayoutConfiguration g);
+
+    /**
       Return the bounds of the thumb of a slider for the purposes of hit detection.
 
       @param bounds The bounds of the slider.
@@ -404,6 +428,13 @@ public abstract class AquaUILayoutInfo
     // insets rather than bounds are needed for evaluation because we supply a variety of raster sizes
     public abstract @NotNull Insetter getSliderThumbPaintingInsets(@NotNull SliderLayoutConfiguration g,
                                                                    double thumbPosition);
+
+    /**
+       Return the insets to use when painting tick marks on a linear slider.
+       @param g The slider layout configuration.
+     */
+
+    public abstract @NotNull Insetter getSliderTickMarkPaintingInsets(@NotNull SliderLayoutConfiguration g);
 
     /**
       Return the suggested region for painting a label next to a slider.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Alan Snyder.
+ * Copyright (c) 2016-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -31,6 +31,11 @@ import static org.violetlib.jnr.impl.JNRUtils.*;
 public class ElCapitanLayoutInfo
   extends YosemiteLayoutInfo
 {
+    public ElCapitanLayoutInfo(boolean isViewBased)
+    {
+        super(isViewBased);
+    }
+
     @Override
     protected @NotNull LayoutInfo getButtonLayoutInfo(@NotNull ButtonLayoutConfiguration g)
     {
@@ -233,6 +238,7 @@ public class ElCapitanLayoutInfo
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
+            case BUTTON_SEGMENTED_SLIDER:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 22, 19, 16));
 
             case BUTTON_SEGMENTED_INSET:
@@ -275,6 +281,7 @@ public class ElCapitanLayoutInfo
         switch (bw) {
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
+            case BUTTON_SEGMENTED_SLIDER:
                 break;
             case BUTTON_SEGMENTED_SEPARATED:
                 endAdjust = 0;

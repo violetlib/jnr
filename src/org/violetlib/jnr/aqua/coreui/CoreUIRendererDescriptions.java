@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -14,7 +14,9 @@ import org.violetlib.jnr.aqua.ComboBoxConfiguration;
 import org.violetlib.jnr.aqua.PopupButtonConfiguration;
 import org.violetlib.jnr.aqua.ScrollBarConfiguration;
 import org.violetlib.jnr.aqua.SegmentedButtonConfiguration;
+import org.violetlib.jnr.aqua.SliderConfiguration;
 import org.violetlib.jnr.aqua.SplitPaneDividerConfiguration;
+import org.violetlib.jnr.aqua.impl.AquaUIPainterBase;
 import org.violetlib.jnr.aqua.impl.NativeSupport;
 import org.violetlib.jnr.aqua.impl.RendererDescriptionsBase;
 import org.violetlib.jnr.impl.BasicRendererDescription;
@@ -110,11 +112,11 @@ public class CoreUIRendererDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
+            case BUTTON_SEGMENTED_SLIDER:
                 yOffset = size2D(sz, -0.51f, -1.49f, -2);  // regular size should be -1 at 1x
                 leftOffset = size(sz, -2, -2, -1);
 
-                if (bw == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED
-                      && g.getPosition() != AquaUIPainter.Position.ONLY) {
+                if (shouldUseSpecialSeparatedDescription(g)) {
                     // completely different rules
                     return getSegmentedSeparatedRendererDescription(g, rd, yOffset, leftOffset);
                 }
@@ -158,6 +160,22 @@ public class CoreUIRendererDescriptions
 
         return adjustSegmentedRendererDescription(g, rd, extraWidth, xOffset, yOffset, leftOffset, leftExtraWidth,
           rightExtraWidth, extraHeight);
+    }
+
+    protected boolean shouldUseSpecialSeparatedDescription(@NotNull SegmentedButtonConfiguration g)
+    {
+        if (g.getPosition() == AquaUIPainter.Position.ONLY) {
+            return false;
+        }
+        AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
+        if (bw == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED) {
+            return true;
+        }
+        if (bw == AquaUIPainter.SegmentedButtonWidget.BUTTON_TAB && g.isSelected()) {
+            int platformVersion = JNRPlatformUtils.getPlatformVersion();
+            return platformVersion >= 101600;
+        }
+        return false;
     }
 
     protected @NotNull RendererDescription getTexturedSeparatedRendererDescription(
@@ -347,5 +365,40 @@ public class CoreUIRendererDescriptions
         } else {
             return new BasicRendererDescription(extra, 0, -2*extra, 0);
         }
+    }
+
+    @Override
+    public @NotNull RendererDescription getSliderThumbRendererDescription(@NotNull SliderConfiguration g)
+    {
+        // macOS 11 introduced new linear slider styles with different layout properties. However, the NSView renderer
+        // may or may not use the new style, based on runtime determined linkage information.
+
+        if (!g.isLinear() || AquaUIPainterBase.internalGetSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
+            return super.getSliderThumbRendererDescription(g);
+        }
+
+        return getSlider11ThumbRendererDescription(g);
+    }
+
+    private @NotNull RendererDescription getSlider11ThumbRendererDescription(@NotNull SliderConfiguration g)
+    {
+        AquaUIPainter.Size sz = g.getSize();
+        float h = g.hasTickMarks() ? size2D(sz, 3.5, 0, 0) : size2D(sz, 4, 0, 0);
+        return new BasicRendererDescription(0, 0, 0, h);
+    }
+
+    @Override
+    public @NotNull RendererDescription getSliderTickMarkRendererDescription(@NotNull SliderConfiguration g)
+    {
+        // macOS 11 introduced new linear slider styles with different layout properties. However, the NSView renderer
+        // may or may not use the new style, based on runtime determined linkage information.
+
+        if (!g.isLinear() || AquaUIPainterBase.internalGetSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
+            return super.getSliderTickMarkRendererDescription(g);
+        }
+
+        AquaUIPainter.Size sz = g.getSize();
+        float h = g.hasTickMarks() ? size2D(sz, 4, 0, 0) : 0;
+        return new BasicRendererDescription(0, 0, 0, h);
     }
 }

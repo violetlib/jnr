@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -10,8 +10,8 @@ package org.violetlib.jnr;
 
 /**
   Layout information for a widget describes fixed and/or minimum sizes for the widget rendering. This information may be
-  platform UI dependent but should not depend upon the native rendering implementation. All dimensions are specified in
-  device independent pixels.
+  platform UI dependent. In rare cases, it may also depend upon the native rendering implementation. All dimensions are
+  specified in device independent pixels.
 */
 
 public interface LayoutInfo

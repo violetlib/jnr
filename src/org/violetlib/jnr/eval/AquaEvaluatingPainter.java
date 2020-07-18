@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -14,6 +14,7 @@ import java.awt.Shape;
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.NullPainter;
 import org.violetlib.jnr.Painter;
+import org.violetlib.jnr.aqua.AquaUILayoutInfo;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.Configuration;
 import org.violetlib.jnr.aqua.LayoutConfiguration;
@@ -29,6 +30,11 @@ public abstract class AquaEvaluatingPainter
   extends AquaUIPainterAbstractBase
   implements AquaUIPainter
 {
+    public AquaEvaluatingPainter(@NotNull AquaUILayoutInfo uiLayout)
+    {
+        super(uiLayout);
+    }
+
     @Override
     public @NotNull Shape getOutline(@NotNull LayoutConfiguration g)
     {

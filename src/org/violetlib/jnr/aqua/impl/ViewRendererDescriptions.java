@@ -23,8 +23,8 @@ import org.jetbrains.annotations.*;
 import static org.violetlib.jnr.impl.JNRUtils.*;
 
 /**
-  Renderer descriptions for NSView based rendering on macOS 10.10 and later.
-*/
+ Renderer descriptions for NSView based rendering on macOS 10.10 and later.
+ */
 
 public class ViewRendererDescriptions
   extends RendererDescriptionsBase
@@ -69,6 +69,7 @@ public class ViewRendererDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
+            case BUTTON_SEGMENTED_SLIDER:
                 y = size2D(sz, -1, -2.49f, -4);
                 break;
 
@@ -113,6 +114,7 @@ public class ViewRendererDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
+            case BUTTON_SEGMENTED_SLIDER:
                 y = size2D(sz, -1, -2.49f, -4);
                 break;
 
@@ -163,6 +165,7 @@ public class ViewRendererDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
+            case BUTTON_SEGMENTED_SLIDER:
                 y = size2D(sz, -1, -2.49f, -4);
                 break;
 
@@ -213,6 +216,7 @@ public class ViewRendererDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
+            case BUTTON_SEGMENTED_SLIDER:
                 y = size2D(sz, -1, -2, -4);
                 break;
 
@@ -250,6 +254,7 @@ public class ViewRendererDescriptions
 
         AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
         AquaUIPainter.Size sz = g.getSize();
+        AquaUIPainter.Position position = g.getPosition();
 
         float y;
 
@@ -257,6 +262,7 @@ public class ViewRendererDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
+            case BUTTON_SEGMENTED_SLIDER:
                 y = size2D(sz, -1, -2, -4);
                 break;
 

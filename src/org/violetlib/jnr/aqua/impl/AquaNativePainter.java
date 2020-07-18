@@ -117,6 +117,7 @@ public class AquaNativePainter
     protected static final int NSSegmentStyleSeparated = 8;            // the generic style (not used here)
     protected static final int NSSegmentStyleSeparated_Rounded = 80;   // like rounded, but each button is separate
     protected static final int NSSegmentStyleSeparated_Textured = 81;  // like textured, but each button is separate
+    protected static final int NSSegmentStyleSlider = 82;              // the macOS 11 version of Rounded for select one
 
     // The following are internal types, they indicate that the segmented button is on a toolbar
     protected static final int NSSegmentStyleTexturedSquare_Toolbar = 1000 + NSSegmentStyleTexturedSquare;
@@ -189,7 +190,7 @@ public class AquaNativePainter
 
     public AquaNativePainter()
     {
-        super(rendererDescriptions);
+        super(rendererDescriptions, createLayout(true));
     }
 
     @Override
@@ -476,9 +477,15 @@ public class AquaNativePainter
     {
         RendererDescription rd = rendererDescriptions.getSliderRendererDescription(g);
 
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+
         SliderWidget sw = g.getWidget();
-        // Mini sliders are not supported (must be consistent with layout code)
-        final Size sz = g.getSize() == Size.MINI ? Size.SMALL : g.getSize();
+        Size sz = g.getSize();
+
+        // Mini sliders were not supported in older releases (not sure when that changed)
+        if (g.getSize() == Size.MINI && platformVersion < 101400) {
+            sz = Size.SMALL;
+        }
 
         // NSSlider appears to figure out the orientation from the bounds.
 
@@ -544,6 +551,12 @@ public class AquaNativePainter
     }
 
     @Override
+    protected @NotNull Renderer getSliderTickRenderer(@NotNull SliderTickConfiguration g)
+    {
+        return NULL_RENDERER;
+    }
+
+    @Override
     protected @NotNull Renderer getSpinnerArrowsRenderer(@NotNull SpinnerArrowsConfiguration g)
     {
         RendererDescription rd = rendererDescriptions.getSpinnerArrowsRendererDescription(g);
@@ -591,7 +604,6 @@ public class AquaNativePainter
     protected @NotNull Renderer getSegmentedButtonRenderer(@NotNull SegmentedButtonConfiguration g)
     {
         RendererDescription rd = rendererDescriptions.getSegmentedButtonRendererDescription(g);
-
         int size = toSize(g.getSize());
         int state = toState(g.getState());
         int segmentStyle = toSegmentedStyle(g.getWidget());
@@ -1277,6 +1289,7 @@ public class AquaNativePainter
 
     private static native int nativeDetermineSegmentedButtonLayoutParameters(int segmentStyle, int size, float[] data);
     public static native int nativeDetermineSegmentedButtonRenderingVersion();
+    public static native int nativeDetermineSliderRenderingVersion();
 
     // The following methods represent a failed experiment. Although I am not sure why, asking a view for its size does
     // not always provide the information needed here.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -13,6 +13,7 @@ import java.util.Objects;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 import org.violetlib.jnr.aqua.AquaUIPainter.SliderWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.TickMarkPosition;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 import org.jetbrains.annotations.*;
 
@@ -42,6 +43,13 @@ public class SliderLayoutConfiguration
             if (position == TickMarkPosition.ABOVE || position == TickMarkPosition.BELOW) {
                 position = TickMarkPosition.LEFT;
             }
+        }
+
+        // Mini circular sliders are not supported
+        // Mini linear sliders are not supported before 10.14 (or so)
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        if (size == Size.MINI && (sw == SliderWidget.SLIDER_CIRCULAR) || platformVersion < 101400) {
+            size = Size.SMALL;
         }
 
         this.sw = sw;
@@ -91,6 +99,11 @@ public class SliderLayoutConfiguration
     public boolean isHorizontal()
     {
         return sw == SliderWidget.SLIDER_HORIZONTAL || sw == SliderWidget.SLIDER_HORIZONTAL_RIGHT_TO_LEFT;
+    }
+
+    public boolean isLinear()
+    {
+        return sw != SliderWidget.SLIDER_CIRCULAR;
     }
 
     @Override

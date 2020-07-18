@@ -119,7 +119,23 @@ public interface AquaUIPainter
         DISABLED_INACTIVE,
         PRESSED,
         ACTIVE_DEFAULT,  // for the default button when it is active
-        ROLLOVER
+        ROLLOVER;
+
+        public boolean isInactive()
+        {
+            return this == INACTIVE || this == DISABLED_INACTIVE;
+        }
+
+        public State toActive()
+        {
+            if (this == INACTIVE) {
+                return ACTIVE;
+            }
+            if (this == DISABLED_INACTIVE) {
+                return DISABLED;
+            }
+            return this;
+        }
     }
 
     /**
@@ -259,7 +275,7 @@ public interface AquaUIPainter
     enum SegmentedButtonWidget
     {
         BUTTON_TAB,                                   // the segmented control on a Tab View
-        BUTTON_SEGMENTED,                             // the default button for the content area, known as Rounded (looks the same as Tab)
+        BUTTON_SEGMENTED,                             // the default button for the content area, known as Rounded (before macOS 11, looks like Tab)
         BUTTON_SEGMENTED_SEPARATED,                   // separated buttons that look like Rounded buttons
         BUTTON_SEGMENTED_INSET,                       // also known as Round Rect, a transparent button whose outline has rounded corners
         BUTTON_SEGMENTED_SMALL_SQUARE,                // a square button similar to a gradient button
@@ -267,6 +283,7 @@ public interface AquaUIPainter
         BUTTON_SEGMENTED_TEXTURED_TOOLBAR,            // introduced in 10.11 for textured segmented controls on the tool bar (taller)
         BUTTON_SEGMENTED_TEXTURED_SEPARATED,          // separated buttons that look like Textured buttons, for use in window frames
         BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR,  // introduced in 10.11 for textured segmented controls on the tool bar (taller)
+        BUTTON_SEGMENTED_SLIDER,                      // added in release 10; the macOS 11 select one rounded style that resembles Tab
 
         // The following styles are obsolete and are replaced by other styles in Yosemite
 

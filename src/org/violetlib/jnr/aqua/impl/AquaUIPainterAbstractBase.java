@@ -58,24 +58,33 @@ public abstract class AquaUIPainterAbstractBase
     protected float pWidth;   // the width of the painted area, limited by the widget fixed width (if any)
     protected float pHeight;  // the height of the painted area, limited by the widget fixed height (if any)
 
-    protected static final @NotNull AquaUILayoutInfo uiLayout;
-    protected static final @NotNull UIOutliner uiOutliner;
+    protected final @NotNull AquaUILayoutInfo uiLayout;
+    protected final @NotNull UIOutliner uiOutliner;
 
-    static {
+    protected static @NotNull AquaUILayoutInfo createLayout(boolean isViewBased)
+    {
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
-        uiLayout = findLayoutInfo(platformVersion);
-        uiOutliner = new YosemiteOutliner((YosemiteLayoutInfo) uiLayout);
+        if (platformVersion >= 101600) {
+            return new BigSurLayoutInfo(isViewBased);
+        } else if (platformVersion >= 101100) {
+            return new ElCapitanLayoutInfo(isViewBased);
+        } else {
+            return new YosemiteLayoutInfo(isViewBased);
+        }
     }
 
-    private static @NotNull AquaUILayoutInfo findLayoutInfo(int platformVersion)
+    protected static @NotNull UIOutliner createOutliner(@NotNull AquaUILayoutInfo uiLayout)
     {
-        if (platformVersion >= 101600) {
-            return new BigSurLayoutInfo();
-        } else if (platformVersion >= 101100) {
-            return new ElCapitanLayoutInfo();
-        } else {
-            return new YosemiteLayoutInfo();
-        }
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        return platformVersion >= 101600
+                 ? new BigSurOutliner((BigSurLayoutInfo) uiLayout)
+                 : new YosemiteOutliner((YosemiteLayoutInfo) uiLayout);
+    }
+
+    protected AquaUIPainterAbstractBase(@NotNull AquaUILayoutInfo uiLayout)
+    {
+        this.uiLayout = uiLayout;
+        this.uiOutliner = createOutliner(uiLayout);
     }
 
     public void setAlignmentEnabled(boolean b)

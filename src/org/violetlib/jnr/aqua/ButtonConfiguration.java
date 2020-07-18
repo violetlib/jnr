@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -15,6 +15,7 @@ import org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 import org.violetlib.jnr.aqua.AquaUIPainter.State;
 import org.violetlib.jnr.aqua.AquaUIPainter.UILayoutDirection;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 import org.jetbrains.annotations.*;
 
@@ -46,6 +47,14 @@ public class ButtonConfiguration
             if (state == State.ACTIVE) {
                 state = State.PRESSED;
             }
+        }
+
+        // Many buttons do not alter their appearance when inactive. In many cases using CoreUI, the way to accomplish
+        // that is to change the inactive state to the active equivalent. Replacing the state also simplifies selection
+        // of a text color and improves caching.
+
+        if (state.isInactive() && !isSensitiveToInactiveState(bw, buttonState)) {
+            state = state.toActive();
         }
 
         this.state = state;
@@ -103,5 +112,48 @@ public class ButtonConfiguration
     {
         String fs = isFocused ? " focused" : "";
         return super.toString() + " " + state + " " + buttonState + fs;
+    }
+
+   private static boolean isSensitiveToInactiveState(@NotNull ButtonWidget bw, @NotNull ButtonState bs)
+    {
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+
+        // Push buttons are sensitive if they are in the "on" state
+        if (bw == ButtonWidget.BUTTON_PUSH) {
+            return bs == ButtonState.ON;
+        }
+
+        // Round buttons are sensitive if they are in the "on" state, starting with macOS 10.15
+        if (bw == ButtonWidget.BUTTON_ROUND) {
+            return bs == ButtonState.ON && platformVersion >= 101500;
+        }
+
+        // Checkboxes and radio buttons are sensitive
+        if (bw == ButtonWidget.BUTTON_CHECK_BOX || bw == ButtonWidget.BUTTON_RADIO) {
+            return true;
+        }
+
+        // Starting with macOS 10.15, there are no additional sensitive buttons
+        if (platformVersion >= 101500) {
+            return false;
+        }
+
+        // Textured buttons are sensitive, both stateless buttons and toggle buttons.
+        if (bw.isTextured()) {
+            return true;
+        }
+
+        // Stateless buttons of other types are insensitive.
+        if (bs == ButtonState.STATELESS) {
+            return false;
+        }
+
+        // Recessed buttons in the "on" state are sensitive
+        if (bw == ButtonWidget.BUTTON_RECESSED && bs == ButtonState.ON) {
+            return true;
+        }
+
+        // Everything else is insensitive
+        return false;
     }
 }

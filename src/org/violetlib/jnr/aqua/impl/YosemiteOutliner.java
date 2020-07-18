@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -47,7 +47,8 @@ public class YosemiteOutliner
     }
 
     @Override
-    protected Shape getSliderThumbOutline(@NotNull Rectangle2D bounds, @NotNull SliderThumbLayoutConfiguration g)
+    protected @Nullable Shape getSliderThumbOutline(@NotNull Rectangle2D bounds,
+                                                    @NotNull SliderThumbLayoutConfiguration g)
     {
         Insetter insets = uiLayout.getSliderThumbInsets(g, g.getThumbPosition());
         Rectangle2D tb = insets.applyToBounds2D(bounds);
@@ -190,6 +191,7 @@ public class YosemiteOutliner
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
+            case BUTTON_SEGMENTED_SLIDER:
                 corner = 6;
 
                 x += size2D(sz, isLeft ? 0.5f : 0, 0, 0);
