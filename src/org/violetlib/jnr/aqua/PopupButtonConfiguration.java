@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -14,6 +14,7 @@ import org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 import org.violetlib.jnr.aqua.AquaUIPainter.State;
 import org.violetlib.jnr.aqua.AquaUIPainter.UILayoutDirection;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 import org.jetbrains.annotations.*;
 
@@ -33,6 +34,14 @@ public class PopupButtonConfiguration
                                     @NotNull UILayoutDirection ld)
     {
         super(bw, size, ld);
+
+        // Many buttons do not alter their appearance when inactive. In many cases using CoreUI, the way to accomplish
+        // that is to change the inactive state to the active equivalent. Replacing the state also simplifies selection
+        // of a text color and improves caching.
+
+        if (state.isInactive() && !isSensitiveToInactiveState(bw)) {
+            state = state.toActive();
+        }
 
         this.state = state;
     }
@@ -73,5 +82,23 @@ public class PopupButtonConfiguration
     public @NotNull String toString()
     {
         return super.toString() + " " + state;
+    }
+
+    private static boolean isSensitiveToInactiveState(@NotNull PopupButtonWidget widget)
+    {
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+
+        // Push buttons are sensitive: they lose the accent color
+        if (widget.isDefault()) {
+            return true;
+        }
+
+        // Textured buttons are sensitive before 10.15
+        if (widget.isTextured()) {
+            return platformVersion < 101500;
+        }
+
+        // Other styles are not sensitive
+        return false;
     }
 }

@@ -377,7 +377,12 @@ public interface AquaUIPainter
         BUTTON_COMBO_BOX,
         BUTTON_COMBO_BOX_CELL,
         BUTTON_COMBO_BOX_TEXTURED,
-        BUTTON_COMBO_BOX_TEXTURED_TOOLBAR,
+        BUTTON_COMBO_BOX_TEXTURED_TOOLBAR;
+
+        public boolean isTextured()
+        {
+            return this == BUTTON_COMBO_BOX_TEXTURED || this == BUTTON_COMBO_BOX_TEXTURED_TOOLBAR;
+        }
     }
 
     /**
@@ -404,7 +409,20 @@ public interface AquaUIPainter
         BUTTON_POP_UP_TEXTURED,
         BUTTON_POP_UP_TEXTURED_TOOLBAR,
         BUTTON_POP_UP_GRADIENT,              // the preferred square style
-        BUTTON_POP_UP_SQUARE,                // replaced by Gradient in Yosemite
+        BUTTON_POP_UP_SQUARE;                // replaced by Gradient in Yosemite
+
+        public boolean isDefault()
+        {
+            return this == BUTTON_POP_DOWN || this == BUTTON_POP_UP;
+        }
+
+        public boolean isTextured()
+        {
+            return this == BUTTON_POP_DOWN_TEXTURED
+                     || this == BUTTON_POP_DOWN_TEXTURED_TOOLBAR
+                     || this == BUTTON_POP_UP_TEXTURED
+                     || this == BUTTON_POP_UP_TEXTURED_TOOLBAR;
+        }
     }
 
     /**
