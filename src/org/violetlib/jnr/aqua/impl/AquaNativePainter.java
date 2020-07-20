@@ -981,6 +981,9 @@ public class AquaNativePainter
                 return NSSegmentStyleSeparated_Textured;
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
                 return NSSegmentStyleSeparated_Toolbar;
+            case BUTTON_SEGMENTED_SLIDER:
+                // same as rounded with the implication of select one behavior
+                return NSSegmentStyleRounded;
         }
         throw new UnsupportedOperationException();
     }

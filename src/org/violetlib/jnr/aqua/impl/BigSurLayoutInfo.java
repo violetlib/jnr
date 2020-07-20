@@ -17,6 +17,7 @@ import org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.SliderWidget;
 import org.violetlib.jnr.aqua.ButtonLayoutConfiguration;
 import org.violetlib.jnr.aqua.PopupButtonLayoutConfiguration;
+import org.violetlib.jnr.aqua.SegmentedButtonLayoutConfiguration;
 import org.violetlib.jnr.aqua.SliderLayoutConfiguration;
 import org.violetlib.jnr.aqua.TextFieldLayoutConfiguration;
 import org.violetlib.jnr.aqua.ToolBarItemWellLayoutConfiguration;
@@ -127,8 +128,41 @@ public class BigSurLayoutInfo
     }
 
     @Override
-    public @NotNull
-    Insetter getPopupButtonContentInsets(@NotNull PopupButtonLayoutConfiguration g)
+    protected @NotNull LayoutInfo getSegmentedButtonLayoutInfo(@NotNull SegmentedButtonLayoutConfiguration g)
+    {
+        AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
+        AquaUIPainter.Size sz = g.getSize();
+
+        switch (bw) {
+            case BUTTON_TAB:
+            case BUTTON_SEGMENTED:
+            case BUTTON_SEGMENTED_SEPARATED:
+            case BUTTON_SEGMENTED_SLIDER:
+                return BasicLayoutInfo.createFixedHeight(size(sz, 30, 22, 19, 16));
+
+            case BUTTON_SEGMENTED_INSET:
+                return BasicLayoutInfo.createFixedHeight(size(sz, 18, 16, 14));
+
+            case BUTTON_SEGMENTED_SCURVE:
+            case BUTTON_SEGMENTED_TEXTURED:
+            case BUTTON_SEGMENTED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+                return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));
+
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+                return BasicLayoutInfo.createFixedHeight(size(sz, 24, 20, 17));
+
+            case BUTTON_SEGMENTED_SMALL_SQUARE:
+                return BasicLayoutInfo.createFixedHeight(size(sz, 21, 19, 17));
+
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public @NotNull Insetter getPopupButtonContentInsets(@NotNull PopupButtonLayoutConfiguration g)
     {
         PopupButtonWidget bw = g.getPopupButtonWidget();
         if (bw == BUTTON_POP_UP || bw == BUTTON_POP_DOWN) {
@@ -401,9 +435,8 @@ public class BigSurLayoutInfo
         }
     }
 
-    @NotNull
     @Override
-    public Insetter getSliderTickMarkPaintingInsets(@NotNull SliderLayoutConfiguration g)
+    public @NotNull Insetter getSliderTickMarkPaintingInsets(@NotNull SliderLayoutConfiguration g)
     {
         int style = AquaUIPainterBase.internalGetSliderRenderingVersion();
         if (style == AquaUIPainterBase.SLIDER_11_0 && g.isLinear() && g.hasTickMarks()) {
