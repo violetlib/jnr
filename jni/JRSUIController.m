@@ -23,8 +23,8 @@
  * questions.
  */
 
-#import <JavaNativeFoundation.h>
-#import <JavaRuntimeSupport.h>
+#import <JavaNativeFoundation/JavaNativeFoundation.h>
+#import <JavaRuntimeSupport/JavaRuntimeSupport.h>
 
 #import "org_violetlib_jnr_impl_jrs_JRSUIControl.h"
 #import "org_violetlib_jnr_impl_jrs_JRSUIConstants_DoubleValue.h"

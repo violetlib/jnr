@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2018 Alan Snyder.
+ * Copyright (c) 20182-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
  * accompanying license terms.
  */
 
-#import <JavaNativeFoundation.h>
+#import <JavaNativeFoundation/JavaNativeFoundation.h>
 
 #include "JNI.h"
 #include "org_violetlib_jnr_aqua_impl_AquaUIPainterBase.h"

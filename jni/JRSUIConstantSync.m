@@ -23,8 +23,8 @@
  * questions.
  */
 
-#import <JavaNativeFoundation.h>
-#import <JavaRuntimeSupport.h>
+#import <JavaNativeFoundation/JavaNativeFoundation.h>
+#import <JavaRuntimeSupport/JavaRuntimeSupport.h>
 
 #import "org_violetlib_jnr_impl_jrs_JRSUIConstants.h"
 #import "org_violetlib_jnr_impl_jrs_JRSUIConstants_Key.h"
@@ -54,7 +54,6 @@
 #import "org_violetlib_jnr_impl_jrs_JRSUIConstants_WindowClipCorners.h"
 
 #import "JRSUIConstantSync.h"
-
 
 static CFTypeRef widgetKey = NULL;
 static CFTypeRef stateKey = NULL;

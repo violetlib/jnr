@@ -80,7 +80,6 @@
 
         <framework>CoreFoundation</framework>
         <framework>Cocoa</framework>
-        <framework>JavaVM</framework>
         <framework>JavaNativeFoundation</framework>
         <framework>JavaRuntimeSupport</framework>
 

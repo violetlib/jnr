@@ -9,7 +9,7 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <Cocoa/Cocoa.h>
-#import <JavaNativeFoundation.h>
+#import <JavaNativeFoundation/JavaNativeFoundation.h>
 
 #include <math.h>
 #include <stdlib.h>
