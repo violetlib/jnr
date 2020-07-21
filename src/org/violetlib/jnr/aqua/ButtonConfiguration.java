@@ -25,7 +25,7 @@ import org.jetbrains.annotations.*;
 
 public class ButtonConfiguration
   extends ButtonLayoutConfiguration
-  implements Configuration
+  implements GenericButtonConfiguration
 {
     private final @NotNull State state;
     private final boolean isFocused;
@@ -70,9 +70,17 @@ public class ButtonConfiguration
         this(g.getButtonWidget(), g.getSize(), state, isFocused, buttonState, g.getLayoutDirection());
     }
 
+    @Override
     public @NotNull State getState()
     {
         return state;
+    }
+
+    @Override
+    public boolean isTextured()
+    {
+        ButtonWidget w = getButtonWidget();
+        return w.isTextured();
     }
 
     public boolean isFocused()

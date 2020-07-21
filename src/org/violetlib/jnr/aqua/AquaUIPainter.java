@@ -229,10 +229,19 @@ public interface AquaUIPainter
     }
 
     /**
+      Generic button widgets.
+    */
+
+    interface GenericButtonWidget
+    {
+        boolean isTextured();
+    }
+
+    /**
       Widgets for a button.
     */
 
-    enum ButtonWidget
+    enum ButtonWidget implements GenericButtonWidget
     {
         BUTTON_PUSH,                  // the default style, fixed height, not suitable for a toggle button
         BUTTON_CHECK_BOX,
@@ -259,6 +268,7 @@ public interface AquaUIPainter
         BUTTON_ROUND_TOOLBAR,         // introduced in 10.11 for round textured buttons on the toolbar (taller)
         BUTTON_PUSH_INSET2;           // an obsolete style supported by Core UI
 
+        @Override
         public boolean isTextured()
         {
             return this == BUTTON_TEXTURED
@@ -272,7 +282,7 @@ public interface AquaUIPainter
       Widgets for a button in a segmented control.
     */
 
-    enum SegmentedButtonWidget
+    enum SegmentedButtonWidget implements GenericButtonWidget
     {
         BUTTON_TAB,                                   // the segmented control on a Tab View
         BUTTON_SEGMENTED,                             // the default button for the content area, known as Rounded (before macOS 11, looks like Tab)
@@ -302,6 +312,7 @@ public interface AquaUIPainter
             return this == BUTTON_SEGMENTED_TEXTURED_TOOLBAR || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR;
         }
 
+        @Override
         public boolean isTextured()
         {
             return this == BUTTON_SEGMENTED_TEXTURED
@@ -372,13 +383,14 @@ public interface AquaUIPainter
       Widgets for an editable combo box.
     */
 
-    enum ComboBoxWidget
+    enum ComboBoxWidget implements GenericButtonWidget
     {
         BUTTON_COMBO_BOX,
         BUTTON_COMBO_BOX_CELL,
         BUTTON_COMBO_BOX_TEXTURED,
         BUTTON_COMBO_BOX_TEXTURED_TOOLBAR;
 
+        @Override
         public boolean isTextured()
         {
             return this == BUTTON_COMBO_BOX_TEXTURED || this == BUTTON_COMBO_BOX_TEXTURED_TOOLBAR;
@@ -389,7 +401,7 @@ public interface AquaUIPainter
       Widgets for a non-editable combo box.
     */
 
-    enum PopupButtonWidget
+    enum PopupButtonWidget implements GenericButtonWidget
     {
         BUTTON_POP_DOWN,
         BUTTON_POP_DOWN_CELL,                // for use as cell editors
@@ -416,6 +428,7 @@ public interface AquaUIPainter
             return this == BUTTON_POP_DOWN || this == BUTTON_POP_UP;
         }
 
+        @Override
         public boolean isTextured()
         {
             return this == BUTTON_POP_DOWN_TEXTURED

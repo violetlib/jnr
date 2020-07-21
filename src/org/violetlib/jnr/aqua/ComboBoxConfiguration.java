@@ -24,7 +24,7 @@ import org.jetbrains.annotations.*;
 
 public class ComboBoxConfiguration
   extends ComboBoxLayoutConfiguration
-  implements Configuration
+  implements GenericButtonConfiguration
 {
     private final @NotNull State state;
     private final boolean isFocused;
@@ -54,9 +54,17 @@ public class ComboBoxConfiguration
         this(g.getWidget(), g.getSize(), state, isFocused, g.getLayoutDirection());
     }
 
+    @Override
     public @NotNull State getState()
     {
         return state;
+    }
+
+    @Override
+    public boolean isTextured()
+    {
+        ComboBoxWidget w = getWidget();
+        return w.isTextured();
     }
 
     public boolean isFocused()

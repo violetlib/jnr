@@ -24,7 +24,7 @@ import org.jetbrains.annotations.*;
 
 public class PopupButtonConfiguration
   extends PopupButtonLayoutConfiguration
-  implements Configuration
+  implements GenericButtonConfiguration
 {
     private final @NotNull State state;
 
@@ -51,9 +51,17 @@ public class PopupButtonConfiguration
         this(g.getPopupButtonWidget(), g.getSize(), state, g.getLayoutDirection());
     }
 
+    @Override
     public @NotNull State getState()
     {
         return state;
+    }
+
+    @Override
+    public boolean isTextured()
+    {
+        PopupButtonWidget w = getPopupButtonWidget();
+        return w.isTextured();
     }
 
     @Override

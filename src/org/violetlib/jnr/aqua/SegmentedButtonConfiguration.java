@@ -44,7 +44,7 @@ import org.jetbrains.annotations.*;
 
 public class SegmentedButtonConfiguration
   extends SegmentedButtonLayoutConfiguration
-  implements Configuration
+  implements GenericButtonConfiguration
 {
     private final @NotNull State state;
     private final boolean isSelected;
@@ -109,9 +109,17 @@ public class SegmentedButtonConfiguration
           getSize(), state, isSelected, isFocused, d, getPosition(), leftDividerState, rightDividerState);
     }
 
+    @Override
     public @NotNull State getState()
     {
         return state;
+    }
+
+    @Override
+    public boolean isTextured()
+    {
+        SegmentedButtonWidget w = getWidget();
+        return w.isTextured();
     }
 
     public boolean isSelected()
