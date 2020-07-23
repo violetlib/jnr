@@ -197,7 +197,7 @@ public class BigSurLayoutInfo
         if (w.isRound() || w.isSearch()) {
             if (w.isToolbar()) {
                 // The actual sizes for small and mini are bogus. We do not simulate this bug.
-                return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 30, 22, 20, 17));
+                return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 30, 30, 20, 17));
             } else {
                 return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 30, 22, 19, 17));
             }
@@ -219,6 +219,20 @@ public class BigSurLayoutInfo
         return getLinearSlider11LayoutInfo(g);
     }
 
+    @Override
+    protected double getSliderExtension(@NotNull AquaUIPainter.Size sz)
+    {
+        switch (sz)
+        {
+            case SMALL:
+            case MINI:
+                return 6.5;
+
+            default:
+                return 10;
+        }
+    }
+
     private @NotNull LayoutInfo getLinearSlider11LayoutInfo(@NotNull SliderLayoutConfiguration g)
     {
         AquaUIPainter.Size sz = g.getSize();
@@ -230,7 +244,7 @@ public class BigSurLayoutInfo
         } else if (g.isVertical()) {
             return BasicLayoutInfo.createFixedWidth(size(sz, 24, 20, 20));
         } else {
-                throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException();
         }
     }
 

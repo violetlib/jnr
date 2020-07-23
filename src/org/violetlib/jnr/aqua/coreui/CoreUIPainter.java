@@ -1345,8 +1345,15 @@ public class CoreUIPainter
 
         SegmentedButtonWidget bw = g.getWidget();
         State st = g.getState();
-        Object state = toState(st);
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
+
+        // On 10.14, textured segmented button backgrounds do not change when inactive, but CoreUI will paint them
+        // differently. The configurations cannot be canonicalized because the text colors differ.
+
+        if (bw.isTextured() && st.isInactive() && (platformVersion >= 101400 && platformVersion < 101500)) {
+            st = st.toActive();
+        }
+        Object state = toState(st);
 
         String widget = CoreUIWidgets.BUTTON_SEGMENTED;
         switch (bw) {
@@ -1394,7 +1401,7 @@ public class CoreUIPainter
           WIDGET_KEY, widget,
           SIZE_KEY, toSize(g.getSize()),
           STATE_KEY, state,
-          PRESENTATION_STATE_KEY, toPresentationState(g.getState()),
+          PRESENTATION_STATE_KEY, toPresentationState(st),
           IS_FOCUSED_KEY, getFocused(g, g.isFocused()),
           USER_INTERFACE_LAYOUT_DIRECTION_KEY, CoreUIUserInterfaceDirections.LEFT_TO_RIGHT,
           DIRECTION_KEY, toDirection(g.getDirection()),
