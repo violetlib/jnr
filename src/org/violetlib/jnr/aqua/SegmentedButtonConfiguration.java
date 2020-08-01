@@ -15,6 +15,7 @@ import org.violetlib.jnr.aqua.AquaUIPainter.Position;
 import org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 import org.violetlib.jnr.aqua.AquaUIPainter.State;
+import org.violetlib.jnr.aqua.AquaUIPainter.SwitchTracking;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 import org.jetbrains.annotations.*;
@@ -52,6 +53,7 @@ public class SegmentedButtonConfiguration
     private final @NotNull Direction d;  // the direction that the "top" of the button faces
     private final @NotNull DividerState leftDividerState;
     private final @NotNull DividerState rightDividerState;
+    private final @NotNull SwitchTracking tracking;
 
     /**
       The display configuration of a divider between two segments in a segmented control.
@@ -74,6 +76,22 @@ public class SegmentedButtonConfiguration
                                         @NotNull DividerState leftDividerState,
                                         @NotNull DividerState rightDividerState)
     {
+        this(bw, size, state, isSelected, isFocused, d, position, leftDividerState, rightDividerState,
+          SwitchTracking.SELECT_ONE);
+    }
+
+
+    public SegmentedButtonConfiguration(@NotNull SegmentedButtonWidget bw,
+                                        @NotNull Size size,
+                                        @NotNull State state,
+                                        boolean isSelected,
+                                        boolean isFocused,
+                                        @NotNull Direction d,
+                                        @NotNull Position position,
+                                        @NotNull DividerState leftDividerState,
+                                        @NotNull DividerState rightDividerState,
+                                        @NotNull SwitchTracking tracking)
+    {
         super(bw, size, position);
 
         // Many buttons do not alter their appearance when inactive. In many cases using CoreUI, the way to accomplish
@@ -90,6 +108,7 @@ public class SegmentedButtonConfiguration
         this.d = d;
         this.leftDividerState = leftDividerState;
         this.rightDividerState = rightDividerState;
+        this.tracking = tracking;
     }
 
     public SegmentedButtonConfiguration(@NotNull SegmentedButtonLayoutConfiguration g,
@@ -100,13 +119,27 @@ public class SegmentedButtonConfiguration
                                         @NotNull DividerState leftDividerState,
                                         @NotNull DividerState rightDividerState)
     {
-        this(g.getWidget(), g.getSize(), state, isSelected, isFocused, d, g.getPosition(), leftDividerState, rightDividerState);
+        this(g.getWidget(), g.getSize(), state, isSelected, isFocused, d, g.getPosition(),
+          leftDividerState, rightDividerState);
+    }
+
+    public SegmentedButtonConfiguration(@NotNull SegmentedButtonLayoutConfiguration g,
+                                        @NotNull State state,
+                                        boolean isSelected,
+                                        boolean isFocused,
+                                        @NotNull Direction d,
+                                        @NotNull DividerState leftDividerState,
+                                        @NotNull DividerState rightDividerState,
+                                        @NotNull SwitchTracking tracking)
+    {
+        this(g.getWidget(), g.getSize(), state, isSelected, isFocused, d, g.getPosition(),
+          leftDividerState, rightDividerState, tracking);
     }
 
     public @NotNull SegmentedButtonConfiguration withWidget(@NotNull SegmentedButtonWidget widget)
     {
         return new SegmentedButtonConfiguration(widget,
-          getSize(), state, isSelected, isFocused, d, getPosition(), leftDividerState, rightDividerState);
+          getSize(), state, isSelected, isFocused, d, getPosition(), leftDividerState, rightDividerState, tracking);
     }
 
     @Override
@@ -147,6 +180,11 @@ public class SegmentedButtonConfiguration
         return rightDividerState;
     }
 
+    public @NotNull SwitchTracking getTracking()
+    {
+        return tracking;
+    }
+
     @Override
     public boolean equals(@Nullable Object o)
     {
@@ -165,13 +203,14 @@ public class SegmentedButtonConfiguration
                  && isFocused == that.isFocused
                  && d == that.d
                  && leftDividerState == that.leftDividerState
-                 && rightDividerState == that.rightDividerState;
+                 && rightDividerState == that.rightDividerState
+                 && tracking == that.tracking;
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(super.hashCode(), state, isSelected, isFocused, d, leftDividerState, rightDividerState);
+        return Objects.hash(super.hashCode(), state, isSelected, isFocused, d, leftDividerState, rightDividerState, tracking);
     }
 
     @Override
@@ -181,7 +220,8 @@ public class SegmentedButtonConfiguration
         String ss = isSelected ? "S" : "-";
         String ls = leftDividerState == DividerState.NONE ? "" : leftDividerState == DividerState.ORDINARY ? "<" : "[";
         String rs = rightDividerState == DividerState.NONE ? "" : rightDividerState == DividerState.ORDINARY ? ">" : "]";
-        return super.toString() + " " + d + " " + state + fs + " " + ls + ss + rs;
+        String ts = tracking == SwitchTracking.SELECT_ANY ? "SelectAny" : "SelectOne";
+        return super.toString() + " " + d + " " + ts + " " + state + fs + " " + ls + ss + rs;
     }
 
     private static boolean isSensitiveToInactiveState(@NotNull SegmentedButtonWidget bw)

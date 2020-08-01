@@ -26,10 +26,10 @@
 /*
  * Class:     org_violetlib_jnr_aqua_coreui_CoreUIPainter
  * Method:    nativePaint
- * Signature: ([IIIFF[Ljava/lang/Object;[J)V
+ * Signature: ([IIIFF[Ljava/lang/Object;Z)V
  */
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_coreui_CoreUIPainter_nativePaint
-  (JNIEnv *env, jclass cl, jintArray data, jint w, jint h, jfloat xscale, jfloat yscale, jobjectArray args, jlongArray jLayerHolder)
+  (JNIEnv *env, jclass cl, jintArray data, jint w, jint h, jfloat xscale, jfloat yscale, jobjectArray args, jboolean useLayer)
 {
     COCOA_ENTER(env);
 
@@ -92,18 +92,14 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_coreui_CoreUIPainter_nativePa
             app = [NSAppearance currentAppearance];
         }
 
-        if (jLayerHolder) {
-            jlong *layerHolder = (*env)->GetLongArrayElements(env, jLayerHolder, NULL);
-            CALayer **lv = (CALayer **) layerHolder;
-            [app _createOrUpdateLayer: lv options: d];
-            CALayer *layer = lv[0];
-            if (layer) {
-                [layer display];
-                [layer renderInContext: cgRef];
-            }
-            (*env)->ReleaseLongArrayElements(env, jLayerHolder, layerHolder, 0);
+        NSRect bounds = NSMakeRect(0, 0, w / xscale, h / yscale);
+        if (useLayer) {
+            CALayer *layer = [CALayer layer];
+            layer.contentsScale = xscale;
+            layer.bounds = bounds;
+            [app _createOrUpdateLayer: &layer options: d];
+            [layer renderInContext: cgRef];
         } else {
-            NSRect bounds = NSMakeRect(0, 0, w / xscale, h / yscale);
             [app _drawInRect: bounds context: cgRef options: d];
         }
 

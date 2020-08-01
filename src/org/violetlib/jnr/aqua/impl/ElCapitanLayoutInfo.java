@@ -231,14 +231,15 @@ public class ElCapitanLayoutInfo
     @Override
     protected @NotNull LayoutInfo getSegmentedButtonLayoutInfo(@NotNull SegmentedButtonLayoutConfiguration g)
     {
+        int version = AquaUIPainterBase.internalGetSegmentedButtonRenderingVersion();
         AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
         AquaUIPainter.Size sz = g.getSize();
 
         switch (bw) {
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
-            case BUTTON_SEGMENTED_SEPARATED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SEPARATED:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 22, 19, 16));
 
             case BUTTON_SEGMENTED_INSET:
@@ -248,10 +249,16 @@ public class ElCapitanLayoutInfo
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+                if (version == AquaUIPainterBase.SEGMENTED_10_14) {
+                    return BasicLayoutInfo.createFixedHeight(size(sz, 23, 19, 16));
+                }
                 return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));  // changed in El Capitan
 
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+                if (version == AquaUIPainterBase.SEGMENTED_10_14) {
+                    return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));
+                }
                 return BasicLayoutInfo.createFixedHeight(size(sz, 24, 20, 17));  // introduced in El Capitan
 
             case BUTTON_SEGMENTED_SMALL_SQUARE:

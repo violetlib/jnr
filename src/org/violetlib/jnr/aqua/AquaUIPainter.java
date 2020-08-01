@@ -139,6 +139,16 @@ public interface AquaUIPainter
     }
 
     /**
+      Selection mode for a segmented control.
+    */
+
+    enum SwitchTracking
+    {
+        SELECT_ONE,
+        SELECT_ANY
+    }
+
+    /**
       Horizontal alignment options.
     */
 
@@ -319,6 +329,28 @@ public interface AquaUIPainter
                      || this == BUTTON_SEGMENTED_TEXTURED_TOOLBAR
                      || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED
                      || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR;
+        }
+
+        public @NotNull SegmentedButtonWidget toToolbarWidget()
+        {
+            switch (this) {
+                case BUTTON_SEGMENTED_TEXTURED:
+                    return BUTTON_SEGMENTED_TEXTURED_TOOLBAR;
+                case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+                    return BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR;
+            }
+            return this;
+        }
+
+        public @NotNull SegmentedButtonWidget toBasicWidget()
+        {
+            switch (this) {
+                case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+                    return BUTTON_SEGMENTED_TEXTURED;
+                case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+                    return BUTTON_SEGMENTED_TEXTURED_SEPARATED;
+            }
+            return this;
         }
     }
 

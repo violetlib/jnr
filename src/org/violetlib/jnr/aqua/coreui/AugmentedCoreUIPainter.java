@@ -440,7 +440,8 @@ public class AugmentedCoreUIPainter
           sg.getDirection(),
           Position.MIDDLE,
           sg.getRightDividerState(),
-          sg.getLeftDividerState());
+          sg.getLeftDividerState(),
+          sg.getTracking());
 
         int sourceWidth = 100;
         Renderer unconfiguredSource = AugmentedCoreUIPainter.super.getSegmentedButtonRenderer(g);

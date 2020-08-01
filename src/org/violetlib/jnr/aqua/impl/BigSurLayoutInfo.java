@@ -136,22 +136,26 @@ public class BigSurLayoutInfo
         switch (bw) {
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
-            case BUTTON_SEGMENTED_SEPARATED:
             case BUTTON_SEGMENTED_SLIDER:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 30, 22, 19, 16));
+                return BasicLayoutInfo.createFixedHeight(size(sz, 30, 22, 18, 15));
+
+            case BUTTON_SEGMENTED_SEPARATED:
+                return BasicLayoutInfo.createFixedHeight(size(sz, 31, 23, 19, 16));
 
             case BUTTON_SEGMENTED_INSET:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 18, 16, 14));
 
-            case BUTTON_SEGMENTED_SCURVE:
             case BUTTON_SEGMENTED_TEXTURED:
-            case BUTTON_SEGMENTED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));
-
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_SCURVE:
+            case BUTTON_SEGMENTED_TOOLBAR:
+                return BasicLayoutInfo.createFixedHeight(size(sz, 20, 16, 13));
+
+            // 20 16 13 for textured, textured toolbar, capsule, toolbar seems wrong
+
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 24, 20, 17));
+                return BasicLayoutInfo.createFixedHeight(size(sz, 23, 19, 16));
 
             case BUTTON_SEGMENTED_SMALL_SQUARE:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 21, 19, 17));

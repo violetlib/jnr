@@ -76,6 +76,20 @@ public class JNRUtils
         }
     }
 
+    public static float size2D(@NotNull AquaUIPainter.Size sz, double large, double regular, double small, double mini)
+    {
+        switch (sz) {
+            case SMALL:
+                return (float) small;
+            case MINI:
+                return (float) mini;
+            case LARGE:
+                return (float) large;
+            default:
+                return (float) regular;
+        }
+    }
+
     public static @NotNull String format2(double v)
     {
         return df2.format(v);

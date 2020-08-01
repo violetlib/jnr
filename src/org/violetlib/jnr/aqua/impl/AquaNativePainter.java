@@ -12,20 +12,19 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.lang.annotation.Native;
 import java.security.PrivilegedAction;
 
 import org.violetlib.jnr.aqua.*;
-import org.violetlib.jnr.impl.BasicImageSupport;
-import org.violetlib.jnr.impl.BasicRenderer;
-import org.violetlib.jnr.impl.JNRPlatformUtils;
-import org.violetlib.jnr.impl.RasterDescription;
-import org.violetlib.jnr.impl.Renderer;
-import org.violetlib.jnr.impl.RendererDebugInfo;
-import org.violetlib.jnr.impl.RendererDescription;
-import org.violetlib.jnr.impl.SegmentedRendererDebugInfo;
+import org.violetlib.jnr.impl.*;
 import org.violetlib.vappearances.VAppearance;
 
 import org.jetbrains.annotations.*;
+
+import static org.violetlib.jnr.aqua.SegmentedButtonConfiguration.*;
+import static org.violetlib.jnr.aqua.impl.SegmentedControl4LayoutInfo.*;
+import static org.violetlib.jnr.aqua.impl.SegmentedControl4LayoutInfo.DividerPosition.*;
 
 /**
   A painter that renders Aqua widgets by creating and rendering native views. This class supports only the UI for
@@ -123,6 +122,10 @@ public class AquaNativePainter
     protected static final int NSSegmentStyleTexturedSquare_Toolbar = 1000 + NSSegmentStyleTexturedSquare;
     protected static final int NSSegmentStyleSeparated_Toolbar = 1000 + NSSegmentStyleSeparated_Textured;
 
+    // NSSegmentSwitchTracking
+    protected static final int NSSegmentSwitchTrackingSelectOne = 0;
+    protected static final int NSSegmentSwitchTrackingSelectAny = 1;
+
     // NSTitlePosition
     protected static final int NSNoTitle     = 0;
     protected static final int NSAboveTop    = 1;
@@ -219,7 +222,7 @@ public class AquaNativePainter
             if (bs != ButtonState.ON) {
                 return NULL_RENDERER;
             }
-            ToolBarItemWellConfiguration tg = new ToolBarItemWellConfiguration(st, true);
+            ToolBarItemWellConfiguration tg = new ToolBarItemWellConfiguration(st, false);
             return getToolBarItemWellRenderer(tg);
         }
 
@@ -600,8 +603,7 @@ public class AquaNativePainter
     public static final int DEBUG_SEGMENT_LEFT_INSET = 6;
     public static final int DEBUG_SEGMENT_RIGHT_INSET = 7;
 
-    @Override
-    protected @NotNull Renderer getSegmentedButtonRenderer(@NotNull SegmentedButtonConfiguration g)
+    protected @NotNull Renderer getOldSegmentedButtonRenderer(@NotNull SegmentedButtonConfiguration g)
     {
         RendererDescription rd = rendererDescriptions.getSegmentedButtonRendererDescription(g);
         int size = toSize(g.getSize());
@@ -614,6 +616,124 @@ public class AquaNativePainter
           segmentPosition, size, state, g.isFocused(), flags, null, null);
 
         return Renderer.create(r, rd);
+    }
+
+    @Override
+    protected @NotNull Renderer getSegmentedButtonRenderer(@NotNull SegmentedButtonConfiguration g)
+    {
+        return new SegmentedButtonRenderer(g);
+    }
+
+    private class SegmentedButtonRenderer
+      extends Renderer
+    {
+        private final @NotNull SegmentedButtonConfiguration g;
+
+        public SegmentedButtonRenderer(@NotNull SegmentedButtonConfiguration g)
+        {
+            this.g = g;
+        }
+
+        @Override
+        public void composeTo(@NotNull ReusableCompositor compositor)
+        {
+            SegmentedControlDescriptions scds = new SegmentedControlDescriptions();
+            int scale = compositor.getScaleFactor();
+            int buttonWidth = Math.round(compositor.getWidth());
+            int buttonHeight = Math.round(compositor.getHeight());
+            RenderInsets s = scds.getInsets(g, scale);
+            int rasterWidth;
+            int rasterHeight;
+            int[] raster;
+            int x;
+            int y;
+            int w;
+            int h;
+            if (g.getPosition() == Position.ONLY) {
+                SegmentedControl1LayoutInfo layout = scds.getSegment1LayoutInfo(g, scale);
+                SegmentButtonRenderingConfiguration1 bc
+                  = getRenderConfiguration(g.isSelected(), s, layout, scale, buttonWidth, buttonHeight);
+                SegmentedControlConfiguration1 cc = createControlConfiguration(g, bc);
+                rasterWidth = Math.round(scale * bc.rasterWidth);
+                rasterHeight = Math.round(scale * bc.rasterHeight);
+                raster = new int[rasterWidth * rasterHeight];
+                paintSegmentedControl1(raster, rasterWidth, rasterHeight, scale, cc, false);
+                x = Math.round(scale * s.left);
+                y = Math.round(scale * s.top);
+                w = Math.round(scale * buttonWidth);
+                h = Math.round(scale * buttonHeight);
+            } else {
+                SegmentedControl4LayoutInfo layout = scds.getSegment4LayoutInfo(g, scale);
+                SegmentButtonRenderingConfiguration4 bc
+                  = getRenderConfiguration(g, s, layout, scale, buttonWidth, buttonHeight);
+                SegmentedControlConfiguration4 cc = createControlConfiguration(g, bc);
+                rasterWidth = Math.round(scale * bc.rasterWidth);
+                rasterHeight = Math.round(scale * bc.rasterHeight);
+                raster = new int[rasterWidth * rasterHeight];
+                paintSegmentedControl4(raster, rasterWidth, rasterHeight, scale, cc, false);
+                Rectangle2D bounds = bc.bounds;
+                x = Math.round(scale * (float) bounds.getX());
+                y = Math.round(scale * (float) bounds.getY());
+                w = Math.round(scale * (float) bounds.getWidth());
+                h = Math.round(scale * (float) bounds.getHeight());
+            }
+            PixelRaster px = new PixelRasterImpl(raster, rasterWidth, rasterHeight);
+            compositor.composeFrom(px, x, y, 0, 0, w, h);
+        }
+    }
+
+    /**
+      Paint a segmented control with a single segment.
+      @return the bounds of the control in the raster.
+    */
+
+    private @NotNull Rectangle paintSegmentedButton1(@NotNull int[] data, int rw, int rh, float w, float h,
+                                                     @NotNull SegmentedButtonConfiguration g)
+    {
+        int scale = Math.round(rw / w);
+        SegmentedControlDescriptions scds = new SegmentedControlDescriptions();
+        RenderInsets insets = scds.getInsets(g, scale);
+        SegmentedControl1LayoutInfo layout = scds.getSegment1LayoutInfo(g, scale);
+        int buttonWidth = Math.round(w - insets.widthAdjust);
+        int buttonHeight = Math.round(h - insets.heightAdjust);
+        boolean isSelected = g.isSelected();
+
+        SegmentButtonRenderingConfiguration1 bc
+          = getRenderConfiguration(isSelected, insets, layout, scale, buttonWidth, buttonHeight);
+        SegmentedControlConfiguration1 cc = createControlConfiguration(g, bc);
+        paintSegmentedControl1(data, rw, rh, scale, cc, false);
+        int left = Math.round(insets.left * scale);
+        int top = Math.round(insets.top * scale);
+        int width = Math.round(buttonWidth * scale);
+        int height = Math.round(buttonHeight * scale);
+        return new Rectangle(left, top, width, height);
+    }
+
+    /**
+      Paint a segmented control with a four segments.
+      @return the bounds of the button in the raster.
+    */
+
+    private @NotNull Rectangle paintSegmentedButton4(@NotNull int[] data, int rw, int rh, float w, float h,
+                                                     @NotNull SegmentedButtonConfiguration g)
+    {
+        int scale = Math.round(rw / w);
+        SegmentedControlDescriptions scds = new SegmentedControlDescriptions();
+        RenderInsets insets = scds.getInsets(g, scale);
+        SegmentedControl4LayoutInfo layout = scds.getSegment4LayoutInfo(g, scale);
+        int buttonWidth = Math.round(w - insets.widthAdjust);
+        int buttonHeight = Math.round(h - insets.heightAdjust);
+
+        SegmentButtonRenderingConfiguration4 bc
+          = getRenderConfiguration(g, insets, layout, scale, buttonWidth, buttonHeight);
+        SegmentedControlConfiguration4 cc = createControlConfiguration(g, bc);
+        paintSegmentedControl4(data, rw, rh, scale, cc, false);
+        Rectangle2D bounds = bc.bounds;
+        int left = Math.round((float) bounds.getX() * scale);
+        int top = Math.round((float) bounds.getY() * scale);
+        int width = Math.round((float) bounds.getWidth() * scale);
+        int height = Math.round((float) bounds.getHeight() * scale);
+        return new Rectangle(left, top, width, height);
     }
 
     public static final int TEST_SEGMENTED_ONE_SEGMENT_MASK = (1 << 10);
@@ -640,7 +760,7 @@ public class AquaNativePainter
       @return the rendered control display and associated information.
     */
 
-    public @Nullable SegmentedRendererDebugInfo
+    public @Nullable AnnotatedSegmentedControlImage
     getSegmentedRendererDebugInfo(@NotNull SegmentedButtonConfiguration g,
                                   int option,
                                   int scaleFactor,
@@ -679,8 +799,8 @@ public class AquaNativePainter
                 offset += 4;
             }
         }
-        Image im = BasicImageSupport.createImage(data, rw, rh);
-        return new SegmentedRendererDebugInfo(im, controlBounds, segmentBounds);
+        BufferedImage im = BasicImageSupport.createImage(data, rw, rh);
+        return new AnnotatedSegmentedControlImage(im, segmentBounds);
     }
 
     private static boolean isZero(@NotNull float[] fs, int start, int count)
@@ -815,7 +935,7 @@ public class AquaNativePainter
         return Renderer.create(r, rd);
     }
 
-    protected int toSize(@NotNull Size sz)
+    protected static int toSize(@NotNull Size sz)
     {
         switch (sz)
         {
@@ -835,7 +955,7 @@ public class AquaNativePainter
       Map the specified state to the integer encoding used by native code. All states are supported.
     */
 
-    protected int toState(@NotNull State st)
+    protected static int toState(@NotNull State st)
     {
         switch (st)
         {
@@ -957,7 +1077,7 @@ public class AquaNativePainter
         return 1;
     }
 
-    protected int toSegmentedStyle(@NotNull SegmentedButtonWidget bw)
+    protected static int toSegmentedStyle(@NotNull SegmentedButtonWidget bw)
     {
         switch (bw) {
             case BUTTON_TAB:
@@ -1117,6 +1237,14 @@ public class AquaNativePainter
         }
     }
 
+    protected static int toTracking(@NotNull SwitchTracking t)
+    {
+        if (t == SwitchTracking.SELECT_ANY) {
+            return NSSegmentSwitchTrackingSelectAny;
+        }
+        return NSSegmentSwitchTrackingSelectOne;
+    }
+
     protected int toUILayoutDirection(@NotNull UILayoutDirection d)
     {
         switch (d)
@@ -1260,6 +1388,619 @@ public class AquaNativePainter
         return "NSView";
     }
 
+    @Native private static final int SELECT_SEGMENT_1 = 1 << 3;
+    @Native private static final int SELECT_SEGMENT_2 = 1 << 2;
+    @Native private static final int SELECT_SEGMENT_3 = 1 << 1;
+    @Native private static final int SELECT_SEGMENT_4 = 1 << 0;
+
+    @Native private static final int CONTEXT_WINDOW = 1;
+    @Native private static final int CONTEXT_TOOLBAR = 2;
+
+    public @NotNull SegmentedControl4LayoutInfo
+    getSegment4LayoutInfo(@NotNull SegmentedButtonConfiguration g, int scale)
+    {
+        SegmentedControlDescriptions ds = new SegmentedControlDescriptions();
+        return ds.getSegment4LayoutInfo(g, scale);
+    }
+
+    /**
+      Compute a configuration used to render a segmented button.
+      This method is public for debugging use.
+
+      @param g The button configuration. The currently required information is: whether the button style is a separated
+      style; whether the button is in the selected state; the position of the button in the control;
+      @param s The render insets.
+      @param layout The segmented control layout information.
+      @param scale The display scale.
+      @param segmentWidth The desired segment width (in points).
+      @param controlHeight The desired control height (in points).
+      @return a rendering configuration.
+    */
+
+    public @NotNull SegmentButtonRenderingConfiguration4
+    getRenderConfiguration(@NotNull SegmentedButtonConfiguration g,
+                           @NotNull RenderInsets s,
+                           @NotNull SegmentedControl4LayoutInfo layout,
+                           int scale, int segmentWidth, int controlHeight)
+    {
+        boolean isSeparated = g.getWidget().isSeparated();
+        boolean isSelected = g.isSelected();
+        Position pos = g.getPosition();
+        DividerState leftDivider = g.getLeftDividerState();
+        DividerState rightDivider = g.getRightDividerState();
+        return getRenderConfiguration(isSeparated, isSelected, pos, leftDivider, rightDivider,
+          s, layout, scale, segmentWidth, controlHeight);
+    }
+
+    /**
+      Compute a configuration used to render a segmented button.
+      This method is public for debugging use.
+
+      @param isSelected True if and only if the button state is selected (on).
+      @param s The render insets.
+      @param layout The segmented control layout information.
+      @param scale The display scale.
+      @param buttonWidth The desired button width (in points).
+      @param buttonHeight The desired button height (in points).
+      @return a rendering configuration.
+    */
+
+    public @NotNull SegmentButtonRenderingConfiguration1 getRenderConfiguration(
+      boolean isSelected,
+      @NotNull RenderInsets s,
+      @NotNull SegmentedControl1LayoutInfo layout,
+      int scale,
+      int buttonWidth,
+      int buttonHeight)
+    {
+        float segmentWidth = buttonWidth - layout.widthAdjustment;
+        int rasterWidth = (int) Math.ceil(buttonWidth + s.widthAdjust);
+        int rasterHeight = (int) Math.ceil(buttonHeight + s.heightAdjust);
+        return new SegmentButtonRenderingConfiguration1(scale, isSelected, segmentWidth, rasterWidth, rasterHeight);
+    }
+
+    /**
+      Compute a configuration used to render a segmented button.
+      This method is public for debugging use.
+
+      @param isSeparated True if and only if the button style is a separated style.
+      @param isSelected True if and only if the button state is selected (on).
+      @param pos The position of the button in the control. Must not be ONLY.
+      @param leftDivider The requested state of the divider on the left side of the segment.
+      @param rightDivider The requested state of the divider on the right side of the segment.
+      @param s The render insets.
+      @param layout The segmented control layout information.
+      @param scale The display scale.
+      @param segmentWidth The desired segment width (in points).
+      @param controlHeight The desired control height (in points).
+      @return a rendering configuration.
+    */
+
+    public @NotNull SegmentButtonRenderingConfiguration4 getRenderConfiguration(
+      boolean isSeparated,
+      boolean isSelected,
+      @NotNull Position pos,
+      @NotNull DividerState leftDivider,
+      @NotNull DividerState rightDivider,
+      @NotNull RenderInsets s,
+      @NotNull SegmentedControl4LayoutInfo layout,
+      int scale,
+      int segmentWidth,
+      int controlHeight)
+    {
+        DividerPosition dividerPosition = layout.dividerPosition;
+        float dividerVisualWidth = layout.dividerVisualWidth;
+        float firstExtra = layout.firstSegmentWidthAdjustment;
+        float middleExtra = layout.middleSegmentWidthAdjustment;
+        float lastExtra = layout.lastSegmentWidthAdjustment;
+        float otherSegmentNominalWidth = 20;
+        float renderedSegmentNominalWidth;
+        int segmentIndex;
+        int selectedSegmentIndex = -1;
+        float xOffset = 0;
+        float widthAdjustment = 0;
+
+        if (pos == Position.FIRST) {
+            segmentIndex = 0;
+            renderedSegmentNominalWidth = segmentWidth - firstExtra;
+        } else if (pos == Position.MIDDLE) {
+            segmentIndex = 1;
+            renderedSegmentNominalWidth = segmentWidth - middleExtra;
+        } else if (pos == Position.LAST) {
+            segmentIndex = 3;
+            renderedSegmentNominalWidth = segmentWidth - lastExtra;
+        } else {
+            throw new AssertionError("Unexpected segment position");
+        }
+
+        if (isSelected) {
+            selectedSegmentIndex = segmentIndex;
+        } else if (leftDivider == SegmentedButtonConfiguration.DividerState.SELECTED) {
+            if (segmentIndex > 0) {
+                selectedSegmentIndex = segmentIndex - 1;
+            }
+        } else if (rightDivider == SegmentedButtonConfiguration.DividerState.SELECTED) {
+            if (segmentIndex == 1) {
+                segmentIndex = 2;
+                selectedSegmentIndex = 3;
+            } else if (segmentIndex == 0) {
+                selectedSegmentIndex = 1;
+            }
+        }
+
+        if (segmentIndex > 0) {
+            // the width of the first segment is otherSegmentWidth + firstExtra
+            xOffset = segmentIndex * (otherSegmentNominalWidth + middleExtra) + (firstExtra - middleExtra);
+            widthAdjustment += firstExtra;
+        }
+
+        if (segmentIndex < 3) {
+            // the width of the last segment is otherSegmentWidth + lastExtra
+            widthAdjustment += lastExtra;
+        }
+
+        if (segmentIndex == 0 || segmentIndex == 3) {
+            widthAdjustment += 2 * middleExtra;
+        } else {
+            widthAdjustment += middleExtra;
+        }
+
+        // The next step is to adjust the segment width and extracted region location to either hide or reveal dividers,
+        // as needed to satisfy the requested set of dividers. This adjustment is inhibited in the case of a
+        // separated style in 2x when the "divider" is centered. What this basically means
+        // is that we always want to show the entire segment, as the half divider on either side is the border or
+        // space that we want to be visible.
+
+        boolean isSeparatedCentered2X = isSeparated && scale != 1 && dividerPosition == CENTER;
+        if (!isSeparatedCentered2X && dividerVisualWidth > 0) {
+            if (segmentIndex > 0) {
+                // adjust so that the left divider is not visible by default
+                if (dividerPosition != LEFT) {
+                    //NSLog(@"Shifting and widening to hide left divider");
+                    xOffset += dividerVisualWidth;
+                    renderedSegmentNominalWidth += dividerVisualWidth;
+                    widthAdjustment += dividerVisualWidth;
+                }
+            }
+
+            if (segmentIndex < 3) {
+                // adjust so that the right divider is not visible by default
+                if (dividerPosition != RIGHT) {
+                    //NSLog(@"Widening to hide right divider");
+                    renderedSegmentNominalWidth += dividerVisualWidth;
+                    widthAdjustment += dividerVisualWidth;
+                }
+            }
+
+            boolean drawLeadingDivider = segmentIndex > 0 && leftDivider != DividerState.NONE;
+            boolean drawTrailingDivider = segmentIndex < 3 && rightDivider != DividerState.NONE;
+            if (drawLeadingDivider) {
+                xOffset -= dividerVisualWidth;
+                int adjustment = (int) Math.ceil(dividerVisualWidth);
+                if (dividerPosition == CENTER) {
+                    xOffset -= dividerVisualWidth;
+                    adjustment += dividerVisualWidth;
+                }
+                renderedSegmentNominalWidth -= adjustment;
+                widthAdjustment -= adjustment;
+                System.err.println("Shifting to reveal left divider");
+            }
+
+            if (drawTrailingDivider) {
+                renderedSegmentNominalWidth -= dividerVisualWidth;
+                widthAdjustment -= dividerVisualWidth;
+                if (dividerPosition == CENTER) {
+                    renderedSegmentNominalWidth -= dividerVisualWidth;
+                    widthAdjustment -= dividerVisualWidth;
+                }
+                System.err.println("Shrinking to reveal right divider");
+            }
+        }
+
+        float controlWidth = 3 * otherSegmentNominalWidth + segmentWidth + widthAdjustment;
+        int rasterWidth = (int) Math.ceil(controlWidth + s.widthAdjust);
+        int rasterHeight = (int) Math.ceil(controlHeight + s.heightAdjust);
+
+        // TBD: the only novelty in the segment bounds is the xOffset.
+        // The rest is based on provided inputs and the raster insets.
+
+        Rectangle2D segmentBounds = createPixelBounds(scale, s.left + xOffset, s.top, segmentWidth, controlHeight);
+
+        return new SegmentButtonRenderingConfiguration4(scale, segmentIndex + 1, selectedSegmentIndex + 1,
+          renderedSegmentNominalWidth, otherSegmentNominalWidth, rasterWidth, rasterHeight, segmentBounds);
+    }
+
+    private static @NotNull Rectangle2D createPixelBounds(int scale, double x, double y, double w, double h)
+    {
+        double x2 = round(x + w, scale);
+        double y2 = round(y + h, scale);
+        x = round(x, scale);
+        y = round(y, scale);
+        w = x2 - x;
+        h = y2 - y;
+        return new Rectangle2D.Double(x, y, w, h);
+    }
+
+    private static double round(double d, int scale)
+    {
+        if (scale == 1) {
+            return Math.round(d);
+        }
+        return Math.round(d * scale) / (double) scale;
+    }
+
+    public @NotNull SegmentedControlConfiguration1
+    createControlConfiguration(@NotNull SegmentedButtonConfiguration g, @Nullable SegmentButtonRenderingConfiguration1 b)
+    {
+        SegmentedButtonWidget widget = g.getWidget();
+        boolean isToolbar = widget.isToolbar();
+        AquaUIPainter.Size sz = g.getSize();
+        AquaUIPainter.State st = g.getState();
+        AquaUIPainter.SwitchTracking tracking = g.getTracking();
+        SegmentedButtonWidget basicWidget = widget.toBasicWidget();
+        float w = b != null ? b.segmentWidth : 20;
+        boolean isSelected = b != null && b.isSelected;
+        return new SegmentedControlConfiguration1(basicWidget, isToolbar, sz, st, w, isSelected);
+    }
+
+    public @NotNull SegmentedControlConfiguration4
+    createControlConfiguration(@NotNull SegmentedButtonConfiguration g, @Nullable SegmentButtonRenderingConfiguration4 b)
+    {
+        SegmentedButtonWidget widget = g.getWidget();
+        boolean isToolbar = widget.isToolbar();
+        AquaUIPainter.Size sz = g.getSize();
+        AquaUIPainter.State st = g.getState();
+        AquaUIPainter.SwitchTracking tracking = g.getTracking();
+        SegmentedButtonWidget basicWidget = widget.toBasicWidget();
+
+        float sw1 = b != null ? b.otherSegmentWidth : 20;
+        float sw2 = b != null ? b.otherSegmentWidth : 20;
+        float sw3 = b != null ? b.otherSegmentWidth : 20;
+        float sw4 = b != null ? b.otherSegmentWidth : 20;
+        boolean sel1 = false;
+        boolean sel2 = false;
+        boolean sel3 = false;
+        boolean sel4 = false;
+
+        if (b != null) {
+            int i = b.designatedSegment;
+            if (i == 1) {
+                sw1 = b.designatedSegmentWidth;
+            } else if (i == 2) {
+                sw2 = b.designatedSegmentWidth;
+            } else if (i == 3) {
+                sw3 = b.designatedSegmentWidth;
+            } else if (i == 4) {
+                sw4 = b.designatedSegmentWidth;
+            }
+            int leftSelectedIndex = g.getLeftDividerState() == SegmentedButtonConfiguration.DividerState.SELECTED
+                                      && b.selectedSegment > 0 ? b.selectedSegment - 1 : 0;
+            int rightSelectedIndex = g.getRightDividerState() == SegmentedButtonConfiguration.DividerState.SELECTED
+                                       && b.selectedSegment > 0 ? b.selectedSegment + 1 : 0;
+
+            i = b.selectedSegment;
+            if (i == 1 || leftSelectedIndex == 1) {
+                sel1 = true;
+            }
+            if (i == 2 || leftSelectedIndex == 2 || rightSelectedIndex == 2) {
+                sel2 = true;
+            }
+            if (i == 3 || leftSelectedIndex == 3 || rightSelectedIndex == 3) {
+                sel3 = true;
+            }
+            if (i == 4 || rightSelectedIndex == 4) {
+                sel4 = true;
+            }
+        }
+
+        return new SegmentedControlConfiguration4(basicWidget, isToolbar, sz, st, tracking, sw1, sw2, sw3, sw4, sel1, sel2, sel3, sel4);
+    }
+
+    /**
+      A configuration defining the parameters that must be specified to render a segmented button by rendering a control
+      with one segment.
+    */
+
+    public static class SegmentButtonRenderingConfiguration1
+    {
+        public final float scale; // the display scale factor
+        public final boolean isSelected;
+        public final float segmentWidth; // nominal width
+        public final int rasterWidth; // the required width of the raster
+        public final int rasterHeight; // the required height of the raster
+
+        public SegmentButtonRenderingConfiguration1(float scale,
+                                                    boolean isSelected,
+                                                    float segmentWidth,
+                                                    int rasterWidth,
+                                                    int rasterHeight)
+        {
+            this.scale = scale;
+            this.isSelected = isSelected;
+            this.segmentWidth = segmentWidth;
+            this.rasterWidth = rasterWidth;
+            this.rasterHeight = rasterHeight;
+        }
+    }
+
+    /**
+      A configuration defining the parameters that must be specified to render a segmented button by rendering a control
+      with four segments.
+    */
+
+    public static class SegmentButtonRenderingConfiguration4
+    {
+        public final float scale; // the display scale factor
+        public final int designatedSegment; // 1 to 4
+        public final int selectedSegment; // 0 or 1 to 4
+        public final float designatedSegmentWidth; // nominal width
+        public final float otherSegmentWidth; // the nominal width of other segments
+        public final int rasterWidth; // the required width of the raster
+        public final int rasterHeight; // the required height of the raster
+        public final Rectangle2D bounds; // the bounds of the button rendering relative to the raster
+
+        public SegmentButtonRenderingConfiguration4(float scale,
+                                                    int designatedSegment,
+                                                    int selectedSegment,
+                                                    float designatedSegmentWidth,
+                                                    float otherSegmentWidth,
+                                                    int rasterWidth,
+                                                    int rasterHeight,
+                                                    Rectangle2D bounds)
+        {
+            this.scale = scale;
+            this.designatedSegment = designatedSegment;
+            this.selectedSegment = selectedSegment;
+            this.designatedSegmentWidth = designatedSegmentWidth;
+            this.otherSegmentWidth = otherSegmentWidth;
+            this.rasterWidth = rasterWidth;
+            this.rasterHeight = rasterHeight;
+            this.bounds = bounds;
+        }
+    }
+
+    /**
+      A configuration defining the parameters that must be specified to render a segmented control with one segment.
+    */
+
+    public static class SegmentedControlConfiguration1
+    {
+        public final float w;
+        public final @NotNull SegmentedButtonWidget widget;
+        public final boolean isSelected;
+        public final boolean isToolbar;
+        public final @NotNull Size size;
+        public final @NotNull State state;
+
+        /**
+          Create a configuration for a single segment control.
+          @param widget A widget defining the control style. Toolbar styles should not be used.
+          @param isToolbar True if and only if the control should be rendered as it would in a toolbar.
+          @param sz The size variant.
+          @param st The control state.
+          @param w The nominal width (in points) of the segment.
+          @param isSelected True if the segment should be selected.
+        */
+
+        public SegmentedControlConfiguration1(@NotNull SegmentedButtonWidget widget,
+                                              boolean isToolbar,
+                                              @NotNull Size sz,
+                                              @NotNull State st,
+                                              float w,
+                                              boolean isSelected
+        )
+          throws IllegalArgumentException
+        {
+            validateSegmentWidth(w);
+            if (widget.isToolbar()) {
+                throw new IllegalArgumentException("Toolbar widget not supported");
+            }
+
+            this.w = w;
+            this.widget = widget;
+            this.isSelected = isSelected;
+            this.isToolbar = isToolbar;
+            this.size = sz;
+            this.state = st;
+        }
+    }
+
+    /**
+      A configuration defining the parameters that must be specified to render a segmented control with four segments.
+    */
+
+    public static class SegmentedControlConfiguration4
+    {
+        public final float w1;
+        public final float w2;
+        public final float w3;
+        public final float w4;
+        public final @NotNull SegmentedButtonWidget widget;
+        public final @NotNull SwitchTracking tracking;
+        public final boolean s1;
+        public final boolean s2;
+        public final boolean s3;
+        public final boolean s4;
+        public final boolean isToolbar;
+        public final @NotNull Size size;
+        public final @NotNull State state;
+
+        /**
+          Create a configuration for a 4 segment control.
+          @param widget A widget defining the control style. Toolbar styles should not be used.
+          @param isToolbar True if and only if the control should be rendered as it would in a toolbar.
+          @param sz The size variant.
+          @param st The control state.
+          @param tr The tracking mode (select one or select any).
+          @param w1 The nominal width (in points) of the 1st (leftmost) segment.
+          @param w2 The nominal width (in points) of the 2nd segment.
+          @param w3 The nominal width (in points) of the 3rd segment.
+          @param w4 The nominal width (in points) of the 4th (rightmost) segment.
+          @param s1 True if the 1st segment should be selected.
+          @param s2 True if the 2nd segment should be selected.
+          @param s3 True if the 3rd segment should be selected.
+          @param s4 True if the 4th segment should be selected.
+        */
+
+        public SegmentedControlConfiguration4(@NotNull SegmentedButtonWidget widget,
+                                              boolean isToolbar,
+                                              @NotNull Size sz,
+                                              @NotNull State st,
+                                              @NotNull SwitchTracking tr,
+                                              float w1, float w2, float w3, float w4,
+                                              boolean s1, boolean s2, boolean s3, boolean s4
+        )
+          throws IllegalArgumentException
+        {
+            validateSegmentWidth(w1);
+            validateSegmentWidth(w2);
+            validateSegmentWidth(w3);
+            validateSegmentWidth(w4);
+            if (widget.isToolbar()) {
+                throw new IllegalArgumentException("Toolbar widget not supported");
+            }
+
+            this.w1 = w1;
+            this.w2 = w2;
+            this.w3 = w3;
+            this.w4 = w4;
+            this.widget = widget;
+            this.tracking = tr;
+            this.s1 = s1;
+            this.s2 = s2;
+            this.s3 = s3;
+            this.s4 = s4;
+            this.isToolbar = isToolbar;
+            this.size = sz;
+            this.state = st;
+        }
+    }
+
+    /**
+      Paint a segmented control with one segment into a raster buffer. Experimental.
+      The goal is to do as much calculation in Java as possible.
+
+      @param data The raster buffer where 32-bit RGBA pixels will be written.
+      @param rw The width of the raster buffer, in pixels.
+      @param rh The height of the raster buffer, in pixels.
+      @param scale The scale factor, typically 1 or 2.
+      @param g The control configuration.
+      @param requestDebugOutput True to request debug information.
+      @return the requested debug information, or null if not requested.
+    */
+
+    public @Nullable AnnotatedSegmentedControlImage paintSegmentedControl1(
+      @NotNull int[] data,
+      int rw,
+      int rh,
+      float scale,
+      SegmentedControlConfiguration1 g,
+      boolean requestDebugOutput
+    )
+    {
+        if (rw < 1 || rh < 1 || data.length < rw * rh) {
+            throw new IllegalArgumentException("Invalid raster size or length");
+        }
+        if (scale < 0.01 || scale > 100) {
+            throw new IllegalArgumentException("Invalid or unsupported scale factor");
+        }
+
+        int size = toSize(g.size);
+        int state = toState(g.state);
+        int style = toSegmentedStyle(g.widget);
+        boolean isSelected = g.isSelected;
+        int context = g.isToolbar ? CONTEXT_TOOLBAR : CONTEXT_WINDOW;
+
+        float[] debugData = requestDebugOutput ? new float[4] : null;
+
+        nativePaintSegmentedControl1(data, rw, rh, scale, g.w, style, isSelected, context, size, state, debugData);
+
+        if (debugData != null) {
+            int count = debugData.length / 4;
+            Rectangle2D[] segmentBounds = new Rectangle2D[count];
+            int offset = 0;
+            for (int i = 0; i < count; i++) {
+                segmentBounds[i] = extractBounds(debugData, offset);
+                offset += 4;
+            }
+            BufferedImage im = BasicImageSupport.createImage(data, rw, rh);
+            return new AnnotatedSegmentedControlImage(im, segmentBounds);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+      Paint a segmented control with 4 segments into a raster buffer. Experimental.
+      The goal is to do as much calculation in Java as possible.
+
+      @param data The raster buffer where 32-bit RGBA pixels will be written.
+      @param rw The width of the raster buffer, in pixels.
+      @param rh The height of the raster buffer, in pixels.
+      @param scale The scale factor, typically 1 or 2.
+      @param g The control configuration.
+      @param requestDebugOutput True to request debug information.
+      @return the requested debug information, or null if not requested.
+    */
+
+    public @Nullable AnnotatedSegmentedControlImage paintSegmentedControl4(
+      @NotNull int[] data,
+      int rw,
+      int rh,
+      float scale,
+      SegmentedControlConfiguration4 g,
+      boolean requestDebugOutput
+    )
+    {
+        if (rw < 1 || rh < 1 || data.length < rw * rh) {
+            throw new IllegalArgumentException("Invalid raster size or length");
+        }
+        if (scale < 0.01 || scale > 100) {
+            throw new IllegalArgumentException("Invalid or unsupported scale factor");
+        }
+
+        int size = toSize(g.size);
+        int state = toState(g.state);
+        int style = toSegmentedStyle(g.widget);
+        int tracking = toTracking(g.tracking);
+        int selectionFlags = toSelectionFlags(g.s1, g.s2, g.s3, g.s4);
+        int context = g.isToolbar ? CONTEXT_TOOLBAR : CONTEXT_WINDOW;
+
+        float[] debugData = requestDebugOutput ? new float[16] : null;
+
+        nativePaintSegmentedControl4(data, rw, rh, scale, g.w1, g.w2, g.w3, g.w4, style, tracking,
+          selectionFlags, context, size, state, debugData);
+
+        if (debugData != null) {
+            int count = debugData.length / 4;
+            Rectangle2D[] segmentBounds = new Rectangle2D[count];
+            int offset = 0;
+            for (int i = 0; i < count; i++) {
+                segmentBounds[i] = extractBounds(debugData, offset);
+                offset += 4;
+            }
+            BufferedImage im = BasicImageSupport.createImage(data, rw, rh);
+            return new AnnotatedSegmentedControlImage(im, segmentBounds);
+        } else {
+            return null;
+        }
+    }
+
+    private static void validateSegmentWidth(float w)
+    {
+        if (w < 1 || w > 10000) {
+            throw new IllegalArgumentException("Invalid or unsupported segment width");
+        }
+    }
+
+    private static int toSelectionFlags(boolean s1, boolean s2, boolean s3, boolean s4)
+    {
+        return (s1 ? SELECT_SEGMENT_1 : 0)
+                 | (s2 ? SELECT_SEGMENT_2 : 0)
+                 | (s3 ? SELECT_SEGMENT_3 : 0)
+                 | (s4 ? SELECT_SEGMENT_4 : 0);
+    }
+
     private static native void nativePaintIndeterminateProgressIndicator(int[] data, int rw, int rh, float w, float h, int size, int state, int orientation, boolean isSpinner, int frame);
     private static native void nativePaintProgressIndicator(int[] data, int rw, int rh, float w, float h, int size, int state, int orientation, double value);
     private static native void nativePaintButton(int[] data, int rw, int rh, float w, float h, int buttonType, int bezelStyle, int size, int state, boolean isFocused, int value, int layoutDirection);
@@ -1293,6 +2034,76 @@ public class AquaNativePainter
     private static native int nativeDetermineSegmentedButtonLayoutParameters(int segmentStyle, int size, float[] data);
     public static native int nativeDetermineSegmentedButtonRenderingVersion();
     public static native int nativeDetermineSliderRenderingVersion();
+
+    // The following is experimental. The goal is to do as much calculation in Java as possible.
+
+    /**
+      Paint a segmented control with 4 segments into a raster buffer.
+
+      @param data The raster buffer where 32-bit RGBA pixels will be written.
+      @param rw The width of the raster buffer, in pixels.
+      @param rh The height of the raster buffer, in pixels.
+      @param scale The scale factor, typically 1 or 2.
+      @param w1 the nominal width (in points) of the 1st segment
+      @param w2 the nominal width (in points) of the 2nd segment
+      @param w3 the nominal width (in points) of the 3rd segment
+      @param w4 the nominal width (in points) of the 4th segment
+      @param style the control style
+      @param tracking the tracking mode (select one or select any)
+      @param selections a bitmask indicating which segments are to be selected (lower 4 bits as 1,2,3,4)
+      @param context the context of the control (toolbar = 1, normal = 0)
+      @param sz the size variant
+      @param st the control state
+      @return 0 if successful, an error code otherwise.
+    */
+
+    private static native int nativePaintSegmentedControl4(
+      int[] data,
+      int rw,
+      int rh,
+      float scale,
+      float w1,
+      float w2,
+      float w3,
+      float w4,
+      int style,
+      int tracking,
+      int selections,
+      int context,
+      int sz,
+      int st,
+      @Nullable float[] debugOutput
+    );
+
+    /**
+      Paint a segmented control with one segment into a raster buffer.
+
+      @param data The raster buffer where 32-bit RGBA pixels will be written.
+      @param rw The width of the raster buffer, in pixels.
+      @param rh The height of the raster buffer, in pixels.
+      @param scale The scale factor, typically 1 or 2.
+      @param w the nominal width (in points) of the segment
+      @param style the control style
+      @param isSelected true if the segment should be selected
+      @param context the context of the control (toolbar = 1, normal = 0)
+      @param sz the size variant
+      @param st the control state
+      @return 0 if successful, an error code otherwise.
+    */
+
+    private static native int nativePaintSegmentedControl1(
+      int[] data,
+      int rw,
+      int rh,
+      float scale,
+      float w,
+      int style,
+      boolean isSelected,
+      int context,
+      int sz,
+      int st,
+      @Nullable float[] debugOutput
+    );
 
     // The following methods represent a failed experiment. Although I am not sure why, asking a view for its size does
     // not always provide the information needed here.

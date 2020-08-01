@@ -164,6 +164,8 @@
 
             <arg value="-framework"/>
             <arg value="Cocoa"/>
+            <arg value="-framework"/>
+            <arg value="QuartzCore"/>
 
             <arg value="-F/${SDKroot}/System/Library/Frameworks/JavaVM.framework/Versions/A/Frameworks"/>
             <arg value="-framework"/>

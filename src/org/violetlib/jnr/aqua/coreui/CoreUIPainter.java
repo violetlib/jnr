@@ -32,6 +32,7 @@ import org.violetlib.jnr.impl.SliderTickMarkRendererFactory;
 
 import org.jetbrains.annotations.*;
 
+import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.*;
 import static org.violetlib.jnr.aqua.coreui.CoreUIKeys.*;
 
 /**
@@ -73,6 +74,14 @@ public class CoreUIPainter
     protected boolean useJRS;  // if true, use the Java Runtime Support framework to access Core UI rendering
 
     /**
+      If true, use layers except where known problems must be avoided.
+      If false, do not use layers.
+      If null, use the default behavior specified on a case-by-case basis.
+    */
+
+    protected @Nullable Boolean forceLayers;
+
+    /**
       Create a painter that uses Core UI rendering by way of the Java Runtime Support framework.
     */
 
@@ -90,9 +99,15 @@ public class CoreUIPainter
 
     public CoreUIPainter(boolean useJRS)
     {
+        this(useJRS, null);
+    }
+
+    public CoreUIPainter(boolean useJRS, @Nullable Boolean forceLayers)
+    {
         super(rendererDescriptions, createLayout(false));
 
         this.useJRS = useJRS;
+        this.forceLayers = forceLayers;
     }
 
     @Override
@@ -390,8 +405,11 @@ public class CoreUIPainter
         RendererDescription rd = rendererDescriptions.getToolBarItemWellRendererDescription(g);
         String widget = CoreUIWidgets.TOOL_BAR_ITEM_WELL;
         State st = g.getState();
+        int version = JNRPlatformUtils.getPlatformVersion();
+        boolean useLayer = version >= 101600;  // workaround?
 
-        BasicRenderer r =  getRenderer(
+        BasicRenderer r =  getRendererOptionallyLayered(
+          useLayer,
           WIDGET_KEY, widget,
           STATE_KEY, toState(st),
           PRESENTATION_STATE_KEY, toPresentationState(st),
@@ -1346,13 +1364,28 @@ public class CoreUIPainter
         SegmentedButtonWidget bw = g.getWidget();
         State st = g.getState();
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        boolean useLayer = false;
 
         // On 10.14, textured segmented button backgrounds do not change when inactive, but CoreUI will paint them
         // differently. The configurations cannot be canonicalized because the text colors differ.
 
-        if (bw.isTextured() && st.isInactive() && (platformVersion >= 101400 && platformVersion < 101500)) {
+        if (bw.isTextured() && !bw.isToolbar() && st.isInactive() && (platformVersion >= 101400 && platformVersion < 101500)) {
             st = st.toActive();
         }
+
+        // Selected buttons in a textured select-any control use the background of the corresponding unselected button.
+        if (g.isTextured() && isSelected && g.getTracking() == SwitchTracking.SELECT_ANY) {
+            isSelected = false;
+        }
+
+        // On 10.14 dark mode, the background colors for an inactive unselected textured separated button on the toolbar
+        // are incorrect when painted using CoreUI draw, but are correct using CoreUI layers.
+
+        if (appearance != null && appearance.isDark() && st.isInactive() && !isSelected
+              && bw == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR) {
+            useLayer = true;
+        }
+
         Object state = toState(st);
 
         String widget = CoreUIWidgets.BUTTON_SEGMENTED;
@@ -1397,7 +1430,8 @@ public class CoreUIPainter
                            : CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR; break;
         }
 
-        return getRenderer(
+        return getRendererOptionallyLayered(
+          useLayer,
           WIDGET_KEY, widget,
           SIZE_KEY, toSize(g.getSize()),
           STATE_KEY, state,
@@ -1755,6 +1789,11 @@ public class CoreUIPainter
 
     protected @NotNull BasicRenderer getRenderer(Object... args)
     {
+        return getRendererOptionallyLayered(false, args);
+    }
+
+    protected @NotNull BasicRenderer getRendererOptionallyLayered(boolean useLayer, Object... args)
+    {
         if ((args.length % 2) != 0) {
             throw new IllegalArgumentException("getRenderer requires an even number of parameters");
         }
@@ -1764,12 +1803,7 @@ public class CoreUIPainter
             float yscale = ((float) rh) / h;
 
             if (debugFlag) {
-                String msg = "Rendering";
-                for (Object o : args) {
-                    msg += " " + o;
-                }
-                System.err.println(msg);
-                System.err.flush();
+                showRenderingArguments(args);
             }
 
             if (appearance != null) {
@@ -1779,9 +1813,44 @@ public class CoreUIPainter
             if (useJRS) {
                 nativeJRSPaint(data, rw, rh, xscale, yscale, args);
             } else {
-                nativePaint(data, rw, rh, xscale, yscale, args, null);
+                // Layer painting is experimental and in many cases does not work.
+
+                boolean shouldUseLayer = useLayer;
+
+                if (Boolean.TRUE.equals(forceLayers)) {
+                    shouldUseLayer = true;
+                } else if (Boolean.FALSE.equals(forceLayers)) {
+                    shouldUseLayer = false;
+                }
+
+                if (shouldUseLayer && args.length >= 2) {
+                    if (args[1].equals("kCUIWidgetWindowFrame")) {
+                        // this widget provokes an exception on 10.14 at least
+                        shouldUseLayer = false;
+                    }
+                }
+
+                try {
+                    nativePaint(data, rw, rh, xscale, yscale, args, shouldUseLayer);
+                } catch (RuntimeException ex) {
+                    System.err.println("Exception during native painting");
+                    if (!debugFlag) {
+                        showRenderingArguments(args);
+                    }
+                    ex.printStackTrace();
+                }
             }
         };
+    }
+
+    private static void showRenderingArguments(@NotNull Object[] args)
+    {
+        String msg = "Rendering";
+        for (Object o : args) {
+            msg += " " + o;
+        }
+        System.err.println(msg);
+        System.err.flush();
     }
 
     @Override
@@ -1790,6 +1859,6 @@ public class CoreUIPainter
         return useJRS ? "Core UI via JRS" : "Core UI";
     }
 
-    private static native void nativePaint(int[] data, int w, int h, float xscale, float yscale, Object[] args, @Nullable long[] layerHolder);
+    private static native void nativePaint(int[] data, int w, int h, float xscale, float yscale, Object[] args, boolean useLayer);
     private static native void nativeJRSPaint(int[] data, int w, int h, float xscale, float yscale, Object[] args);
 }

@@ -30,7 +30,7 @@ static BOOL useLayer = NO;
 static const int MiniSize = 0;
 static const int SmallSize = 1;
 static const int RegularSize = 2;
-//static const int LargeSize = 3;
+static const int LargeSize = 3;
 
 // Internal codes for control state
 static const int ActiveState = 0;
@@ -528,6 +528,10 @@ static void setControlSize(NSView* v, int sz)
         case SmallSize:
             size = NSControlSizeSmall;
             break;
+        case LargeSize:
+            if (osVersion >= 101600) {
+                size = 3;
+            }
     }
 
     if ([v respondsToSelector: @selector(setControlSize:)]) {
@@ -1156,6 +1160,14 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
             if (st > 0) {
                 dividerVisualWidth = 0;
             }
+        } else if (oss == NSSegmentStyleSmallSquare) {
+            dividerInset = 3;
+            outerRightInset = 2;
+        } else if (oss == NSSegmentStyleRoundRect) {
+            cornerInset = 1;
+            outerLeftInset = 1;
+            dividerInset = 3;
+            outerRightInset = 2;
         }
     }
 
@@ -1439,6 +1451,213 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
     segmentedControl4 = nil;
 
     COCOA_EXIT(env);
+}
+
+/*
+ * Class:     org_violetlib_jnr_aqua_impl_AquaNativePainter
+ * Method:    nativePaintSegmentedControl1
+ * Signature: ([IIIFFIZIII[F)I
+ */
+JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintSegmentedControl1
+  (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat scale,
+  jfloat w, jint style, jboolean isSelected, jint context, jint sz, jint st, jfloatArray jDebugOutput)
+{
+    jint result = 0;
+
+    COCOA_ENTER(env);
+
+    setupSegmented();
+
+    if (style == NSSegmentStyleSeparated_Rounded) {
+        style = NSSegmentStyleSeparated;
+    } else if (style == NSSegmentStyleSeparated_Textured) {
+        style = NSSegmentStyleSeparated;
+        currentWindow = fakeTexturedWindow;
+    } else if (style == NSSegmentStyleTexturedSquare) {
+        currentWindow = fakeTexturedWindow;
+    }
+
+    BOOL usingTexturedWindow = (currentWindow == fakeTexturedWindow);
+    BOOL isToolbar = (context == org_violetlib_jnr_aqua_impl_AquaNativePainter_CONTEXT_TOOLBAR);
+
+    float cw = rw / scale;
+    float ch = rh / scale;
+    NSRect controlFrame = NSMakeRect(0, 0, cw, ch);
+
+    jfloat outputData[4];
+    __block jfloat *outputDataPointer = NULL;
+
+    if (jDebugOutput) {
+        outputDataPointer = outputData;
+    }
+
+    performGraphics(env, data, rw, rh, cw, ch, ^(NSGraphicsContext *gc){
+
+        NSSegmentedControl *view = [[NSSegmentedControl alloc] initWithFrame: controlFrame];
+
+        setControlSize(view, sz);
+        setControlState(view, st);
+
+        [view setUserInterfaceLayoutDirection: NSUserInterfaceLayoutDirectionLeftToRight];
+        view.trackingMode = NSSegmentSwitchTrackingSelectAny;
+        [view setSegmentCount: 1];
+        [view setLabel: @"" forSegment: 0];
+        [view setWidth: w forSegment: 0];
+        [view setEnabled: isEnabled forSegment: 0];
+        [view setSelected: isSelected forSegment: 0];
+
+        [view setFrame: controlFrame];
+        installContentView(view, isToolbar);
+        [view setSegmentStyle: style];
+        [view layout];
+
+        if (outputDataPointer) {
+            NSArray<NSView *> *subviews = [view subviews];
+            if (subviews.count > 0) {
+                NSRect frame = subviews[0].frame;
+                *outputDataPointer++ = frame.origin.x;
+                *outputDataPointer++ = frame.origin.y;
+                *outputDataPointer++ = frame.size.width;
+                *outputDataPointer++ = frame.size.height;
+            } else if (view.segmentCount > 0) {
+                NSRect frame = [view.cell _rectForSegment: 0 inFrame: view.frame];
+                *outputDataPointer++ = frame.origin.x;
+                *outputDataPointer++ = frame.origin.y;
+                *outputDataPointer++ = frame.size.width;
+                *outputDataPointer++ = frame.size.height;
+            }
+        }
+
+        displayView(view, gc, controlFrame);
+    });
+
+    if (jDebugOutput) {
+        jboolean isCopy = JNI_FALSE;
+        float *data = (*env)->GetPrimitiveArrayCritical(env, jDebugOutput, &isCopy);
+        if (data) {
+            for (int i = 0; i < 4; i++) {
+                data[i] = outputData[i];
+            }
+            (*env)->ReleasePrimitiveArrayCritical(env, jDebugOutput, data, 0);
+        }
+    }
+
+    COCOA_EXIT(env);
+
+    return result;
+}
+
+/*
+ * Class:     org_violetlib_jnr_aqua_impl_AquaNativePainter
+ * Method:    nativePaintSegmentedControl4
+ * Signature: ([IIIFFFFFIIIIII[F)I
+ */
+JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintSegmentedControl4
+  (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat scale,
+  jfloat sw1, jfloat sw2, jfloat sw3, jfloat sw4,
+  jint style, jint tracking, jint selectionFlags, jint context, jint sz, jint st, jfloatArray jDebugOutput)
+{
+    jint result = 0;
+
+    COCOA_ENTER(env);
+
+    setupSegmented();
+
+    if (style == NSSegmentStyleSeparated_Rounded) {
+        style = NSSegmentStyleSeparated;
+    } else if (style == NSSegmentStyleSeparated_Textured) {
+        style = NSSegmentStyleSeparated;
+        currentWindow = fakeTexturedWindow;
+    } else if (style == NSSegmentStyleTexturedSquare) {
+        currentWindow = fakeTexturedWindow;
+    }
+
+    BOOL usingTexturedWindow = (currentWindow == fakeTexturedWindow);
+    BOOL isToolbar = (context == org_violetlib_jnr_aqua_impl_AquaNativePainter_CONTEXT_TOOLBAR);
+
+    float cw = rw / scale;
+    float ch = rh / scale;
+    NSRect controlFrame = NSMakeRect(0, 0, cw, ch);
+
+    jfloat outputData[16];
+    __block jfloat *outputDataPointer = NULL;
+
+    if (jDebugOutput) {
+        outputDataPointer = outputData;
+    }
+
+    performGraphics(env, data, rw, rh, cw, ch, ^(NSGraphicsContext *gc){
+
+        NSSegmentedControl *view = [[NSSegmentedControl alloc] initWithFrame: controlFrame];
+
+        setControlSize(view, sz);
+        setControlState(view, st);
+
+        [view setUserInterfaceLayoutDirection: NSUserInterfaceLayoutDirectionLeftToRight];
+        view.trackingMode = tracking;
+        [view setSegmentCount: 4];
+        [view setLabel: @"" forSegment: 0];
+        [view setLabel: @"" forSegment: 1];
+        [view setLabel: @"" forSegment: 2];
+        [view setLabel: @"" forSegment: 3];
+        [view setWidth: sw1 forSegment: 0];
+        [view setWidth: sw2 forSegment: 1];
+        [view setWidth: sw3 forSegment: 2];
+        [view setWidth: sw4 forSegment: 3];
+        [view setEnabled: isEnabled forSegment: 0];
+        [view setEnabled: isEnabled forSegment: 1];
+        [view setEnabled: isEnabled forSegment: 2];
+        [view setEnabled: isEnabled forSegment: 3];
+        [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativePainter_SELECT_SEGMENT_1) != 0 forSegment: 0];
+        [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativePainter_SELECT_SEGMENT_2) != 0 forSegment: 1];
+        [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativePainter_SELECT_SEGMENT_3) != 0 forSegment: 2];
+        [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativePainter_SELECT_SEGMENT_4) != 0 forSegment: 3];
+
+        [view setFrame: controlFrame];
+        installContentView(view, isToolbar);
+        [view setSegmentStyle: style];
+        [view layout];
+
+        if (outputDataPointer) {
+            NSArray<NSView *> *subviews = [view subviews];
+            if (subviews.count > 0) {
+                int viewCount = subviews.count > 4 ? 4 : subviews.count;
+                for (int i = 0; i < viewCount; i++) {
+                    NSRect frame = subviews[i].frame;
+                    *outputDataPointer++ = frame.origin.x;
+                    *outputDataPointer++ = frame.origin.y;
+                    *outputDataPointer++ = frame.size.width;
+                    *outputDataPointer++ = frame.size.height;
+                }
+            } else {
+                int segmentCount = view.segmentCount > 4 ? 4 : view.segmentCount;
+                for (int i = 0; i < segmentCount; i++) {
+                    NSRect frame = [view.cell _rectForSegment: i inFrame: view.frame];
+                    *outputDataPointer++ = frame.origin.x;
+                    *outputDataPointer++ = frame.origin.y;
+                    *outputDataPointer++ = frame.size.width;
+                    *outputDataPointer++ = frame.size.height;
+                }
+            }
+        }
+
+        displayView(view, gc, controlFrame);
+    });
+
+    if (jDebugOutput) {
+        jboolean isCopy = JNI_FALSE;
+        float *data = (*env)->GetPrimitiveArrayCritical(env, jDebugOutput, &isCopy);
+        if (data) {
+            for (int i = 0; i < 16; i++) {
+                data[i] = outputData[i];
+            }
+            (*env)->ReleasePrimitiveArrayCritical(env, jDebugOutput, data, 0);
+        }
+    }
+
+    COCOA_EXIT(env);
+
+    return result;
 }
 
 static const int TEST_SEGMENTED_ONE_SEGMENT_MASK = (1 << 10);

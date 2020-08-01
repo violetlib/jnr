@@ -101,6 +101,11 @@ public class HybridAquaUIPainter
                 return coreUIPainter;
             }
         } else if (g instanceof SegmentedButtonConfiguration) {
+            SegmentedButtonConfiguration sg = (SegmentedButtonConfiguration) g;
+            // The NSView painter produces more accurate backgrounds for gradient buttons
+            if (sg.getWidget() == SegmentedButtonWidget.BUTTON_SEGMENTED_SMALL_SQUARE) {
+                return viewPainter;
+            }
             return coreUIPainter;
         } else if (g instanceof GradientConfiguration) {
             return coreUIPainter;

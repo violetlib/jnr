@@ -20,11 +20,12 @@ import org.violetlib.jnr.impl.RendererDescription;
 
 import org.jetbrains.annotations.*;
 
+import static org.violetlib.jnr.aqua.AquaUIPainter.Position.*;
 import static org.violetlib.jnr.impl.JNRUtils.*;
 
 /**
- Renderer descriptions for NSView based rendering on macOS 10.10 and later.
- */
+  Renderer descriptions for NSView based rendering on macOS 10.10 and later.
+*/
 
 public class ViewRendererDescriptions
   extends RendererDescriptionsBase
@@ -256,14 +257,26 @@ public class ViewRendererDescriptions
         AquaUIPainter.Size sz = g.getSize();
         AquaUIPainter.Position position = g.getPosition();
 
+        float x = NO_CHANGE;
         float y;
+        float w = NO_CHANGE;
 
         switch (bw) {
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
             case BUTTON_SEGMENTED_SLIDER:
+                if (position == FIRST) {
+                    x = size2D(sz, -2, -2, -1);
+                } else if (position == ONLY) {
+                    x = size2D(sz, -1, -1, -1);
+                }
                 y = size2D(sz, -1, -2, -4);
+                if (position == FIRST || position == LAST) {
+                    w = size2D(sz, 2, 2, 1);
+                } else if (position == ONLY) {
+                    w = size2D(sz, 5, 5, 7);
+                }
                 break;
 
             case BUTTON_SEGMENTED_INSET:
@@ -290,7 +303,7 @@ public class ViewRendererDescriptions
                 throw new UnsupportedOperationException();
         }
 
-        return JNRUtils.changeRendererDescription(rd, NO_CHANGE, y, NO_CHANGE, NO_CHANGE);
+        return JNRUtils.changeRendererDescription(rd, x, y, w, NO_CHANGE);
     }
 
     @Override
