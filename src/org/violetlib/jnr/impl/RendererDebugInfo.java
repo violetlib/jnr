@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Alan Snyder.
+ * Copyright (c) 2016-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,8 +8,8 @@
 
 package org.violetlib.jnr.impl;
 
-import java.awt.Image;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 
 import org.jetbrains.annotations.*;
 
@@ -19,11 +19,11 @@ import org.jetbrains.annotations.*;
 
 public class RendererDebugInfo
 {
-    protected final @Nullable Image fullImage;
+    protected final @NotNull BufferedImage fullImage;
     protected final @Nullable Rectangle2D imageBounds;
     protected final @NotNull String info;
 
-    public RendererDebugInfo(@Nullable Image fullImage, @Nullable Rectangle2D imageBounds, @NotNull String info)
+    public RendererDebugInfo(@NotNull BufferedImage fullImage, @Nullable Rectangle2D imageBounds, @NotNull String info)
     {
         this.fullImage = fullImage;
         this.imageBounds = imageBounds;
@@ -31,11 +31,10 @@ public class RendererDebugInfo
     }
 
     /**
-      If the renderer subsets a larger image, return the larger image.
-      @return the image, or null if none.
+      Return the full output of the renderer as an image.
     */
 
-    public @Nullable Image getFullImage()
+    public @NotNull BufferedImage getFullImage()
     {
         return fullImage;
     }

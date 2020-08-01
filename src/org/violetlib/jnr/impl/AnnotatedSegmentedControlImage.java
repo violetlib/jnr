@@ -18,32 +18,22 @@ import org.jetbrains.annotations.*;
 */
 
 public class AnnotatedSegmentedControlImage
+  extends RendererDebugInfo
 {
-    protected final @NotNull BufferedImage fullImage;
     protected final @NotNull Rectangle2D[] segmentBounds;
 
-    public AnnotatedSegmentedControlImage(@NotNull BufferedImage fullImage,
-                                          @NotNull Rectangle2D[] segmentBounds)
+    public AnnotatedSegmentedControlImage(@NotNull BufferedImage fullImage, @NotNull Rectangle2D[] segmentBounds)
     {
-        this.fullImage = fullImage;
+        super(fullImage, segmentBounds[0], "");
+
         this.segmentBounds = segmentBounds;
-    }
-
-    /**
-      If the renderer subsets a larger image, return the larger image.
-      @return the image, or null if none.
-    */
-
-    public @NotNull BufferedImage getFullImage()
-    {
-        return fullImage;
     }
 
     /**
       Return the bounds of the individual segments.
     */
 
-    public @NotNull Rectangle2D[] getSegmentBounds()
+    public @NotNull Rectangle2D[] getAllSegmentBounds()
     {
         return segmentBounds;
     }

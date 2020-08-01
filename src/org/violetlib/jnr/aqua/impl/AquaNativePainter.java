@@ -8,7 +8,6 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
@@ -426,7 +425,7 @@ public class AquaNativePainter
 
         TitleBarConfiguration.ResizeAction resizeAction = g.getResizeAction();
         boolean isFullScreen = resizeAction == TitleBarConfiguration.ResizeAction.FULL_SCREEN_ENTER
-                                 || resizeAction == TitleBarConfiguration.ResizeAction.FULL_SCREEN_EXIT;
+          || resizeAction == TitleBarConfiguration.ResizeAction.FULL_SCREEN_EXIT;
         // TBD: pass encoded resize action
         BasicRenderer r = (data, rw, rh, w, h) -> nativePaintTitleBar(data, rw, rh, w, h,
           windowType, state, closeState, minimizeState, resizeState, isFullScreen, g.isDirty());
@@ -592,32 +591,6 @@ public class AquaNativePainter
         throw new UnsupportedOperationException();
     }
 
-    // array indexes for debugging output
-
-    public static final int DEBUG_SEGMENT_WIDTH = 0;
-    public static final int DEBUG_SEGMENT_HEIGHT = 1;
-    public static final int DEBUG_SEGMENT_X_OFFSET = 2;
-    public static final int DEBUG_SEGMENT_Y_OFFSET = 3;
-    public static final int DEBUG_SEGMENT_DIVIDER_WIDTH = 4;
-    public static final int DEBUG_SEGMENT_OUTER_LEFT_INSET = 5;
-    public static final int DEBUG_SEGMENT_LEFT_INSET = 6;
-    public static final int DEBUG_SEGMENT_RIGHT_INSET = 7;
-
-    protected @NotNull Renderer getOldSegmentedButtonRenderer(@NotNull SegmentedButtonConfiguration g)
-    {
-        RendererDescription rd = rendererDescriptions.getSegmentedButtonRendererDescription(g);
-        int size = toSize(g.getSize());
-        int state = toState(g.getState());
-        int segmentStyle = toSegmentedStyle(g.getWidget());
-        int segmentPosition = toSegmentPosition(g.getPosition());
-        int flags = toSegmentFlags(g);
-
-        BasicRenderer r = (data, rw, rh, w, h) -> nativePaintSegmentedButton(data, rw, rh, w, h, segmentStyle,
-          segmentPosition, size, state, g.isFocused(), flags, null, null);
-
-        return Renderer.create(r, rd);
-    }
-
     @Override
     protected @NotNull Renderer getSegmentedButtonRenderer(@NotNull SegmentedButtonConfiguration g)
     {
@@ -682,137 +655,6 @@ public class AquaNativePainter
         }
     }
 
-    /**
-      Paint a segmented control with a single segment.
-      @return the bounds of the control in the raster.
-    */
-
-    private @NotNull Rectangle paintSegmentedButton1(@NotNull int[] data, int rw, int rh, float w, float h,
-                                                     @NotNull SegmentedButtonConfiguration g)
-    {
-        int scale = Math.round(rw / w);
-        SegmentedControlDescriptions scds = new SegmentedControlDescriptions();
-        RenderInsets insets = scds.getInsets(g, scale);
-        SegmentedControl1LayoutInfo layout = scds.getSegment1LayoutInfo(g, scale);
-        int buttonWidth = Math.round(w - insets.widthAdjust);
-        int buttonHeight = Math.round(h - insets.heightAdjust);
-        boolean isSelected = g.isSelected();
-
-        SegmentButtonRenderingConfiguration1 bc
-          = getRenderConfiguration(isSelected, insets, layout, scale, buttonWidth, buttonHeight);
-        SegmentedControlConfiguration1 cc = createControlConfiguration(g, bc);
-        paintSegmentedControl1(data, rw, rh, scale, cc, false);
-        int left = Math.round(insets.left * scale);
-        int top = Math.round(insets.top * scale);
-        int width = Math.round(buttonWidth * scale);
-        int height = Math.round(buttonHeight * scale);
-        return new Rectangle(left, top, width, height);
-    }
-
-    /**
-      Paint a segmented control with a four segments.
-      @return the bounds of the button in the raster.
-    */
-
-    private @NotNull Rectangle paintSegmentedButton4(@NotNull int[] data, int rw, int rh, float w, float h,
-                                                     @NotNull SegmentedButtonConfiguration g)
-    {
-        int scale = Math.round(rw / w);
-        SegmentedControlDescriptions scds = new SegmentedControlDescriptions();
-        RenderInsets insets = scds.getInsets(g, scale);
-        SegmentedControl4LayoutInfo layout = scds.getSegment4LayoutInfo(g, scale);
-        int buttonWidth = Math.round(w - insets.widthAdjust);
-        int buttonHeight = Math.round(h - insets.heightAdjust);
-
-        SegmentButtonRenderingConfiguration4 bc
-          = getRenderConfiguration(g, insets, layout, scale, buttonWidth, buttonHeight);
-        SegmentedControlConfiguration4 cc = createControlConfiguration(g, bc);
-        paintSegmentedControl4(data, rw, rh, scale, cc, false);
-        Rectangle2D bounds = bc.bounds;
-        int left = Math.round((float) bounds.getX() * scale);
-        int top = Math.round((float) bounds.getY() * scale);
-        int width = Math.round((float) bounds.getWidth() * scale);
-        int height = Math.round((float) bounds.getHeight() * scale);
-        return new Rectangle(left, top, width, height);
-    }
-
-    public static final int TEST_SEGMENTED_ONE_SEGMENT_MASK = (1 << 10);
-    public static final int TEST_SEGMENTED_FOUR_SEGMENT_MASK = (1 << 11);
-
-    /**
-      Render a segmented control for the purpose of debugging its layout.
-      @param g This configuration designates the widget and the size.
-
-      @param option This parameter is a bit mask that determines the number of segments in the control and which
-      segments, if any, are displayed as selected. If the bit identified by @{code TEST_SEGMENTED_ONE_SEGMENT_MASK} is
-      true, one segment is displayed. If the bit identified by @{code TEST_SEGMENTED_ONE_SEGMENT_MASK} is true, one
-      segment is displayed. Exactly one of these two bits must be set. The segment at index {@code i} is displayed as
-      selected if the bit identified by the mask {@code 1<<i} is true. Older versions of this library interpret this
-      parameter differently. If the parameter is -1, a single segment is displayed as not selected. If the parameter is
-      -2, four segments are dispalyed as unselected. If this parameter has a value between 0 and 3, four segments are
-      displayed and the indicated segment is displayed as selected.
-
-      @param scaleFactor The scale factor for the display.
-      @param width The raster width in points.
-      @param height The raster height in points.
-      @param controlWidth The width of the segmented control in points.
-      @param controlHeight The height of the segmented control in points.
-      @return the rendered control display and associated information.
-    */
-
-    public @Nullable AnnotatedSegmentedControlImage
-    getSegmentedRendererDebugInfo(@NotNull SegmentedButtonConfiguration g,
-                                  int option,
-                                  int scaleFactor,
-                                  int width, int height,
-                                  float controlWidth, float controlHeight, float segmentWidth,
-                                  boolean isSelectAny)
-    {
-        int size = toSize(g.getSize());
-        int segmentStyle = toSegmentedStyle(g.getWidget());
-
-        int rw = (int) Math.ceil(scaleFactor * width);
-        int rh = (int) Math.ceil(scaleFactor * height);
-        int[] data = new int[rw * rh];
-
-        boolean isOneSegmentRequested = (option & TEST_SEGMENTED_ONE_SEGMENT_MASK) != 0;
-        boolean isFourSegmentsRequested = (option & TEST_SEGMENTED_FOUR_SEGMENT_MASK) != 0;
-
-        boolean isOneSegment = isOneSegmentRequested && !isFourSegmentsRequested || option == -1;
-
-        float[] debugOutput = new float[20];
-        nativeTestSegmentedButton(data, rw, rh, width, height, segmentStyle, option, size, controlWidth, controlHeight,
-          segmentWidth, isSelectAny, debugOutput);
-
-        Rectangle2D controlBounds = null;
-        Rectangle2D[] segmentBounds = null;
-        if (!isZero(debugOutput, 0, 4)) {
-            controlBounds = extractBounds(debugOutput, 0);
-        }
-        int start = 4;
-        if (!isZero(debugOutput, start, 16)) {
-            int count = isOneSegment ? 1 : 4;
-            segmentBounds = new Rectangle2D[count];
-            int offset = start;
-            for (int i = 0; i < count; i++) {
-                segmentBounds[i] = extractBounds(debugOutput, offset);
-                offset += 4;
-            }
-        }
-        BufferedImage im = BasicImageSupport.createImage(data, rw, rh);
-        return new AnnotatedSegmentedControlImage(im, segmentBounds);
-    }
-
-    private static boolean isZero(@NotNull float[] fs, int start, int count)
-    {
-        for (int i = 0; i < count; i++) {
-            if (fs[start + i] != 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private static @NotNull Rectangle2D extractBounds(@NotNull float[] fs, int start)
     {
         return new Rectangle2D.Float(fs[start], fs[start+1], fs[start+2], fs[start+3]);
@@ -820,47 +662,32 @@ public class AquaNativePainter
 
     @Override
     protected @Nullable RendererDebugInfo getSegmentedButtonRendererDebugInfo(@NotNull SegmentedButtonConfiguration g,
-                                                                              int scaleFactor, int width, int height)
+                                                                              int scale, int buttonWidth, int buttonHeight)
     {
-        int size = toSize(g.getSize());
-        int state = toState(g.getState());
-        int segmentStyle = toSegmentedStyle(g.getWidget());
-        int segmentPosition = toSegmentPosition(g.getPosition());
-        int flags = toSegmentFlags(g);
-
-        float[] debugOutput = new float[8];
-        int[] debugData = new int[40000];
-
-        Rectangle2D bounds = new Rectangle2D.Float(0, 0, width, height);
-        RendererDescription rd = rendererDescriptions.getSegmentedButtonRendererDescription(g);
-        RasterDescription sd = rd.getRasterBounds(bounds, scaleFactor);
-        int rw = (int) Math.ceil(scaleFactor * sd.getWidth());
-        int rh = (int) Math.ceil(scaleFactor * sd.getHeight());
-        float w = sd.getWidth();
-        float h = sd.getHeight();
-        int[] data = new int[rw * rh];
-        nativePaintSegmentedButton(data, rw, rh, w, h, segmentStyle, segmentPosition, size,
-          state, g.isFocused(), flags, debugOutput, debugData);
-
-        int imageWidth = (int) debugOutput[DEBUG_SEGMENT_WIDTH];
-        int imageHeight = (int) debugOutput[DEBUG_SEGMENT_HEIGHT];
-        float xOffset = debugOutput[DEBUG_SEGMENT_X_OFFSET];
-        float yOffset = debugOutput[DEBUG_SEGMENT_Y_OFFSET];
-        float dividerWidth = debugOutput[DEBUG_SEGMENT_DIVIDER_WIDTH];
-        float outerLeftInset = debugOutput[DEBUG_SEGMENT_OUTER_LEFT_INSET];
-        float leftInset = debugOutput[DEBUG_SEGMENT_LEFT_INSET];
-        float rightInset = debugOutput[DEBUG_SEGMENT_RIGHT_INSET];
-
-        String info = "Outer left: " + outerLeftInset
-                        + "; left: " + leftInset
-                        + "; right: " + rightInset
-                        + "; divider: " + dividerWidth;
-
-        Image im = BasicImageSupport.createImage(debugData, imageWidth, imageHeight);
-        Rectangle2D frame = new Rectangle2D.Float(xOffset, yOffset, w, h);
-        return new RendererDebugInfo(im, frame, info);
+        SegmentedControlDescriptions scds = new SegmentedControlDescriptions();
+        RenderInsets s = scds.getInsets(g, scale);
+        if (g.getPosition() == Position.ONLY) {
+            SegmentedControl1LayoutInfo layout = scds.getSegment1LayoutInfo(g, scale);
+            SegmentButtonRenderingConfiguration1 bc
+              = getRenderConfiguration(g.isSelected(), s, layout, scale, buttonWidth, buttonHeight);
+            SegmentedControlConfiguration1 cc = createControlConfiguration(g, bc);
+            int rasterWidth = Math.round(scale * bc.rasterWidth);
+            int rasterHeight = Math.round(scale * bc.rasterHeight);
+            int[] raster = new int[rasterWidth * rasterHeight];
+            return paintSegmentedControl1(raster, rasterWidth, rasterHeight, scale, cc, true);
+        } else {
+            SegmentedControl4LayoutInfo layout = scds.getSegment4LayoutInfo(g, scale);
+            SegmentButtonRenderingConfiguration4 bc
+              = getRenderConfiguration(g, s, layout, scale, buttonWidth, buttonHeight);
+            SegmentedControlConfiguration4 cc = createControlConfiguration(g, bc);
+            int rasterWidth = Math.round(scale * bc.rasterWidth);
+            int rasterHeight = Math.round(scale * bc.rasterHeight);
+            int[] raster = new int[rasterWidth * rasterHeight];
+            return paintSegmentedControl4(raster, rasterWidth, rasterHeight, scale, cc, true);
+        }
     }
 
+    // supports debugging, called using reflection
     public @Nullable float[] getSegmentedButtonLayoutParameters(@NotNull SegmentedButtonLayoutConfiguration g)
     {
         int size = toSize(g.getSize());
@@ -868,54 +695,6 @@ public class AquaNativePainter
         float[] debugOutput = new float[8];
         int result = nativeDetermineSegmentedButtonLayoutParameters(segmentStyle, size, debugOutput);
         return result == 0 ? debugOutput : null;
-    }
-
-    public static final int SEGMENT_POSITION_FIRST = 0;
-    public static final int SEGMENT_POSITION_MIDDLE = 1;
-    public static final int SEGMENT_POSITION_LAST = 2;
-    public static final int SEGMENT_POSITION_ONLY = 3;
-
-    private int toSegmentPosition(@NotNull Position segmentPosition)
-    {
-        switch (segmentPosition) {
-            case FIRST:
-                return SEGMENT_POSITION_FIRST;
-            case MIDDLE:
-                return SEGMENT_POSITION_MIDDLE;
-            case LAST:
-                return SEGMENT_POSITION_LAST;
-            case ONLY:
-                return SEGMENT_POSITION_ONLY;
-        }
-        throw new UnsupportedOperationException();
-    }
-
-    public static final int SEGMENT_FLAG_IS_SELECTED = 1;
-    public static final int SEGMENT_FLAG_IS_LEFT_NEIGHBOR_SELECTED = 2;
-    public static final int SEGMENT_FLAG_IS_RIGHT_NEIGHBOR_SELECTED = 4;
-    public static final int SEGMENT_FLAG_DRAW_LEADING_SEPARATOR = 8;
-    public static final int SEGMENT_FLAG_DRAW_TRAILING_SEPARATOR = 16;
-
-    private int toSegmentFlags(@NotNull SegmentedButtonConfiguration g)
-    {
-        int flags = 0;
-
-        if (g.isSelected()) {
-            flags |= SEGMENT_FLAG_IS_SELECTED;
-        }
-        if (g.getLeftDividerState() == SegmentedButtonConfiguration.DividerState.SELECTED) {
-            flags |= SEGMENT_FLAG_IS_LEFT_NEIGHBOR_SELECTED;
-        }
-        if (g.getRightDividerState() == SegmentedButtonConfiguration.DividerState.SELECTED) {
-            flags |= SEGMENT_FLAG_IS_RIGHT_NEIGHBOR_SELECTED;
-        }
-        if (g.getLeftDividerState() != SegmentedButtonConfiguration.DividerState.NONE) {
-            flags |= SEGMENT_FLAG_DRAW_LEADING_SEPARATOR;
-        }
-        if (g.getRightDividerState() != SegmentedButtonConfiguration.DividerState.NONE) {
-            flags |= SEGMENT_FLAG_DRAW_TRAILING_SEPARATOR;
-        }
-        return flags;
     }
 
     @Override
@@ -1674,9 +1453,9 @@ public class AquaNativePainter
                 sw4 = b.designatedSegmentWidth;
             }
             int leftSelectedIndex = g.getLeftDividerState() == SegmentedButtonConfiguration.DividerState.SELECTED
-                                      && b.selectedSegment > 0 ? b.selectedSegment - 1 : 0;
+              && b.selectedSegment > 0 ? b.selectedSegment - 1 : 0;
             int rightSelectedIndex = g.getRightDividerState() == SegmentedButtonConfiguration.DividerState.SELECTED
-                                       && b.selectedSegment > 0 ? b.selectedSegment + 1 : 0;
+              && b.selectedSegment > 0 ? b.selectedSegment + 1 : 0;
 
             i = b.selectedSegment;
             if (i == 1 || leftSelectedIndex == 1) {
@@ -1931,7 +1710,7 @@ public class AquaNativePainter
     }
 
     /**
-      Paint a segmented control with 4 segments into a raster buffer. Experimental.
+      Paint a segmented control with 4 segments into a raster buffer.
       The goal is to do as much calculation in Java as possible.
 
       @param data The raster buffer where 32-bit RGBA pixels will be written.
@@ -1996,9 +1775,9 @@ public class AquaNativePainter
     private static int toSelectionFlags(boolean s1, boolean s2, boolean s3, boolean s4)
     {
         return (s1 ? SELECT_SEGMENT_1 : 0)
-                 | (s2 ? SELECT_SEGMENT_2 : 0)
-                 | (s3 ? SELECT_SEGMENT_3 : 0)
-                 | (s4 ? SELECT_SEGMENT_4 : 0);
+          | (s2 ? SELECT_SEGMENT_2 : 0)
+          | (s3 ? SELECT_SEGMENT_3 : 0)
+          | (s4 ? SELECT_SEGMENT_4 : 0);
     }
 
     private static native void nativePaintIndeterminateProgressIndicator(int[] data, int rw, int rh, float w, float h, int size, int state, int orientation, boolean isSpinner, int frame);
@@ -2009,7 +1788,6 @@ public class AquaNativePainter
     private static native void nativePaintGroupBox(int[] data, int rw, int rh, float w, float h, int titlePosition, int state, boolean isFrameOnly);
     private static native void nativePaintListBox(int[] data, int rw, int rh, float w, float h, int state, boolean isFocused, boolean isFrameOnly);
     private static native void nativePaintTextField(int[] data, int rw, int rh, float w, float h, int sz, int state, int type);
-    private static native void nativePaintSegmentedButton(int[] data, int rw, int rh, float w, float h, int segmentType, int segmentPosition, int size, int state, boolean isFocused, int flags, float[] debugOutput, int[] debugData);
     private static native void nativePaintComboBox(int[] data, int rw, int rh, float w, float h, int type, int size, int state, int bezelStyle, int layoutDirection);
     private static native void nativePaintPopUpButton(int[] data, int rw, int rh, float w, float h, boolean isUp, int size, int state, int bezelStyle, int layoutDirection);
     private static native void nativePaintTableColumnHeader(int[] data, int rw, int rh, float w, float h, int state, int direction, boolean isSelected, int layoutDirection);
@@ -2025,17 +1803,9 @@ public class AquaNativePainter
     public static native boolean isLayerPaintingEnabled();
     public static native void setLayerPaintingEnabled(boolean b);
 
-    private static native void nativeTestSegmentedButton(int[] data, int rw, int rh, float w, float h,
-                                                         int segmentType, int option, int size,
-                                                         float cw, float ch, float segmentWidth,
-                                                         boolean isSelectAny,
-                                                         float[] debugOutput);
-
     private static native int nativeDetermineSegmentedButtonLayoutParameters(int segmentStyle, int size, float[] data);
     public static native int nativeDetermineSegmentedButtonRenderingVersion();
     public static native int nativeDetermineSliderRenderingVersion();
-
-    // The following is experimental. The goal is to do as much calculation in Java as possible.
 
     /**
       Paint a segmented control with 4 segments into a raster buffer.
