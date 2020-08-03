@@ -16,6 +16,7 @@ import org.jetbrains.annotations.*;
 */
 
 public class SegmentedControl4LayoutInfo
+  extends SegmentedControlLayoutInfo
 {
     public enum DividerPosition { LEFT, RIGHT, CENTER }
 
@@ -79,5 +80,21 @@ public class SegmentedControl4LayoutInfo
     {
         return new SegmentedControl4LayoutInfo(dividerPosition, dividerVisualWidth,
           firstSegmentWidthAdjustment, middleSegmentWidthAdjustment, last);
+    }
+
+    @Override
+    public @NotNull String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(df.format(firstSegmentWidthAdjustment));
+        sb.append(" ");
+        sb.append(df.format(middleSegmentWidthAdjustment));
+        sb.append(" ");
+        sb.append(df.format(lastSegmentWidthAdjustment));
+        sb.append("  ");
+        sb.append(dividerPosition);
+        sb.append("-");
+        sb.append(df.format(dividerVisualWidth));
+        return sb.toString();
     }
 }

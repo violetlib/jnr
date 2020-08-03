@@ -132,11 +132,16 @@ public class BigSurLayoutInfo
     {
         AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
         AquaUIPainter.Size sz = g.getSize();
+        boolean isSolo = g.getPosition() == AquaUIPainter.Position.ONLY;
 
         switch (bw) {
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
+                if (isSolo) {
+                    // Appears to be using the separated style
+                    return BasicLayoutInfo.createFixedHeight(size(sz, 31, 23, 19, 16));
+                }
                 return BasicLayoutInfo.createFixedHeight(size(sz, 30, 22, 18, 15));
 
             case BUTTON_SEGMENTED_SEPARATED:
