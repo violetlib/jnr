@@ -31,6 +31,7 @@ import org.violetlib.vappearances.VAppearance;
 import org.jetbrains.annotations.*;
 
 import static org.violetlib.jnr.aqua.impl.AquaNativePainter.*;
+import static org.violetlib.jnr.aqua.impl.AquaNativeSegmentedControlPainter.*;
 import static org.violetlib.jnr.impl.JNRUtils.*;
 
 /**
@@ -296,13 +297,9 @@ public abstract class AquaUIPainterBase
         throw new UnsupportedOperationException();  // TBD
     }
 
-    public @Nullable RendererDebugInfo getRendererDebugInfo(@NotNull Configuration g, int scaleFactor, int width, int height)
+    public @Nullable RendererDebugInfo getRendererDebugInfo(
+      @NotNull Configuration g, int scaleFactor, int width, int height)
     {
-        if (g instanceof SegmentedButtonConfiguration) {
-            SegmentedButtonConfiguration gg = (SegmentedButtonConfiguration) g;
-            return getSegmentedButtonRendererDebugInfo(gg, scaleFactor, width, height);
-        }
-
         return null;
     }
 
@@ -498,12 +495,6 @@ public abstract class AquaUIPainterBase
             return State.ACTIVE;
         }
         return state;
-    }
-
-    protected @Nullable RendererDebugInfo getSegmentedButtonRendererDebugInfo(@NotNull SegmentedButtonConfiguration g,
-                                                                              int scaleFactor, int width, int height)
-    {
-        return null;
     }
 
     /**

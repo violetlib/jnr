@@ -16,6 +16,7 @@
 
 #include "JNI.h"
 #include "org_violetlib_jnr_aqua_impl_AquaNativePainter.h"
+#include "org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter.h"
 #include "AppearanceSupport.h"
 
 extern Boolean _CFExecutableLinkedOnOrAfter(CFIndex);
@@ -888,11 +889,11 @@ static int setupSegmented()
 }
 
 /*
- * Class:     org_violetlib_jnr_aqua_impl_AquaNativePainter
+ * Class:     org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter
  * Method:    nativePaintSegmentedControl1
  * Signature: ([IIIFFIZIII[F)I
  */
-JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintSegmentedControl1
+JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_nativePaintSegmentedControl1
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat scale,
   jfloat w, jint style, jboolean isSelected, jint context, jint sz, jint st, jfloatArray jDebugOutput)
 {
@@ -912,7 +913,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
     }
 
     BOOL usingTexturedWindow = (currentWindow == fakeTexturedWindow);
-    BOOL isToolbar = (context == org_violetlib_jnr_aqua_impl_AquaNativePainter_CONTEXT_TOOLBAR);
+    BOOL isToolbar = (context == org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_CONTEXT_TOOLBAR);
 
     float cw = rw / scale;
     float ch = rh / scale;
@@ -982,11 +983,11 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 }
 
 /*
- * Class:     org_violetlib_jnr_aqua_impl_AquaNativePainter
+ * Class:     org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter
  * Method:    nativePaintSegmentedControl4
  * Signature: ([IIIFFFFFIIIIII[F)I
  */
-JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintSegmentedControl4
+JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_nativePaintSegmentedControl4
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat scale,
   jfloat sw1, jfloat sw2, jfloat sw3, jfloat sw4,
   jint style, jint tracking, jint selectionFlags, jint context, jint sz, jint st, jfloatArray jDebugOutput)
@@ -1007,7 +1008,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
     }
 
     BOOL usingTexturedWindow = (currentWindow == fakeTexturedWindow);
-    BOOL isToolbar = (context == org_violetlib_jnr_aqua_impl_AquaNativePainter_CONTEXT_TOOLBAR);
+    BOOL isToolbar = (context == org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_CONTEXT_TOOLBAR);
 
     float cw = rw / scale;
     float ch = rh / scale;
@@ -1042,10 +1043,10 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         [view setEnabled: isEnabled forSegment: 1];
         [view setEnabled: isEnabled forSegment: 2];
         [view setEnabled: isEnabled forSegment: 3];
-        [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativePainter_SELECT_SEGMENT_1) != 0 forSegment: 0];
-        [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativePainter_SELECT_SEGMENT_2) != 0 forSegment: 1];
-        [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativePainter_SELECT_SEGMENT_3) != 0 forSegment: 2];
-        [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativePainter_SELECT_SEGMENT_4) != 0 forSegment: 3];
+        [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_1) != 0 forSegment: 0];
+        [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_2) != 0 forSegment: 1];
+        [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_3) != 0 forSegment: 2];
+        [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_4) != 0 forSegment: 3];
 
         [view setFrame: controlFrame];
         installContentView(view, isToolbar);
@@ -1114,11 +1115,11 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 }
 
 /*
- * Class:     org_violetlib_jnr_aqua_impl_AquaNativePainter
+ * Class:     org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter
  * Method:    nativeDetermineSegmentedButtonRenderingVersion
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativeDetermineSegmentedButtonRenderingVersion
+JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_nativeDetermineSegmentedButtonRenderingVersion
     (JNIEnv *env, jclass cl)
 {
     jint result = -1;
@@ -1133,11 +1134,11 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 }
 
 /*
- * Class:     org_violetlib_jnr_aqua_impl_AquaNativePainter
+ * Class:     org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter
  * Method:    nativeDetermineSegmentedButtonFixedHeight
  * Signature: (II)I
  */
-JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativeDetermineSegmentedButtonFixedHeight
+JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_nativeDetermineSegmentedButtonFixedHeight
   (JNIEnv *env, jclass cl, jint segmentStyle, jint sz)
 {
     __block jint result = -1;
@@ -1168,11 +1169,11 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 }
 
 /*
- * Class:     org_violetlib_jnr_aqua_impl_AquaNativePainter
+ * Class:     org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter
  * Method:    nativeDetermineSegmentedButtonLayoutParameters
  * Signature: (II[F)I
  */
-JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativeDetermineSegmentedButtonLayoutParameters
+JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_nativeDetermineSegmentedButtonLayoutParameters
   (JNIEnv *env, jclass cl, jint segmentStyle, jint sz, jfloatArray jData)
 {
     jint originalSegmentStyle = segmentStyle;
