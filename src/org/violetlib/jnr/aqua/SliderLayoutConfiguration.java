@@ -48,7 +48,7 @@ public class SliderLayoutConfiguration
         // Mini circular sliders are not supported
         // Mini linear sliders are not supported before 10.14 (or so)
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
-        if (size == Size.MINI && (sw == SliderWidget.SLIDER_CIRCULAR) || platformVersion < 101400) {
+        if (size == Size.MINI && (sw == SliderWidget.SLIDER_CIRCULAR || platformVersion < 101400)) {
             size = Size.SMALL;
         }
 
