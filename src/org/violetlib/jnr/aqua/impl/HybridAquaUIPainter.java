@@ -161,9 +161,7 @@ public class HybridAquaUIPainter
             if (bg.getSize() == Size.MINI) {
                 return viewPainter;
             }
-            if (!bg.hasTickMarks()) {
-                return coreUIPainter;
-            }
+            return coreUIPainter;
         } else if (g instanceof TitleBarConfiguration) {
             return coreUIPainter;
         } else if (g instanceof ScrollBarConfiguration) {
