@@ -19,6 +19,7 @@ import org.violetlib.jnr.aqua.TextFieldLayoutConfiguration;
 import org.violetlib.jnr.aqua.ToolBarItemWellLayoutConfiguration;
 import org.violetlib.jnr.impl.BasicLayoutInfo;
 import org.violetlib.jnr.impl.Insetters;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 import org.jetbrains.annotations.*;
 
@@ -48,6 +49,8 @@ public class ElCapitanLayoutInfo
 
         AquaUIPainter.Size sz = g.getSize();
 
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+
         if (bw == AquaUIPainter.ButtonWidget.BUTTON_PUSH) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 22, 19, 16));
 
@@ -58,9 +61,15 @@ public class ElCapitanLayoutInfo
             return BasicLayoutInfo.getInstance();
 
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_CHECK_BOX) {
+            if (platformVersion >= 101400) {
+                return BasicLayoutInfo.createFixed(size(sz, 16, 14, 10), size(sz, 17, 15, 11));
+            }
             return BasicLayoutInfo.createFixed(size(sz, 14, 12, 10), size(sz, 14, 12, 10));
 
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_RADIO) {
+            if (platformVersion >= 101400) {
+                return BasicLayoutInfo.createFixed(size(sz, 18, 14, 10), size(sz, 18, 15, 11));
+            }
             return BasicLayoutInfo.createFixed(size(sz, 16, 14, 10), size(sz, 16, 14, 10));
 
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_DISCLOSURE) {

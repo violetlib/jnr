@@ -71,10 +71,10 @@ public class BigSurLayoutInfo
             return BasicLayoutInfo.getInstance();
 
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_CHECK_BOX) {
-            return BasicLayoutInfo.createFixed(size(sz, 16, 14, 12, 10), size(sz, 16, 14, 12, 10));
+            return BasicLayoutInfo.createFixed(size(sz, 20, 18, 14, 10), size(sz, 20, 18, 15, 11));
 
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_RADIO) {
-            return BasicLayoutInfo.createFixed(size(sz, 18, 16, 14, 10), size(sz, 18, 16, 14, 10));
+            return BasicLayoutInfo.createFixed(size(sz, 20, 18, 14, 10), size(sz, 20, 18, 15, 10));
 
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_DISCLOSURE) {
             return BasicLayoutInfo.createFixed(size(sz, 30, 28, 28, 19), size(sz, 30, 26, 26, 16));
@@ -150,20 +150,16 @@ public class BigSurLayoutInfo
             case BUTTON_SEGMENTED_INSET:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 18, 16, 14));
 
+            case BUTTON_SEGMENTED_SMALL_SQUARE:
+                return BasicLayoutInfo.createFixedHeight(size(sz, 21, 19, 17));
+
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
             case BUTTON_SEGMENTED_SCURVE:
             case BUTTON_SEGMENTED_TOOLBAR:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 20, 16, 13));
-
-            // 20 16 13 for textured, textured toolbar, capsule, toolbar seems wrong
-
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 23, 19, 16));
-
-            case BUTTON_SEGMENTED_SMALL_SQUARE:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 21, 19, 17));
+                return BasicLayoutInfo.createFixedHeight(size(sz, 20, 16, 13));
 
             default:
                 throw new UnsupportedOperationException();

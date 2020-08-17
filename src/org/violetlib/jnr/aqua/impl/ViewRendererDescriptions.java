@@ -9,10 +9,12 @@
 package org.violetlib.jnr.aqua.impl;
 
 import org.violetlib.jnr.aqua.AquaUIPainter;
+import org.violetlib.jnr.aqua.ButtonConfiguration;
 import org.violetlib.jnr.aqua.ComboBoxConfiguration;
 import org.violetlib.jnr.aqua.SegmentedButtonConfiguration;
 import org.violetlib.jnr.aqua.SplitPaneDividerConfiguration;
 import org.violetlib.jnr.impl.BasicRendererDescription;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.MultiResolutionRendererDescription;
 import org.violetlib.jnr.impl.RendererDescription;
 
@@ -25,6 +27,45 @@ import org.jetbrains.annotations.*;
 public class ViewRendererDescriptions
   extends RendererDescriptionsBase
 {
+    @Override
+    public @NotNull RendererDescription getButtonRendererDescription(@NotNull ButtonConfiguration g)
+    {
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        if (platformVersion >= 101600) {
+            AquaUIPainter.ButtonWidget bw = g.getButtonWidget();
+            AquaUIPainter.Size sz = g.getSize();
+            if (bw == AquaUIPainter.ButtonWidget.BUTTON_CHECK_BOX) {
+                switch (sz) {
+                    case LARGE:
+                        return new BasicRendererDescription(-1.49f, 0, 0, 0);
+                    case REGULAR:
+                        return new BasicRendererDescription(0, 0, 1, 0);
+                    case SMALL:
+                        return new BasicRendererDescription(0, -0.49f, 0, 0);
+                    case MINI:
+                        return new BasicRendererDescription(0, -1.49f, 0, 1);
+                    default:
+                        throw new UnsupportedOperationException();
+                }
+            } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_RADIO) {
+                switch (sz) {
+                    case LARGE:
+                        return new BasicRendererDescription(-1, 0, 1, 0);
+                    case REGULAR:
+                        return new BasicRendererDescription(0, 0, 0, 0);
+                    case SMALL:
+                        return new BasicRendererDescription(0, 0, 0, 1);
+                    case MINI:
+                        return new BasicRendererDescription(0, 0, 0, 1);
+                    default:
+                        throw new UnsupportedOperationException();
+                }
+            }
+        }
+
+        return super.getButtonRendererDescription(g);
+    }
+
     @Override
     public @NotNull RendererDescription getSegmentedButtonRendererDescription(@NotNull SegmentedButtonConfiguration g)
     {

@@ -60,10 +60,36 @@ public class CoreUIRendererDescriptions
     @Override
     public @NotNull RendererDescription getButtonRendererDescription(@NotNull ButtonConfiguration g)
     {
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
         AquaUIPainter.ButtonWidget bw = toCanonicalButtonStyle(g.getButtonWidget());
         AquaUIPainter.Size sz = g.getSize();
 
-        if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND) {
+        if (bw == AquaUIPainter.ButtonWidget.BUTTON_CHECK_BOX) {
+            switch (sz) {
+                case LARGE:
+                case REGULAR:
+                    return new BasicRendererDescription(0, 0, 0, 0);
+                case SMALL:
+                case MINI:
+                    return new BasicRendererDescription(0, -1, 0, 1);
+                default:
+                    throw new UnsupportedOperationException();
+            }
+
+        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_RADIO) {
+            switch (sz) {
+                case LARGE:
+                case REGULAR:
+                    return new BasicRendererDescription(0, 0, 0, 0);
+                case SMALL:
+                    return new BasicRendererDescription(0, 0, 0, 1);
+                case MINI:
+                    return new BasicRendererDescription(0, -0.49f, 0, 1);
+                default:
+                    throw new UnsupportedOperationException();
+            }
+
+        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND) {
             switch (sz) {
                 case LARGE:
                 case REGULAR:
@@ -77,7 +103,6 @@ public class CoreUIRendererDescriptions
             }
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED
                      || bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
-            int platformVersion = JNRPlatformUtils.getPlatformVersion();
             if (platformVersion >= 101100) {
                 BasicRendererDescription x1 = new BasicRendererDescription(0, -1, 0, 2);
                 BasicRendererDescription x2 = new BasicRendererDescription(-0.5f, -1, 1, 2);
