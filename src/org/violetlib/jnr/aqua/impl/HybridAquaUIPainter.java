@@ -152,10 +152,7 @@ public class HybridAquaUIPainter
                 return coreUIPainter;
             }
         } else if (g instanceof SliderConfiguration) {
-            SliderConfiguration bg = (SliderConfiguration) g;
-            if (!bg.hasTickMarks()) {
-                return coreUIPainter;
-            }
+            return coreUIPainter;
         } else if (g instanceof TitleBarConfiguration) {
             return coreUIPainter;
         } else if (g instanceof ScrollBarConfiguration) {
