@@ -46,7 +46,7 @@ public class JRSPainter
     public JRSPainter()
       throws UnsupportedOperationException
     {
-        super(rendererDescriptions, createLayout(false));
+        super(rendererDescriptions);
 
         try {
             // The following will ensure that the native library support has been initialized (if possible).

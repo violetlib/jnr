@@ -39,9 +39,8 @@ import static org.violetlib.jnr.impl.JNRUtils.*;
 public class YosemiteLayoutInfo
   extends AquaUILayoutInfo
 {
-    public YosemiteLayoutInfo(boolean isViewBased)
+    public YosemiteLayoutInfo()
     {
-        super(isViewBased);
     }
 
     @Override

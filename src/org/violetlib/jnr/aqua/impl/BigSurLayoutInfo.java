@@ -42,9 +42,8 @@ import static org.violetlib.jnr.impl.JNRUtils.*;
 public class BigSurLayoutInfo
   extends ElCapitanLayoutInfo
 {
-    public BigSurLayoutInfo(boolean isViewBased)
+    public BigSurLayoutInfo()
     {
-        super(isViewBased);
     }
 
     @Override

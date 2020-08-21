@@ -192,7 +192,7 @@ public class AquaNativePainter
 
     public AquaNativePainter()
     {
-        super(rendererDescriptions, createLayout(true));
+        super(rendererDescriptions);
 
         segmentedControlPainter = new AquaNativeSegmentedControlPainter();
     }

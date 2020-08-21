@@ -32,9 +32,8 @@ import static org.violetlib.jnr.impl.JNRUtils.*;
 public class ElCapitanLayoutInfo
   extends YosemiteLayoutInfo
 {
-    public ElCapitanLayoutInfo(boolean isViewBased)
+    public ElCapitanLayoutInfo()
     {
-        super(isViewBased);
     }
 
     @Override

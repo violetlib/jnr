@@ -61,15 +61,15 @@ public abstract class AquaUIPainterAbstractBase
     protected final @NotNull AquaUILayoutInfo uiLayout;
     protected final @NotNull UIOutliner uiOutliner;
 
-    protected static @NotNull AquaUILayoutInfo createLayout(boolean isViewBased)
+    protected static @NotNull AquaUILayoutInfo createLayout()
     {
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
         if (platformVersion >= 101600) {
-            return new BigSurLayoutInfo(isViewBased);
+            return new BigSurLayoutInfo();
         } else if (platformVersion >= 101100) {
-            return new ElCapitanLayoutInfo(isViewBased);
+            return new ElCapitanLayoutInfo();
         } else {
-            return new YosemiteLayoutInfo(isViewBased);
+            return new YosemiteLayoutInfo();
         }
     }
 
@@ -81,9 +81,9 @@ public abstract class AquaUIPainterAbstractBase
                  : new YosemiteOutliner((YosemiteLayoutInfo) uiLayout);
     }
 
-    protected AquaUIPainterAbstractBase(@NotNull AquaUILayoutInfo uiLayout)
+    protected AquaUIPainterAbstractBase()
     {
-        this.uiLayout = uiLayout;
+        this.uiLayout = createLayout();
         this.uiOutliner = createOutliner(uiLayout);
     }
 

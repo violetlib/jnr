@@ -68,10 +68,8 @@ public abstract class AquaUIPainterBase
     public static final int SLIDER_10_10 = 0;          // rendering on macOS 10.10+
     public static final int SLIDER_11_0 = 2;           // rendering on macOS 11.0, when linked against SDK 11.0 or later
 
-    protected AquaUIPainterBase(@NotNull RendererDescriptions rds, @NotNull AquaUILayoutInfo uiLayout)
+    protected AquaUIPainterBase(@NotNull RendererDescriptions rds)
     {
-        super(uiLayout);
-
         this.rendererDescriptions = rds;
     }
 

@@ -30,11 +30,8 @@ import static org.violetlib.jnr.aqua.AquaUIPainter.*;
 
 public abstract class AquaUILayoutInfo
 {
-    protected final boolean isViewBased;
-
-    public AquaUILayoutInfo(boolean isViewBased)
+    public AquaUILayoutInfo()
     {
-        this.isViewBased = isViewBased;
     }
 
     /**
@@ -430,9 +427,9 @@ public abstract class AquaUILayoutInfo
                                                                    double thumbPosition);
 
     /**
-       Return the insets to use when painting tick marks on a linear slider.
-       @param g The slider layout configuration.
-     */
+      Return the insets to use when painting tick marks on a linear slider.
+      @param g The slider layout configuration.
+    */
 
     public abstract @NotNull Insetter getSliderTickMarkPaintingInsets(@NotNull SliderLayoutConfiguration g);
 

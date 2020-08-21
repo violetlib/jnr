@@ -14,7 +14,6 @@ import java.awt.Shape;
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.NullPainter;
 import org.violetlib.jnr.Painter;
-import org.violetlib.jnr.aqua.AquaUILayoutInfo;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.Configuration;
 import org.violetlib.jnr.aqua.LayoutConfiguration;
@@ -30,9 +29,8 @@ public abstract class AquaEvaluatingPainter
   extends AquaUIPainterAbstractBase
   implements AquaUIPainter
 {
-    public AquaEvaluatingPainter(@NotNull AquaUILayoutInfo uiLayout)
+    public AquaEvaluatingPainter()
     {
-        super(uiLayout);
     }
 
     @Override

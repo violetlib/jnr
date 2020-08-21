@@ -104,7 +104,7 @@ public class CoreUIPainter
 
     public CoreUIPainter(boolean useJRS, @Nullable Boolean forceLayers)
     {
-        super(rendererDescriptions, createLayout(false));
+        super(rendererDescriptions);
 
         this.useJRS = useJRS;
         this.forceLayers = forceLayers;

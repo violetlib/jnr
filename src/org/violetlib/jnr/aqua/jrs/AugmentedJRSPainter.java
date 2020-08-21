@@ -28,6 +28,10 @@ import org.jetbrains.annotations.*;
 public class AugmentedJRSPainter
   extends JRSPainter
 {
+    public AugmentedJRSPainter()
+    {
+    }
+
     @Override
     public @NotNull AugmentedJRSPainter copy()
     {

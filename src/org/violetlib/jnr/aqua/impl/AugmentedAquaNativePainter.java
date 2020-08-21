@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -25,6 +25,10 @@ import org.jetbrains.annotations.*;
 public class AugmentedAquaNativePainter
   extends AquaNativePainter
 {
+    public AugmentedAquaNativePainter()
+    {
+    }
+
     @Override
     public @NotNull AugmentedAquaNativePainter copy()
     {
