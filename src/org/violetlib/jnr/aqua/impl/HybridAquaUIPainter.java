@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -101,6 +101,11 @@ public class HybridAquaUIPainter
                 return coreUIPainter;
             }
         } else if (g instanceof SegmentedButtonConfiguration) {
+            SegmentedButtonConfiguration sg = (SegmentedButtonConfiguration) g;
+            // The NSView painter produces more accurate backgrounds for gradient buttons
+            if (sg.getWidget() == SegmentedButtonWidget.BUTTON_SEGMENTED_SMALL_SQUARE) {
+                return viewPainter;
+            }
             return coreUIPainter;
         } else if (g instanceof GradientConfiguration) {
             return coreUIPainter;
@@ -153,9 +158,10 @@ public class HybridAquaUIPainter
             }
         } else if (g instanceof SliderConfiguration) {
             SliderConfiguration bg = (SliderConfiguration) g;
-            if (!bg.hasTickMarks()) {
-                return coreUIPainter;
+            if (bg.getSize() == Size.MINI) {
+                return viewPainter;
             }
+            return coreUIPainter;
         } else if (g instanceof TitleBarConfiguration) {
             return coreUIPainter;
         } else if (g instanceof ScrollBarConfiguration) {

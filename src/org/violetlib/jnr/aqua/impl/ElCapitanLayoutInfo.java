@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Alan Snyder.
+ * Copyright (c) 2016-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -19,6 +19,7 @@ import org.violetlib.jnr.aqua.TextFieldLayoutConfiguration;
 import org.violetlib.jnr.aqua.ToolBarItemWellLayoutConfiguration;
 import org.violetlib.jnr.impl.BasicLayoutInfo;
 import org.violetlib.jnr.impl.Insetters;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 import org.jetbrains.annotations.*;
 
@@ -31,6 +32,10 @@ import static org.violetlib.jnr.impl.JNRUtils.*;
 public class ElCapitanLayoutInfo
   extends YosemiteLayoutInfo
 {
+    public ElCapitanLayoutInfo()
+    {
+    }
+
     @Override
     protected @NotNull LayoutInfo getButtonLayoutInfo(@NotNull ButtonLayoutConfiguration g)
     {
@@ -43,6 +48,8 @@ public class ElCapitanLayoutInfo
 
         AquaUIPainter.Size sz = g.getSize();
 
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+
         if (bw == AquaUIPainter.ButtonWidget.BUTTON_PUSH) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 22, 19, 16));
 
@@ -53,9 +60,15 @@ public class ElCapitanLayoutInfo
             return BasicLayoutInfo.getInstance();
 
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_CHECK_BOX) {
+            if (platformVersion >= 101400) {
+                return BasicLayoutInfo.createFixed(size(sz, 16, 14, 10), size(sz, 17, 15, 11));
+            }
             return BasicLayoutInfo.createFixed(size(sz, 14, 12, 10), size(sz, 14, 12, 10));
 
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_RADIO) {
+            if (platformVersion >= 101400) {
+                return BasicLayoutInfo.createFixed(size(sz, 18, 14, 10), size(sz, 18, 15, 11));
+            }
             return BasicLayoutInfo.createFixed(size(sz, 16, 14, 10), size(sz, 16, 14, 10));
 
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_DISCLOSURE) {
@@ -226,12 +239,14 @@ public class ElCapitanLayoutInfo
     @Override
     protected @NotNull LayoutInfo getSegmentedButtonLayoutInfo(@NotNull SegmentedButtonLayoutConfiguration g)
     {
+        int version = AquaUIPainterBase.internalGetSegmentedButtonRenderingVersion();
         AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
         AquaUIPainter.Size sz = g.getSize();
 
         switch (bw) {
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
+            case BUTTON_SEGMENTED_SLIDER:
             case BUTTON_SEGMENTED_SEPARATED:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 22, 19, 16));
 
@@ -242,10 +257,16 @@ public class ElCapitanLayoutInfo
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+                if (version == AquaUIPainterBase.SEGMENTED_10_14) {
+                    return BasicLayoutInfo.createFixedHeight(size(sz, 23, 19, 16));
+                }
                 return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));  // changed in El Capitan
 
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+                if (version == AquaUIPainterBase.SEGMENTED_10_14) {
+                    return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));
+                }
                 return BasicLayoutInfo.createFixedHeight(size(sz, 24, 20, 17));  // introduced in El Capitan
 
             case BUTTON_SEGMENTED_SMALL_SQUARE:
@@ -275,6 +296,7 @@ public class ElCapitanLayoutInfo
         switch (bw) {
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
+            case BUTTON_SEGMENTED_SLIDER:
                 break;
             case BUTTON_SEGMENTED_SEPARATED:
                 endAdjust = 0;

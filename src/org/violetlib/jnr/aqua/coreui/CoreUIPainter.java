@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -19,6 +19,7 @@ import org.violetlib.jnr.aqua.impl.AquaUIPainterBase;
 import org.violetlib.jnr.aqua.impl.LinearSliderRenderer;
 import org.violetlib.jnr.aqua.impl.NativeSupport;
 import org.violetlib.jnr.aqua.impl.PopupRenderer;
+import org.violetlib.jnr.aqua.impl.SliderTickConfiguration;
 import org.violetlib.jnr.aqua.impl.TitleBarRendererBase;
 import org.violetlib.jnr.impl.BasicRenderer;
 import org.violetlib.jnr.impl.BasicRendererDescription;
@@ -27,9 +28,11 @@ import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.Renderer;
 import org.violetlib.jnr.impl.RendererDescription;
 import org.violetlib.jnr.impl.ReusableCompositor;
+import org.violetlib.jnr.impl.SliderTickMarkRendererFactory;
 
 import org.jetbrains.annotations.*;
 
+import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.*;
 import static org.violetlib.jnr.aqua.coreui.CoreUIKeys.*;
 
 /**
@@ -71,6 +74,14 @@ public class CoreUIPainter
     protected boolean useJRS;  // if true, use the Java Runtime Support framework to access Core UI rendering
 
     /**
+      If true, use layers except where known problems must be avoided.
+      If false, do not use layers.
+      If null, use the default behavior specified on a case-by-case basis.
+    */
+
+    protected @Nullable Boolean forceLayers;
+
+    /**
       Create a painter that uses Core UI rendering by way of the Java Runtime Support framework.
     */
 
@@ -88,9 +99,15 @@ public class CoreUIPainter
 
     public CoreUIPainter(boolean useJRS)
     {
+        this(useJRS, null);
+    }
+
+    public CoreUIPainter(boolean useJRS, @Nullable Boolean forceLayers)
+    {
         super(rendererDescriptions);
 
         this.useJRS = useJRS;
+        this.forceLayers = forceLayers;
     }
 
     @Override
@@ -116,6 +133,7 @@ public class CoreUIPainter
         RendererDescription rd = rendererDescriptions.getButtonRendererDescription(g);
         State st = g.getState();
         ButtonState bs = g.getButtonState();
+        Size sz = g.getSize();
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
 
         boolean hasRolloverEffect = false;
@@ -173,7 +191,7 @@ public class CoreUIPainter
             case BUTTON_ROUND_TEXTURED:
                 widget = CoreUIWidgets.BUTTON_ROUND_TEXTURED; break;
             case BUTTON_ROUND_TOOLBAR:
-                widget = platformVersion >= 101100 ? CoreUIWidgets.BUTTON_ROUND_TOOLBAR : CoreUIWidgets.BUTTON_ROUND; break;
+                widget = platformVersion >= 101100 && sz != Size.LARGE ? CoreUIWidgets.BUTTON_ROUND_TOOLBAR : CoreUIWidgets.BUTTON_ROUND; break;
             case BUTTON_INLINE:
                 widget = CoreUIWidgets.BUTTON_PUSH_SLIDESHOW; break;  // not correct, inline buttons are not supported by Core UI
             case BUTTON_TEXTURED:
@@ -231,16 +249,7 @@ public class CoreUIPainter
             buttonState = null;
         }
 
-        // Stateless buttons other than textured buttons display the same when inactive as they would when active
-        if (bs == ButtonState.STATELESS && !bw.isTextured()) {
-            if (st == State.INACTIVE) {
-                st = State.ACTIVE;
-            } else if (st == State.DISABLED_INACTIVE) {
-                st = State.DISABLED;
-            }
-        }
-
-        Object size = toSize(g.getSize());
+        Object size = toSize(sz);
 
         if (bw == ButtonWidget.BUTTON_COLOR_WELL) {
             size = null;
@@ -396,8 +405,11 @@ public class CoreUIPainter
         RendererDescription rd = rendererDescriptions.getToolBarItemWellRendererDescription(g);
         String widget = CoreUIWidgets.TOOL_BAR_ITEM_WELL;
         State st = g.getState();
+        int version = JNRPlatformUtils.getPlatformVersion();
+        boolean useLayer = version >= 101600;  // workaround?
 
-        BasicRenderer r =  getRenderer(
+        BasicRenderer r =  getRendererOptionallyLayered(
+          useLayer,
           WIDGET_KEY, widget,
           STATE_KEY, toState(st),
           PRESENTATION_STATE_KEY, toPresentationState(st),
@@ -1021,32 +1033,50 @@ public class CoreUIPainter
     @Override
     protected @NotNull Renderer getSliderRenderer(@NotNull SliderConfiguration g)
     {
+        SliderWidget sw = g.getWidget();
+        if (sw == SliderWidget.SLIDER_CIRCULAR) {
+            return getCircularSliderRenderer(g);
+        } else {
+            return getLinearSliderRenderer(g);
+        }
+    }
+
+    protected @NotNull Renderer getCircularSliderRenderer(@NotNull SliderConfiguration g)
+    {
         RendererDescription rd = rendererDescriptions.getSliderRendererDescription(g);
 
-        SliderWidget sw = g.getWidget();
-        // Mini sliders are not supported (must be consistent with layout code)
-        Size sz = g.getSize() == Size.MINI ? Size.SMALL : g.getSize();
+        Size sz = g.getSize();
 
         // Tinting option is not working
 
-        if (sw == SliderWidget.SLIDER_CIRCULAR) {
+        int degrees = (int) Math.round(g.getValue() * 360);
 
-            int degrees = (int) Math.round(g.getValue() * 360);
+        State st = g.getState();
+        if (st == State.PRESSED || st == State.ROLLOVER) {
+            st = State.ACTIVE;
+        }
 
-            State st = g.getState();
-            if (st == State.PRESSED || st == State.ROLLOVER) {
-                st = State.ACTIVE;
-            }
+        BasicRenderer r =  getRenderer(
+          WIDGET_KEY, CoreUIWidgets.DIAL,
+          SIZE_KEY, toSize(sz),
+          STATE_KEY, toState(st),
+          IS_FOCUSED_KEY, false,
+          NO_INDICATOR_KEY, true,  // because the wrong kind of dimple would be painted
+          VALUE_KEY, degrees
+        );
+        return Renderer.create(r, rd);
+    }
 
-            BasicRenderer r =  getRenderer(
-              WIDGET_KEY, CoreUIWidgets.DIAL,
-              SIZE_KEY, toSize(sz),
-              STATE_KEY, toState(st),
-              IS_FOCUSED_KEY, false,
-              NO_INDICATOR_KEY, true,  // because the wrong kind of dimple would be painted
-              VALUE_KEY, degrees
-            );
-            return Renderer.create(r, rd);
+    protected @NotNull Renderer getLinearSliderRenderer(@NotNull SliderConfiguration g)
+    {
+        int style = getSliderRenderingVersion();
+
+        // CoreUI is unable to render an upside-down slider, so we render it as a normal vertical slider, then flip
+        // the rendering.
+
+        SliderConfiguration flippedConfiguration = getFlippedConfiguration(g);
+        if (flippedConfiguration != null) {
+            g = flippedConfiguration;
         }
 
         Renderer trackRenderer = getSliderTrackRenderer(g);
@@ -1054,13 +1084,101 @@ public class CoreUIPainter
         Renderer thumbRenderer = getSliderThumbRenderer(g);
         Insetter trackInsets = uiLayout.getSliderTrackPaintingInsets(g);
         Insetter thumbInsets = uiLayout.getSliderThumbPaintingInsets(g, g.getValue());
+        Insetter tickMarkInsets = uiLayout.getSliderTickMarkPaintingInsets(g);
         boolean isThumbTranslucent = appearance != null && appearance.isDark();
-        return new LinearSliderRenderer(g, trackRenderer, trackInsets, tickMarkRenderer, thumbRenderer, thumbInsets, isThumbTranslucent);
+
+        // The interpretation of thumb painting insets changed for the new linear slider style.
+        // The use of a tick mark renderer was introduced for the new linear slider style.
+
+        if (style == SLIDER_11_0) {
+            thumbInsets = trackInsets.prepend(thumbInsets);
+        }
+
+        Renderer r = new LinearSliderRenderer(g, trackRenderer, trackInsets, tickMarkRenderer, tickMarkInsets,
+          thumbRenderer, thumbInsets, isThumbTranslucent);
+        if (flippedConfiguration != null) {
+            r = new FlipVerticalRenderer(r);
+        }
+        return r;
+    }
+
+    private @NotNull Insetter getThumbInsets(@NotNull SliderConfiguration g)
+    {
+
+        if (g.getWidget() == SliderWidget.SLIDER_UPSIDE_DOWN) {
+            g = new SliderConfiguration(SliderWidget.SLIDER_VERTICAL, g.getSize(), g.getState(), g.isFocused(),
+              g.getValue(), g.getNumberOfTickMarks(), g.getTickMarkPosition());
+        }
+        return uiLayout.getSliderThumbPaintingInsets(g, g.getValue());
+    }
+
+    private @Nullable SliderConfiguration getFlippedConfiguration(@NotNull SliderConfiguration g)
+    {
+        if (g.getWidget() == SliderWidget.SLIDER_UPSIDE_DOWN) {
+            return new SliderConfiguration(SliderWidget.SLIDER_VERTICAL, g.getSize(), g.getState(), g.isFocused(),
+              g.getValue(), g.getNumberOfTickMarks(), g.getTickMarkPosition());
+        }
+        return null;
     }
 
     protected @Nullable Renderer getSliderTickMarkRenderer(@NotNull SliderConfiguration g)
     {
+        if (g.isLinear() && g.hasTickMarks()) {
+            int style = getSliderRenderingVersion();
+            if (style == SLIDER_11_0) {
+                return getLinearSlider11TickMarkRenderer(g);
+            }
+        }
         return null;
+    }
+
+    protected @NotNull Renderer getLinearSlider11TickMarkRenderer(@NotNull SliderConfiguration g)
+    {
+        SliderTickMarkRendererFactory f = getLinearSlider11IndividualTickMarkRendererFactory();
+        return new LinearSliderTickMarkRenderer(g, f);
+    }
+
+    @Override
+    protected @NotNull Renderer getSliderTickRenderer(@NotNull SliderTickConfiguration g)
+    {
+        SliderConfiguration sg = g.getSliderConfiguration();
+        if (sg.isLinear() && sg.hasTickMarks()) {
+            int style = getSliderRenderingVersion();
+            if (style == SLIDER_11_0) {
+                SliderTickMarkRendererFactory f = getLinearSlider11IndividualTickMarkRendererFactory();
+                return f.getSliderTickMarkRenderer(sg, g.isTinted());
+            }
+        }
+        return NULL_RENDERER;
+    }
+
+    protected @NotNull SliderTickMarkRendererFactory getLinearSlider11IndividualTickMarkRendererFactory()
+    {
+        return (g, isTinted) -> {
+
+            Size sz = g.getSize();
+            State st = g.getState();
+            if (st == State.ROLLOVER) {
+                st = State.ACTIVE;
+            }
+
+            String orientation = g.isVertical() ? CoreUIOrientations.VERTICAL : CoreUIOrientations.HORIZONTAL;
+            Object uiDirection = CoreUIUserInterfaceDirections.LEFT_TO_RIGHT;
+
+            BasicRenderer r = getRenderer(
+              WIDGET_KEY, CoreUIWidgets.SLIDER_TICK_MARK_11,
+              //MASK_ONLY_KEY, true,
+              SIZE_KEY, toSize(sz),
+              STATE_KEY, toState(st),
+              PRESENTATION_STATE_KEY, toPresentationState(st),
+              ORIENTATION_KEY, orientation,
+              USER_INTERFACE_LAYOUT_DIRECTION_KEY, uiDirection,
+              VALUE_KEY, isTinted ? 1 : 0
+            );
+
+            RendererDescription rd = rendererDescriptions.getSliderTickMarkRendererDescription(g);
+            return Renderer.create(r, rd);
+        };
     }
 
     protected @NotNull Renderer getSliderTrackRenderer(@NotNull SliderConfiguration g)
@@ -1070,17 +1188,16 @@ public class CoreUIPainter
             return NULL_RENDERER;
         }
 
-        // Mini sliders are not supported (must be consistent with layout code)
-        final Size sz = g.getSize() == Size.MINI ? Size.SMALL : g.getSize();
-
-        // Tinting option is not working
-
+        int style = getSliderRenderingVersion();
+        Size sz = g.getSize();
         Object uiDirection = CoreUIUserInterfaceDirections.LEFT_TO_RIGHT;
+        double value = g.getValue();
 
         if (sw == SliderWidget.SLIDER_HORIZONTAL_RIGHT_TO_LEFT) {
             sw = SliderWidget.SLIDER_HORIZONTAL;
             uiDirection = CoreUIUserInterfaceDirections.RIGHT_TO_LEFT;
         } else if (sw == SliderWidget.SLIDER_UPSIDE_DOWN) {
+            // Slider will be rendered as a normal vertical slider, then the rendering will be flipped.
             sw = SliderWidget.SLIDER_VERTICAL;
         }
 
@@ -1088,12 +1205,13 @@ public class CoreUIPainter
         if (st == State.ROLLOVER) {
             st = State.ACTIVE;
         }
-        boolean isTinted = st != State.DISABLED && st != State.DISABLED_INACTIVE && !g.hasTickMarks();
+        boolean isTinted = st != State.DISABLED && st != State.DISABLED_INACTIVE
+                             && (!g.hasTickMarks() || style == SLIDER_11_0);
         String orientation = sw == SliderWidget.SLIDER_VERTICAL ? CoreUIOrientations.VERTICAL : CoreUIOrientations.HORIZONTAL;
-        Object direction = g.hasTickMarks() ? toDirection(g.getTickMarkPosition()) : CoreUIDirections.NONE;
+        Object direction = g.hasTickMarks() && style == SLIDER_10_10 ? toDirection(g.getTickMarkPosition()) : CoreUIDirections.NONE;
 
         BasicRenderer r = getRenderer(
-          WIDGET_KEY, CoreUIWidgets.SLIDER,
+          WIDGET_KEY, style == SLIDER_11_0 ? CoreUIWidgets.SLIDER_11 : CoreUIWidgets.SLIDER,
           NO_INDICATOR_KEY, true,
           SIZE_KEY, toSize(sz),
           STATE_KEY, toState(st),
@@ -1101,46 +1219,10 @@ public class CoreUIPainter
           DIRECTION_KEY, direction,
           USER_INTERFACE_LAYOUT_DIRECTION_KEY, uiDirection,
           SLIDER_DRAW_TRACK_TINTED_KEY, isTinted,
-          VALUE_KEY, g.getValue()
+          VALUE_KEY, value
         );
-
-        if (g.getWidget() == SliderWidget.SLIDER_UPSIDE_DOWN && isTinted) {
-            // Core UI cannot tint an upside down vertical slider
-            r = new FlipVerticalRenderer(r);
-        }
 
         RendererDescription rd = rendererDescriptions.getSliderTrackRendererDescription(g);
-        return Renderer.create(r, rd);
-    }
-
-    protected @NotNull Renderer getSliderThumbRenderer(@NotNull SliderConfiguration g, boolean isMask)
-    {
-        SliderWidget sw = g.getWidget();
-        if (sw == SliderWidget.SLIDER_CIRCULAR) {
-            return NULL_RENDERER;
-        }
-
-        // Mini sliders are not supported (must be consistent with layout code)
-        final Size sz = g.getSize() == Size.MINI ? Size.SMALL : g.getSize();
-
-        State st = g.getState();
-        if (st == State.ROLLOVER) {
-            st = State.ACTIVE;
-        }
-
-        String orientation = sw == SliderWidget.SLIDER_VERTICAL ? CoreUIOrientations.VERTICAL : CoreUIOrientations.HORIZONTAL;
-        Object direction = g.hasTickMarks() ? toDirection(g.getTickMarkPosition()) : CoreUIDirections.NONE;
-        BasicRenderer r = getRenderer(
-          WIDGET_KEY, CoreUIWidgets.SLIDER_THUMB,
-          SIZE_KEY, toSize(sz),
-          STATE_KEY, toState(st),
-          ORIENTATION_KEY, orientation,
-          DIRECTION_KEY, direction,
-          IS_FOCUSED_KEY, getFocused(g, g.isFocused()),
-          VALUE_KEY, g.getValue(),
-          MASK_ONLY_KEY, isMask
-        );
-        RendererDescription rd = rendererDescriptions.getSliderThumbRendererDescription(g);
         return Renderer.create(r, rd);
     }
 
@@ -1153,6 +1235,36 @@ public class CoreUIPainter
     protected @NotNull Renderer getSliderThumbMaskRenderer(@NotNull SliderConfiguration g)
     {
         return getSliderThumbRenderer(g, true);
+    }
+
+    protected @NotNull Renderer getSliderThumbRenderer(@NotNull SliderConfiguration g, boolean isMask)
+    {
+        SliderWidget sw = g.getWidget();
+        if (sw == SliderWidget.SLIDER_CIRCULAR) {
+            return NULL_RENDERER;
+        }
+
+        int style = getSliderRenderingVersion();
+        Size sz = g.getSize();
+        State st = g.getState();
+        if (st == State.ROLLOVER) {
+            st = State.ACTIVE;
+        }
+        String orientation = sw == SliderWidget.SLIDER_VERTICAL ? CoreUIOrientations.VERTICAL : CoreUIOrientations.HORIZONTAL;
+        Object direction = g.hasTickMarks() ? toDirection(g.getTickMarkPosition()) : CoreUIDirections.NONE;
+        BasicRenderer r = getRenderer(
+          WIDGET_KEY, style == SLIDER_11_0 ? CoreUIWidgets.SLIDER_THUMB_11 : CoreUIWidgets.SLIDER_THUMB,
+          SIZE_KEY, toSize(sz),
+          STATE_KEY, toState(st),
+          ORIENTATION_KEY, orientation,
+          DIRECTION_KEY, direction,
+          IS_FOCUSED_KEY, getFocused(g, g.isFocused()),
+          VALUE_KEY, g.getValue(),
+          MASK_ONLY_KEY, isMask,
+          INDICATOR_ONLY_KEY, true
+        );
+        RendererDescription rd = rendererDescriptions.getSliderThumbRendererDescription(g);
+        return Renderer.create(r, rd);
     }
 
     @Override
@@ -1228,6 +1340,8 @@ public class CoreUIPainter
         boolean isSelected = g.isSelected();
         boolean isLeftNeighborSelected = g.getLeftDividerState() == SegmentedButtonConfiguration.DividerState.SELECTED;
         boolean isRightNeighborSelected = g.getRightDividerState() == SegmentedButtonConfiguration.DividerState.SELECTED;
+        boolean wantLeadingSeparator = g.getLeftDividerState() != SegmentedButtonConfiguration.DividerState.NONE;
+        boolean wantTrailingSeparator =  g.getRightDividerState() != SegmentedButtonConfiguration.DividerState.NONE;
 
         Object leftType = CoreUISegmentSeparatorTypes.NONE_SELECTED;
         if (isSelected) {
@@ -1249,15 +1363,47 @@ public class CoreUIPainter
 
         SegmentedButtonWidget bw = g.getWidget();
         State st = g.getState();
-        String widget = CoreUIWidgets.BUTTON_SEGMENTED;
-        Object state = toState(st);
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        boolean useLayer = false;
 
+        // On 10.14, textured segmented button backgrounds do not change when inactive, but CoreUI will paint them
+        // differently. The configurations cannot be canonicalized because the text colors differ.
+
+        if (bw.isTextured() && !bw.isToolbar() && st.isInactive() && (platformVersion >= 101400 && platformVersion < 101500)) {
+            st = st.toActive();
+        }
+
+        // Selected buttons in a textured select-any control use the background of the corresponding unselected button.
+        if (g.isTextured() && isSelected && g.getTracking() == SwitchTracking.SELECT_ANY) {
+            isSelected = false;
+        }
+
+        // On 10.14 dark mode, the background colors for an inactive unselected textured separated button on the toolbar
+        // are incorrect when painted using CoreUI draw, but are correct using CoreUI layers.
+
+        if (appearance != null && appearance.isDark() && st.isInactive() && !isSelected
+              && bw == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR) {
+            useLayer = true;
+        }
+
+        Object state = toState(st);
+
+        String widget = CoreUIWidgets.BUTTON_SEGMENTED;
         switch (bw) {
             case BUTTON_TAB:
-                widget = CoreUIWidgets.BUTTON_TAB; break;
+                widget = CoreUIWidgets.BUTTON_TAB;
+                if (platformVersion >= 101600) {
+                    // The selected tab does not have adjacent dividers.
+                    // Avoid leaving space for one.
+                    if (g.isSelected()) {
+                        wantTrailingSeparator = false;
+                    }
+                }
+                break;
             case BUTTON_SEGMENTED:
                 widget = CoreUIWidgets.BUTTON_SEGMENTED; break;
+            case BUTTON_SEGMENTED_SLIDER:
+                widget = CoreUIWidgets.BUTTON_SEGMENTED_SLIDER; break;
             case BUTTON_SEGMENTED_INSET:
                 widget = CoreUIWidgets.BUTTON_SEGMENTED_INSET; break;
             case BUTTON_SEGMENTED_SCURVE:
@@ -1284,17 +1430,18 @@ public class CoreUIPainter
                            : CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR; break;
         }
 
-        return getRenderer(
+        return getRendererOptionallyLayered(
+          useLayer,
           WIDGET_KEY, widget,
           SIZE_KEY, toSize(g.getSize()),
           STATE_KEY, state,
-          PRESENTATION_STATE_KEY, toPresentationState(g.getState()),
+          PRESENTATION_STATE_KEY, toPresentationState(st),
           IS_FOCUSED_KEY, getFocused(g, g.isFocused()),
           USER_INTERFACE_LAYOUT_DIRECTION_KEY, CoreUIUserInterfaceDirections.LEFT_TO_RIGHT,
           DIRECTION_KEY, toDirection(g.getDirection()),
           POSITION_KEY, toSegmentPosition(g.getPosition()),
-          SEGMENT_LEADING_SEPARATOR_KEY, g.getLeftDividerState() != SegmentedButtonConfiguration.DividerState.NONE,
-          SEGMENT_TRAILING_SEPARATOR_KEY, g.getRightDividerState() != SegmentedButtonConfiguration.DividerState.NONE,
+          SEGMENT_LEADING_SEPARATOR_KEY, wantLeadingSeparator,
+          SEGMENT_TRAILING_SEPARATOR_KEY, wantTrailingSeparator,
           SEGMENT_LEADING_SEPARATOR_TYPE_KEY, leftType,
           SEGMENT_TRAILING_SEPARATOR_TYPE_KEY, rightType,
           VALUE_KEY, isSelected ? 1 : 0,
@@ -1642,6 +1789,11 @@ public class CoreUIPainter
 
     protected @NotNull BasicRenderer getRenderer(Object... args)
     {
+        return getRendererOptionallyLayered(false, args);
+    }
+
+    protected @NotNull BasicRenderer getRendererOptionallyLayered(boolean useLayer, Object... args)
+    {
         if ((args.length % 2) != 0) {
             throw new IllegalArgumentException("getRenderer requires an even number of parameters");
         }
@@ -1651,12 +1803,7 @@ public class CoreUIPainter
             float yscale = ((float) rh) / h;
 
             if (debugFlag) {
-                String msg = "Rendering";
-                for (Object o : args) {
-                    msg += " " + o;
-                }
-                System.err.println(msg);
-                System.err.flush();
+                showRenderingArguments(args);
             }
 
             if (appearance != null) {
@@ -1666,9 +1813,44 @@ public class CoreUIPainter
             if (useJRS) {
                 nativeJRSPaint(data, rw, rh, xscale, yscale, args);
             } else {
-                nativePaint(data, rw, rh, xscale, yscale, args, null);
+                // Layer painting is experimental and in many cases does not work.
+
+                boolean shouldUseLayer = useLayer;
+
+                if (Boolean.TRUE.equals(forceLayers)) {
+                    shouldUseLayer = true;
+                } else if (Boolean.FALSE.equals(forceLayers)) {
+                    shouldUseLayer = false;
+                }
+
+                if (shouldUseLayer && args.length >= 2) {
+                    if (args[1].equals("kCUIWidgetWindowFrame")) {
+                        // this widget provokes an exception on 10.14 at least
+                        shouldUseLayer = false;
+                    }
+                }
+
+                try {
+                    nativePaint(data, rw, rh, xscale, yscale, args, shouldUseLayer);
+                } catch (RuntimeException ex) {
+                    System.err.println("Exception during native painting");
+                    if (!debugFlag) {
+                        showRenderingArguments(args);
+                    }
+                    ex.printStackTrace();
+                }
             }
         };
+    }
+
+    private static void showRenderingArguments(@NotNull Object[] args)
+    {
+        String msg = "Rendering";
+        for (Object o : args) {
+            msg += " " + o;
+        }
+        System.err.println(msg);
+        System.err.flush();
     }
 
     @Override
@@ -1677,6 +1859,6 @@ public class CoreUIPainter
         return useJRS ? "Core UI via JRS" : "Core UI";
     }
 
-    private static native void nativePaint(int[] data, int w, int h, float xscale, float yscale, Object[] args, @Nullable long[] layerHolder);
+    private static native void nativePaint(int[] data, int w, int h, float xscale, float yscale, Object[] args, boolean useLayer);
     private static native void nativeJRSPaint(int[] data, int w, int h, float xscale, float yscale, Object[] args);
 }

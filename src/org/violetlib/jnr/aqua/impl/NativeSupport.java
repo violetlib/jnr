@@ -72,7 +72,7 @@ public class NativeSupport
             int version = getJavaRuntimeSupportMajorVersion();
             if ((version > 0 && version < 15) || "15.0.0".equals(jrsv)) {
                 log("Found obsolete version of Java Runtime Support framework");
-                log("To upgrade, install Java for OS X 2015-001 from https://support.apple.com/kb/DL1572");
+                log("To upgrade, install Java for OS X 2017-001 from https://support.apple.com/kb/DL1572");
             }
 
             isAvailable = true;

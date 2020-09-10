@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -17,6 +17,7 @@ import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.aqua.impl.AquaUIPainterBase;
 import org.violetlib.jnr.aqua.impl.LinearSliderRenderer;
 import org.violetlib.jnr.aqua.impl.PopupRenderer;
+import org.violetlib.jnr.aqua.impl.SliderTickConfiguration;
 import org.violetlib.jnr.aqua.impl.TitleBarRendererBase;
 import org.violetlib.jnr.impl.BasicRenderer;
 import org.violetlib.jnr.impl.BasicRendererDescription;
@@ -278,15 +279,6 @@ public class JRSPainter
                 st = State.PRESSED;
             }
             bs = ButtonState.STATELESS;
-        }
-
-        // Stateless buttons other than textured buttons display the same when inactive as they would when active
-        if (bs == ButtonState.STATELESS && !bw.isTextured()) {
-            if (st == State.INACTIVE) {
-                st = State.ACTIVE;
-            } else if (st == State.DISABLED_INACTIVE) {
-                st = State.DISABLED;
-            }
         }
 
         configureSize(g.getSize());
@@ -652,11 +644,13 @@ public class JRSPainter
         Position pos = g.getPosition();
 
         SegmentedButtonWidget bw = g.getWidget();
+        State st = g.getState();
 
         maker.reset();
 
         switch (bw) {
             case BUTTON_TAB:
+            case BUTTON_SEGMENTED_SLIDER:
                 maker.set(JRSUIConstants.Widget.TAB);
                 break;
             case BUTTON_SEGMENTED:
@@ -711,7 +705,7 @@ public class JRSPainter
         }
 
         configureSize(g.getSize());
-        configureState(g.getState());
+        configureState(st);
         configureDirection(g.getDirection());
 
         maker.set(JRSUIConstants.SegmentLeadingSeparator.NO);
@@ -1035,8 +1029,7 @@ public class JRSPainter
     {
         RendererDescription rd = rendererDescriptions.getSliderRendererDescription(g);
 
-        // Mini sliders are not supported (must be consistent with layout code)
-        final Size sz = g.getSize() == Size.MINI ? Size.SMALL : g.getSize();
+        Size sz = g.getSize();
         SliderWidget sw = g.getWidget();
         double value = g.getValue();
 
@@ -1064,14 +1057,24 @@ public class JRSPainter
             return Renderer.create(maker.getRenderer(), rd);
         }
 
+        int style = getSliderRenderingVersion();
         Renderer trackRenderer = getSliderTrackRenderer(g);
         Renderer tickMarkRenderer = getSliderTickMarkRenderer(g);
         Renderer thumbRenderer = getSliderThumbRenderer(g);
         Insetter trackInsets = uiLayout.getSliderTrackPaintingInsets(g);
         Insetter thumbInsets = uiLayout.getSliderThumbPaintingInsets(g, g.getValue());
+        Insetter tickMarkInsets = trackInsets;
         boolean isThumbTranslucent = appearance != null && appearance.isDark();
-        return new LinearSliderRenderer(g, trackRenderer, trackInsets, tickMarkRenderer, thumbRenderer, thumbInsets,
-          isThumbTranslucent);
+
+        // The interpretation of thumb painting insets changed for the new linear slider style.
+        // The use of a tick mark renderer was introduced for the new linear slider style.
+
+        if (style == SLIDER_11_0) {
+            thumbInsets = trackInsets.prepend(thumbInsets);
+        }
+
+        return new LinearSliderRenderer(g, trackRenderer, trackInsets, tickMarkRenderer, tickMarkInsets,
+          thumbRenderer, thumbInsets, isThumbTranslucent);
     }
 
     protected @Nullable Renderer getSliderTickMarkRenderer(@NotNull SliderConfiguration g)
@@ -1159,6 +1162,12 @@ public class JRSPainter
         BasicRenderer r = maker.getRenderer();
         RendererDescription rd = rendererDescriptions.getSliderThumbRendererDescription(g);
         return Renderer.create(r, rd);
+    }
+
+    @Override
+    protected @NotNull Renderer getSliderTickRenderer(@NotNull SliderTickConfiguration g)
+    {
+        return NULL_RENDERER;
     }
 
     protected @NotNull JRSUIConstants.Direction toDirection(@NotNull TickMarkPosition p)

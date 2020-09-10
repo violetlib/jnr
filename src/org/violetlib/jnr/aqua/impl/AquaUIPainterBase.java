@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -31,6 +31,7 @@ import org.violetlib.vappearances.VAppearance;
 import org.jetbrains.annotations.*;
 
 import static org.violetlib.jnr.aqua.impl.AquaNativePainter.*;
+import static org.violetlib.jnr.aqua.impl.AquaNativeSegmentedControlPainter.*;
 import static org.violetlib.jnr.impl.JNRUtils.*;
 
 /**
@@ -60,6 +61,12 @@ public abstract class AquaUIPainterBase
     public static final int SEGMENTED_10_13 = 3;       // a unique rendering on macOS 10.13, when linked against SDK 10.11 or later
     public static final int SEGMENTED_10_14_OLD = 4;   // rendering on macOS 10.14 that is similar to 10.11, used when linked against an old SDK
     public static final int SEGMENTED_10_14 = 5;       // rendering on macOS 10.14, when linked against SDK 10.11 or later
+    public static final int SEGMENTED_11_0 = 6;        // rendering on macOS 11.0, when linked against SDK 11.0 or later
+
+// The following distinguishable versions of slider layout and rendering have been identified.
+
+    public static final int SLIDER_10_10 = 0;          // rendering on macOS 10.10+
+    public static final int SLIDER_11_0 = 2;           // rendering on macOS 11.0, when linked against SDK 11.0 or later
 
     protected AquaUIPainterBase(@NotNull RendererDescriptions rds)
     {
@@ -67,6 +74,7 @@ public abstract class AquaUIPainterBase
     }
 
     private static int cachedSegmentedButtonRenderingVersion = -2;
+    private static int cachedSliderRenderingVersion = -2;
 
     /**
       Identify the version of the native rendering of segmented controls.
@@ -93,6 +101,33 @@ public abstract class AquaUIPainterBase
     public int getSegmentedButtonRenderingVersion()
     {
         return internalGetSegmentedButtonRenderingVersion();
+    }
+
+    /**
+      Identify the version of the native rendering of sliders.
+
+      @return the version, or -1 if this information is unavailable.
+    */
+
+    public static int internalGetSliderRenderingVersion()
+    {
+        if (cachedSliderRenderingVersion >= -1) {
+            return cachedSliderRenderingVersion;
+        }
+
+        cachedSliderRenderingVersion = nativeDetermineSliderRenderingVersion();
+        return cachedSliderRenderingVersion;
+    }
+
+    /**
+      Identify the version of the native rendering of sliders.
+
+      @return the version, or -1 if this information is unavailable.
+    */
+
+    public int getSliderRenderingVersion()
+    {
+        return internalGetSliderRenderingVersion();
     }
 
     @Override
@@ -228,6 +263,11 @@ public abstract class AquaUIPainterBase
             return getSliderThumbRenderer(gg.getSliderConfiguration());
         }
 
+        if (g instanceof SliderTickConfiguration) {
+            SliderTickConfiguration gg = (SliderTickConfiguration) g;
+            return getSliderTickRenderer(gg);
+        }
+
         if (g instanceof PopupArrowConfiguration) {
             PopupArrowConfiguration gg = (PopupArrowConfiguration) g;
             Renderer r = getPopupArrowRenderer(gg.getPopupButtonConfiguration());
@@ -255,13 +295,9 @@ public abstract class AquaUIPainterBase
         throw new UnsupportedOperationException();  // TBD
     }
 
-    public @Nullable RendererDebugInfo getRendererDebugInfo(@NotNull Configuration g, int scaleFactor, int width, int height)
+    public @Nullable RendererDebugInfo getRendererDebugInfo(
+      @NotNull Configuration g, int scaleFactor, int width, int height)
     {
-        if (g instanceof SegmentedButtonConfiguration) {
-            SegmentedButtonConfiguration gg = (SegmentedButtonConfiguration) g;
-            return getSegmentedButtonRendererDebugInfo(gg, scaleFactor, width, height);
-        }
-
         return null;
     }
 
@@ -429,6 +465,8 @@ public abstract class AquaUIPainterBase
 
     protected abstract @NotNull Renderer getSliderThumbRenderer(@NotNull SliderConfiguration g);
 
+    protected abstract @NotNull Renderer getSliderTickRenderer(@NotNull SliderTickConfiguration g);
+
     protected abstract @NotNull Renderer getSpinnerArrowsRenderer(@NotNull SpinnerArrowsConfiguration g);
 
     protected abstract @NotNull Renderer getSplitPaneDividerRenderer(@NotNull SplitPaneDividerConfiguration g);
@@ -455,12 +493,6 @@ public abstract class AquaUIPainterBase
             return State.ACTIVE;
         }
         return state;
-    }
-
-    protected @Nullable RendererDebugInfo getSegmentedButtonRendererDebugInfo(@NotNull SegmentedButtonConfiguration g,
-                                                                              int scaleFactor, int width, int height)
-    {
-        return null;
     }
 
     /**

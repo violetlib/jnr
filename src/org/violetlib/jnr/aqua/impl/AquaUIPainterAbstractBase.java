@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -58,24 +58,33 @@ public abstract class AquaUIPainterAbstractBase
     protected float pWidth;   // the width of the painted area, limited by the widget fixed width (if any)
     protected float pHeight;  // the height of the painted area, limited by the widget fixed height (if any)
 
-    protected static final @NotNull AquaUILayoutInfo uiLayout;
-    protected static final @NotNull UIOutliner uiOutliner;
+    protected final @NotNull AquaUILayoutInfo uiLayout;
+    protected final @NotNull UIOutliner uiOutliner;
 
-    static {
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
-        uiLayout = findLayoutInfo(platformVersion);
-        uiOutliner = new YosemiteOutliner((YosemiteLayoutInfo) uiLayout);
-    }
-
-    private static @NotNull AquaUILayoutInfo findLayoutInfo(int platformVersion)
+    protected static @NotNull AquaUILayoutInfo createLayout()
     {
-        if (platformVersion >= 101200) {
-            return new SierraLayoutInfo();
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        if (platformVersion >= 101600) {
+            return new BigSurLayoutInfo();
         } else if (platformVersion >= 101100) {
             return new ElCapitanLayoutInfo();
         } else {
             return new YosemiteLayoutInfo();
         }
+    }
+
+    protected static @NotNull UIOutliner createOutliner(@NotNull AquaUILayoutInfo uiLayout)
+    {
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        return platformVersion >= 101600
+                 ? new BigSurOutliner((BigSurLayoutInfo) uiLayout)
+                 : new YosemiteOutliner((YosemiteLayoutInfo) uiLayout);
+    }
+
+    protected AquaUIPainterAbstractBase()
+    {
+        this.uiLayout = createLayout();
+        this.uiOutliner = createOutliner(uiLayout);
     }
 
     public void setAlignmentEnabled(boolean b)

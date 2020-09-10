@@ -155,18 +155,17 @@
             <arg value="-o"/>
             <arg value="${jnidir}/libVAquaRendering.dylib"/>
 
-            <arg value="-I${SDKroot}/System/Library/Frameworks/JavaVM.framework/Headers"/>
-            <arg value="-I${SDKroot}/System/Library/Frameworks/JavaVM.framework/Frameworks/JavaNativeFoundation.framework/Headers"/>
-            <arg value="-I${SDKroot}/System/Library/Frameworks/JavaVM.framework/Frameworks/JavaRuntimeSupport.framework/Headers"/>
+            <arg value="-I${jdk}/include"/>
+            <arg value="-I${jdk}/include/darwin"/>
             <arg value="-I${headersdir}"/>
 
             <arg value="-dynamiclib"/>
             <arg value="-ObjC"/>
 
             <arg value="-framework"/>
-            <arg value="JavaVM"/>
-            <arg value="-framework"/>
             <arg value="Cocoa"/>
+            <arg value="-framework"/>
+            <arg value="QuartzCore"/>
 
             <arg value="-F/${SDKroot}/System/Library/Frameworks/JavaVM.framework/Versions/A/Frameworks"/>
             <arg value="-framework"/>

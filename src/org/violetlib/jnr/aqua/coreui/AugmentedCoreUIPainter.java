@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -440,7 +440,8 @@ public class AugmentedCoreUIPainter
           sg.getDirection(),
           Position.MIDDLE,
           sg.getRightDividerState(),
-          sg.getLeftDividerState());
+          sg.getLeftDividerState(),
+          sg.getTracking());
 
         int sourceWidth = 100;
         Renderer unconfiguredSource = AugmentedCoreUIPainter.super.getSegmentedButtonRenderer(g);
@@ -487,10 +488,11 @@ public class AugmentedCoreUIPainter
     @Override
     protected @Nullable Renderer getSliderTickMarkRenderer(@NotNull SliderConfiguration g)
     {
-        if (g.getWidget() != SliderWidget.SLIDER_CIRCULAR && g.hasTickMarks()) {
+        int style = getSliderRenderingVersion();
+        if (style == SLIDER_10_10 && g.isLinear() && g.hasTickMarks()) {
             return Renderer.create(new LinearSliderPainterExtension(uiLayout, g, appearance));
         } else {
-            return null;
+            return super.getSliderTickMarkRenderer(g);
         }
     }
 

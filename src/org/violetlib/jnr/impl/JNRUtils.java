@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -38,6 +38,20 @@ public class JNRUtils
         }
     }
 
+    public static int size(@NotNull AquaUIPainter.Size sz, int large, int regular, int small, int mini)
+    {
+        switch (sz) {
+            case SMALL:
+                return small;
+            case MINI:
+                return mini;
+            case LARGE:
+                return large;
+            default:
+                return regular;
+        }
+    }
+
     public static float size2D(@NotNull AquaUIPainter.Size sz, float regular, float small, float mini)
     {
         switch (sz) {
@@ -47,6 +61,32 @@ public class JNRUtils
                 return mini;
             default:
                 return regular;
+        }
+    }
+
+    public static float size2D(@NotNull AquaUIPainter.Size sz, double regular, double small, double mini)
+    {
+        switch (sz) {
+            case SMALL:
+                return (float) small;
+            case MINI:
+                return (float) mini;
+            default:
+                return (float) regular;
+        }
+    }
+
+    public static float size2D(@NotNull AquaUIPainter.Size sz, double large, double regular, double small, double mini)
+    {
+        switch (sz) {
+            case SMALL:
+                return (float) small;
+            case MINI:
+                return (float) mini;
+            case LARGE:
+                return (float) large;
+            default:
+                return (float) regular;
         }
     }
 

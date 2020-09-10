@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -27,6 +27,14 @@ import org.jetbrains.annotations.*;
 public class CombinedInsetter
   implements Insetter
 {
+    private static final @NotNull CombinedInsetter TRIVIAL
+      = new CombinedInsetter(new FixedInsetter1(0, 0), new FixedInsetter1(0, 0));
+
+    public static @NotNull Insetter trivial()
+    {
+        return TRIVIAL;
+    }
+
     private final @NotNull Insetter1 horizontal;
     private final @NotNull Insetter1 vertical;
 

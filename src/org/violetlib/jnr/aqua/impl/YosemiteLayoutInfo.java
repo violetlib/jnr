@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -39,6 +39,10 @@ import static org.violetlib.jnr.impl.JNRUtils.*;
 public class YosemiteLayoutInfo
   extends AquaUILayoutInfo
 {
+    public YosemiteLayoutInfo()
+    {
+    }
+
     @Override
     protected @NotNull LayoutInfo getButtonLayoutInfo(@NotNull ButtonLayoutConfiguration g)
     {
@@ -184,7 +188,7 @@ public class YosemiteLayoutInfo
             left = right = 3;
 
         } else if (bw == ButtonWidget.BUTTON_ROUND || bw == ButtonWidget.BUTTON_ROUND_TOOLBAR) {
-            top = left = right = size2D(sz, 4, 3.5f, 3);
+            top = left = right = size2D(sz, 4, 3.5, 3);
             bottom = top + 1;
 
         } else if (bw == ButtonWidget.BUTTON_ROUND_INSET) {
@@ -193,7 +197,7 @@ public class YosemiteLayoutInfo
             bottom = top;
 
         } else if (bw == ButtonWidget.BUTTON_ROUND_TEXTURED) {
-            top = left = right = size2D(sz, 3.5f, 3, 2.5f);
+            top = left = right = size2D(sz, 3.5, 3, 2.5);
             bottom = top + 1;
 
         } else if (bw == ButtonWidget.BUTTON_DISCLOSURE_TRIANGLE) {
@@ -229,6 +233,7 @@ public class YosemiteLayoutInfo
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
+            case BUTTON_SEGMENTED_SLIDER:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 22, 19, 16));
 
             case BUTTON_SEGMENTED_INSET:
@@ -269,6 +274,7 @@ public class YosemiteLayoutInfo
         switch (bw) {
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
+            case BUTTON_SEGMENTED_SLIDER:
                 break;
             case BUTTON_SEGMENTED_SEPARATED:
                 endAdjust = 0;
@@ -379,7 +385,7 @@ public class YosemiteLayoutInfo
             top = 1;
             bottom = 2;
         } else {
-            near = size2D(sz, 18.5f, 16.5f, 14.5f);
+            near = size2D(sz, 18.5, 16.5, 14.5);
             far = 0.5f;
             top = 1;
             bottom = size2D(sz, 2, 2, 1);
@@ -467,13 +473,13 @@ public class YosemiteLayoutInfo
         float right;
         if (g.isPopUp()) {
             height = size(sz, 12, 10, 10);    // mini height is 9 at 2x
-            top = isCell ? size2D(sz, 0, 0, 0) : size2D(sz, 7, 5.5f, 5.5f);
+            top = isCell ? size2D(sz, 0, 0, 0) : size2D(sz, 7, 5.5, 5.5);
             if (w == PopupButtonWidget.BUTTON_POP_UP_GRADIENT) {
                 top -= 1;
             } else if (w == PopupButtonWidget.BUTTON_POP_UP_BEVEL) {
                 top -= 2;
             } else if (w == PopupButtonWidget.BUTTON_POP_UP_RECESSED) {
-                top -= size2D(sz, 1.5f, 0, 2);
+                top -= size2D(sz, 1.5, 0, 2);
             } else if (w == PopupButtonWidget.BUTTON_POP_UP_TEXTURED || w == PopupButtonWidget.BUTTON_POP_UP_TEXTURED_TOOLBAR) {
                 top -= size2D(sz, 2, 1, 2);
             }
@@ -481,7 +487,7 @@ public class YosemiteLayoutInfo
             right = isCell ? 2 : 5;
         } else {
             height = 5;
-            top = isCell ? size2D(sz, 3.5f, 2.5f, 2.5f) : size2D(sz, 9f, 7.5f, 7.5f);
+            top = isCell ? size2D(sz, 3.5, 2.5, 2.5) : size2D(sz, 9, 7.5, 7.5);
             bottom = buttonHeight - top - height;
             right = isCell ? 3 : 6;
         }
@@ -520,8 +526,8 @@ public class YosemiteLayoutInfo
             default:
                 far = 3;
                 near = size2D(sz, 17, 15, 13);
-                bottom = size2D(sz, 2.5f, 2.5f, 2);
-                top = size2D(sz, 0.5f, 0.5f, 1);
+                bottom = size2D(sz, 2.5, 2.5, 2);
+                top = size2D(sz, 0.5, 0.5, 1);
                 break;
 
             case BUTTON_POP_UP_SQUARE:
@@ -530,7 +536,7 @@ public class YosemiteLayoutInfo
                 break;
 
             case BUTTON_POP_UP_CELL:
-                near = size2D(sz, 10.5f, 9.5f, 9.5f);
+                near = size2D(sz, 10.5, 9.5, 9.5);
                 return Insetters.createFixed(0, 0, 0, near);
 
             case BUTTON_POP_UP_ROUND_RECT:
@@ -579,7 +585,7 @@ public class YosemiteLayoutInfo
                 break;
 
             case BUTTON_POP_DOWN_CELL:
-                near = size2D(sz, 13, 12.5f, 12);
+                near = size2D(sz, 13, 12.5, 12);
                 return Insetters.createFixed(0, 0, 0, near);
         }
 
@@ -644,8 +650,7 @@ public class YosemiteLayoutInfo
     @Override
     protected @NotNull LayoutInfo getSliderLayoutInfo(@NotNull SliderLayoutConfiguration g)
     {
-        // Mini sliders are not supported (must be consistent with rendering code)
-        final Size sz = g.getSize() == Size.MINI ? Size.SMALL : g.getSize();
+        Size sz = g.getSize();
         boolean hasTickMarks = g.hasTickMarks();
 
         // There is some extra space at the ends, but it is not needed. The knob does not clip even at the extremes.
@@ -654,11 +659,11 @@ public class YosemiteLayoutInfo
         {
             case SLIDER_HORIZONTAL:
             case SLIDER_HORIZONTAL_RIGHT_TO_LEFT:
-                return BasicLayoutInfo.createFixedHeight(hasTickMarks ? size(sz, 24, 18, 18) : size(sz, 18, 14, 14));
+                return BasicLayoutInfo.createFixedHeight(hasTickMarks ? size(sz, 24, 18, 16) : size(sz, 18, 14, 12));
 
             case SLIDER_VERTICAL:
             case SLIDER_UPSIDE_DOWN:
-                return BasicLayoutInfo.createFixedWidth(hasTickMarks ? size(sz, 24, 18, 18) : size(sz, 18, 14, 14));
+                return BasicLayoutInfo.createFixedWidth(hasTickMarks ? size(sz, 24, 18, 16) : size(sz, 18, 14, 12));
 
             case SLIDER_CIRCULAR:
                 int width = hasTickMarks ? size(sz, 36, 25, 25) : size(sz, 28, 21, 21);
@@ -840,7 +845,7 @@ public class YosemiteLayoutInfo
         if (!g.hasTickMarks()) {
             if (g.isHorizontal()) {
                 Size sz = g.getSize();
-                return size2D(sz, 0, -0.5f, -0.5f);
+                return size2D(sz, 0, -0.5, 0);
             } else {
                 return 0;
             }
@@ -850,13 +855,13 @@ public class YosemiteLayoutInfo
         switch (g.getTickMarkPosition())
         {
             case LEFT:
-                return size2D(sz, 2.5f, 1.5f, 1.5f);
+                return size2D(sz, 2.5, 1.5, 1.5);
             case RIGHT:
-                return size2D(sz, -2, -1.5f, -1.5f);
+                return size2D(sz, -2, -1.5, -1.5);
             case ABOVE:
-                return size2D(sz, 1.5f, 2, 2);
+                return size2D(sz, 1.5, 2, 2);
             case BELOW:
-                return size2D(sz, -2, -1.5f, -1.5f);
+                return size2D(sz, -2, -1.5, -1.5);
             default:
                 throw new UnsupportedOperationException();
         }
@@ -875,7 +880,6 @@ public class YosemiteLayoutInfo
       @param isForPainting True to return the size for painting. False to return the size for computing an outline.
       @return the layout information.
     */
-
     protected @NotNull LayoutInfo getSliderThumbLayoutInfo(@NotNull SliderLayoutConfiguration g, boolean isForPainting)
     {
         SliderWidget sw = g.getWidget();
@@ -895,13 +899,36 @@ public class YosemiteLayoutInfo
                 return BasicLayoutInfo.createFixed(width, height);
             }
         } else {
-            // On a 2x display, the visual diameter is 16 points (regular) and 12 points (small). However, to take advantage
-            // of that more accurate visual diameter would require a custom 2x renderer description to top-left align the
-            // circle.
+            // On a 2x display, the visual diameter is 16 points (regular) and 12 points (small). However, to take
+            // advantage of that more accurate visual diameter would require a custom 2x renderer description to
+            // top-left align the circle.
             float width = size(sz, 17, 13, 13);
             float height = isForPainting ? size(sz, 18, 14, 14) : width;
             return BasicLayoutInfo.createFixed(width, height);
         }
+    }
+
+    @Override
+    public @NotNull Insetter getSliderTickMarkPaintingInsets(@NotNull SliderLayoutConfiguration g)
+    {
+        return Insetter.trivial();
+    }
+
+    // supports evaluation
+    @Override
+    public @NotNull LayoutInfo getSliderTickLayoutInfo(@NotNull SliderLayoutConfiguration g)
+    {
+        if (g.isLinear() && g.hasTickMarks()) {
+            Size sz = g.getSize();
+            float thickness = JNRUtils.size(sz, 2, 2, 1);
+            float length = JNRUtils.size(sz, 8, 8, 7);
+            if (g.isHorizontal()) {
+                return BasicLayoutInfo.createFixed(thickness, length);
+            } else {
+                return BasicLayoutInfo.createFixed(length, thickness);
+            }
+        }
+        return BasicLayoutInfo.createFixed(0, 0);
     }
 
     @Override
@@ -1104,8 +1131,10 @@ public class YosemiteLayoutInfo
     {
         switch (sz)
         {
-            case SMALL:
             case MINI:
+                return 5.5;
+
+            case SMALL:
                 return 6.5;
 
             default:
@@ -1216,11 +1245,11 @@ public class YosemiteLayoutInfo
             }
 
             if (tw.isToolbar()) {
-                top = size2D(sz, 3, 1.5f, 1.5f);
-                bottom = size2D(sz, 3, 2, 1.5f);
+                top = size2D(sz, 3, 1.5, 1.5);
+                bottom = size2D(sz, 3, 2, 1.5);
             } else {
-                top = size2D(sz, 3, 1.5f, 1.5f);
-                bottom = size2D(sz, 3, 1.5f, 1.5f);
+                top = size2D(sz, 3, 1.5, 1.5);
+                bottom = size2D(sz, 3, 1.5, 1.5);
             }
 
         } else switch (tw) {
@@ -1279,8 +1308,8 @@ public class YosemiteLayoutInfo
             float width = layoutInfo.getFixedVisualWidth();
             float height = layoutInfo.getFixedVisualHeight();
             if (width > 0 && height > 0) {
-                float top = size2D(sz, 5, 4, 3.5f+1);    // +1 because we make the search field +2 taller
-                float left = size2D(sz, 6.5f, 6, 5.5f);
+                float top = size2D(sz, 5, 4, 3.5+1);  // +1 because we make the search field +2 taller
+                float left = size2D(sz, 6.5, 6, 5.5);
                 float bottom = buttonHeight - top - height;
                 Insetter1 horizontal = g.isLeftToRight() ? FloatingInsetter1.createLeftTopAligned(width, left)
                                          : FloatingInsetter1.createRightBottomAligned(width, left);
@@ -1335,7 +1364,7 @@ public class YosemiteLayoutInfo
             float width = layoutInfo.getFixedVisualWidth();
             float height = layoutInfo.getFixedVisualHeight();
             if (width > 0 && height > 0) {
-                float top = size(sz, 4, 4, 3+1);    // +1 because we make the search field +2 taller
+                float top = size(sz, 4, 4, 3+1);  // +1 because we make the search field +2 taller
                 float right = size(sz, 4, 4, 3);
                 float bottom = buttonHeight - top - height;
                 Insetter1 horizontal = g.isLeftToRight() ? FloatingInsetter1.createRightBottomAligned(width, right)

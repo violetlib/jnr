@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -119,7 +119,33 @@ public interface AquaUIPainter
         DISABLED_INACTIVE,
         PRESSED,
         ACTIVE_DEFAULT,  // for the default button when it is active
-        ROLLOVER
+        ROLLOVER;
+
+        public boolean isInactive()
+        {
+            return this == INACTIVE || this == DISABLED_INACTIVE;
+        }
+
+        public State toActive()
+        {
+            if (this == INACTIVE) {
+                return ACTIVE;
+            }
+            if (this == DISABLED_INACTIVE) {
+                return DISABLED;
+            }
+            return this;
+        }
+    }
+
+    /**
+      Selection mode for a segmented control.
+    */
+
+    enum SwitchTracking
+    {
+        SELECT_ONE,
+        SELECT_ANY
     }
 
     /**
@@ -213,10 +239,19 @@ public interface AquaUIPainter
     }
 
     /**
+      Generic button widgets.
+    */
+
+    interface GenericButtonWidget
+    {
+        boolean isTextured();
+    }
+
+    /**
       Widgets for a button.
     */
 
-    enum ButtonWidget
+    enum ButtonWidget implements GenericButtonWidget
     {
         BUTTON_PUSH,                  // the default style, fixed height, not suitable for a toggle button
         BUTTON_CHECK_BOX,
@@ -224,25 +259,26 @@ public interface AquaUIPainter
         BUTTON_DISCLOSURE,
         BUTTON_DISCLOSURE_TRIANGLE,
         BUTTON_HELP,                  // not suitable for a toggle button
-        BUTTON_GRADIENT,              // a square button with no border - recommended for icon buttons - push, toggle, or menu
+        BUTTON_GRADIENT,              // a square button with no border - recommended for icon buttons - push, toggle, or menu (small square)
         BUTTON_RECESSED,              // a recessed scope (toggle) button; fixed height; displayed without border when not selected
         BUTTON_INLINE,                // a short, fixed height button with rounded ends, used as a push button or indicator inside lists
         BUTTON_ROUNDED_RECT,          // fixed height, displays as an rectangle outline with rounded corners and no background, darkens when pressed, in IB
-        BUTTON_TEXTURED,              // fixed height, recommended for use in window frame, previously called scurve
+        BUTTON_TEXTURED,              // fixed height, recommended for use in window frame, previously called scurve, now called textured rounded
         BUTTON_TEXTURED_TOOLBAR,      // introduced in 10.11 for textured buttons on the tool bar (taller)
         BUTTON_TOOLBAR_ITEM,          // a tool bar item
         BUTTON_COLOR_WELL,            // a color well
 
         // The following styles are no longer recommended
 
-        BUTTON_BEVEL,                 // Bevel button with square corners (not recommended in Yosemite)
-        BUTTON_BEVEL_ROUND,           // Bevel button with rounded corners (not recommended in Yosemite)
+        BUTTON_BEVEL,                 // Bevel button with square corners (I call this Square)
+        BUTTON_BEVEL_ROUND,           // Bevel button with rounded corners (I call this Bevel)
         BUTTON_ROUND,                 // a round white button with a border
         BUTTON_ROUND_INSET,           // a round transparent button with an outline, probably obsolete
         BUTTON_ROUND_TEXTURED,        // a round white borderless button with a shadow
         BUTTON_ROUND_TOOLBAR,         // introduced in 10.11 for round textured buttons on the toolbar (taller)
         BUTTON_PUSH_INSET2;           // an obsolete style supported by Core UI
 
+        @Override
         public boolean isTextured()
         {
             return this == BUTTON_TEXTURED
@@ -256,10 +292,10 @@ public interface AquaUIPainter
       Widgets for a button in a segmented control.
     */
 
-    enum SegmentedButtonWidget
+    enum SegmentedButtonWidget implements GenericButtonWidget
     {
         BUTTON_TAB,                                   // the segmented control on a Tab View
-        BUTTON_SEGMENTED,                             // the default button for the content area, known as Rounded (looks the same as Tab)
+        BUTTON_SEGMENTED,                             // the default button for the content area, known as Rounded (before macOS 11, looks like Tab)
         BUTTON_SEGMENTED_SEPARATED,                   // separated buttons that look like Rounded buttons
         BUTTON_SEGMENTED_INSET,                       // also known as Round Rect, a transparent button whose outline has rounded corners
         BUTTON_SEGMENTED_SMALL_SQUARE,                // a square button similar to a gradient button
@@ -267,6 +303,7 @@ public interface AquaUIPainter
         BUTTON_SEGMENTED_TEXTURED_TOOLBAR,            // introduced in 10.11 for textured segmented controls on the tool bar (taller)
         BUTTON_SEGMENTED_TEXTURED_SEPARATED,          // separated buttons that look like Textured buttons, for use in window frames
         BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR,  // introduced in 10.11 for textured segmented controls on the tool bar (taller)
+        BUTTON_SEGMENTED_SLIDER,                      // added in release 10; the macOS 11 select one rounded style that resembles Tab
 
         // The following styles are obsolete and are replaced by other styles in Yosemite
 
@@ -285,12 +322,35 @@ public interface AquaUIPainter
             return this == BUTTON_SEGMENTED_TEXTURED_TOOLBAR || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR;
         }
 
+        @Override
         public boolean isTextured()
         {
             return this == BUTTON_SEGMENTED_TEXTURED
                      || this == BUTTON_SEGMENTED_TEXTURED_TOOLBAR
                      || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED
                      || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR;
+        }
+
+        public @NotNull SegmentedButtonWidget toToolbarWidget()
+        {
+            switch (this) {
+                case BUTTON_SEGMENTED_TEXTURED:
+                    return BUTTON_SEGMENTED_TEXTURED_TOOLBAR;
+                case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+                    return BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR;
+            }
+            return this;
+        }
+
+        public @NotNull SegmentedButtonWidget toBasicWidget()
+        {
+            switch (this) {
+                case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+                    return BUTTON_SEGMENTED_TEXTURED;
+                case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+                    return BUTTON_SEGMENTED_TEXTURED_SEPARATED;
+            }
+            return this;
         }
     }
 
@@ -355,19 +415,25 @@ public interface AquaUIPainter
       Widgets for an editable combo box.
     */
 
-    enum ComboBoxWidget
+    enum ComboBoxWidget implements GenericButtonWidget
     {
         BUTTON_COMBO_BOX,
         BUTTON_COMBO_BOX_CELL,
         BUTTON_COMBO_BOX_TEXTURED,
-        BUTTON_COMBO_BOX_TEXTURED_TOOLBAR,
+        BUTTON_COMBO_BOX_TEXTURED_TOOLBAR;
+
+        @Override
+        public boolean isTextured()
+        {
+            return this == BUTTON_COMBO_BOX_TEXTURED || this == BUTTON_COMBO_BOX_TEXTURED_TOOLBAR;
+        }
     }
 
     /**
       Widgets for a non-editable combo box.
     */
 
-    enum PopupButtonWidget
+    enum PopupButtonWidget implements GenericButtonWidget
     {
         BUTTON_POP_DOWN,
         BUTTON_POP_DOWN_CELL,                // for use as cell editors
@@ -387,7 +453,21 @@ public interface AquaUIPainter
         BUTTON_POP_UP_TEXTURED,
         BUTTON_POP_UP_TEXTURED_TOOLBAR,
         BUTTON_POP_UP_GRADIENT,              // the preferred square style
-        BUTTON_POP_UP_SQUARE,                // replaced by Gradient in Yosemite
+        BUTTON_POP_UP_SQUARE;                // replaced by Gradient in Yosemite
+
+        public boolean isDefault()
+        {
+            return this == BUTTON_POP_DOWN || this == BUTTON_POP_UP;
+        }
+
+        @Override
+        public boolean isTextured()
+        {
+            return this == BUTTON_POP_DOWN_TEXTURED
+                     || this == BUTTON_POP_DOWN_TEXTURED_TOOLBAR
+                     || this == BUTTON_POP_UP_TEXTURED
+                     || this == BUTTON_POP_UP_TEXTURED_TOOLBAR;
+        }
     }
 
     /**

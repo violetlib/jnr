@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -37,8 +37,12 @@ public class ReusableCompositor
 {
     // TBD: would it be faster to turn everything into an Image and use graphics operations?
 
+    // Note: the data is intended to be private, which is why ReusableCompositor does not support the PixelRaster interface.
+
     private @Nullable int[] data;  // the actual raster buffer, reallocated as needed to contain at least the required number of pixels.
     // May be null if the raster has zero size.
+
+    private final @NotNull PixelRaster dataAccess = new MyPixelRaster();  // for internal access to the data
 
     private @Nullable BufferedImage b;  // an image using the raster buffer, created on demand and released when the raster buffer is replaced.
     // May be null if the raster has zero size.
@@ -99,6 +103,22 @@ public class ReusableCompositor
         this.scaleFactor = scaleFactor;
         this.isConfigured = true;
         this.isEmpty = true;
+    }
+
+    private class MyPixelRaster
+      implements PixelRaster
+    {
+        private final @NotNull int[] emptyRaster = new int[0];
+
+        @Override
+        public void provide(@NotNull Accessor a)
+        {
+            if (data == null) {
+                a.access(emptyRaster, 0, 0);
+            } else {
+                a.access(data, rasterWidth, rasterHeight);
+            }
+        }
     }
 
     /**
@@ -168,6 +188,21 @@ public class ReusableCompositor
     }
 
     /**
+      Create a compositor that is configured to the same scale factor as this one.
+      @param width The compositor will be configured to this width, specified in device independent pixels.
+      @param height The compositor will be configured to this height, specified in device independent pixels.
+    */
+
+    public @NotNull ReusableCompositor createSimilar(float width, float height)
+    {
+        ReusableCompositor c = new ReusableCompositor();
+        int rw = (int) Math.ceil(width * scaleFactor);
+        int rh = (int) Math.ceil(height * scaleFactor);
+        c.reset(rw, rh, scaleFactor);
+        return c;
+    }
+
+    /**
       Create a compositor containing a horizontally flipped copy of this one.
     */
 
@@ -175,6 +210,17 @@ public class ReusableCompositor
     {
         ReusableCompositor output = createSimilar();
         output.copyHorizontallyFlippedFrom(this);
+        return output;
+    }
+
+    /**
+      Create a compositor containing a vertically flipped copy of this one.
+    */
+
+    public @NotNull ReusableCompositor createVerticallyFlippedCopy()
+    {
+        ReusableCompositor output = createSimilar();
+        output.copyVerticallyFlippedFrom(this);
         return output;
     }
 
@@ -250,7 +296,7 @@ public class ReusableCompositor
 
       @param o The source of the pixels to compose with the existing contents. This object may be any of the standard
       sources ({@link BasicRenderer}, {@link PainterExtension}, or another {@link ReusableCompositor}), or an object
-      that supports the {@link PixelSource} interface.
+      that supports the {@link PixelSource} or {@link PixelRaster} interface.
     */
 
     public void compose(@NotNull Object o)
@@ -264,6 +310,9 @@ public class ReusableCompositor
         } else if (o instanceof ReusableCompositor) {
             ReusableCompositor rc = (ReusableCompositor) o;
             composeFrom(rc, 0, 0, rasterWidth, rasterHeight);
+        } else if (o instanceof PixelRaster) {
+            PixelRaster r = (PixelRaster) o;
+            composeFrom(r, 0, 0, rasterWidth, rasterHeight);
         } else if (o instanceof PixelSource) {
             PixelSource sr = (PixelSource) o;
             sr.composeTo(this);
@@ -294,7 +343,8 @@ public class ReusableCompositor
     }
 
     /**
-      Render into a region of the raster, composing with existing contents.
+      Render into a region of the raster, composing with existing contents. The region defines translation and clipping,
+      the source data is not scaled.
 
       @param r The renderer.
       @param dx The X origin of the raster region.
@@ -313,7 +363,8 @@ public class ReusableCompositor
     }
 
     /**
-      Render a painter extension into a region of the raster, composing with existing contents.
+      Render a painter extension into a region of the raster, composing with existing contents. The region defines
+      translation and clipping, the source data is not scaled.
 
       @param px The painter.
       @param dx The X origin of the raster region.
@@ -343,15 +394,28 @@ public class ReusableCompositor
         ensureConfigured();
 
         if (data != null) {
-            int[] sourceData = source.data;
-            if (sourceData != null) {
-                isEmpty = true;
-                if (!source.isEmpty) {
-                    int sourceSpan = source.getRasterWidth();
+            copyHorizontallyFlippedFrom(source.dataAccess);
+        }
+    }
+
+    /**
+      Copy pixels from a source raster, flipping horizontally.
+
+      @param source The source of the pixels.
+    */
+
+    private void copyHorizontallyFlippedFrom(@NotNull PixelRaster source)
+    {
+        ensureConfigured();
+
+        if (data != null) {
+            source.provide((sourceData, sourceWidth, sourceHeight) -> {
+                if (sourceWidth > 0 && sourceHeight > 0) {
+                    isEmpty = true;
                     for (int row = 0; row < rasterHeight; row++) {
                         for (int col = 0; col < rasterWidth; col++) {
                             int sourceCol = rasterWidth - col - 1;
-                            int pixel = sourceData[row * sourceSpan + sourceCol];
+                            int pixel = sourceData[row * sourceWidth + sourceCol];
                             int alpha = (pixel >> 24) & 0xFF;
                             if (alpha != 0) {
                                 isEmpty = false;
@@ -360,12 +424,58 @@ public class ReusableCompositor
                         }
                     }
                 }
-            }
+            });
         }
     }
 
     /**
-      Render from a compositor into a region of the raster, composing with existing contents.
+      Copy pixels from a compositor, flipping vertically.
+
+      @param source The compositor that is the source of the pixels.
+    */
+
+    private void copyVerticallyFlippedFrom(@NotNull ReusableCompositor source)
+    {
+        ensureConfigured();
+
+        if (data != null) {
+            copyVerticallyFlippedFrom(source.dataAccess);
+        }
+    }
+
+    /**
+      Copy pixels from a source raster, flipping vertically.
+
+      @param source The source of the pixels.
+    */
+
+    private void copyVerticallyFlippedFrom(@NotNull PixelRaster source)
+    {
+        ensureConfigured();
+
+        if (data != null) {
+            source.provide((sourceData, sourceWidth, sourceHeight) -> {
+                if (sourceWidth > 0 && sourceHeight > 0) {
+                    isEmpty = true;
+                    for (int row = 0; row < rasterHeight; row++) {
+                        for (int col = 0; col < rasterWidth; col++) {
+                            int sourceRow = rasterHeight - row - 1;
+                            int pixel = sourceData[sourceRow * sourceWidth + col];
+                            int alpha = (pixel >> 24) & 0xFF;
+                            if (alpha != 0) {
+                                isEmpty = false;
+                                data[row * rasterWidth + col] = pixel;
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+      Render from a compositor into a region of the raster, composing with existing contents. The region defines
+      translation and clipping, the source data is not scaled.
 
       @param source The compositor that is the source of the pixels.
       @param dx The X origin of the raster region.
@@ -379,35 +489,57 @@ public class ReusableCompositor
         ensureConfigured();
 
         if (data != null) {
-            int[] sourceData = source.data;
-            if (sourceData != null) {
-                isEmpty = false;
-                int sourceSpan = source.getRasterWidth();
-                for (int rowOffset = 0; rowOffset < dh; rowOffset++) {
-                    int row = dy + rowOffset;
-                    if (row >= 0 && row < rasterHeight) {
-                        for (int colOffset = 0; colOffset < dw; colOffset++) {
-                            int col = dx + colOffset;
-                            if (col >= 0 && col < rasterWidth) {
-                                int pixel = sourceData[rowOffset * sourceSpan + colOffset];
-                                int alpha = (pixel >> 24) & 0xFF;
-                                if (alpha != 0) {
-                                    if (alpha != 0xFF) {
-                                        pixel = JNRUtils.combine(data[row * rasterWidth + col], pixel);
+            composeFrom(source.dataAccess, dx, dy, dw, dh);
+        }
+    }
+
+    /**
+      Render from source pixels into a region of the raster, composing with existing contents. The region defines
+      translation and clipping, the source data is not scaled.
+
+      @param source The source of the pixels.
+      @param dx The X origin of the raster region.
+      @param dy The Y origin of the raster region.
+      @param dw The width of the raster region.
+      @param dh The height of the raster region.
+    */
+
+    public void composeFrom(@NotNull PixelRaster source, int dx, int dy, int dw, int dh)
+    {
+        ensureConfigured();
+
+        if (data != null) {
+            source.provide((sourceData, sourceWidth, sourceHeight) -> {
+                if (sourceWidth > 0 && sourceHeight > 0) {
+                    isEmpty = false;
+                    int columnCount = Math.min(dw, sourceWidth);
+                    int rowCount = Math.min(dh, sourceHeight);
+                    for (int rowOffset = 0; rowOffset < rowCount; rowOffset++) {
+                        int row = dy + rowOffset;
+                        if (row >= 0 && row < rasterHeight) {
+                            for (int colOffset = 0; colOffset < columnCount; colOffset++) {
+                                int col = dx + colOffset;
+                                if (col >= 0 && col < rasterWidth) {
+                                    int pixel = sourceData[rowOffset * sourceWidth + colOffset];
+                                    int alpha = (pixel >> 24) & 0xFF;
+                                    if (alpha != 0) {
+                                        if (alpha != 0xFF) {
+                                            pixel = JNRUtils.combine(data[row * rasterWidth + col], pixel);
+                                        }
+                                        data[row * rasterWidth + col] = pixel;
                                     }
-                                    data[row * rasterWidth + col] = pixel;
                                 }
                             }
                         }
                     }
                 }
-            }
+            });
         }
     }
 
     /**
-      Render from a designated region of a compositor into a designated region of the raster, composing with existing
-      contents.
+      Render from a designated region of a source compositor into a designated region of the raster, composing with
+      existing contents. The regions define translation and clipping, the source data is not scaled.
 
       @param source The compositor that is the source of the pixels.
       @param sx The X origin of the source region.
@@ -423,32 +555,53 @@ public class ReusableCompositor
         ensureConfigured();
 
         if (data != null) {
-            int[] sourceData = source.data;
-            if (sourceData != null) {
-                isEmpty = false;
-                int sourceWidth = source.getRasterWidth();
-                int sourceHeight = source.getRasterHeight();
-                for (int rowOffset = 0; rowOffset < dh; rowOffset++) {
-                    int sourceRow = sy + rowOffset;
-                    int row = dy + rowOffset;
-                    if (row >= 0 && row < rasterHeight && sourceRow >= 0 && sourceRow < sourceHeight) {
-                        for (int colOffset = 0; colOffset < dw; colOffset++) {
-                            int sourceColumn = sx + colOffset;
-                            int col = dx + colOffset;
-                            if (col >= 0 && col < rasterWidth && sourceColumn >= 0 && sourceColumn < sourceWidth) {
-                                int pixel = sourceData[sourceRow * sourceWidth + sourceColumn];
-                                int alpha = (pixel >> 24) & 0xFF;
-                                if (alpha != 0) {
-                                    if (alpha != 0xFF) {
-                                        pixel = JNRUtils.combine(data[row * rasterWidth + col], pixel);
+            composeFrom(source.dataAccess, sx, sy, dx, dy, dw, dh);
+        }
+    }
+
+    /**
+      Render from a designated region of a source raster into a designated region of the raster, composing with existing
+      contents. The regions define translation and clipping, the source data is not scaled.
+
+      @param source The source of the pixels.
+      @param sx The X origin of the source region.
+      @param sy The Y origin of the source region.
+      @param dx The X origin of the raster region.
+      @param dy The Y origin of the raster region.
+      @param dw The width of the region.
+      @param dh The height of the region.
+    */
+
+    public void composeFrom(@NotNull PixelRaster source, int sx, int sy, int dx, int dy, int dw, int dh)
+    {
+        ensureConfigured();
+
+        if (data != null) {
+            source.provide((sourceData, sourceWidth, sourceHeight) -> {
+                if (sourceWidth > 0 && sourceHeight > 0) {
+                    isEmpty = false;
+                    for (int rowOffset = 0; rowOffset < dh; rowOffset++) {
+                        int sourceRow = sy + rowOffset;
+                        int row = dy + rowOffset;
+                        if (row >= 0 && row < rasterHeight && sourceRow >= 0 && sourceRow < sourceHeight) {
+                            for (int colOffset = 0; colOffset < dw; colOffset++) {
+                                int sourceColumn = sx + colOffset;
+                                int col = dx + colOffset;
+                                if (col >= 0 && col < rasterWidth && sourceColumn >= 0 && sourceColumn < sourceWidth) {
+                                    int pixel = sourceData[sourceRow * sourceWidth + sourceColumn];
+                                    int alpha = (pixel >> 24) & 0xFF;
+                                    if (alpha != 0) {
+                                        if (alpha != 0xFF) {
+                                            pixel = JNRUtils.combine(data[row * rasterWidth + col], pixel);
+                                        }
+                                        data[row * rasterWidth + col] = pixel;
                                     }
-                                    data[row * rasterWidth + col] = pixel;
                                 }
                             }
                         }
                     }
                 }
-            }
+            });
         }
     }
 
@@ -501,7 +654,8 @@ public class ReusableCompositor
     }
 
     /**
-      Blend pixels from a source compositor into a region of the raster.
+      Blend pixels from a source compositor into a region of the raster. The region defines translation and clipping,
+      the source data is not scaled.
 
       @param source The compositor that is the source of the pixels.
       @param op The blending operator.
@@ -516,29 +670,50 @@ public class ReusableCompositor
         ensureConfigured();
 
         if (data != null) {
-            int[] sourceData = source.data;
-            if (sourceData != null) {
-                int sourceSpan = source.getRasterWidth();
-                for (int rowOffset = 0; rowOffset < dh; rowOffset++) {
-                    int row = dy + rowOffset;
-                    if (row >= 0 && row < rasterHeight) {
-                        for (int colOffset = 0; colOffset < dw; colOffset++) {
-                            int col = dx + colOffset;
-                            if (col >= 0 && col < rasterWidth) {
-                                int destinationIndex = row * rasterWidth + col;
-                                int sourcePixel = sourceData[rowOffset * sourceSpan + colOffset];
-                                int destinationPixel = data[destinationIndex];
-                                int pixel = op.combine(destinationPixel, sourcePixel);
-                                int alpha = (pixel >> 24) & 0xFF;
-                                if (alpha != 0) {
-                                    data[destinationIndex] = pixel;
-                                    isEmpty = false;
+            blendFrom(source.dataAccess, op, dx, dy, dw, dh);
+        }
+    }
+
+    /**
+      Blend pixels from a specified source into a region of the raster. The region defines translation and clipping, the
+      source data is not scaled.
+
+      @param source The source of the pixels.
+      @param op The blending operator.
+      @param dx The X origin of the raster region.
+      @param dy The Y origin of the raster region.
+      @param dw The width of the raster region.
+      @param dh The height of the raster region.
+    */
+
+    public void blendFrom(@NotNull PixelRaster source, @NotNull PixelOperator op, int dx, int dy, int dw, int dh)
+    {
+        ensureConfigured();
+
+        if (data != null) {
+            source.provide((sourceData, sourceWidth, sourceHeight) -> {
+                if (sourceWidth > 0 && sourceHeight > 0) {
+                    for (int rowOffset = 0; rowOffset < dh; rowOffset++) {
+                        int row = dy + rowOffset;
+                        if (row >= 0 && row < rasterHeight) {
+                            for (int colOffset = 0; colOffset < dw; colOffset++) {
+                                int col = dx + colOffset;
+                                if (col >= 0 && col < rasterWidth) {
+                                    int destinationIndex = row * rasterWidth + col;
+                                    int sourcePixel = sourceData[rowOffset * sourceWidth + colOffset];
+                                    int destinationPixel = data[destinationIndex];
+                                    int pixel = op.combine(destinationPixel, sourcePixel);
+                                    int alpha = (pixel >> 24) & 0xFF;
+                                    if (alpha != 0) {
+                                        data[destinationIndex] = pixel;
+                                        isEmpty = false;
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
+            });
         }
     }
 

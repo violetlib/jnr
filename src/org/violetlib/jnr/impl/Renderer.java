@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,6 +8,7 @@
 
 package org.violetlib.jnr.impl;
 
+import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -113,23 +114,9 @@ public abstract class Renderer
       pixels.
 
       @param source The source renderer.
-      @param x The X offset of the destination region.
-      @param y The Y offset of the destination region.
-      @param w The width of the destination region.
-      @param h The height of the destination region.
+      @param bounds The bounds of the destination region, in device independent pixels.
       @return the renderer.
     */
-
-    public static @NotNull Renderer createOffsetRenderer(@NotNull Renderer source, float x, float y, float w, float h)
-    {
-        return new OffsetRendererX(source, x, y, w, h);
-    }
-
-    public static @NotNull Renderer createOffsetRenderer(@NotNull Renderer source, double x, double y,
-                                                         double w, double h)
-    {
-        return new OffsetRendererX(source, (float) x, (float) y, (float) w, (float) h);
-    }
 
     public static @NotNull Renderer createOffsetRenderer(@NotNull Renderer source, @NotNull Rectangle2D bounds)
     {
@@ -141,16 +128,13 @@ public abstract class Renderer
       Create a renderer that renders into a region of the target raster. The region is specified in raster pixels.
 
       @param source The source renderer.
-      @param x The X offset of the destination region.
-      @param y The Y offset of the destination region.
-      @param w The width of the destination region.
-      @param h The height of the destination region.
+      @param bounds The bounds of the destination region, in raster pixels.
       @return the renderer.
     */
 
-    public static @NotNull Renderer createRasterOffsetRenderer(@NotNull Renderer source, int x, int y, int w, int h)
+    public static @NotNull Renderer createRasterOffsetRenderer(@NotNull Renderer source, @NotNull Rectangle bounds)
     {
-        return new OffsetRasterRendererX(source, x, y, w, h);
+        return new OffsetRasterRendererX(source, bounds);
     }
 
     public @Nullable BasicRenderer getBasicRenderer()
@@ -340,6 +324,15 @@ class OffsetRendererX
             int rw = (int) Math.ceil(scaleFactor * w);
             int rh = (int) Math.ceil(scaleFactor * h);
             compositor.composePainter(px, rx, ry, rw, rh);
+        } else {
+            int scaleFactor = compositor.getScaleFactor();
+            int rx = Math.round(scaleFactor * x);
+            int ry = Math.round(scaleFactor * y);
+            ReusableCompositor temp = compositor.createSimilar(w, h);
+            source.composeTo(temp);
+            int rw = temp.getRasterWidth();
+            int rh = temp.getRasterHeight();
+            compositor.composeFrom(temp, rx, ry, rw, rh);
         }
     }
 }
@@ -353,13 +346,13 @@ class OffsetRasterRendererX
     private final int w;
     private final int h;
 
-    public OffsetRasterRendererX(@NotNull Renderer source, int x, int y, int w, int h)
+    public OffsetRasterRendererX(@NotNull Renderer source, @NotNull Rectangle bounds)
     {
         this.source = source;
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
+        this.x = bounds.x;
+        this.y = bounds.y;
+        this.w = bounds.width;
+        this.h = bounds.height;
     }
 
     @Override

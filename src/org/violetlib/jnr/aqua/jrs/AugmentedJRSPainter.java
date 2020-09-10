@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -28,6 +28,10 @@ import org.jetbrains.annotations.*;
 public class AugmentedJRSPainter
   extends JRSPainter
 {
+    public AugmentedJRSPainter()
+    {
+    }
+
     @Override
     public @NotNull AugmentedJRSPainter copy()
     {
@@ -134,7 +138,8 @@ public class AugmentedJRSPainter
     @Override
     protected @Nullable Renderer getSliderTickMarkRenderer(@NotNull SliderConfiguration g)
     {
-        if (g.getWidget() != SliderWidget.SLIDER_CIRCULAR && g.hasTickMarks()) {
+        int style = getSliderRenderingVersion();
+        if (style == SLIDER_10_10 && g.isLinear() && g.hasTickMarks()) {
             return Renderer.create(new LinearSliderPainterExtension(uiLayout, g, appearance));
         } else {
             return null;

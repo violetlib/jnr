@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -40,6 +40,7 @@ public class CoreUIWidgets
     public static final String BUTTON_SEGMENTED_SLIDESHOW = "kCUIWidgetButtonSegmentedSlideshow";
     public static final String BUTTON_SEGMENTED_TEXTURED = "kCUIWidgetButtonSegmentedTextured";
     public static final String BUTTON_SEGMENTED_TOOLBAR = "kCUIWidgetButtonSegmentedToolbar";
+    public static final String BUTTON_SEGMENTED_SLIDER = "kCUIWidgetButtonSegmentedSlider";
 
     public static final String BUTTON_LITTLE_ARROWS = "littlearrows";
 
@@ -89,6 +90,9 @@ public class CoreUIWidgets
     public static final String SLIDER = "slider";
     public static final String SLIDER_THUMB = "kCUIWidgetSliderThumb";
     public static final String DIAL = "dial";
+    public static final String SLIDER_11 = "kCUIWidgetSliderModern";
+    public static final String SLIDER_THUMB_11 = "kCUIWidgetSliderThumbModern";
+    public static final String SLIDER_TICK_MARK_11 = "kCUIWidgetTickMarkModern";
 
     public static final String WINDOW_FRAME = "kCUIWidgetWindowFrame";
     public static final String TITLE_BAR_ZOOM_BOX = "titlebarzoom";

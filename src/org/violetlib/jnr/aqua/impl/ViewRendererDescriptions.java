@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -9,18 +9,16 @@
 package org.violetlib.jnr.aqua.impl;
 
 import org.violetlib.jnr.aqua.AquaUIPainter;
+import org.violetlib.jnr.aqua.ButtonConfiguration;
 import org.violetlib.jnr.aqua.ComboBoxConfiguration;
 import org.violetlib.jnr.aqua.SegmentedButtonConfiguration;
 import org.violetlib.jnr.aqua.SplitPaneDividerConfiguration;
 import org.violetlib.jnr.impl.BasicRendererDescription;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
-import org.violetlib.jnr.impl.JNRUtils;
 import org.violetlib.jnr.impl.MultiResolutionRendererDescription;
 import org.violetlib.jnr.impl.RendererDescription;
 
 import org.jetbrains.annotations.*;
-
-import static org.violetlib.jnr.impl.JNRUtils.*;
 
 /**
   Renderer descriptions for NSView based rendering on macOS 10.10 and later.
@@ -30,215 +28,49 @@ public class ViewRendererDescriptions
   extends RendererDescriptionsBase
 {
     @Override
-    public @NotNull RendererDescription getSegmentedButtonRendererDescription(@NotNull SegmentedButtonConfiguration g)
+    public @NotNull RendererDescription getButtonRendererDescription(@NotNull ButtonConfiguration g)
     {
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
-
-        RendererDescription rd = super.getSegmentedButtonRendererDescription(g);
-        if (platformVersion < 101300) {
-            return rd;
+        if (platformVersion >= 101600) {
+            AquaUIPainter.ButtonWidget bw = g.getButtonWidget();
+            AquaUIPainter.Size sz = g.getSize();
+            if (bw == AquaUIPainter.ButtonWidget.BUTTON_CHECK_BOX) {
+                switch (sz) {
+                    case LARGE:
+                        return new BasicRendererDescription(-1.49f, 0, 0, 0);
+                    case REGULAR:
+                        return new BasicRendererDescription(0, 0, 1, 0);
+                    case SMALL:
+                        return new BasicRendererDescription(0, -0.49f, 0, 0);
+                    case MINI:
+                        return new BasicRendererDescription(0, -1.49f, 0, 1);
+                    default:
+                        throw new UnsupportedOperationException();
+                }
+            } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_RADIO) {
+                switch (sz) {
+                    case LARGE:
+                        return new BasicRendererDescription(-1, 0, 1, 0);
+                    case REGULAR:
+                        return new BasicRendererDescription(0, 0, 0, 0);
+                    case SMALL:
+                        return new BasicRendererDescription(0, 0, 0, 1);
+                    case MINI:
+                        return new BasicRendererDescription(0, 0, 0, 1);
+                    default:
+                        throw new UnsupportedOperationException();
+                }
+            }
         }
 
-        int version = AquaUIPainterBase.internalGetSegmentedButtonRenderingVersion();
-        if (version == AquaUIPainterBase.SEGMENTED_10_13) {
-            return getSegmentedButtonRendererDescription13new(g, rd);
-        } else if (version == AquaUIPainterBase.SEGMENTED_10_14) {
-            return getSegmentedButtonRendererDescription14new(g, rd);
-        } else if (version == AquaUIPainterBase.SEGMENTED_10_13_OLD) {
-            return getSegmentedButtonRendererDescription13old(g, rd);
-        } else if (version == AquaUIPainterBase.SEGMENTED_10_14_OLD) {
-            return getSegmentedButtonRendererDescription14old(g, rd);
-        }
+        return super.getButtonRendererDescription(g);
+    }
 
+    @Override
+    public @NotNull RendererDescription getSegmentedButtonRendererDescription(@NotNull SegmentedButtonConfiguration g)
+    {
+        // This method is not used.
         throw new UnsupportedOperationException();
-    }
-
-    protected @NotNull RendererDescription getSegmentedButtonRendererDescription13new(@NotNull SegmentedButtonConfiguration g,
-                                                                                      @NotNull RendererDescription rd)
-    {
-        // Adjust renderer descriptions for macOS 10.13 new rendering
-
-        AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
-        AquaUIPainter.Size sz = g.getSize();
-
-        float y;
-
-        switch (bw) {
-            case BUTTON_TAB:
-            case BUTTON_SEGMENTED:
-            case BUTTON_SEGMENTED_SEPARATED:
-                y = size2D(sz, -1, -2.49f, -4);
-                break;
-
-            case BUTTON_SEGMENTED_INSET:
-                y = size2D(sz, -3, -4, -5);
-                break;
-
-            case BUTTON_SEGMENTED_SMALL_SQUARE:
-                y = size2D(sz, -1, -2, -3);
-                break;
-
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
-                y = size2D(sz, -1.49f, -2, -3.49f);
-                break;
-
-            case BUTTON_SEGMENTED_SCURVE:
-            case BUTTON_SEGMENTED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-                y = size2D(sz, -1.49f, -2, -4.49f);
-                break;
-
-            default:
-                throw new UnsupportedOperationException();
-        }
-
-        return JNRUtils.changeRendererDescription(rd, NO_CHANGE, y, NO_CHANGE, NO_CHANGE);
-    }
-
-    protected @NotNull RendererDescription getSegmentedButtonRendererDescription13old(@NotNull SegmentedButtonConfiguration g,
-                                                                                      @NotNull RendererDescription rd)
-    {
-        // Adjust renderer descriptions for macOS 10.13 old rendering
-
-        AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
-        AquaUIPainter.Size sz = g.getSize();
-
-        float y;
-
-        switch (bw) {
-            case BUTTON_TAB:
-            case BUTTON_SEGMENTED:
-            case BUTTON_SEGMENTED_SEPARATED:
-                y = size2D(sz, -1, -2.49f, -4);
-                break;
-
-            case BUTTON_SEGMENTED_INSET:
-                y = size2D(sz, -3, -4, -5);
-                break;
-
-            case BUTTON_SEGMENTED_SMALL_SQUARE:
-                y = size2D(sz, -1, -2, -3);
-                break;
-
-            case BUTTON_SEGMENTED_TEXTURED:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
-                y = size2D(sz, -1.49f, -2.49f, -3.49f);
-                break;
-
-            case BUTTON_SEGMENTED_TOOLBAR:
-                y = size2D(sz, -1.49f, -2.49f, -4.49f);
-                break;
-
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-                y = size2D(sz, -1.49f, -2, -1.49f);
-                break;
-
-            case BUTTON_SEGMENTED_SCURVE:
-                y = size2D(sz, -1, -2.49f, -4.49f);
-                break;
-
-            default:
-                throw new UnsupportedOperationException();
-        }
-
-        return JNRUtils.changeRendererDescription(rd, NO_CHANGE, y, NO_CHANGE, NO_CHANGE);
-    }
-
-    protected @NotNull RendererDescription getSegmentedButtonRendererDescription14old(@NotNull SegmentedButtonConfiguration g,
-                                                                                      @NotNull RendererDescription rd)
-    {
-        // Adjust renderer descriptions for macOS 10.14 old rendering
-
-        AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
-        AquaUIPainter.Size sz = g.getSize();
-
-        float y;
-
-        switch (bw) {
-            case BUTTON_TAB:
-            case BUTTON_SEGMENTED:
-            case BUTTON_SEGMENTED_SEPARATED:
-                y = size2D(sz, -1, -2.49f, -4);
-                break;
-
-            case BUTTON_SEGMENTED_INSET:
-                y = size2D(sz, -3, -4, -5);
-                break;
-
-            case BUTTON_SEGMENTED_SMALL_SQUARE:
-                y = size2D(sz, -1, -2, -3);
-                break;
-
-            case BUTTON_SEGMENTED_TEXTURED:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
-                y = size2D(sz, -1.49f, -2.49f, -3.49f);
-                break;
-
-            case BUTTON_SEGMENTED_TOOLBAR:
-                y = size2D(sz, -1.49f, -2.49f, -4.49f);
-                break;
-
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-                y = size2D(sz, -1.49f, -2, -1.49f);
-                break;
-
-            case BUTTON_SEGMENTED_SCURVE:
-                y = size2D(sz, -1, -2.49f, -4.49f);
-                break;
-
-            default:
-                throw new UnsupportedOperationException();
-        }
-
-        return JNRUtils.changeRendererDescription(rd, NO_CHANGE, y, NO_CHANGE, NO_CHANGE);
-    }
-
-    protected @NotNull RendererDescription getSegmentedButtonRendererDescription14new(@NotNull SegmentedButtonConfiguration g,
-                                                                                      @NotNull RendererDescription rd)
-    {
-        // Adjust renderer descriptions for macOS 10.14 new rendering
-
-        AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
-        AquaUIPainter.Size sz = g.getSize();
-
-        float y;
-
-        switch (bw) {
-            case BUTTON_TAB:
-            case BUTTON_SEGMENTED:
-            case BUTTON_SEGMENTED_SEPARATED:
-                y = size2D(sz, -1, -2, -4);
-                break;
-
-            case BUTTON_SEGMENTED_INSET:
-                y = size2D(sz, -3, -4, -5);
-                break;
-
-            case BUTTON_SEGMENTED_SMALL_SQUARE:
-                y = size2D(sz, -1, -2, -3);
-                break;
-
-            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-                y = size2D(sz, -1.49f, -2.49f, -3.49f);
-                break;
-
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-            case BUTTON_SEGMENTED_TEXTURED:
-            case BUTTON_SEGMENTED_SCURVE:
-            case BUTTON_SEGMENTED_TOOLBAR:
-                y = size2D(sz, -1.49f, -2, -4.49f);
-                break;
-
-            default:
-                throw new UnsupportedOperationException();
-        }
-
-        return JNRUtils.changeRendererDescription(rd, NO_CHANGE, y, NO_CHANGE, NO_CHANGE);
     }
 
     @Override
