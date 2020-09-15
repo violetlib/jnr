@@ -5,6 +5,7 @@
 /dist
 /out
 /lib
+/deploy
 /release/full/dist
 /release/full/out
 /release/view/dist
