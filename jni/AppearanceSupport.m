@@ -6,7 +6,6 @@
  * accompanying license terms.
  */
 
-#import <Cocoa/Cocoa.h>
 #include "AppearanceSupport.h"
 
 static NSMutableArray *knownAppearanceNames;
