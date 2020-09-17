@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Alan Snyder.
+ * Copyright (c) 2018-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -11,6 +11,7 @@
 static NSMutableArray *knownAppearanceNames;
 
 NSAppearance *configuredAppearance;
+NSUInteger configuredAppearanceID = -1;
 
 NSUInteger registerAppearance(NSString *appearanceName)
 {
@@ -29,11 +30,16 @@ NSUInteger registerAppearance(NSString *appearanceName)
 
 void setAppearance(NSUInteger appearanceID) {
 
-    if (knownAppearanceNames && appearanceID >= 0 && appearanceID < knownAppearanceNames.count) {
-        NSString *appearanceName = (NSString *) knownAppearanceNames[appearanceID];
-        configuredAppearance = [NSAppearance appearanceNamed:appearanceName];
-    } else {
-        NSLog(@"Invalid appearance ID: %ld", (long) appearanceID);
-        configuredAppearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua];
+    if (appearanceID != configuredAppearanceID) {
+        if (knownAppearanceNames && appearanceID >= 0 && appearanceID < knownAppearanceNames.count) {
+            NSString *appearanceName = (NSString *) knownAppearanceNames[appearanceID];
+            configuredAppearance = [NSAppearance appearanceNamed:appearanceName];
+            configuredAppearanceID = appearanceID;
+            NSLog(@"Selected appearance: %@", appearanceName);
+        } else {
+            NSLog(@"Invalid appearance ID: %ld", (long) appearanceID);
+            configuredAppearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua];
+            configuredAppearanceID = -1;
+        }
     }
 }
