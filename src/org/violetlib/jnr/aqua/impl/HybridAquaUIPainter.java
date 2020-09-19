@@ -159,7 +159,10 @@ public class HybridAquaUIPainter
         } else if (g instanceof SliderConfiguration) {
             SliderConfiguration bg = (SliderConfiguration) g;
             if (bg.getSize() == Size.MINI) {
-                return viewPainter;
+                int platformVersion = JNRPlatformUtils.getPlatformVersion();
+                if (platformVersion < 101500) {
+                    return viewPainter;
+                }
             }
             return coreUIPainter;
         } else if (g instanceof TitleBarConfiguration) {
