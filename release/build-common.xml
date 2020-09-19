@@ -65,8 +65,7 @@
     </target>
 
     <!--
-      To use the Maven resolver, the Maven resolver ant tasks uber JAR must be built from source
-      and installed in .ant/lib.
+      To use the Maven resolver, the Maven resolver ant tasks uber JAR must be installed in .ant/lib.
       See https://maven.apache.org/resolver-ant-tasks/
     -->
 
