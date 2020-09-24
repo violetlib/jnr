@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Alan Snyder.
+ * Copyright (c) 2018-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -44,13 +44,43 @@ public class ImageUtils
 
         public int filterRGB(int x, int y, int rgb)
         {
-            // Use NTSC conversion formula.
-            int gray = (int)((0.30 * ((rgb >> 16) & 0xff) + 0.59 * ((rgb >> 8) & 0xff) + 0.11 * (rgb & 0xff)) / 3);
-            gray = (int) ((255 - gray) * 0.7);
-            if (gray < 0) gray = 0;
-            if (gray > 255) gray = 255;
-            return (rgb & 0xff000000) | (gray << 16) | (gray << 8) | (gray << 0);
+            return toGray(rgb);
         }
+    }
+
+    public static int toGray(int pixel)
+    {
+        // Use NTSC conversion formula.
+        int gray = (int)((0.30 * red(pixel) + 0.59 * green(pixel) + 0.11 * blue(pixel)) / 3);
+        gray = (int) ((255 - gray) * 0.7);
+        if (gray < 0) gray = 0;
+        if (gray > 255) gray = 255;
+        return createPixel(alpha(pixel), gray, gray, gray);
+    }
+
+    public static int createPixel(int alpha, int red, int green, int blue)
+    {
+        return ((alpha & 0xff) << 24) + ((red & 0xff) << 16) + ((green & 0xff) << 8) + (blue & 0xff);
+    }
+
+    public static int alpha(int pixel)
+    {
+        return (pixel >> 24) & 0xff;
+    }
+
+    public static int red(int pixel)
+    {
+        return (pixel >> 16) & 0xff;
+    }
+
+    public static int green(int pixel)
+    {
+        return (pixel >> 8) & 0xff;
+    }
+
+    public static int blue(int pixel)
+    {
+        return (pixel >> 0) & 0xff;
     }
 
     private static @NotNull Image waitForImage(@NotNull Image image)

@@ -15,6 +15,7 @@ import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.Painter;
 import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.aqua.impl.AquaUIPainterBase;
+import org.violetlib.jnr.aqua.impl.FromMaskOperator;
 import org.violetlib.jnr.aqua.impl.LinearSliderRenderer;
 import org.violetlib.jnr.aqua.impl.PopupRenderer;
 import org.violetlib.jnr.aqua.impl.SliderTickConfiguration;
@@ -1065,16 +1066,18 @@ public class JRSPainter
         Insetter thumbInsets = uiLayout.getSliderThumbPaintingInsets(g, g.getValue());
         Insetter tickMarkInsets = trackInsets;
         boolean isThumbTranslucent = appearance != null && appearance.isDark();
+        ReusableCompositor.PixelOperator tickOperator = null;
 
         // The interpretation of thumb painting insets changed for the new linear slider style.
         // The use of a tick mark renderer was introduced for the new linear slider style.
 
         if (style == SLIDER_11_0) {
             thumbInsets = trackInsets.prepend(thumbInsets);
+            tickOperator = new FromMaskOperator();
         }
 
         return new LinearSliderRenderer(g, trackRenderer, trackInsets, tickMarkRenderer, tickMarkInsets,
-          thumbRenderer, thumbInsets, isThumbTranslucent);
+          thumbRenderer, thumbInsets, isThumbTranslucent, tickOperator);
     }
 
     protected @Nullable Renderer getSliderTickMarkRenderer(@NotNull SliderConfiguration g)

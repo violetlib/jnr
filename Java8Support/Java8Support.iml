@@ -8,7 +8,7 @@
     <orderEntry type="jdk" jdkName="8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="VAquaRendering" />
-    <orderEntry type="library" name="IdeaAnnotations" level="application" />
-    <orderEntry type="library" name="VAppearances" level="application" />
+    <orderEntry type="library" name="org.jetbrains:annotations:20.1.0" level="application" />
+    <orderEntry type="library" name="org.violetlib:vappearances:2" level="application" />
   </component>
 </module>

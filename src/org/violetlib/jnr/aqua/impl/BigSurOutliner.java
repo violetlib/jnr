@@ -22,13 +22,14 @@ import org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 import org.violetlib.jnr.aqua.ButtonConfiguration;
 import org.violetlib.jnr.aqua.ButtonLayoutConfiguration;
+import org.violetlib.jnr.aqua.PopupButtonLayoutConfiguration;
 import org.violetlib.jnr.aqua.SegmentedButtonLayoutConfiguration;
 import org.violetlib.jnr.aqua.SliderThumbLayoutConfiguration;
-import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 import org.jetbrains.annotations.*;
 
 import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.*;
 import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.*;
 
 /**
@@ -48,7 +49,6 @@ public class BigSurOutliner
         ButtonWidget bw = g.getButtonWidget();
         Size sz = g.getSize();
         AquaUIPainter.ButtonState bs = getButtonState(g);
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
 
         double x = bounds.getX();
         double y = bounds.getY();
@@ -310,6 +310,38 @@ public class BigSurOutliner
         }
 
         return new Rectangle2D.Double(x, y, width, height);
+    }
+
+    @Override
+    protected @Nullable Shape getPopUpButtonOutline(@NotNull Rectangle2D bounds, @NotNull PopupButtonLayoutConfiguration g)
+    {
+        AquaUIPainter.PopupButtonWidget bw = g.getPopupButtonWidget();
+        Size sz = g.getSize();
+
+        if (bw == BUTTON_POP_UP || bw == BUTTON_POP_DOWN) {
+            double x = bounds.getX();
+            double y = bounds.getY();
+            double width = bounds.getWidth();
+            double height = bounds.getHeight();
+
+            double corner = size2D(sz, 12, 10, 8, 8);
+
+            if (bw == BUTTON_POP_DOWN) {
+                x += size2D(sz, 1.5, -0.5, .5, 1.5);
+                width += size2D(sz, -3, 0, -1, -3);
+                y += size2D(sz, 1.5, -0.5, 0.5, 0.5);
+                height += size2D(sz, -2, -1, -2, -2);
+            } else {
+                x += size2D(sz, 2.5, .5, .5, .5);
+                width += size2D(sz, -4, -1, -1, -1);
+                y += size2D(sz, 1, -0.5, 0, 0.5);
+                height += size2D(sz, -2, -1.5, -2, -2);
+            }
+
+            return new RoundRectangle2D.Double(x, y, width, height, corner, corner);
+        }
+
+        return super.getPopUpButtonOutline(bounds, g);
     }
 
     @Override

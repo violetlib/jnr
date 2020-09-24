@@ -13,6 +13,7 @@ import java.util.Objects;
 import org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 import org.violetlib.jnr.aqua.AquaUIPainter.UILayoutDirection;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 import org.jetbrains.annotations.*;
 
@@ -47,7 +48,10 @@ public class PopupButtonLayoutConfiguration
                 size = Size.REGULAR;
             }
         } else if (size == Size.LARGE) {
-            size = Size.REGULAR;
+            int platformVersion = JNRPlatformUtils.getPlatformVersion();
+            if (platformVersion < 101600 || !supportsLarge(bw)) {
+                size = Size.REGULAR;
+            }
         }
 
         this.bw = bw;
@@ -164,6 +168,18 @@ public class PopupButtonLayoutConfiguration
                 return false;
             default:
                 return true;
+        }
+    }
+
+    public static boolean supportsLarge(@NotNull PopupButtonWidget w)
+    {
+        switch (w)
+        {
+            case BUTTON_POP_DOWN:
+            case BUTTON_POP_UP:
+                return true;
+            default:
+                return false;
         }
     }
 }

@@ -16,6 +16,7 @@ import java.util.List;
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.aqua.impl.AquaUIPainterBase;
+import org.violetlib.jnr.aqua.impl.FromMaskOperator;
 import org.violetlib.jnr.aqua.impl.LinearSliderRenderer;
 import org.violetlib.jnr.aqua.impl.NativeSupport;
 import org.violetlib.jnr.aqua.impl.PopupRenderer;
@@ -191,7 +192,7 @@ public class CoreUIPainter
             case BUTTON_ROUND_TEXTURED:
                 widget = CoreUIWidgets.BUTTON_ROUND_TEXTURED; break;
             case BUTTON_ROUND_TOOLBAR:
-                widget = platformVersion >= 101100 && sz != Size.LARGE ? CoreUIWidgets.BUTTON_ROUND_TOOLBAR : CoreUIWidgets.BUTTON_ROUND; break;
+                widget = CoreUIWidgets.BUTTON_ROUND_TOOLBAR; break;
             case BUTTON_INLINE:
                 widget = CoreUIWidgets.BUTTON_PUSH_SLIDESHOW; break;  // not correct, inline buttons are not supported by Core UI
             case BUTTON_TEXTURED:
@@ -1085,17 +1086,22 @@ public class CoreUIPainter
         Insetter trackInsets = uiLayout.getSliderTrackPaintingInsets(g);
         Insetter thumbInsets = uiLayout.getSliderThumbPaintingInsets(g, g.getValue());
         Insetter tickMarkInsets = uiLayout.getSliderTickMarkPaintingInsets(g);
+
+        // Translucent is a misnomer. Actually it is picking up color from the background, but the painting is opaque.
+
         boolean isThumbTranslucent = appearance != null && appearance.isDark();
+        ReusableCompositor.PixelOperator tickOperator = null;
 
         // The interpretation of thumb painting insets changed for the new linear slider style.
         // The use of a tick mark renderer was introduced for the new linear slider style.
 
         if (style == SLIDER_11_0) {
             thumbInsets = trackInsets.prepend(thumbInsets);
+            tickOperator = new FromMaskOperator();
         }
 
         Renderer r = new LinearSliderRenderer(g, trackRenderer, trackInsets, tickMarkRenderer, tickMarkInsets,
-          thumbRenderer, thumbInsets, isThumbTranslucent);
+          thumbRenderer, thumbInsets, isThumbTranslucent, tickOperator);
         if (flippedConfiguration != null) {
             r = new FlipVerticalRenderer(r);
         }
@@ -1156,18 +1162,27 @@ public class CoreUIPainter
     {
         return (g, isTinted) -> {
 
+            // isTinted was used to distinguish ticks above vs. below the thumb.
+            // That distinction was made initially, but abandoned.
+            isTinted = false;
+
             Size sz = g.getSize();
             State st = g.getState();
-            if (st == State.ROLLOVER) {
-                st = State.ACTIVE;
+            // The inactive state is used to paint gray tick marks.
+            // Accent colors were used initially, but abandoned.
+            if (st != State.DISABLED && st != State.DISABLED_INACTIVE) {
+                st = State.INACTIVE;
             }
 
             String orientation = g.isVertical() ? CoreUIOrientations.VERTICAL : CoreUIOrientations.HORIZONTAL;
             Object uiDirection = CoreUIUserInterfaceDirections.LEFT_TO_RIGHT;
 
+            // Mask Only is used by AppKit to get an opaque tick mark, but then it is painted red.
+            // The solution here is to generate a translucent tick mark and fix it in the LinearSlidererRenderer.
+
             BasicRenderer r = getRenderer(
               WIDGET_KEY, CoreUIWidgets.SLIDER_TICK_MARK_11,
-              //MASK_ONLY_KEY, true,
+              MASK_ONLY_KEY, false,
               SIZE_KEY, toSize(sz),
               STATE_KEY, toState(st),
               PRESENTATION_STATE_KEY, toPresentationState(st),
@@ -1205,8 +1220,7 @@ public class CoreUIPainter
         if (st == State.ROLLOVER) {
             st = State.ACTIVE;
         }
-        boolean isTinted = st != State.DISABLED && st != State.DISABLED_INACTIVE
-                             && (!g.hasTickMarks() || style == SLIDER_11_0);
+        boolean isTinted = st != State.DISABLED && st != State.DISABLED_INACTIVE && !g.hasTickMarks();
         String orientation = sw == SliderWidget.SLIDER_VERTICAL ? CoreUIOrientations.VERTICAL : CoreUIOrientations.HORIZONTAL;
         Object direction = g.hasTickMarks() && style == SLIDER_10_10 ? toDirection(g.getTickMarkPosition()) : CoreUIDirections.NONE;
 
@@ -1365,6 +1379,15 @@ public class CoreUIPainter
         State st = g.getState();
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
         boolean useLayer = false;
+
+        // In 11.0, segment button backgrounds do not change when disabled.
+        if (platformVersion >= 101600) {
+            if (st == State.DISABLED) {
+                st = State.ACTIVE;
+            } else if (st == State.DISABLED_INACTIVE) {
+                st = State.INACTIVE;
+            }
+        }
 
         // On 10.14, textured segmented button backgrounds do not change when inactive, but CoreUI will paint them
         // differently. The configurations cannot be canonicalized because the text colors differ.

@@ -18,6 +18,8 @@ import org.violetlib.jnr.impl.ReusableCompositor;
 
 import org.jetbrains.annotations.*;
 
+import static org.violetlib.jnr.impl.ImageUtils.*;
+
 /**
   A renderer for linear sliders using CoreUI based renderers for the track, thumb, and optionally tick marks. It
   repositions the track and thumb to match what NSSlider paints (more or less).
@@ -36,6 +38,7 @@ public class LinearSliderRenderer
     protected final @NotNull Renderer thumbRenderer;
     protected final @NotNull Insetter thumbInsets;
     protected final boolean isThumbTranslucent;
+    protected final @Nullable ReusableCompositor.PixelOperator tickOperator;
 
     public LinearSliderRenderer(@NotNull SliderConfiguration g,
                                 @NotNull Renderer trackRenderer,
@@ -44,7 +47,8 @@ public class LinearSliderRenderer
                                 @Nullable Insetter tickMarkInsets,
                                 @NotNull Renderer thumbRenderer,
                                 @NotNull Insetter thumbInsets,
-                                boolean isThumbTranslucent)
+                                boolean isThumbTranslucent,
+                                @Nullable ReusableCompositor.PixelOperator tickOperator)
     {
         this.g = g;
         this.trackRenderer = trackRenderer;
@@ -54,6 +58,7 @@ public class LinearSliderRenderer
         this.thumbRenderer = thumbRenderer;
         this.thumbInsets = thumbInsets;
         this.isThumbTranslucent = isThumbTranslucent;
+        this.tickOperator = tickOperator;
     }
 
     @Override
@@ -69,7 +74,13 @@ public class LinearSliderRenderer
             if (tickMarkRenderer != null && tickMarkInsets != null) {
                 Rectangle2D tickMarkBounds = tickMarkInsets.apply2D(w, h);
                 Renderer tr = Renderer.createOffsetRenderer(tickMarkRenderer, tickMarkBounds);
-                tr.composeTo(compositor);
+                if (tickOperator != null) {
+                    ReusableCompositor mask = compositor.createSimilar();
+                    tr.composeTo(mask);
+                    compositor.blendFrom(mask, tickOperator);
+                } else {
+                    tr.composeTo(compositor);
+                }
             }
         }
 
@@ -97,7 +108,7 @@ public class LinearSliderRenderer
         @Override
         public int combine(int destinationPixel, int sourcePixel)
         {
-            int alpha = (sourcePixel >> 24) & 0xFF;
+            int alpha = alpha(sourcePixel);
             if (alpha == 0) {
                 return destinationPixel;
             }

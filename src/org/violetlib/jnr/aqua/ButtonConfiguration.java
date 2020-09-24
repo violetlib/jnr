@@ -141,6 +141,11 @@ public class ButtonConfiguration
             return true;
         }
 
+        // Inline buttons are sensitive in 11.0
+        if (bw == ButtonWidget.BUTTON_INLINE && platformVersion >= 101600) {
+            return true;
+        }
+
         // Starting with macOS 10.15, there are no additional sensitive buttons
         if (platformVersion >= 101500) {
             return false;

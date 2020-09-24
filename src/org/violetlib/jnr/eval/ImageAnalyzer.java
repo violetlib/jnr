@@ -13,6 +13,8 @@ import java.awt.image.BufferedImage;
 
 import org.jetbrains.annotations.*;
 
+import static org.violetlib.jnr.impl.ImageUtils.*;
+
 /**
   A tool that can be useful for determining the layout properties of native rendering. Note that although automatic
   analysis often works, there are cases where it does not. For this reason, the layout parameters used by this library
@@ -128,7 +130,6 @@ public class ImageAnalyzer
 
     private static boolean isTransparent(int pixel)
     {
-        int alpha = (pixel >> 24) & 0xFF;
-        return alpha == 0;
+        return alpha(pixel) == 0;
     }
 }

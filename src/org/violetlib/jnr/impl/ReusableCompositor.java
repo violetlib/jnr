@@ -16,6 +16,8 @@ import java.util.Arrays;
 
 import org.jetbrains.annotations.*;
 
+import static org.violetlib.jnr.impl.ImageUtils.*;
+
 /**
   A compositor that renders into an INT_ARGB_PRE raster from various sources. Multiple renderings can be composed into
   the same raster. The raster can be drawn to a graphics context or returned as an image.
@@ -72,7 +74,7 @@ public class ReusableCompositor
 
     public interface PixelOperator
     {
-        int combine(int destintationPixel, int sourcePixel);
+        int combine(int destinationPixel, int sourcePixel);
     }
 
     /**
@@ -416,7 +418,7 @@ public class ReusableCompositor
                         for (int col = 0; col < rasterWidth; col++) {
                             int sourceCol = rasterWidth - col - 1;
                             int pixel = sourceData[row * sourceWidth + sourceCol];
-                            int alpha = (pixel >> 24) & 0xFF;
+                            int alpha = alpha(pixel);
                             if (alpha != 0) {
                                 isEmpty = false;
                                 data[row * rasterWidth + col] = pixel;
@@ -461,7 +463,7 @@ public class ReusableCompositor
                         for (int col = 0; col < rasterWidth; col++) {
                             int sourceRow = rasterHeight - row - 1;
                             int pixel = sourceData[sourceRow * sourceWidth + col];
-                            int alpha = (pixel >> 24) & 0xFF;
+                            int alpha = alpha(pixel);
                             if (alpha != 0) {
                                 isEmpty = false;
                                 data[row * rasterWidth + col] = pixel;
@@ -521,9 +523,9 @@ public class ReusableCompositor
                                 int col = dx + colOffset;
                                 if (col >= 0 && col < rasterWidth) {
                                     int pixel = sourceData[rowOffset * sourceWidth + colOffset];
-                                    int alpha = (pixel >> 24) & 0xFF;
+                                    int alpha = alpha(pixel);
                                     if (alpha != 0) {
-                                        if (alpha != 0xFF) {
+                                        if (alpha != 0xff) {
                                             pixel = JNRUtils.combine(data[row * rasterWidth + col], pixel);
                                         }
                                         data[row * rasterWidth + col] = pixel;
@@ -589,9 +591,9 @@ public class ReusableCompositor
                                 int col = dx + colOffset;
                                 if (col >= 0 && col < rasterWidth && sourceColumn >= 0 && sourceColumn < sourceWidth) {
                                     int pixel = sourceData[sourceRow * sourceWidth + sourceColumn];
-                                    int alpha = (pixel >> 24) & 0xFF;
+                                    int alpha = alpha(pixel);
                                     if (alpha != 0) {
-                                        if (alpha != 0xFF) {
+                                        if (alpha != 0xff) {
                                             pixel = JNRUtils.combine(data[row * rasterWidth + col], pixel);
                                         }
                                         data[row * rasterWidth + col] = pixel;
@@ -703,7 +705,7 @@ public class ReusableCompositor
                                     int sourcePixel = sourceData[rowOffset * sourceWidth + colOffset];
                                     int destinationPixel = data[destinationIndex];
                                     int pixel = op.combine(destinationPixel, sourcePixel);
-                                    int alpha = (pixel >> 24) & 0xFF;
+                                    int alpha = alpha(pixel);
                                     if (alpha != 0) {
                                         data[destinationIndex] = pixel;
                                         isEmpty = false;

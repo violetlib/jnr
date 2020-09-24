@@ -131,20 +131,13 @@ public class BigSurLayoutInfo
     {
         AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
         AquaUIPainter.Size sz = g.getSize();
-        boolean isSolo = g.getPosition() == AquaUIPainter.Position.ONLY;
 
         switch (bw) {
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
-                if (isSolo) {
-                    // Appears to be using the separated style
-                    return BasicLayoutInfo.createFixedHeight(size(sz, 31, 23, 19, 16));
-                }
-                return BasicLayoutInfo.createFixedHeight(size(sz, 30, 22, 18, 15));
-
             case BUTTON_SEGMENTED_SEPARATED:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 31, 23, 19, 16));
+                return BasicLayoutInfo.createFixedHeight(size(sz, 32, 24, 20, 16));
 
             case BUTTON_SEGMENTED_INSET:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 18, 16, 14));
@@ -158,11 +151,29 @@ public class BigSurLayoutInfo
             case BUTTON_SEGMENTED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 20, 16, 13));
+                return BasicLayoutInfo.createFixedHeight(size(sz, 28, 22, 17, 15));
 
             default:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    @Override
+    protected @NotNull LayoutInfo getPopUpButtonLayoutInfo(@NotNull PopupButtonLayoutConfiguration g)
+    {
+        AquaUIPainter.PopupButtonWidget bw = g.getPopupButtonWidget();
+        AquaUIPainter.Size sz = g.getSize();
+
+        switch (bw) {
+            case BUTTON_POP_UP:
+            case BUTTON_POP_DOWN: {
+                float fixedHeight = size(sz, 31, 22, 19, 16);
+                float minWidth = size(sz, 44, 25, 24, 20);
+                return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
+            }
+        }
+
+        return super.getPopUpButtonLayoutInfo(g);
     }
 
     @Override
@@ -174,16 +185,17 @@ public class BigSurLayoutInfo
             float top = 1;
             float bottom = 1;
             float far = 3;
-            float near = size2D(sz, 21, 17, 14);
+            float near = size2D(sz, 28, 21, 17, 14);
 
             switch (bw) {
                 case BUTTON_POP_UP:
                 default:
-                    bottom = size2D(sz, 2.5f, 2.5f, 2);
-                    top = size2D(sz, 0.5f, 0.5f, 1);
+                    bottom = size2D(sz, 3, 2.5, 2.5, 2);
+                    top = size2D(sz, 3, 0.5, 0.5, 1);
                     break;
                 case BUTTON_POP_DOWN:
-                    bottom = 2;
+                    bottom = size2D(sz, 2, 2.5, 2, 2);
+                    top = size2D(sz, 3, 0, 0, 0);
                     break;
             }
             LayoutInfo layoutInfo = getLayoutInfo(g);

@@ -921,6 +921,7 @@ public class SegmentedControlDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_TOOLBAR:
                 first = size2D(sz, 13, 3, 3, 5);
                 middle = size2D(sz, 13, 3, 3, 5);
                 last = size2D(sz, 12, 2, 2, 4);
@@ -942,7 +943,6 @@ public class SegmentedControlDescriptions
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
             case BUTTON_SEGMENTED_SCURVE:
-            case BUTTON_SEGMENTED_TOOLBAR:
                 first = size2D(sz, 16, 5, 5, 5);
                 middle = size2D(sz, 11, 5, 5, 5);
                 last = size2D(sz, 15, 4, 4, 4);

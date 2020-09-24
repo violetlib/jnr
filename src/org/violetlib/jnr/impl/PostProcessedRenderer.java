@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Alan Snyder.
+ * Copyright (c) 2018-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -11,6 +11,8 @@ package org.violetlib.jnr.impl;
 import java.util.Arrays;
 
 import org.jetbrains.annotations.*;
+
+import static org.violetlib.jnr.impl.ImageUtils.*;
 
 /**
   A basic renderer that renders into a temporary raster using a specified basic renderer, post processes the pixels,
@@ -79,14 +81,14 @@ public abstract class PostProcessedRenderer
 
     protected int processRawPixel(int row, int col, int pixel)
     {
-        int alpha = (pixel >> 24) & 0xFF;
+        int alpha = alpha(pixel);
         if (alpha == 0) {
             return pixel;
         }
 
-        int red = (pixel >> 16) & 0xFF;
-        int green = (pixel >> 8) & 0xFF;
-        int blue = (pixel >> 0) & 0xFF;
+        int red = red(pixel);
+        int green = green(pixel);
+        int blue = blue(pixel);
 
         // convert from premultiplied alpha
         if (alpha > 0) {

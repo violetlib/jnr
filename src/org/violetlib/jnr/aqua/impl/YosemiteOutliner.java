@@ -365,7 +365,7 @@ public class YosemiteOutliner
             if (bw == BUTTON_POP_DOWN) {
                 height += size2D(sz, -2, -2, -2);
                 y += size2D(sz, 0.5f, 0.5f, 0.5f);
-            } else if (bw == BUTTON_POP_UP){
+            } else if (bw == BUTTON_POP_UP) {
                 height += size2D(sz, -2, -2, -2);
                 y += size2D(sz, 0, 0, 0.5f);
             } else if (bw == BUTTON_POP_UP_BEVEL || bw == BUTTON_POP_DOWN_BEVEL) {

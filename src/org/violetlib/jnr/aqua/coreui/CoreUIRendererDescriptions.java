@@ -162,6 +162,13 @@ public class CoreUIRendererDescriptions
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+
+                if (platformVersion >= 101600) {
+                    if (!bw.isToolbar()) {
+                        return new BasicRendererDescription(-1, 0, 0, 1);
+                    }
+                }
+
                 if (sz == AquaUIPainter.Size.MINI) {
                     rd = createVertical(0, 4);
                 }
