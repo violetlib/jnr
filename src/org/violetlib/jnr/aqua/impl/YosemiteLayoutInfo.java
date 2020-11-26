@@ -234,6 +234,8 @@ public class YosemiteLayoutInfo
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 22, 19, 16));
 
             case BUTTON_SEGMENTED_INSET:
@@ -242,9 +244,11 @@ public class YosemiteLayoutInfo
             case BUTTON_SEGMENTED_SCURVE:
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 23, 19, 16));
 
             case BUTTON_SEGMENTED_SMALL_SQUARE:
@@ -291,6 +295,7 @@ public class YosemiteLayoutInfo
                 break;
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 endAdjust = 0;
                 left = right = 3;
                 break;

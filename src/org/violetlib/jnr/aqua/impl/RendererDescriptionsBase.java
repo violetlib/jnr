@@ -190,6 +190,8 @@ public abstract class RendererDescriptionsBase
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                 switch (sz) {
                     case LARGE:
                     case REGULAR:
@@ -218,9 +220,11 @@ public abstract class RendererDescriptionsBase
             case BUTTON_SEGMENTED_SCURVE:
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 switch (sz) {
                     case LARGE:
                     case REGULAR:
@@ -228,8 +232,7 @@ public abstract class RendererDescriptionsBase
                     case SMALL:
                     {
                         float y = -0.49f;
-                        if (bw == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_TOOLBAR
-                              || bw == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR) {
+                        if (bw.isToolbar()) {
                             y = -1.49f;
                         } else if (bw == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED) {
                             y = -0.1f;

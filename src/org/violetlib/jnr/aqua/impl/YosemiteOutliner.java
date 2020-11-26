@@ -192,6 +192,8 @@ public class YosemiteOutliner
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                 corner = 6;
 
                 x += size2D(sz, isLeft ? 0.5f : 0, 0, 0);
@@ -224,12 +226,14 @@ public class YosemiteOutliner
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
                 width += size2D(sz, 0, 0, 0);
                 height += size2D(sz, -1, -2, -1);
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 if (pos == Position.ONLY || pos == Position.FIRST) {
                     width -= 0.5;
                 }

@@ -149,6 +149,22 @@ public class CoreUIRendererDescriptions
                 leftExtraWidth = rightExtraWidth = size(sz, 2, 2, 1);
                 break;
 
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
+
+                yOffset = size2D(sz, 0, 0, -0.49f, -1.49f);
+                leftOffset = size(sz, -6, -1, -1, -1);
+
+                if (shouldUseSpecialSeparatedDescription(g)) {
+                    // completely different rules
+                    return getSegmentedSeparatedRendererDescription(g, rd, yOffset, leftOffset);
+                }
+
+                leftExtraWidth = size(sz, 6, 1, 1, 1);
+                rightExtraWidth = size(sz, 6, 1, 1, 1);
+                extraHeight = size(sz, -1, 0, 0, 0);
+                break;
+
             case BUTTON_SEGMENTED_INSET:
                 yOffset = size2D(sz, -1, -1.51f, -2);  // small size should be -2 at 1x
                 leftOffset = -1;
@@ -160,8 +176,10 @@ public class CoreUIRendererDescriptions
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
 
                 if (platformVersion >= 101600) {
                     if (!bw.isToolbar()) {
@@ -203,9 +221,8 @@ public class CoreUIRendererDescriptions
         if (bw == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED) {
             return true;
         }
-        if (bw == AquaUIPainter.SegmentedButtonWidget.BUTTON_TAB && g.isSelected()) {
-            int platformVersion = JNRPlatformUtils.getPlatformVersion();
-            return platformVersion >= 101600;
+        if (g.isSelected() && bw.isSlider()) {
+            return true;
         }
         return false;
     }

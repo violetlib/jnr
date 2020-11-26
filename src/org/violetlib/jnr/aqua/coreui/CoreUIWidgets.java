@@ -41,6 +41,7 @@ public class CoreUIWidgets
     public static final String BUTTON_SEGMENTED_TEXTURED = "kCUIWidgetButtonSegmentedTextured";
     public static final String BUTTON_SEGMENTED_TOOLBAR = "kCUIWidgetButtonSegmentedToolbar";
     public static final String BUTTON_SEGMENTED_SLIDER = "kCUIWidgetButtonSegmentedSlider";
+    public static final String BUTTON_SEGMENTED_SLIDER_TOOLBAR = "kCUIWidgetButtonSegmentedSliderToolbar";
 
     public static final String BUTTON_LITTLE_ARROWS = "littlearrows";
 

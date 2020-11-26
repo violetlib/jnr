@@ -33,6 +33,7 @@ public class SplitPaneDividerLayoutConfiguration
         this.thickness = thickness;
     }
 
+    @Override
     public @NotNull DividerWidget getWidget()
     {
         return dw;

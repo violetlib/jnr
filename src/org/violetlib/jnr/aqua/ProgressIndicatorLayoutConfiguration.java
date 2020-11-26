@@ -47,6 +47,7 @@ public class ProgressIndicatorLayoutConfiguration
         this.pw = g.getWidget();
     }
 
+    @Override
     public @NotNull ProgressWidget getWidget()
     {
         return pw;

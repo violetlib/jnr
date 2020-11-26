@@ -247,6 +247,8 @@ public class ElCapitanLayoutInfo
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_SEPARATED:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 22, 19, 16));
 
@@ -263,7 +265,9 @@ public class ElCapitanLayoutInfo
                 return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));  // changed in El Capitan
 
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 if (version == AquaUIPainterBase.SEGMENTED_10_14) {
                     return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));
                 }
@@ -297,6 +301,8 @@ public class ElCapitanLayoutInfo
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                 break;
             case BUTTON_SEGMENTED_SEPARATED:
                 endAdjust = 0;
@@ -308,6 +314,7 @@ public class ElCapitanLayoutInfo
             case BUTTON_SEGMENTED_SCURVE:
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TOOLBAR:
                 top = 0.5f;     // changed in El Capitan
                 bottom = 1.5f;  // changed in El Capitan
@@ -315,6 +322,7 @@ public class ElCapitanLayoutInfo
                 break;
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 top = 0.5f;     // changed in El Capitan
                 bottom = 1.5f;  // changed in El Capitan
                 endAdjust = 0;

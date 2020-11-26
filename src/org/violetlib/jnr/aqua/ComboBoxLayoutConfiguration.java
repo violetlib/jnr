@@ -34,6 +34,7 @@ public class ComboBoxLayoutConfiguration
         this.ld = ld;
     }
 
+    @Override
     public @NotNull ComboBoxWidget getWidget()
     {
         return widget;

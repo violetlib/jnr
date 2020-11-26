@@ -33,6 +33,12 @@ public class SliderTickConfiguration
         this.isTinted = isTinted;
     }
 
+    @Override
+    public @NotNull Object getWidget()
+    {
+        return g.getWidget();
+    }
+
     public @NotNull SliderConfiguration getSliderConfiguration()
     {
         return g;

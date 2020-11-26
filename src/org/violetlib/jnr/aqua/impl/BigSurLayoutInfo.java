@@ -146,11 +146,15 @@ public class BigSurLayoutInfo
                 return BasicLayoutInfo.createFixedHeight(size(sz, 21, 19, 17));
 
             case BUTTON_SEGMENTED_TEXTURED:
-            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
             case BUTTON_SEGMENTED_SCURVE:
             case BUTTON_SEGMENTED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 28, 22, 17, 15));
 
             default:

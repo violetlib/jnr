@@ -28,6 +28,7 @@ public class TitleBarLayoutConfiguration
         this.tw = tw;
     }
 
+    @Override
     public @NotNull TitleBarWidget getWidget()
     {
         return tw;

@@ -203,7 +203,8 @@ public class SegmentedButtonConfiguration
                  && d == that.d
                  && leftDividerState == that.leftDividerState
                  && rightDividerState == that.rightDividerState
-                 && tracking == that.tracking;
+                 && tracking == that.tracking
+                 && super.layoutEquals(that);
     }
 
     @Override
@@ -233,7 +234,7 @@ public class SegmentedButtonConfiguration
         }
 
         // Starting with macOS 11, tab buttons are not sensitive
-        if (platformVersion >= 101600 && bw == SegmentedButtonWidget.BUTTON_TAB) {
+        if (platformVersion >= 101600 && bw.isSlider() && !bw.isToolbar()) {
             return false;
         }
 

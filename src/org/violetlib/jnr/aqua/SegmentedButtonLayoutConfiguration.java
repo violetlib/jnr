@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -36,6 +36,7 @@ public class SegmentedButtonLayoutConfiguration
         this.position = position;
     }
 
+    @Override
     public @NotNull SegmentedButtonWidget getWidget()
     {
         return bw;
@@ -61,6 +62,11 @@ public class SegmentedButtonLayoutConfiguration
             return false;
         }
         SegmentedButtonLayoutConfiguration that = (SegmentedButtonLayoutConfiguration) o;
+        return layoutEquals(that);
+    }
+
+    protected boolean layoutEquals(@NotNull SegmentedButtonLayoutConfiguration that)
+    {
         return bw == that.bw && size == that.size && position == that.position;
     }
 

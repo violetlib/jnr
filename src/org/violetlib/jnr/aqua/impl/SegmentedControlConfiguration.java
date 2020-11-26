@@ -34,7 +34,7 @@ public abstract class SegmentedControlConfiguration
         this.state = state;
 
         if (widget.isToolbar()) {
-            throw new IllegalArgumentException("Toolbar widget not supported");
+            throw new UnsupportedOperationException("Toolbar widget not supported");
         }
     }
 

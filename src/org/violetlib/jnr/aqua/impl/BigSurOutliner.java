@@ -211,6 +211,8 @@ public class BigSurOutliner
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
 
                 // The outline is used for focus rings. Full Keyboard Access causes one segment to be focusable via the
                 // keyboard. For select one controls, including tabs, it is the selected segment. The selected segment
@@ -218,7 +220,7 @@ public class BigSurOutliner
                 // the position. For select any controls, the first segment is focusable. No special case.
 
                 corner = 6;
-                if (bw == BUTTON_TAB || bw == SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED) {
+                if (bw == BUTTON_TAB || bw == BUTTON_SEGMENTED_SLIDER || bw == SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED) {
                     useOnly = true;
                 }
 
@@ -241,7 +243,7 @@ public class BigSurOutliner
                     }
                 }
 
-                if (bw == BUTTON_TAB) {
+                if (bw == BUTTON_TAB || bw.isSlider()) {
 
                     double widthDelta = -1.5;
                     if (sz == Size.REGULAR) {
@@ -277,12 +279,14 @@ public class BigSurOutliner
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
                 width += size2D(sz, 0, 0, 0);
                 height += size2D(sz, -1, -2, -1);
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 if (pos == Position.ONLY || pos == Position.FIRST) {
                     width -= 0.5;
                 }

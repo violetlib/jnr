@@ -57,6 +57,8 @@ public class SegmentedControlDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_SEPARATED:
                 left = size2D(sz, 2, 2, 1);
                 top = size2D(sz, 0, 1, 0.51);
@@ -76,8 +78,10 @@ public class SegmentedControlDescriptions
 
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 top = size2D(sz, 0, 0, 0.51);
                 ha = size2D(sz, 1, 0, 1);
                 break;
@@ -114,6 +118,8 @@ public class SegmentedControlDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_SEPARATED:
                 left = size2D(sz, 2, 2, 1);
                 top = size2D(sz, 0, 1, 0.51);
@@ -138,7 +144,9 @@ public class SegmentedControlDescriptions
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 top = 0.49;
                 ha = 1;
                 break;
@@ -175,6 +183,8 @@ public class SegmentedControlDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                 left = size2D(sz, 2, 2, 1);
                 top = size2D(sz, 1, 1, 0);
                 ha = size2D(sz, 1, 1, 0);
@@ -205,8 +215,10 @@ public class SegmentedControlDescriptions
                 ha = size2D(sz, 0, 1, 0);
                 break;
 
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 top = 0.49;
                 ha = 0;
                 break;
@@ -233,6 +245,8 @@ public class SegmentedControlDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_SEPARATED:
                 left = size2D(sz, 2, 2, 1);
                 top = size2D(sz, 1, 1.49, 1);
@@ -261,7 +275,9 @@ public class SegmentedControlDescriptions
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 top = 0.49;
                 ha = 0;
                 break;
@@ -298,6 +314,8 @@ public class SegmentedControlDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_SEPARATED:
                 left = size2D(sz, 2, 2, 1);
                 top = size2D(sz, 1, 1.49, 0);
@@ -326,7 +344,9 @@ public class SegmentedControlDescriptions
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 top = 0.49;
                 ha = 0;
                 break;
@@ -363,6 +383,8 @@ public class SegmentedControlDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_SEPARATED:
                 left = size2D(sz, 2, 2, 1);
                 top = size2D(sz, 1, 1, 0);
@@ -381,7 +403,9 @@ public class SegmentedControlDescriptions
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 left = 1;
                 top = 1;
                 ha = 1;
@@ -418,6 +442,8 @@ public class SegmentedControlDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
 
                 left = size2D(sz, 5, 2, 2, 1);
 
@@ -459,12 +485,14 @@ public class SegmentedControlDescriptions
             case BUTTON_SEGMENTED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 left = 1;
                 top = size2D(sz, 10, 1, 2, 1);
                 ha = size2D(sz, 11, 1, 2, 1);
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
                 // TBD: regular layout H is 20 instead of 24, could be a mistake
                 left = 1;
                 top = size2D(sz, 10, 1, 2, 1);
@@ -517,6 +545,8 @@ public class SegmentedControlDescriptions
                 case BUTTON_SEGMENTED:
                 case BUTTON_SEGMENTED_SEPARATED:
                 case BUTTON_SEGMENTED_SLIDER:
+                case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+                case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                     adjustment = size2D(sz, 12, 2, 2, 4);
                     if (scale == 2) {
                         adjustment += 0.5;
@@ -530,6 +560,7 @@ public class SegmentedControlDescriptions
 
                 case BUTTON_SEGMENTED_TEXTURED:
                 case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+                case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
                 case BUTTON_SEGMENTED_TOOLBAR:
                 case BUTTON_SEGMENTED_SCURVE:
                     adjustment = 4;
@@ -537,6 +568,7 @@ public class SegmentedControlDescriptions
 
                 case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
                 case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+                case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                     adjustment = 6;
                     break;
             }
@@ -581,6 +613,8 @@ public class SegmentedControlDescriptions
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                 first = size2D(sz, 2, 2, 3);
                 last = size2D(sz, 1, 1, 2);
                 break;
@@ -598,12 +632,14 @@ public class SegmentedControlDescriptions
 
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
                 first = 2;
                 last = 1;
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TOOLBAR:
                 first = size2D(sz, 4, 2, 2);
                 last = size2D(sz, 3, 1, 1);
@@ -636,6 +672,8 @@ public class SegmentedControlDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_SEPARATED:
                 first = size2D(sz, 2, 2, 3);
                 last = size2D(sz, 1, 1, 2);
@@ -654,6 +692,7 @@ public class SegmentedControlDescriptions
 
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
                 first = 2;
                 last = 1;
                 dp2 = RIGHT;
@@ -661,6 +700,7 @@ public class SegmentedControlDescriptions
 
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 first = size2D(sz, 4, 2, 2);
                 last = size2D(sz, 3, 1, 1);
                 break;
@@ -701,6 +741,7 @@ public class SegmentedControlDescriptions
             case BUTTON_SEGMENTED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 dp2 = CENTER;
         }
 
@@ -708,6 +749,8 @@ public class SegmentedControlDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                 first = size2D(sz, 2, 2, 3);
                 last = size2D(sz, 1, 1, 2);
                 break;
@@ -720,6 +763,7 @@ public class SegmentedControlDescriptions
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
                 first = size2D(sz, 4, 2, 2);
                 last = size2D(sz, 3, 1, 1);
                 break;
@@ -729,6 +773,7 @@ public class SegmentedControlDescriptions
             case BUTTON_SEGMENTED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 first = 4;
                 last = 3;
                 break;
@@ -758,6 +803,8 @@ public class SegmentedControlDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                 first = size2D(sz, 2, 2, 3);
                 last = size2D(sz, 1, 1, 2);
                 break;
@@ -773,11 +820,13 @@ public class SegmentedControlDescriptions
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
                 first = size2D(sz, 3, 1, 1);
                 last = size2D(sz, 2, 0, 0);
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 first = 3;
                 last = 2;
                 break;
@@ -816,6 +865,16 @@ public class SegmentedControlDescriptions
         }
 
         switch (bw) {
+            case BUTTON_TAB:
+            case BUTTON_SEGMENTED:
+            case BUTTON_SEGMENTED_SEPARATED:
+            case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
+                first = size2D(sz, 2, 2, 3);
+                last = size2D(sz, 1, 1, 2);
+                break;
+
             case BUTTON_SEGMENTED_SCURVE:
                 first = 4;
                 last = 3;
@@ -824,6 +883,7 @@ public class SegmentedControlDescriptions
             case BUTTON_SEGMENTED_SMALL_SQUARE:
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
                 first = 2;
                 last = 1;
                 break;
@@ -831,6 +891,7 @@ public class SegmentedControlDescriptions
             case BUTTON_SEGMENTED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 first = size2D(sz, 4, 2, 2);
                 last = size2D(sz, 3, 1, 1);
                 break;
@@ -838,14 +899,6 @@ public class SegmentedControlDescriptions
             case BUTTON_SEGMENTED_INSET:
                 first = 3;
                 last = 2;
-                break;
-
-            case BUTTON_TAB:
-            case BUTTON_SEGMENTED:
-            case BUTTON_SEGMENTED_SEPARATED:
-            case BUTTON_SEGMENTED_SLIDER:
-                first = size2D(sz, 2, 2, 3);
-                last = size2D(sz, 1, 1, 2);
                 break;
 
             default:
@@ -867,8 +920,19 @@ public class SegmentedControlDescriptions
         double last = 0;
 
         switch (bw) {
+            case BUTTON_TAB:
+            case BUTTON_SEGMENTED:
+            case BUTTON_SEGMENTED_SEPARATED:
+            case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
+                first = size2D(sz, 2, 2, 3);
+                last = size2D(sz, 1, 1, 2);
+                break;
+
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TOOLBAR:
                 first = size2D(sz, 4, 2, 2);
                 last = size2D(sz, 3, 1, 1);
@@ -882,6 +946,7 @@ public class SegmentedControlDescriptions
             case BUTTON_SEGMENTED_SMALL_SQUARE:
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
                 first = 2;
                 last = 1;
                 break;
@@ -889,14 +954,6 @@ public class SegmentedControlDescriptions
             case BUTTON_SEGMENTED_INSET:
                 first = 3;
                 last = 2;
-                break;
-
-            case BUTTON_TAB:
-            case BUTTON_SEGMENTED:
-            case BUTTON_SEGMENTED_SEPARATED:
-            case BUTTON_SEGMENTED_SLIDER:
-                first = size2D(sz, 2, 2, 3);
-                last = size2D(sz, 1, 1, 2);
                 break;
 
             default:
@@ -921,6 +978,8 @@ public class SegmentedControlDescriptions
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TOOLBAR:
                 first = size2D(sz, 13, 3, 3, 5);
                 middle = size2D(sz, 13, 3, 3, 5);
@@ -942,6 +1001,7 @@ public class SegmentedControlDescriptions
 
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_SCURVE:
                 first = size2D(sz, 16, 5, 5, 5);
                 middle = size2D(sz, 11, 5, 5, 5);
@@ -950,6 +1010,7 @@ public class SegmentedControlDescriptions
 
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 first = size2D(sz, 16, 5, 5, 5);
                 middle = size2D(sz, 11, 5, 5, 5);
                 last = size2D(sz, 15, 4, 4, 4);

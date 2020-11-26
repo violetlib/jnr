@@ -66,6 +66,7 @@ public class SliderLayoutConfiguration
         this.position = g.getTickMarkPosition();
     }
 
+    @Override
     public @NotNull SliderWidget getWidget()
     {
         return sw;

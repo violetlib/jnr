@@ -41,6 +41,7 @@ public class ScrollBarLayoutConfiguration
         this.o = g.getOrientation();
     }
 
+    @Override
     public @NotNull ScrollBarWidget getWidget()
     {
         return bw;

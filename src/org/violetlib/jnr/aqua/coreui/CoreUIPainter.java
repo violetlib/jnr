@@ -35,6 +35,7 @@ import org.jetbrains.annotations.*;
 
 import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.*;
 import static org.violetlib.jnr.aqua.coreui.CoreUIKeys.*;
+import static org.violetlib.jnr.aqua.coreui.CoreUISegmentSeparatorTypes.*;
 
 /**
   A painter that renders Aqua widgets using the native rendering used by the Aqua look and feel, implemented by the
@@ -1351,37 +1352,47 @@ public class CoreUIPainter
 
     protected @NotNull BasicRenderer getSegmentedButtonBasicRenderer(@NotNull SegmentedButtonConfiguration g, boolean isMask)
     {
+        SegmentedButtonWidget bw = g.getWidget();
+        State st = g.getState();
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
         boolean isSelected = g.isSelected();
         boolean isLeftNeighborSelected = g.getLeftDividerState() == SegmentedButtonConfiguration.DividerState.SELECTED;
         boolean isRightNeighborSelected = g.getRightDividerState() == SegmentedButtonConfiguration.DividerState.SELECTED;
         boolean wantLeadingSeparator = g.getLeftDividerState() != SegmentedButtonConfiguration.DividerState.NONE;
         boolean wantTrailingSeparator =  g.getRightDividerState() != SegmentedButtonConfiguration.DividerState.NONE;
 
-        Object leftType = CoreUISegmentSeparatorTypes.NONE_SELECTED;
-        if (isSelected) {
-            leftType = isLeftNeighborSelected
-                         ? CoreUISegmentSeparatorTypes.BOTH_SELECTED
-                         : CoreUISegmentSeparatorTypes.RIGHT_SELECTED;
-        } else if (isLeftNeighborSelected) {
-            leftType = CoreUISegmentSeparatorTypes.LEFT_SELECTED;
+        Object leftType;
+        Object rightType;
+
+        if (bw.isSlider()) {
+            leftType = isSelected ? BOTH_SELECTED : NONE_SELECTED;
+            rightType = isSelected || isRightNeighborSelected ? BOTH_SELECTED : NONE_SELECTED;
+            wantLeadingSeparator = false;
+        } else {
+            leftType = CoreUISegmentSeparatorTypes.NONE_SELECTED;
+            if (isSelected) {
+                leftType = isLeftNeighborSelected
+                             ? BOTH_SELECTED
+                             : CoreUISegmentSeparatorTypes.RIGHT_SELECTED;
+            } else if (isLeftNeighborSelected) {
+                leftType = CoreUISegmentSeparatorTypes.LEFT_SELECTED;
+            }
+
+            rightType = CoreUISegmentSeparatorTypes.NONE_SELECTED;
+            if (isSelected) {
+                rightType = isRightNeighborSelected
+                              ? BOTH_SELECTED
+                              : CoreUISegmentSeparatorTypes.LEFT_SELECTED;
+            } else if (isRightNeighborSelected) {
+                rightType = CoreUISegmentSeparatorTypes.RIGHT_SELECTED;
+            }
         }
 
-        Object rightType = CoreUISegmentSeparatorTypes.NONE_SELECTED;
-        if (isSelected) {
-            rightType = isRightNeighborSelected
-                          ? CoreUISegmentSeparatorTypes.BOTH_SELECTED
-                          : CoreUISegmentSeparatorTypes.LEFT_SELECTED;
-        } else if (isRightNeighborSelected) {
-            rightType = CoreUISegmentSeparatorTypes.RIGHT_SELECTED;
-        }
-
-        SegmentedButtonWidget bw = g.getWidget();
-        State st = g.getState();
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
         boolean useLayer = false;
 
         // In 11.0, segment button backgrounds do not change when disabled.
         if (platformVersion >= 101600) {
+            useLayer = true;
             if (st == State.DISABLED) {
                 st = State.ACTIVE;
             } else if (st == State.DISABLED_INACTIVE) {
@@ -1414,19 +1425,14 @@ public class CoreUIPainter
         String widget = CoreUIWidgets.BUTTON_SEGMENTED;
         switch (bw) {
             case BUTTON_TAB:
-                widget = CoreUIWidgets.BUTTON_TAB;
-                if (platformVersion >= 101600) {
-                    // The selected tab does not have adjacent dividers.
-                    // Avoid leaving space for one.
-                    if (g.isSelected()) {
-                        wantTrailingSeparator = false;
-                    }
-                }
-                break;
+                widget = CoreUIWidgets.BUTTON_TAB; break;
             case BUTTON_SEGMENTED:
                 widget = CoreUIWidgets.BUTTON_SEGMENTED; break;
             case BUTTON_SEGMENTED_SLIDER:
                 widget = CoreUIWidgets.BUTTON_SEGMENTED_SLIDER; break;
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
+                widget = CoreUIWidgets.BUTTON_SEGMENTED_SLIDER_TOOLBAR; break;
             case BUTTON_SEGMENTED_INSET:
                 widget = CoreUIWidgets.BUTTON_SEGMENTED_INSET; break;
             case BUTTON_SEGMENTED_SCURVE:
@@ -1434,9 +1440,15 @@ public class CoreUIPainter
             case BUTTON_SEGMENTED_TEXTURED:
                 widget = CoreUIWidgets.BUTTON_SEGMENTED_TEXTURED; break;
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
+                if (platformVersion >= 101600) {
+                    // selection state is indicated by the text/icon color
+                    isSelected = false;
+                }
                 widget = platformVersion >= 101100
                            ? CoreUIWidgets.BUTTON_SEGMENTED_TOOLBAR
-                           : CoreUIWidgets.BUTTON_SEGMENTED_TEXTURED; break;
+                           : CoreUIWidgets.BUTTON_SEGMENTED_TEXTURED;
+                break;
             case BUTTON_SEGMENTED_TOOLBAR:
                 widget = CoreUIWidgets.BUTTON_SEGMENTED_TOOLBAR; break;
             case BUTTON_SEGMENTED_SMALL_SQUARE:
@@ -1448,9 +1460,23 @@ public class CoreUIPainter
                            ? CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TEXTURED
                            : CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR; break;
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
+                if (platformVersion >= 101600 && g.getTracking() == SwitchTracking.SELECT_ANY) {
+                    // selection state is indicated by the text/icon color
+                    isSelected = false;
+                }
                 widget = platformVersion >= 101100
                            ? CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR
                            : CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR; break;
+        }
+
+        String variant = null;
+        if (platformVersion >= 101600 && bw.isToolbar()) {
+            if (bw.isIconsOnly()) {
+                variant = "";
+            } else {
+                variant = CoreUIVariants.VARIANT_TEXT_CONTENT;
+            }
         }
 
         return getRendererOptionallyLayered(
@@ -1468,7 +1494,8 @@ public class CoreUIPainter
           SEGMENT_LEADING_SEPARATOR_TYPE_KEY, leftType,
           SEGMENT_TRAILING_SEPARATOR_TYPE_KEY, rightType,
           VALUE_KEY, isSelected ? 1 : 0,
-          MASK_ONLY_KEY, isMask
+          MASK_ONLY_KEY, isMask,
+          VARIANT_KEY, variant
         );
     }
 

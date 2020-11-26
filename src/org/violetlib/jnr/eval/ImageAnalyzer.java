@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -12,8 +12,6 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import org.jetbrains.annotations.*;
-
-import static org.violetlib.jnr.impl.ImageUtils.*;
 
 /**
   A tool that can be useful for determining the layout properties of native rendering. Note that although automatic
@@ -131,5 +129,10 @@ public class ImageAnalyzer
     private static boolean isTransparent(int pixel)
     {
         return alpha(pixel) == 0;
+    }
+
+    public static int alpha(int pixel)
+    {
+        return (pixel >> 24) & 0xff;
     }
 }

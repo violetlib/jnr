@@ -652,6 +652,8 @@ public class JRSPainter
         switch (bw) {
             case BUTTON_TAB:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                 maker.set(JRSUIConstants.Widget.TAB);
                 break;
             case BUTTON_SEGMENTED:
@@ -671,6 +673,7 @@ public class JRSPainter
                 break;
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:  // not supported
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:  // not supported
                 maker.set(JRSUIConstants.Widget.BUTTON_SEGMENTED_TEXTURED);
                 break;
             case BUTTON_SEGMENTED_TOOLBAR:
@@ -681,6 +684,7 @@ public class JRSPainter
                 break;
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 // not supported
                 // an attempted workaround, must coordinate with renderer description
                 pos = Position.ONLY;

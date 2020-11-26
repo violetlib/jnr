@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -38,7 +38,8 @@ public class JRSRendererDescriptions
         AquaUIPainter.Position position = g.getPosition();
 
         if (w == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED
-              || w == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR) {
+              || w == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR
+              || w == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS) {
             // an attempted workaround, must coordinate with renderer
             g = g.withWidget(AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED);
         } else if (w == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED) {
@@ -100,6 +101,7 @@ public class JRSRendererDescriptions
                 }
 
                 case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:    // supported by workaround
+                case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
                 {
                     float y = v2 ? size2D(sz, -2.49f, -3, -3) : size2D(sz, -1, -2, -2);
                     return fix(rd, g, y);
