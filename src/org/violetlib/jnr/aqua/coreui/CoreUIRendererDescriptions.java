@@ -183,7 +183,22 @@ public class CoreUIRendererDescriptions
 
                 if (platformVersion >= 101600) {
                     if (!bw.isToolbar()) {
-                        return new BasicRendererDescription(-1, 0, 0, 1);
+                        int x = g.getPosition() == AquaUIPainter.Position.FIRST ? -1 : 0;
+                        if (!bw.isSeparated()) {
+                            return new BasicRendererDescription(x, 0, 1, 0);
+                        } else {
+                            return new BasicRendererDescription(x, 0, 0, 1);
+                        }
+                    } else if (bw.isSeparated()) {
+                        if (sz == AquaUIPainter.Size.LARGE) {
+                            int x = g.getPosition() == AquaUIPainter.Position.FIRST ? -6 : 0;
+                            int y = g.isSelected() ? -6 : 0;
+                            return new BasicRendererDescription(x, y, 0, 10);
+                        }
+                        return new BasicRendererDescription(-1, -1, 1, 3);
+                    } else {
+                        int x = g.getPosition() == AquaUIPainter.Position.FIRST ? -1 : 0;
+                        return new BasicRendererDescription(x, 0, 1, 0);
                     }
                 }
 
