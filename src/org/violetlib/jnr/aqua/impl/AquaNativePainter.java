@@ -897,7 +897,8 @@ public class AquaNativePainter
                 return NSTexturedRoundedBezelStyle_Toolbar;
             case BUTTON_ROUND:
                 return NSCircularBezelStyle;
-            case BUTTON_ROUND_TOOLBAR:
+            case BUTTON_ROUND_TEXTURED:
+            case BUTTON_ROUND_TEXTURED_TOOLBAR:
                 return platformVersion >= 101100 ? NSCircularBezelStyle_Toolbar : NSCircularBezelStyle;
         }
         throw new UnsupportedOperationException();

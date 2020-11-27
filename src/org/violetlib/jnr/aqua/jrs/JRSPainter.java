@@ -258,7 +258,7 @@ public class JRSPainter
                 maker.set(JRSUIConstants.Widget.BUTTON_ROUND_INSET);
                 break;
             case BUTTON_ROUND_TEXTURED:
-            case BUTTON_ROUND_TOOLBAR:
+            case BUTTON_ROUND_TEXTURED_TOOLBAR:
                 throw new UnsupportedOperationException();
             case BUTTON_DISCLOSURE_TRIANGLE:
                 maker.set(JRSUIConstants.Widget.DISCLOSURE_TRIANGLE);

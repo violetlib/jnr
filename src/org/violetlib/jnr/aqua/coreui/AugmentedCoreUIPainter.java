@@ -97,9 +97,12 @@ public class AugmentedCoreUIPainter
         if (g.getButtonWidget() == ButtonWidget.BUTTON_COLOR_WELL) {
             return new ColorWellRenderer(g, r);
         }
-        if (g.getButtonWidget() == ButtonWidget.BUTTON_ROUND_TOOLBAR) {
-            PainterExtension px = new RoundToolbarButtonPainterExtension(g, appearance);
-            return Renderer.create(px);
+        if (g.getButtonWidget() == ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR) {
+            int platformVersion = JNRPlatformUtils.getPlatformVersion();
+            if (platformVersion >= 101600) {
+                PainterExtension px = new RoundToolbarButtonPainterExtension(g, appearance);
+                return Renderer.create(px);
+            }
         }
         return r;
     }
@@ -113,8 +116,8 @@ public class AugmentedCoreUIPainter
         // but it is not needed in latest release of 10.14+.
 
         if (false) {
-            int version = JNRPlatformUtils.getPlatformVersion();
-            if (version < 1015) {
+            int platformVersion = JNRPlatformUtils.getPlatformVersion();
+            if (platformVersion < 101500) {
                 if (appearance != null && appearance.isDark()) {
                     ComboBoxWidget w = g.getWidget();
                     if (w == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
@@ -139,8 +142,8 @@ public class AugmentedCoreUIPainter
         // but it is not needed in latest release of 10.14+.
 
         if (false) {
-            int version = JNRPlatformUtils.getPlatformVersion();
-            if (version < 1015) {
+            int platformVersion = JNRPlatformUtils.getPlatformVersion();
+            if (platformVersion < 101500) {
                 if (r != null && appearance != null && appearance.isDark()) {
                     PopupButtonWidget w = g.getPopupButtonWidget();
                     if (w == BUTTON_POP_DOWN_TEXTURED_TOOLBAR || w == BUTTON_POP_UP_TEXTURED_TOOLBAR) {
@@ -165,8 +168,8 @@ public class AugmentedCoreUIPainter
         // but it is not needed in latest release of 10.14+.
 
         if (false) {
-            int version = JNRPlatformUtils.getPlatformVersion();
-            if (version < 1015) {
+            int platformVersion = JNRPlatformUtils.getPlatformVersion();
+            if (platformVersion < 101500) {
                 if (appearance != null && appearance.isDark()) {
                     SegmentedButtonWidget w = g.getWidget();
                     if (w.isTextured() && w.isToolbar()) {

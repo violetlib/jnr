@@ -62,7 +62,7 @@ public class BigSurOutliner
               || bw == BUTTON_ROUND
               || bw == BUTTON_ROUND_INSET
               || bw == BUTTON_ROUND_TEXTURED
-              || bw == BUTTON_ROUND_TOOLBAR) {
+              || bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
 
             switch (bw)
             {
@@ -82,7 +82,7 @@ public class BigSurOutliner
                     width -= 1;
                     height -= 2;
                     break;
-                case BUTTON_ROUND_TOOLBAR:
+                case BUTTON_ROUND_TEXTURED_TOOLBAR:
                     width += size2D(sz, -4, -4.5, -3.5, -3.5);
                     height += size2D(sz, -4, -5, -3.5, -3.5);
                     x += size2D(sz, 2, 2, 1.5, 1.5);

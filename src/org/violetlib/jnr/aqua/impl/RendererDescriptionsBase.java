@@ -40,7 +40,7 @@ public abstract class RendererDescriptionsBase
         AquaUIPainter.Size sz = g.getSize();
 
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
-        if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TOOLBAR && platformVersion < 101100) {
+        if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR && platformVersion < 101100) {
             bw = AquaUIPainter.ButtonWidget.BUTTON_ROUND;
         }
 
@@ -162,7 +162,7 @@ public abstract class RendererDescriptionsBase
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TEXTURED) {
             return new BasicRendererDescription(0, 0, 0, 0);
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TOOLBAR) {
+        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR) {
             return new BasicRendererDescription(0, 0, 0, 0);
 
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_COLOR_WELL) {

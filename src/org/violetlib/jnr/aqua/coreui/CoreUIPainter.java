@@ -192,7 +192,7 @@ public class CoreUIPainter
                 widget = CoreUIWidgets.BUTTON_ROUND_INSET; break;
             case BUTTON_ROUND_TEXTURED:
                 widget = CoreUIWidgets.BUTTON_ROUND_TEXTURED; break;
-            case BUTTON_ROUND_TOOLBAR:
+            case BUTTON_ROUND_TEXTURED_TOOLBAR:
                 widget = CoreUIWidgets.BUTTON_ROUND_TOOLBAR; break;
             case BUTTON_INLINE:
                 widget = CoreUIWidgets.BUTTON_PUSH_SLIDESHOW; break;  // not correct, inline buttons are not supported by Core UI
@@ -407,8 +407,8 @@ public class CoreUIPainter
         RendererDescription rd = rendererDescriptions.getToolBarItemWellRendererDescription(g);
         String widget = CoreUIWidgets.TOOL_BAR_ITEM_WELL;
         State st = g.getState();
-        int version = JNRPlatformUtils.getPlatformVersion();
-        boolean useLayer = version >= 101600;  // workaround?
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        boolean useLayer = platformVersion >= 101600;  // workaround?
 
         BasicRenderer r =  getRendererOptionallyLayered(
           useLayer,

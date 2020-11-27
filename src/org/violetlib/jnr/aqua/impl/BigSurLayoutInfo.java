@@ -100,7 +100,7 @@ public class BigSurLayoutInfo
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 25, 24, 19, 16));
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND || bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TOOLBAR) {
+        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND) {
             return BasicLayoutInfo.createFixed(size(sz, 34, 26, 22, 19), size(sz, 34, 26, 22, 19));
 
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_INSET) {
@@ -109,8 +109,8 @@ public class BigSurLayoutInfo
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TEXTURED) {
             return BasicLayoutInfo.createFixed(size(sz, 21, 18, 15), size(sz, 22, 19, 16));
 
-//        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TOOLBAR) {
-//            return BasicLayoutInfo.createFixed(size(sz, 26, 23, 20, 17), size(sz, 26, 23, 20, 17));
+        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR) {
+            return BasicLayoutInfo.createFixed(28, 28);
 
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_DISCLOSURE_TRIANGLE) {
             return BasicLayoutInfo.createFixed(13, 13);

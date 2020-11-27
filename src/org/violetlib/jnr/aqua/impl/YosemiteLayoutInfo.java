@@ -92,13 +92,13 @@ public class YosemiteLayoutInfo
         } else if (bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 23, 19, 16));
 
-        } else if (bw == ButtonWidget.BUTTON_ROUND || bw == ButtonWidget.BUTTON_ROUND_TOOLBAR) {
+        } else if (bw == ButtonWidget.BUTTON_ROUND) {
             return BasicLayoutInfo.createFixed(size(sz, 20, 17, 14), size(sz, 21, 18, 15));
 
         } else if (bw == ButtonWidget.BUTTON_ROUND_INSET) {
             return BasicLayoutInfo.createFixed(18, 18);
 
-        } else if (bw == ButtonWidget.BUTTON_ROUND_TEXTURED) {
+        } else if (bw == ButtonWidget.BUTTON_ROUND_TEXTURED || bw == ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR) {
             return BasicLayoutInfo.createFixed(size(sz, 21, 18, 15), size(sz, 22, 19, 16));
 
         } else if (bw == ButtonWidget.BUTTON_DISCLOSURE_TRIANGLE) {
@@ -187,7 +187,7 @@ public class YosemiteLayoutInfo
             bottom = 1.49f;
             left = right = 3;
 
-        } else if (bw == ButtonWidget.BUTTON_ROUND || bw == ButtonWidget.BUTTON_ROUND_TOOLBAR) {
+        } else if (bw == ButtonWidget.BUTTON_ROUND) {
             top = left = right = size2D(sz, 4, 3.5, 3);
             bottom = top + 1;
 
@@ -196,7 +196,7 @@ public class YosemiteLayoutInfo
             top = 3.5f;
             bottom = top;
 
-        } else if (bw == ButtonWidget.BUTTON_ROUND_TEXTURED) {
+        } else if (bw == ButtonWidget.BUTTON_ROUND_TEXTURED || bw == ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR) {
             top = left = right = size2D(sz, 3.5, 3, 2.5);
             bottom = top + 1;
 

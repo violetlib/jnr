@@ -87,7 +87,7 @@ public class YosemiteOutliner
               || bw == BUTTON_ROUND
               || bw == BUTTON_ROUND_INSET
               || bw == BUTTON_ROUND_TEXTURED
-              || bw == BUTTON_ROUND_TOOLBAR) {
+              || bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
 
             switch (bw)
             {

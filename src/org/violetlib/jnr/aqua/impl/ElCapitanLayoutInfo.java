@@ -105,7 +105,7 @@ public class ElCapitanLayoutInfo
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TEXTURED) {
             return BasicLayoutInfo.createFixed(size(sz, 21, 18, 15), size(sz, 22, 19, 16));
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TOOLBAR) {
+        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR) {
             return BasicLayoutInfo.createFixed(size(sz, 23, 20, 17), size(sz, 23, 20, 17));  // new in El Capitan
 
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_DISCLOSURE_TRIANGLE) {
@@ -208,7 +208,7 @@ public class ElCapitanLayoutInfo
             top = left = right = size2D(sz, 3.5f, 3, 2.5f);
             bottom = top + 1;
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TOOLBAR) {
+        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR) {
             // changed in El Capitan
             top = bottom = size2D(sz, 4.5f, 4, 3.5f);
             left = right = size2D(sz, 3.5f, 3, 2.5f);
