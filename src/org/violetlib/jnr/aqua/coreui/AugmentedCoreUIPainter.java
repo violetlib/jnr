@@ -23,6 +23,7 @@ import org.violetlib.jnr.aqua.impl.LinearSliderPainterExtension;
 import org.violetlib.jnr.aqua.impl.OverlayScrollBarPainterExtension;
 import org.violetlib.jnr.aqua.impl.PopUpArrowPainter;
 import org.violetlib.jnr.aqua.impl.PullDownArrowPainter;
+import org.violetlib.jnr.aqua.impl.RoundToolbarButtonPainterExtension;
 import org.violetlib.jnr.aqua.impl.TableColumnHeaderCellPainterExtension;
 import org.violetlib.jnr.aqua.impl.ThinSplitPaneDividerPainterExtension;
 import org.violetlib.jnr.impl.AdjustDarkToolbarButtonRenderer;
@@ -96,7 +97,10 @@ public class AugmentedCoreUIPainter
         if (g.getButtonWidget() == ButtonWidget.BUTTON_COLOR_WELL) {
             return new ColorWellRenderer(g, r);
         }
-
+        if (g.getButtonWidget() == ButtonWidget.BUTTON_ROUND_TOOLBAR) {
+            PainterExtension px = new RoundToolbarButtonPainterExtension(g, appearance);
+            return Renderer.create(px);
+        }
         return r;
     }
 
