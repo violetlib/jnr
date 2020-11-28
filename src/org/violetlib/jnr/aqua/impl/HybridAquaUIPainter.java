@@ -149,6 +149,10 @@ public class HybridAquaUIPainter
             return coreUIPainter;
         } else if (g instanceof IndeterminateProgressIndicatorConfiguration) {
             IndeterminateProgressIndicatorConfiguration bg = (IndeterminateProgressIndicatorConfiguration) g;
+            int platformVersion = JNRPlatformUtils.getPlatformVersion();
+            if (platformVersion >= 101600 && bg.getWidget() == ProgressWidget.INDETERMINATE_BAR) {
+                return viewPainter;
+            }
             return coreUIPainter;
         } else if (g instanceof TextFieldConfiguration) {
             TextFieldConfiguration bg = (TextFieldConfiguration) g;

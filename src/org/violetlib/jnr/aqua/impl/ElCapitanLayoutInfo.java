@@ -126,7 +126,6 @@ public class ElCapitanLayoutInfo
     public @Nullable Insetter getButtonLabelInsets(@NotNull ButtonLayoutConfiguration g)
     {
         AquaUIPainter.ButtonWidget bw = g.getButtonWidget();
-
         AquaUIPainter.Size sz = g.getSize();
 
         float top = 0;

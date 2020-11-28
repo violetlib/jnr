@@ -98,7 +98,7 @@ public class BigSurLayoutInfo
             return BasicLayoutInfo.createFixedHeight(size(sz, 25, 23, 19, 16));
 
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
-            return BasicLayoutInfo.createFixedHeight(size(sz, 25, 24, 19, 16));
+            return BasicLayoutInfo.createFixedHeight(size(sz, 27, 24, 19, 16));
 
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND) {
             return BasicLayoutInfo.createFixed(size(sz, 34, 26, 22, 19), size(sz, 34, 26, 22, 19));
@@ -153,10 +153,10 @@ public class BigSurLayoutInfo
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
-            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 28, 22, 17, 15));
 
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 29, 23, 19, 16));
@@ -219,12 +219,7 @@ public class BigSurLayoutInfo
     {
         AquaUIPainter.TextFieldWidget w = g.getWidget();
         if (w.isRound() || w.isSearch()) {
-            if (w.isToolbar()) {
-                // The actual sizes for small and mini are bogus. We do not simulate this bug.
-                return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 30, 30, 20, 17));
-            } else {
-                return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 30, 22, 19, 17));
-            }
+            return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 28, 22, 19, 17));
         }
 
         return BasicLayoutInfo.getInstance();

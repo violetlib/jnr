@@ -103,6 +103,11 @@ public class CoreUIRendererDescriptions
             }
         } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED
                      || bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
+            if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED_TOOLBAR
+            && sz == AquaUIPainter.Size.LARGE
+            && platformVersion >= 101600) {
+                return new BasicRendererDescription(-5, -1, 10, 2);
+            }
             if (platformVersion >= 101100) {
                 BasicRendererDescription x1 = new BasicRendererDescription(0, -1, 0, 2);
                 BasicRendererDescription x2 = new BasicRendererDescription(-0.5f, -1, 1, 2);
@@ -138,31 +143,45 @@ public class CoreUIRendererDescriptions
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SEPARATED:
             case BUTTON_SEGMENTED_SLIDER:
+
+                if (platformVersion >= 101600
+                      && bw == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED) {
+                    leftOffset = size(sz, -4, -1, -1, -1);
+                    leftExtraWidth = size(sz, 4, 1, 1, 1);
+                    rightExtraWidth = size(sz, 4, 1, 1, 1);
+                    break;
+                }
+
                 yOffset = size2D(sz, -0.51f, -1.49f, -2);  // regular size should be -1 at 1x
-                leftOffset = size(sz, -2, -2, -1);
+                leftOffset = size(sz, -5, -2, -2, -1);
+                leftExtraWidth = size(sz, 5, 2, 2, 1);
+                rightExtraWidth = size(sz, 4, 2, 2, 1);
 
                 if (shouldUseSpecialSeparatedDescription(g)) {
                     // completely different rules
-                    return getSegmentedSeparatedRendererDescription(g, rd, yOffset, leftOffset);
+                    rd = getSegmentedSeparatedRendererDescription(g, rd, yOffset, leftOffset);
+                    yOffset = 0;
+                    leftOffset = 0;
                 }
 
-                leftExtraWidth = rightExtraWidth = size(sz, 2, 2, 1);
                 break;
 
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
 
-                yOffset = size2D(sz, 0, 0, -0.49f, -1.49f);
+                yOffset = size2D(sz, -1, 0, -0.49f, -1.49f);
                 leftOffset = size(sz, -6, -1, -1, -1);
+                leftExtraWidth = size(sz, 6, 1, 1, 1);
+                rightExtraWidth = size(sz, 5, 1, 1, 1);
+                extraHeight = size(sz, -1, 0, 0, 0);
 
                 if (shouldUseSpecialSeparatedDescription(g)) {
                     // completely different rules
-                    return getSegmentedSeparatedRendererDescription(g, rd, yOffset, leftOffset);
+                    rd = getSegmentedSeparatedRendererDescription(g, rd, yOffset, leftOffset);
+                    yOffset = 0;
+                    leftOffset = 0;
                 }
 
-                leftExtraWidth = size(sz, 6, 1, 1, 1);
-                rightExtraWidth = size(sz, 6, 1, 1, 1);
-                extraHeight = size(sz, -1, 0, 0, 0);
                 break;
 
             case BUTTON_SEGMENTED_INSET:
@@ -187,18 +206,29 @@ public class CoreUIRendererDescriptions
                         if (!bw.isSeparated()) {
                             return new BasicRendererDescription(x, 0, 1, 0);
                         } else {
-                            return new BasicRendererDescription(x, 0, 0, 1);
+                            return new BasicRendererDescription(x, 0, 2, 1);
                         }
                     } else if (bw.isSeparated()) {
                         if (sz == AquaUIPainter.Size.LARGE) {
-                            int x = g.getPosition() == AquaUIPainter.Position.FIRST ? -6 : 0;
-                            int y = g.isSelected() ? -6 : 0;
-                            return new BasicRendererDescription(x, y, 0, 10);
+                            AquaUIPainter.Position pos = g.getPosition();
+                            int x = pos == AquaUIPainter.Position.FIRST || pos == AquaUIPainter.Position.ONLY? -6 : 0;
+                            // This state dependence is unbelievable. Someday it will probably change.
+                            AquaUIPainter.State st = g.getState();
+                            int y = st == AquaUIPainter.State.PRESSED
+                                      || st == AquaUIPainter.State.ROLLOVER
+                                      || g.isSelected()
+                                      ? -6 : 0;
+                            RendererDescription srd = new BasicRendererDescription(x, y, 0, 11);
+                            return adjustSegmentedRendererDescription(g, srd, 0, 0, 0, 0, 6, 5, 0);
                         }
-                        return new BasicRendererDescription(-1, -1, 1, 3);
+                        return new BasicRendererDescription(-1, -2, 1, 3);
                     } else {
+                        if (sz == AquaUIPainter.Size.LARGE) {
+                            return new BasicRendererDescription(-6, 0, 11, 0);
+                        }
                         int x = g.getPosition() == AquaUIPainter.Position.FIRST ? -1 : 0;
-                        return new BasicRendererDescription(x, 0, 1, 0);
+                        int w = g.getPosition() == AquaUIPainter.Position.FIRST ? 1 : 0;
+                        return new BasicRendererDescription(x, 0, w, 0);
                     }
                 }
 

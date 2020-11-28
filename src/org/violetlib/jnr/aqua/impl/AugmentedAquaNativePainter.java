@@ -9,10 +9,12 @@
 package org.violetlib.jnr.aqua.impl;
 
 import org.violetlib.jnr.Insetter;
+import org.violetlib.jnr.aqua.IndeterminateProgressIndicatorConfiguration;
 import org.violetlib.jnr.aqua.ScrollBarConfiguration;
 import org.violetlib.jnr.aqua.TableColumnHeaderConfiguration;
 import org.violetlib.jnr.aqua.TextFieldConfiguration;
 import org.violetlib.jnr.aqua.TitleBarConfiguration;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.jnr.impl.Renderer;
 
@@ -88,6 +90,17 @@ public class AugmentedAquaNativePainter
             }
         }
         return r;
+    }
+
+    @Override
+    protected @NotNull Renderer getIndeterminateProgressIndicatorRenderer(@NotNull IndeterminateProgressIndicatorConfiguration g)
+    {
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        if (platformVersion >= 101600 && g.getWidget() == ProgressWidget.INDETERMINATE_BAR) {
+            PainterExtension px = new IndeterminateProgressBarPainterExtension(uiLayout, g, appearance);
+            return Renderer.create(px);
+        }
+        return super.getIndeterminateProgressIndicatorRenderer(g);
     }
 
     @Override
