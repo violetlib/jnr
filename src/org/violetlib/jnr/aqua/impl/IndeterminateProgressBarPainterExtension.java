@@ -70,10 +70,11 @@ public class IndeterminateProgressBarPainterExtension
         int position1 = (int) Math.floor(interval * animationFrame - segment);
         int position2 = (int) Math.ceil(position1 + segment);
         int thick = Math.round(isVertical ? width : height);
+        float arc = pg.getSize() == AquaUIPainter.Size.SMALL ? 3 : 6;
         if (isVertical) {
-            g.fillRect(0, position1, thick, position2 - position1);
+            g.fill(new RoundRectangle2D.Float(0, position1, thick, position2 - position1, arc, arc));
         } else {
-            g.fillRect(position1, 0, position2 - position1, thick);
+            g.fill(new RoundRectangle2D.Float(position1, 0, position2 - position1, thick, arc, arc));
         }
 
         g.dispose();

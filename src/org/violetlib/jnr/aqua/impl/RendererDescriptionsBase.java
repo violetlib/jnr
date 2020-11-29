@@ -588,13 +588,13 @@ public abstract class RendererDescriptionsBase
     {
         AquaUIPainter.ProgressWidget pw = g.getWidget();
         AquaUIPainter.Orientation o = g.getOrientation();
-        AquaUIPainter.Size sz = g.getSize();
 
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
         if (pw == AquaUIPainter.ProgressWidget.BAR) {
             if (o == AquaUIPainter.Orientation.HORIZONTAL) {
-                return new BasicRendererDescription(-1, 0, 2, 1);
+                return platformVersion >= 101600 ? new BasicRendererDescription(0, -0.51f, 0, 1) : new BasicRendererDescription(-1, 0, 2, 1);
             } else {
-                return new BasicRendererDescription(0, -1, 1, 2);
+                return platformVersion >= 101600 ? new BasicRendererDescription(-1, 0, 2, 0) : new BasicRendererDescription(0, -1, 1, 2);
             }
         } else if (pw == AquaUIPainter.ProgressWidget.SPINNER) {
             return new BasicRendererDescription(0, 0, 0, 0);

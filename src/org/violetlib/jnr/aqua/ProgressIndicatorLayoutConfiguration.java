@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -13,6 +13,7 @@ import java.util.Objects;
 import org.violetlib.jnr.aqua.AquaUIPainter.Orientation;
 import org.violetlib.jnr.aqua.AquaUIPainter.ProgressWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 import org.jetbrains.annotations.*;
 
@@ -31,10 +32,11 @@ public class ProgressIndicatorLayoutConfiguration
                                                 @NotNull Size size,
                                                 @NotNull Orientation o)
     {
-        // progress bars have only one size
+        // progress bars can be regular or small on macOS 11, previously have only one size
         // spinners can be regular or small
-        this.size = pw == ProgressWidget.SPINNER || pw == ProgressWidget.INDETERMINATE_SPINNER
-                      ? size == Size.MINI ? Size.SMALL : size
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        this.size = pw == ProgressWidget.SPINNER || pw == ProgressWidget.INDETERMINATE_SPINNER || platformVersion >= 101600
+                      ? size == Size.MINI || size == Size.SMALL ? Size.SMALL : Size.REGULAR
                       : Size.REGULAR;
         this.o = o;
         this.pw = pw;

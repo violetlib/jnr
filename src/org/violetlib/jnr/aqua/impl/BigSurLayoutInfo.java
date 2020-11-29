@@ -17,6 +17,7 @@ import org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.SliderWidget;
 import org.violetlib.jnr.aqua.ButtonLayoutConfiguration;
 import org.violetlib.jnr.aqua.PopupButtonLayoutConfiguration;
+import org.violetlib.jnr.aqua.ProgressIndicatorLayoutConfiguration;
 import org.violetlib.jnr.aqua.SegmentedButtonLayoutConfiguration;
 import org.violetlib.jnr.aqua.SliderLayoutConfiguration;
 import org.violetlib.jnr.aqua.TextFieldLayoutConfiguration;
@@ -212,6 +213,28 @@ public class BigSurLayoutInfo
                      : Insetters.createFixed(top, near, bottom, far, layoutInfo);
         }
         return super.getPopupButtonContentInsets(g);
+    }
+
+    @Override
+    protected @NotNull LayoutInfo getProgressIndicatorLayoutInfo(@NotNull ProgressIndicatorLayoutConfiguration g)
+    {
+        AquaUIPainter.ProgressWidget pw = g.getWidget();
+        AquaUIPainter.Orientation o = g.getOrientation();
+        AquaUIPainter.Size sz = g.getSize();
+
+        if (pw == AquaUIPainter.ProgressWidget.BAR || pw == AquaUIPainter.ProgressWidget.INDETERMINATE_BAR) {
+            int size = size(sz, 6, 3, 3);
+            if (o == AquaUIPainter.Orientation.HORIZONTAL) {
+                return BasicLayoutInfo.createFixedHeight(size);
+            } else {
+                return BasicLayoutInfo.createFixedWidth(size);
+            }
+        } else if (pw == AquaUIPainter.ProgressWidget.SPINNER || pw == AquaUIPainter.ProgressWidget.INDETERMINATE_SPINNER) {
+            int d = size(sz, 32, 16, 12);
+            return BasicLayoutInfo.createFixed(d, d);
+        } else {
+            throw new UnsupportedOperationException();
+        }
     }
 
     @Override
