@@ -72,7 +72,8 @@ public class IndeterminateProgressBarPainterExtension
         int thick = Math.round(isVertical ? width : height);
         float arc = pg.getSize() == AquaUIPainter.Size.SMALL ? 3 : 6;
         if (isVertical) {
-            g.fill(new RoundRectangle2D.Float(0, position1, thick, position2 - position1, arc, arc));
+            int pos = (int) length - position1 - segment;
+            g.fill(new RoundRectangle2D.Float(0, pos, thick, position2 - position1, arc, arc));
         } else {
             g.fill(new RoundRectangle2D.Float(position1, 0, position2 - position1, thick, arc, arc));
         }
