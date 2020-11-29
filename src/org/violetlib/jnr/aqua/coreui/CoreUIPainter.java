@@ -193,12 +193,16 @@ public class CoreUIPainter
             case BUTTON_ROUND_TEXTURED:
                 widget = CoreUIWidgets.BUTTON_ROUND_TEXTURED; break;
             case BUTTON_ROUND_TEXTURED_TOOLBAR:
+                if (platformVersion >= 101600) {
+                    sz = Size.LARGE;
+                }
                 widget = CoreUIWidgets.BUTTON_ROUND_TOOLBAR; break;
             case BUTTON_INLINE:
                 widget = CoreUIWidgets.BUTTON_PUSH_SLIDESHOW; break;  // not correct, inline buttons are not supported by Core UI
             case BUTTON_TEXTURED:
                 widget = CoreUIWidgets.BUTTON_SEGMENTED_TEXTURED; break;
             case BUTTON_TEXTURED_TOOLBAR:
+            case BUTTON_TEXTURED_TOOLBAR_ICONS:
                 widget = platformVersion >= 101100 ? CoreUIWidgets.BUTTON_SEGMENTED_TOOLBAR : CoreUIWidgets.BUTTON_SEGMENTED_TEXTURED; break;
             case BUTTON_PUSH_INSET2:
                 widget = CoreUIWidgets.BUTTON_PUSH_INSET2; break;
@@ -257,6 +261,15 @@ public class CoreUIPainter
             size = null;
         }
 
+        String variant = null;
+        if (platformVersion >= 101600 && bw.isToolbar()) {
+            if (bw.isIconsOnly()) {
+                variant = "";
+            } else {
+                variant = CoreUIVariants.VARIANT_TEXT_CONTENT;
+            }
+        }
+
         BasicRenderer r = getRenderer(
           WIDGET_KEY, widget,
           BACKGROUND_TYPE_KEY, background,
@@ -266,7 +279,8 @@ public class CoreUIPainter
           IS_FOCUSED_KEY, getFocused(g, g.isFocused()),
           VALUE_KEY, buttonState,
           DIRECTION_KEY, direction,
-          ANIMATION_FRAME_KEY, animationFrame
+          ANIMATION_FRAME_KEY, animationFrame,
+          VARIANT_KEY, variant
         );
         return Renderer.create(r, rd);
     }

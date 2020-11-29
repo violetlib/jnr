@@ -249,6 +249,7 @@ public class JRSPainter
                 break;
             case BUTTON_TEXTURED:
             case BUTTON_TEXTURED_TOOLBAR:  // not supported
+            case BUTTON_TEXTURED_TOOLBAR_ICONS:  // not supported
                 maker.set(JRSUIConstants.Widget.BUTTON_PUSH_TEXTURED);
                 break;
             case BUTTON_ROUND:
@@ -320,10 +321,14 @@ public class JRSPainter
 
         } else if (bw == ButtonWidget.BUTTON_DISCLOSURE) {
             maker.set(bs == ButtonState.OFF ? JRSUIConstants.Direction.DOWN : JRSUIConstants.Direction.UP);
-        } else if (bw == ButtonWidget.BUTTON_CHECK_BOX || bw == ButtonWidget.BUTTON_RADIO
-                     || bw == ButtonWidget.BUTTON_BEVEL || bw == ButtonWidget.BUTTON_BEVEL_ROUND
+        } else if (bw == ButtonWidget.BUTTON_CHECK_BOX
+                     || bw == ButtonWidget.BUTTON_RADIO
+                     || bw == ButtonWidget.BUTTON_BEVEL
+                     || bw == ButtonWidget.BUTTON_BEVEL_ROUND
                      || bw == ButtonWidget.BUTTON_GRADIENT
-                     || bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR
+                     || bw == ButtonWidget.BUTTON_TEXTURED
+                     || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR
+                     || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR_ICONS
                      || bw == ButtonWidget.BUTTON_ROUND) {
             switch (bs) {
                 case ON:

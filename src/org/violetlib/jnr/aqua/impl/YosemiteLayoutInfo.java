@@ -30,6 +30,7 @@ import org.violetlib.jnr.impl.JNRUtils;
 import org.jetbrains.annotations.*;
 
 import static org.violetlib.jnr.aqua.AquaUIPainter.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
 import static org.violetlib.jnr.impl.JNRUtils.*;
 
 /**
@@ -48,66 +49,66 @@ public class YosemiteLayoutInfo
     {
         ButtonWidget bw = g.getButtonWidget();
 
-        if (bw == ButtonWidget.BUTTON_TOOLBAR_ITEM) {
+        if (bw == BUTTON_TOOLBAR_ITEM) {
             ToolBarItemWellLayoutConfiguration tg = new ToolBarItemWellLayoutConfiguration();
             return getToolBarItemWellLayoutInfo(tg);
         }
 
         Size sz = g.getSize();
 
-        if (bw == ButtonWidget.BUTTON_PUSH) {
+        if (bw == BUTTON_PUSH) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 22, 19, 16));
 
-        } else if (bw == ButtonWidget.BUTTON_BEVEL) {
+        } else if (bw == BUTTON_BEVEL) {
             return BasicLayoutInfo.getInstance();
 
-        } else if (bw == ButtonWidget.BUTTON_BEVEL_ROUND) {
+        } else if (bw == BUTTON_BEVEL_ROUND) {
             return BasicLayoutInfo.getInstance();
 
-        } else if (bw == ButtonWidget.BUTTON_CHECK_BOX) {
+        } else if (bw == BUTTON_CHECK_BOX) {
             return BasicLayoutInfo.createFixed(size(sz, 14, 12, 10), size(sz, 14, 12, 10));
 
-        } else if (bw == ButtonWidget.BUTTON_RADIO) {
+        } else if (bw == BUTTON_RADIO) {
             return BasicLayoutInfo.createFixed(size(sz, 16, 14, 10), size(sz, 16, 14, 10));
 
-        } else if (bw == ButtonWidget.BUTTON_DISCLOSURE) {
+        } else if (bw == BUTTON_DISCLOSURE) {
             return BasicLayoutInfo.createFixed(size(sz, 21, 19, 15), size(sz, 22, 19, 16));
 
-        } else if (bw == ButtonWidget.BUTTON_HELP) {
+        } else if (bw == BUTTON_HELP) {
             return BasicLayoutInfo.createFixed(size(sz, 21, 18, 15), size(sz, 22, 19, 16));
 
-        } else if (bw == ButtonWidget.BUTTON_GRADIENT) {
+        } else if (bw == BUTTON_GRADIENT) {
             return BasicLayoutInfo.getInstance();
 
-        } else if (bw == ButtonWidget.BUTTON_RECESSED) {
+        } else if (bw == BUTTON_RECESSED) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 18, 16, 14));
 
-        } else if (bw == ButtonWidget.BUTTON_INLINE) {
+        } else if (bw == BUTTON_INLINE) {
             // Note that the NSView does not limit the size, but there seems to be an intended fixed size.
             return BasicLayoutInfo.createFixedHeight(17);
 
-        } else if (bw == ButtonWidget.BUTTON_ROUNDED_RECT) {
+        } else if (bw == BUTTON_ROUNDED_RECT) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 18, 16, 14));
 
-        } else if (bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
+        } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 23, 19, 16));
 
-        } else if (bw == ButtonWidget.BUTTON_ROUND) {
+        } else if (bw == BUTTON_ROUND) {
             return BasicLayoutInfo.createFixed(size(sz, 20, 17, 14), size(sz, 21, 18, 15));
 
-        } else if (bw == ButtonWidget.BUTTON_ROUND_INSET) {
+        } else if (bw == BUTTON_ROUND_INSET) {
             return BasicLayoutInfo.createFixed(18, 18);
 
-        } else if (bw == ButtonWidget.BUTTON_ROUND_TEXTURED || bw == ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR) {
+        } else if (bw == BUTTON_ROUND_TEXTURED || bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
             return BasicLayoutInfo.createFixed(size(sz, 21, 18, 15), size(sz, 22, 19, 16));
 
-        } else if (bw == ButtonWidget.BUTTON_DISCLOSURE_TRIANGLE) {
+        } else if (bw == BUTTON_DISCLOSURE_TRIANGLE) {
             return BasicLayoutInfo.createFixed(9, 9);
 
-        } else if (bw == ButtonWidget.BUTTON_PUSH_INSET2) {
+        } else if (bw == BUTTON_PUSH_INSET2) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 19, 17, 15));
 
-        } else if (bw == ButtonWidget.BUTTON_COLOR_WELL) {
+        } else if (bw == BUTTON_COLOR_WELL) {
             return BasicLayoutInfo.createMinimum(44, 23);
 
         } else {
@@ -129,93 +130,93 @@ public class YosemiteLayoutInfo
 
         // these insets are minimums to avoid painting over the border
 
-        if (bw == ButtonWidget.BUTTON_PUSH) {
+        if (bw == BUTTON_PUSH) {
             top = size(sz, 1, 2, 1);
             bottom = size(sz, 2, 2, 2);
             left = size(sz, 4, 4, 3);
             right = left;
 
-        } else if (bw == ButtonWidget.BUTTON_BEVEL) {
+        } else if (bw == BUTTON_BEVEL) {
             top = 1;
             bottom = 1;
             left = 1;
             right = 1;
 
-        } else if (bw == ButtonWidget.BUTTON_BEVEL_ROUND) {
+        } else if (bw == BUTTON_BEVEL_ROUND) {
             top = size(sz, 1, 2, 1);
             bottom = size(sz, 2, 2, 2);
             left = size(sz, 4, 4, 3);
             right = left;
 
-        } else if (bw == ButtonWidget.BUTTON_CHECK_BOX) {
+        } else if (bw == BUTTON_CHECK_BOX) {
             // labels are not supported
             return null;
 
-        } else if (bw == ButtonWidget.BUTTON_RADIO) {
+        } else if (bw == BUTTON_RADIO) {
             // labels are not supported
             return null;
 
-        } else if (bw == ButtonWidget.BUTTON_DISCLOSURE) {
+        } else if (bw == BUTTON_DISCLOSURE) {
             // labels are not supported
             return null;
 
-        } else if (bw == ButtonWidget.BUTTON_HELP) {
+        } else if (bw == BUTTON_HELP) {
             // labels are not supported
             return null;
 
-        } else if (bw == ButtonWidget.BUTTON_GRADIENT) {
+        } else if (bw == BUTTON_GRADIENT) {
             top = 1;
             bottom = 1;
             left = 1;
             right = 1;
 
-        } else if (bw == ButtonWidget.BUTTON_RECESSED) {
+        } else if (bw == BUTTON_RECESSED) {
             top = bottom = 1;
             left = right = size(sz, 4, 3, 3);
 
-        } else if (bw == ButtonWidget.BUTTON_INLINE) {
+        } else if (bw == BUTTON_INLINE) {
             top = 2;  // could be 1.5
             bottom = 2;
             left = right = size(sz, 6, 5, 5);
 
-        } else if (bw == ButtonWidget.BUTTON_ROUNDED_RECT) {
+        } else if (bw == BUTTON_ROUNDED_RECT) {
             top = bottom = 1;
             left = right = 4;
 
-        } else if (bw == ButtonWidget.BUTTON_TEXTURED || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
+        } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS) {
             top = 0.51f;
             bottom = 1.49f;
             left = right = 3;
 
-        } else if (bw == ButtonWidget.BUTTON_ROUND) {
+        } else if (bw == BUTTON_ROUND) {
             top = left = right = size2D(sz, 4, 3.5, 3);
             bottom = top + 1;
 
-        } else if (bw == ButtonWidget.BUTTON_ROUND_INSET) {
+        } else if (bw == BUTTON_ROUND_INSET) {
             left = right = 3;
             top = 3.5f;
             bottom = top;
 
-        } else if (bw == ButtonWidget.BUTTON_ROUND_TEXTURED || bw == ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR) {
+        } else if (bw == BUTTON_ROUND_TEXTURED || bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
             top = left = right = size2D(sz, 3.5, 3, 2.5);
             bottom = top + 1;
 
-        } else if (bw == ButtonWidget.BUTTON_DISCLOSURE_TRIANGLE) {
+        } else if (bw == BUTTON_DISCLOSURE_TRIANGLE) {
             // labels are not supported
             return null;
 
-        } else if (bw == ButtonWidget.BUTTON_PUSH_INSET2) {
+        } else if (bw == BUTTON_PUSH_INSET2) {
             top = size(sz, 1, 1, 1);
             bottom = size(sz, 1, 1, 1);
             left = size(sz, 7, 6, 6);
             right = left;
 
-        } else if (bw == ButtonWidget.BUTTON_TOOLBAR_ITEM) {
+        } else if (bw == BUTTON_TOOLBAR_ITEM) {
             top = 2;
             bottom = 3;
             left = right = 4;
 
-        } else if (bw == ButtonWidget.BUTTON_COLOR_WELL) {
+        } else if (bw == BUTTON_COLOR_WELL) {
             // labels are not supported
         }
 

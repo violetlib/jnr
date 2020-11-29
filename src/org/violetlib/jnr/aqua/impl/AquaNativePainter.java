@@ -894,6 +894,7 @@ public class AquaNativePainter
             case BUTTON_TEXTURED:
                 return NSTexturedRoundedBezelStyle;
             case BUTTON_TEXTURED_TOOLBAR:
+            case BUTTON_TEXTURED_TOOLBAR_ICONS:
                 return NSTexturedRoundedBezelStyle_Toolbar;
             case BUTTON_ROUND:
                 return NSCircularBezelStyle;

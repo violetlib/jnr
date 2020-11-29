@@ -8,6 +8,14 @@
 
 package org.violetlib.jnr.aqua.impl;
 
+import org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget;
+import org.violetlib.jnr.aqua.AquaUIPainter.Orientation;
+import org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget;
+import org.violetlib.jnr.aqua.AquaUIPainter.Position;
+import org.violetlib.jnr.aqua.AquaUIPainter.ProgressWidget;
+import org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget;
+import org.violetlib.jnr.aqua.AquaUIPainter.Size;
+import org.violetlib.jnr.aqua.AquaUIPainter.TickMarkPosition;
 import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.impl.BasicRendererDescription;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
@@ -17,7 +25,8 @@ import org.violetlib.jnr.impl.RendererDescription;
 
 import org.jetbrains.annotations.*;
 
-import static org.violetlib.jnr.aqua.AquaUIPainter.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.*;
 import static org.violetlib.jnr.impl.JNRUtils.*;
 
 /**
@@ -30,21 +39,21 @@ public abstract class RendererDescriptionsBase
     @Override
     public @NotNull RendererDescription getButtonRendererDescription(@NotNull ButtonConfiguration g)
     {
-        AquaUIPainter.ButtonWidget bw = toCanonicalButtonStyle(g.getButtonWidget());
+        ButtonWidget bw = toCanonicalButtonStyle(g.getButtonWidget());
 
-        if (bw == AquaUIPainter.ButtonWidget.BUTTON_TOOLBAR_ITEM) {
+        if (bw == BUTTON_TOOLBAR_ITEM) {
             ToolBarItemWellConfiguration tg = new ToolBarItemWellConfiguration(g.getState(), true);
             return getToolBarItemWellRendererDescription(tg);
         }
 
-        AquaUIPainter.Size sz = g.getSize();
+        Size sz = g.getSize();
 
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
-        if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR && platformVersion < 101100) {
-            bw = AquaUIPainter.ButtonWidget.BUTTON_ROUND;
+        if (bw == BUTTON_ROUND_TEXTURED_TOOLBAR && platformVersion < 101100) {
+            bw = BUTTON_ROUND;
         }
 
-        if (bw == AquaUIPainter.ButtonWidget.BUTTON_PUSH) {
+        if (bw == BUTTON_PUSH) {
             switch (sz) {
                 case LARGE:
                 case REGULAR:
@@ -57,13 +66,13 @@ public abstract class RendererDescriptionsBase
                     throw new UnsupportedOperationException();
             }
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_BEVEL) {
+        } else if (bw == BUTTON_BEVEL) {
             return new BasicRendererDescription(0, 0, 0, 0);
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_BEVEL_ROUND) {
+        } else if (bw == BUTTON_BEVEL_ROUND) {
             return new BasicRendererDescription(-2, -2, 4, 4);
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_CHECK_BOX) {
+        } else if (bw == BUTTON_CHECK_BOX) {
             switch (sz) {
                 case LARGE:
                 case REGULAR:
@@ -76,7 +85,7 @@ public abstract class RendererDescriptionsBase
                     throw new UnsupportedOperationException();
             }
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_RADIO) {
+        } else if (bw == BUTTON_RADIO) {
             switch (sz) {
                 case LARGE:
                 case REGULAR:
@@ -89,7 +98,7 @@ public abstract class RendererDescriptionsBase
                     throw new UnsupportedOperationException();
             }
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_DISCLOSURE) {
+        } else if (bw == BUTTON_DISCLOSURE) {
             switch (sz) {
                 case LARGE:
                 case REGULAR:
@@ -102,7 +111,7 @@ public abstract class RendererDescriptionsBase
                     throw new UnsupportedOperationException();
             }
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_HELP) {
+        } else if (bw == BUTTON_HELP) {
             switch (sz) {
                 case LARGE:
                 case REGULAR:
@@ -117,25 +126,25 @@ public abstract class RendererDescriptionsBase
                     throw new UnsupportedOperationException();
             }
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_GRADIENT) {
+        } else if (bw == BUTTON_GRADIENT) {
             return new BasicRendererDescription(0, -1, 0, 2);
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_RECESSED) {
+        } else if (bw == BUTTON_RECESSED) {
             return new BasicRendererDescription(0, 0, 0, 1);
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_INLINE) {
+        } else if (bw == BUTTON_INLINE) {
             return new BasicRendererDescription(0, 0, 0, 0);
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUNDED_RECT) {
+        } else if (bw == BUTTON_ROUNDED_RECT) {
             return new BasicRendererDescription(0, 0, 0, 1);
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED) {
+        } else if (bw == BUTTON_TEXTURED) {
             return new BasicRendererDescription(0, 0, 0, 0);
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
+        } else if (bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS) {
             return new BasicRendererDescription(0, 0, 0, 0);
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND) {
+        } else if (bw == BUTTON_ROUND) {
             switch (sz) {
                 case LARGE:
                 case REGULAR:
@@ -150,22 +159,22 @@ public abstract class RendererDescriptionsBase
                     throw new UnsupportedOperationException();
             }
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_DISCLOSURE_TRIANGLE) {
+        } else if (bw == BUTTON_DISCLOSURE_TRIANGLE) {
             return new BasicRendererDescription(0, 0, 0, 0);
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_PUSH_INSET2) {
+        } else if (bw == BUTTON_PUSH_INSET2) {
             return new BasicRendererDescription(0, 0, 0, 0);
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_INSET) {
+        } else if (bw == BUTTON_ROUND_INSET) {
             return new BasicRendererDescription(0, 0, 0, 0);
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TEXTURED) {
+        } else if (bw == BUTTON_ROUND_TEXTURED) {
             return new BasicRendererDescription(0, 0, 0, 0);
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR) {
+        } else if (bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
             return new BasicRendererDescription(0, 0, 0, 0);
 
-        } else if (bw == AquaUIPainter.ButtonWidget.BUTTON_COLOR_WELL) {
+        } else if (bw == BUTTON_COLOR_WELL) {
             return new BasicRendererDescription(0, 0, 0, 0);
 
         } else {
@@ -181,8 +190,8 @@ public abstract class RendererDescriptionsBase
         // that the native renderer knows how wide the button should be. If any horizontal adjustment is needed, it
         // should be made by the native renderer.
 
-        AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
-        AquaUIPainter.Size sz = g.getSize();
+        SegmentedButtonWidget bw = g.getWidget();
+        Size sz = g.getSize();
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
 
         switch (bw) {
@@ -234,7 +243,7 @@ public abstract class RendererDescriptionsBase
                         float y = -0.49f;
                         if (bw.isToolbar()) {
                             y = -1.49f;
-                        } else if (bw == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED) {
+                        } else if (bw == BUTTON_SEGMENTED_TEXTURED_SEPARATED) {
                             y = -0.1f;
                         }
                         return platformVersion >= 101100
@@ -279,18 +288,18 @@ public abstract class RendererDescriptionsBase
       float extraHeight
     )
     {
-        AquaUIPainter.SegmentedButtonWidget bw = g.getWidget();
+        SegmentedButtonWidget bw = g.getWidget();
         boolean isSeparated = bw.isSeparated();
 
-        AquaUIPainter.Position pos = g.getPosition();
+        Position pos = g.getPosition();
 
-        boolean atLeftEdge = pos == AquaUIPainter.Position.FIRST || pos == AquaUIPainter.Position.ONLY;
-        boolean atRightEdge = pos == AquaUIPainter.Position.LAST || pos == AquaUIPainter.Position.ONLY;
+        boolean atLeftEdge = pos == Position.FIRST || pos == Position.ONLY;
+        boolean atRightEdge = pos == Position.LAST || pos == Position.ONLY;
 
         boolean isLeftDividerPossible = !isSeparated
-                                          && (pos == AquaUIPainter.Position.MIDDLE || pos == AquaUIPainter.Position.LAST);
+                                          && (pos == Position.MIDDLE || pos == Position.LAST);
         boolean isRightDividerPossible = !isSeparated
-                                           && (pos == AquaUIPainter.Position.FIRST || pos == AquaUIPainter.Position.MIDDLE);
+                                           && (pos == Position.FIRST || pos == Position.MIDDLE);
 
         if (atLeftEdge) {
             xOffset += leftOffset;
@@ -331,16 +340,16 @@ public abstract class RendererDescriptionsBase
     @Override
     public @NotNull RendererDescription getPopupButtonRendererDescription(@NotNull PopupButtonConfiguration g)
     {
-        AquaUIPainter.PopupButtonWidget bw = g.getPopupButtonWidget();
-        AquaUIPainter.Size sz = g.getSize();
+        PopupButtonWidget bw = g.getPopupButtonWidget();
+        Size sz = g.getSize();
 
-        boolean isSquare = bw == AquaUIPainter.PopupButtonWidget.BUTTON_POP_UP_SQUARE
-                             || bw == AquaUIPainter.PopupButtonWidget.BUTTON_POP_DOWN_SQUARE;
-        boolean isArrowsOnly = bw == AquaUIPainter.PopupButtonWidget.BUTTON_POP_UP_CELL
-                                 || bw == AquaUIPainter.PopupButtonWidget.BUTTON_POP_DOWN_CELL;
+        boolean isSquare = bw == PopupButtonWidget.BUTTON_POP_UP_SQUARE
+                             || bw == PopupButtonWidget.BUTTON_POP_DOWN_SQUARE;
+        boolean isArrowsOnly = bw == PopupButtonWidget.BUTTON_POP_UP_CELL
+                                 || bw == PopupButtonWidget.BUTTON_POP_DOWN_CELL;
 
-        if ((isSquare || isArrowsOnly) && sz == AquaUIPainter.Size.MINI) {
-            sz = AquaUIPainter.Size.SMALL;
+        if ((isSquare || isArrowsOnly) && sz == Size.MINI) {
+            sz = Size.SMALL;
         }
 
         switch (bw) {
@@ -477,7 +486,7 @@ public abstract class RendererDescriptionsBase
     @Override
     public @NotNull RendererDescription getSliderThumbRendererDescription(@NotNull SliderConfiguration g)
     {
-        AquaUIPainter.Size sz = g.getSize();
+        Size sz = g.getSize();
 
         if (g.isHorizontal() || g.isVertical()) {
             if (!g.hasTickMarks()) {
@@ -503,7 +512,7 @@ public abstract class RendererDescriptionsBase
                 // The goal is to visually center the pointer horizontally in the layout width
                 float xOffset1 = 0;
                 float xOffset2 = size2D(sz, 0, 0, 0);
-                if (g.getTickMarkPosition() == AquaUIPainter.TickMarkPosition.ABOVE) {
+                if (g.getTickMarkPosition() == TickMarkPosition.ABOVE) {
                     float yOffset1 = 0;
                     float yOffset2 = size2D(sz, 0, 0, 0);
                     xh += size2D(sz, 1, 0, 0);
@@ -529,7 +538,7 @@ public abstract class RendererDescriptionsBase
                 // The goal is to visually center the pointer vertically in the layout height, ignoring the shadow
                 float yOffset1 = 0;
                 float yOffset2 = size2D(sz, 0, 0.5f, 0.5f);
-                if (g.getTickMarkPosition() == AquaUIPainter.TickMarkPosition.LEFT) {
+                if (g.getTickMarkPosition() == TickMarkPosition.LEFT) {
                     float wa = size2D(sz, 1, 2, 2);
                     xh += size(sz, 1, 0, 0);
                     RendererDescription rd1 = new BasicRendererDescription(0, yOffset1, wa, xh);
@@ -586,17 +595,17 @@ public abstract class RendererDescriptionsBase
     @Override
     public @NotNull RendererDescription getProgressIndicatorRendererDescription(@NotNull ProgressIndicatorConfiguration g)
     {
-        AquaUIPainter.ProgressWidget pw = g.getWidget();
-        AquaUIPainter.Orientation o = g.getOrientation();
+        ProgressWidget pw = g.getWidget();
+        Orientation o = g.getOrientation();
 
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
-        if (pw == AquaUIPainter.ProgressWidget.BAR) {
-            if (o == AquaUIPainter.Orientation.HORIZONTAL) {
+        if (pw == ProgressWidget.BAR) {
+            if (o == Orientation.HORIZONTAL) {
                 return platformVersion >= 101600 ? new BasicRendererDescription(0, -0.51f, 0, 1) : new BasicRendererDescription(-1, 0, 2, 1);
             } else {
                 return platformVersion >= 101600 ? new BasicRendererDescription(-1, 0, 2, 0) : new BasicRendererDescription(0, -1, 1, 2);
             }
-        } else if (pw == AquaUIPainter.ProgressWidget.SPINNER) {
+        } else if (pw == ProgressWidget.SPINNER) {
             return new BasicRendererDescription(0, 0, 0, 0);
         } else {
             throw new UnsupportedOperationException();
@@ -606,17 +615,17 @@ public abstract class RendererDescriptionsBase
     @Override
     public @NotNull RendererDescription getIndeterminateProgressIndicatorRendererDescription(@NotNull IndeterminateProgressIndicatorConfiguration g)
     {
-        AquaUIPainter.ProgressWidget pw = g.getWidget();
-        AquaUIPainter.Orientation o = g.getOrientation();
-        AquaUIPainter.Size sz = g.getSize();
+        ProgressWidget pw = g.getWidget();
+        Orientation o = g.getOrientation();
+        Size sz = g.getSize();
 
-        if (pw == AquaUIPainter.ProgressWidget.INDETERMINATE_BAR) {
-            if (o == AquaUIPainter.Orientation.HORIZONTAL) {
+        if (pw == ProgressWidget.INDETERMINATE_BAR) {
+            if (o == Orientation.HORIZONTAL) {
                 return new BasicRendererDescription(-1, 0, 2, 1);
             } else {
                 return new BasicRendererDescription(0, -1, 1, 2);
             }
-        } else if (pw == AquaUIPainter.ProgressWidget.INDETERMINATE_SPINNER) {
+        } else if (pw == ProgressWidget.INDETERMINATE_SPINNER) {
             return new BasicRendererDescription(0, 0, 0, 0);
         } else {
             throw new UnsupportedOperationException();
@@ -652,18 +661,18 @@ public abstract class RendererDescriptionsBase
       obsolete and are best supported by using a similar style.
     */
 
-    protected @NotNull AquaUIPainter.ButtonWidget toCanonicalButtonStyle(AquaUIPainter.ButtonWidget bw)
+    protected @NotNull ButtonWidget toCanonicalButtonStyle(ButtonWidget bw)
     {
 //        switch (bw) {
 //            case BUTTON_ROUND_INSET:
-//                return AquaUIPainter.ButtonWidget.BUTTON_ROUND;
+//                return BUTTON_ROUND;
 //            case BUTTON_ROUND_TEXTURED:
-//                return AquaUIPainter.ButtonWidget.BUTTON_ROUND;
+//                return BUTTON_ROUND;
 //        }
         return bw;
     }
 
-    protected int pos(@NotNull AquaUIPainter.Position pos, int first, int last, int only)
+    protected int pos(@NotNull Position pos, int first, int last, int only)
     {
         switch (pos)
         {
@@ -678,7 +687,7 @@ public abstract class RendererDescriptionsBase
         }
     }
 
-    protected int pos(@NotNull AquaUIPainter.Position pos, int first, int middle, int last, int only)
+    protected int pos(@NotNull Position pos, int first, int middle, int last, int only)
     {
         switch (pos)
         {
@@ -695,7 +704,7 @@ public abstract class RendererDescriptionsBase
         }
     }
 
-    protected float pos(@NotNull AquaUIPainter.Position pos, float first, float last, float only)
+    protected float pos(@NotNull Position pos, float first, float last, float only)
     {
         switch (pos)
         {
@@ -710,7 +719,7 @@ public abstract class RendererDescriptionsBase
         }
     }
 
-    protected float pos(@NotNull AquaUIPainter.Position pos, float first, float middle, float last, float only)
+    protected float pos(@NotNull Position pos, float first, float middle, float last, float only)
     {
         switch (pos)
         {

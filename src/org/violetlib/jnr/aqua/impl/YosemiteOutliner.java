@@ -152,7 +152,7 @@ public class YosemiteOutliner
             corner = 16;
         } else if (bw == BUTTON_RECESSED) {
             corner = 6;
-        } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR) {
+        } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS) {
             corner = 6;
             height -= 0.5;
         } else if (bw == BUTTON_DISCLOSURE_TRIANGLE) {

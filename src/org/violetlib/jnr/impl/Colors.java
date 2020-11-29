@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Alan Snyder.
+ * Copyright (c) 2018-2020 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -117,6 +117,10 @@ public class Colors
             b.add("thickDividerDimpleBorder", 191);
             b.add("tableHeaderDivider", 0, 24);
             b.add("tableHeaderArrow", 0, 92);
+            b.add("toolbarButton", 0, 14);
+            b.add("toolbarButtonSelected", 0, 14);
+            b.add("toolbarButtonPressed", 0, 28);
+            b.add("toolbarButtonSelectedPressed", 0, 56);
             lightColors = b.getColors();
         }
 
@@ -171,6 +175,10 @@ public class Colors
             b.add("thickDividerDimpleBorder", 0, 48);
             b.add("tableHeaderDivider", 255, 24);
             b.add("tableHeaderArrow", 255, 102);
+            b.add("toolbarButton", 255, 14);
+            b.add("toolbarButtonSelected", 255, 14);
+            b.add("toolbarButtonPressed", 255, 28);
+            b.add("toolbarButtonSelectedPressed", 255, 56);
             darkColors = b.getColors();
         }
 

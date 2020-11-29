@@ -15,6 +15,8 @@ import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 
 import org.violetlib.jnr.aqua.AquaUIPainter;
+import org.violetlib.jnr.aqua.AquaUIPainter.ButtonState;
+import org.violetlib.jnr.aqua.AquaUIPainter.State;
 import org.violetlib.jnr.aqua.ButtonConfiguration;
 import org.violetlib.jnr.impl.Colors;
 import org.violetlib.jnr.impl.PainterExtension;
@@ -29,11 +31,11 @@ import org.jetbrains.annotations.*;
 public class RoundToolbarButtonPainterExtension
   implements PainterExtension
 {
+    // This extension should not be needed, but I get incorrect results using CoreUI in dark mode.
+
     protected final @NotNull ButtonConfiguration bg;
     protected final @Nullable VAppearance appearance;
     protected final @NotNull Colors colors;
-    protected final @NotNull Color lightColor = new Color(0, 0, 0, 16);
-    protected final @NotNull Color darkColor = new Color(255, 255, 255, 16);
 
     public RoundToolbarButtonPainterExtension(@NotNull ButtonConfiguration g, @Nullable VAppearance appearance)
     {
@@ -45,13 +47,16 @@ public class RoundToolbarButtonPainterExtension
     @Override
     public void paint(@NotNull Graphics2D g, float width, float height)
     {
-        AquaUIPainter.ButtonState state = bg.getButtonState();
-        boolean isFilled = state == AquaUIPainter.ButtonState.ON || state == AquaUIPainter.ButtonState.MIXED;
+        State state = bg.getState();
+        ButtonState buttonState = bg.getButtonState();
+        boolean isFilled = state == State.PRESSED
+                             || buttonState == AquaUIPainter.ButtonState.ON
+                             || buttonState == AquaUIPainter.ButtonState.MIXED;
         double x = width / 2.0;
         double y = height / 2.0;
         double diameter = height - 2;
         double radius = diameter / 2.0;
-        Color c = appearance != null && appearance.isDark() ? darkColor : lightColor;
+        Color c = getColor();
         Shape s = new Ellipse2D.Double(x - radius, y - radius, diameter, diameter);
         g.setColor(c);
         if (isFilled) {
@@ -60,5 +65,19 @@ public class RoundToolbarButtonPainterExtension
             g.setStroke(new BasicStroke(2));
             g.draw(s);
         }
+    }
+
+    protected @NotNull Color getColor()
+    {
+        String colorName = "toolbarButton";
+        State state = bg.getState();
+        ButtonState buttonState = bg.getButtonState();
+        if (buttonState == ButtonState.ON || buttonState == ButtonState.MIXED) {
+            colorName = colorName + "Selected";
+        }
+        if (state == AquaUIPainter.State.PRESSED) {
+            colorName = colorName + "Pressed";
+        }
+        return colors.get(colorName);
     }
 }

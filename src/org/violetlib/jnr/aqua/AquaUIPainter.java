@@ -266,6 +266,7 @@ public interface AquaUIPainter
         BUTTON_ROUNDED_RECT,            // fixed height, displays as an rectangle outline with rounded corners and no background, darkens when pressed, in IB
         BUTTON_TEXTURED,                // fixed height, recommended for use in window frame, previously called scurve, now called textured rounded
         BUTTON_TEXTURED_TOOLBAR,        // introduced in 10.11 for textured buttons on the tool bar (taller)
+        BUTTON_TEXTURED_TOOLBAR_ICONS,  // added in release 10 for macOS 11; textured controls on the tool bar, icons only
         BUTTON_TOOLBAR_ITEM,            // a tool bar item
         BUTTON_COLOR_WELL,              // a color well
 
@@ -284,6 +285,7 @@ public interface AquaUIPainter
         {
             return this == BUTTON_TEXTURED
                      || this == BUTTON_TEXTURED_TOOLBAR
+                     || this == BUTTON_TEXTURED_TOOLBAR_ICONS
                      || this == BUTTON_ROUND_TEXTURED
                      || this == BUTTON_ROUND_TEXTURED_TOOLBAR;
         }
@@ -292,7 +294,13 @@ public interface AquaUIPainter
         public boolean isToolbar()
         {
             return this == BUTTON_TEXTURED_TOOLBAR
+                     || this == BUTTON_TEXTURED_TOOLBAR_ICONS
                      || this == BUTTON_ROUND_TEXTURED_TOOLBAR;
+        }
+
+        public boolean isIconsOnly()
+        {
+            return this == BUTTON_TEXTURED_TOOLBAR_ICONS;
         }
     }
 

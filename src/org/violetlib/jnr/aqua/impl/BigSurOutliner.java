@@ -155,7 +155,7 @@ public class BigSurOutliner
             corner = 6;
             y += size2D(sz, 0.5, 0, 0, 0);
             height += size2D(sz, -1, 0, 0, 0);
-        } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR) {
+        } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS) {
             y += 1;
             height += -3;
         } else if (bw == BUTTON_DISCLOSURE_TRIANGLE) {
