@@ -145,11 +145,35 @@ public class CoreUIRendererDescriptions
             case BUTTON_SEGMENTED_SEPARATED:
             case BUTTON_SEGMENTED_SLIDER:
 
-                if (platformVersion >= 101600
-                      && bw == BUTTON_SEGMENTED_SEPARATED) {
+                if (platformVersion >= 101600 && bw == BUTTON_SEGMENTED_SEPARATED) {
                     leftOffset = size(sz, -4, -1, -1, -1);
                     leftExtraWidth = size(sz, 4, 1, 1, 1);
                     rightExtraWidth = size(sz, 4, 1, 1, 1);
+                    break;
+                } else if (platformVersion >= 101500 && bw == BUTTON_SEGMENTED_SEPARATED) {
+                    Position pos = g.getPosition();
+                    leftOffset = pos == Position.MIDDLE ? 0 : size(sz, -2, -2, -1);
+                    leftExtraWidth = size(sz, 2, 2, 1);
+                    rightExtraWidth = size(sz, 2, 2, 1);
+                    yOffset = size2D(sz, 0, -1, 0.51);
+                    extraHeight = size(sz, 0, 0, -5);
+                    break;
+                } else if (platformVersion >= 101400 && bw == BUTTON_SEGMENTED_SEPARATED) {
+                    Position pos = g.getPosition();
+                    leftOffset = pos == Position.MIDDLE ? 0 : size(sz, -2, -2, -1);
+                    leftExtraWidth = size(sz, 2, 2, 1);
+                    rightExtraWidth = size(sz, 2, 2, 1);
+                    yOffset = size2D(sz, 0, -0.49, 0.51);
+                    extraHeight = size(sz, 0, -2, -5);
+                    break;
+                } else if (platformVersion >= 101300 && bw == BUTTON_SEGMENTED_SEPARATED) {
+                    Position pos = g.getPosition();
+                    leftOffset = pos == Position.FIRST ? size2D(sz, -2.49, -2.49, -1.49) : -0.49f;
+                    extraWidth = 1;
+                    leftExtraWidth = size(sz, 2, 2, 1);
+                    rightExtraWidth = 1;
+                    yOffset = size2D(sz, 0, -0.98, 0.51);
+                    extraHeight = size(sz, -1, -2, -5);
                     break;
                 }
 
