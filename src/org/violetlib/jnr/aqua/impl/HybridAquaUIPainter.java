@@ -102,9 +102,22 @@ public class HybridAquaUIPainter
             }
         } else if (g instanceof SegmentedButtonConfiguration) {
             SegmentedButtonConfiguration sg = (SegmentedButtonConfiguration) g;
+            SegmentedButtonWidget w = sg.getWidget();
+            int platformVersion = JNRPlatformUtils.getPlatformVersion();
             // The NSView painter produces more accurate backgrounds for gradient buttons
-            if (sg.getWidget() == SegmentedButtonWidget.BUTTON_SEGMENTED_SMALL_SQUARE) {
+            if (w == SegmentedButtonWidget.BUTTON_SEGMENTED_SMALL_SQUARE) {
                 return viewPainter;
+            }
+            if (platformVersion < 101300) {
+                  if (w == SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED
+                     || w == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED
+                     || w == SegmentedButtonWidget.BUTTON_SEGMENTED_SCURVE) {
+                      return viewPainter;
+                  }
+            } else if (platformVersion < 101400) {
+                if (w == SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED) {
+                    return viewPainter;
+                }
             }
             return coreUIPainter;
         } else if (g instanceof GradientConfiguration) {
