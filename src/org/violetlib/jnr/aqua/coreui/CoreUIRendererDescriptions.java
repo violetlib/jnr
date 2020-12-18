@@ -149,6 +149,7 @@ public class CoreUIRendererDescriptions
                     leftOffset = size(sz, -4, -1, -1, -1);
                     leftExtraWidth = size(sz, 4, 1, 1, 1);
                     rightExtraWidth = size(sz, 4, 1, 1, 1);
+                    yOffset = size(sz, -1, -1, -1, -3);
                     break;
                 } else if (platformVersion >= 101500 && bw == BUTTON_SEGMENTED_SEPARATED) {
                     Position pos = g.getPosition();
