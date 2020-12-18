@@ -15,6 +15,7 @@ import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.Orientation;
 import org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget;
+import org.violetlib.jnr.aqua.AquaUIPainter.Position;
 import org.violetlib.jnr.aqua.AquaUIPainter.ProgressWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
@@ -171,6 +172,33 @@ public class BigSurLayoutInfo
             default:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    @Override
+    public @NotNull Insetter getSegmentedButtonLabelInsets(@NotNull SegmentedButtonLayoutConfiguration g)
+    {
+        SegmentedButtonWidget bw = g.getWidget();
+        LayoutInfo layoutInfo = getLayoutInfo(g);
+        Size sz = g.getSize();
+
+        if (bw == SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED) {
+            float left = size2D(sz, 2, 2, 1.5);
+            float right = size2D(sz, 3, 3, 2.5);
+            float top = size2D(sz, 3, 3.5, 3.5);
+            float bottom = size2D(sz, 1, 0.5, 0);
+            Position pos = g.getPosition();
+            boolean isLeftEnd = pos == Position.FIRST || pos == Position.ONLY;
+            boolean isRightEnd = pos == Position.LAST || pos == Position.ONLY;
+            float endAdjust = 2;
+            if (isLeftEnd) {
+                left += endAdjust;
+            }
+            if (isRightEnd) {
+                right += endAdjust;
+            }
+            return Insetters.createFixed(top, left, bottom, right, layoutInfo);
+        }
+        return super.getSegmentedButtonLabelInsets(g);
     }
 
     @Override
