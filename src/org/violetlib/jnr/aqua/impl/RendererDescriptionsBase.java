@@ -56,6 +56,7 @@ public abstract class RendererDescriptionsBase
         if (bw == BUTTON_PUSH) {
             switch (sz) {
                 case LARGE:
+                    return new BasicRendererDescription(-5, -1, 10, 1);
                 case REGULAR:
                     return new BasicRendererDescription(-6, 0, 12, 2);
                 case SMALL:
