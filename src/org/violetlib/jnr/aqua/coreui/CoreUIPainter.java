@@ -1112,7 +1112,7 @@ public class CoreUIPainter
 
         if (style == SLIDER_11_0) {
             thumbInsets = trackInsets.prepend(thumbInsets);
-            tickOperator = new FromMaskOperator();
+            tickOperator = new FromMaskOperator(appearance);
         }
 
         Renderer r = new LinearSliderRenderer(g, trackRenderer, trackInsets, tickMarkRenderer, tickMarkInsets,

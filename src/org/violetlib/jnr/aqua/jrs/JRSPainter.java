@@ -1082,7 +1082,7 @@ public class JRSPainter
 
         if (style == SLIDER_11_0) {
             thumbInsets = trackInsets.prepend(thumbInsets);
-            tickOperator = new FromMaskOperator();
+            tickOperator = new FromMaskOperator(appearance);
         }
 
         return new LinearSliderRenderer(g, trackRenderer, trackInsets, tickMarkRenderer, tickMarkInsets,
