@@ -365,7 +365,7 @@ public class BigSurOutliner
             height += size2D(sz, -1, -2, -1);
             x += size2D(sz, 0, 0, 0);
             width += size2D(sz, -1, -1, -1);
-            double corner = size2D(sz, 8, 6, 4);
+            double corner = size2D(sz, 10, 8, 6);
 
             // TBD: support right to left
 
