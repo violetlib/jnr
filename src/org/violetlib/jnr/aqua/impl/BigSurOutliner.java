@@ -17,11 +17,13 @@ import org.violetlib.geom.GeneralRoundRectangle;
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget;
+import org.violetlib.jnr.aqua.AquaUIPainter.ComboBoxWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.Position;
 import org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 import org.violetlib.jnr.aqua.ButtonConfiguration;
 import org.violetlib.jnr.aqua.ButtonLayoutConfiguration;
+import org.violetlib.jnr.aqua.ComboBoxLayoutConfiguration;
 import org.violetlib.jnr.aqua.PopupButtonLayoutConfiguration;
 import org.violetlib.jnr.aqua.SegmentedButtonLayoutConfiguration;
 import org.violetlib.jnr.aqua.SliderThumbLayoutConfiguration;
@@ -346,6 +348,43 @@ public class BigSurOutliner
         }
 
         return super.getPopUpButtonOutline(bounds, g);
+    }
+
+    @Override
+    protected @Nullable Shape getComboBoxOutline(@NotNull Rectangle2D bounds, @NotNull ComboBoxLayoutConfiguration g)
+    {
+        double x = bounds.getX();
+        double y = bounds.getY();
+        double width = bounds.getWidth();
+        double height = bounds.getHeight();
+
+        ComboBoxWidget widget = g.getWidget();
+        if (widget == ComboBoxWidget.BUTTON_COMBO_BOX) {
+            Size sz = g.getSize();
+            y += size2D(sz, 0.5f, 0.5f, 0.5f);
+            height += size2D(sz, -1, -2, -1);
+            x += size2D(sz, 0, 0, 0);
+            width += size2D(sz, -1, -1, -1);
+            double corner = size2D(sz, 8, 6, 4);
+
+            // TBD: support right to left
+
+            return new GeneralRoundRectangle(x, y, width, height, corner, corner, corner, corner, corner, corner, corner, corner);
+
+        } else if (widget == ComboBoxWidget.BUTTON_COMBO_BOX_CELL) {
+            Insetter insets = uiLayout.getComboBoxEditorInsets(g);
+            return insets.applyToBounds2D(bounds);
+
+        } else if (widget == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED || widget == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
+            x += 0.5f;
+            width -= 1;
+            height -= 1;
+            double corner = 8;
+            return new GeneralRoundRectangle(x, y, width, height, corner, corner, corner, corner, corner, corner, corner, corner);
+
+        } else {
+            return null;
+        }
     }
 
     @Override
