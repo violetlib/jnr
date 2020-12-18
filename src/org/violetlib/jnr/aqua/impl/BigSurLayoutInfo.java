@@ -68,7 +68,7 @@ public class BigSurLayoutInfo
         if (bw == BUTTON_PUSH) {
             // AppKit layout heights are 40, 32, 27, 16
             // The following are visual heights
-            return BasicLayoutInfo.createFixedHeight(size(sz, 31, 23, 18, 14));
+            return BasicLayoutInfo.createFixedHeight(size(sz, 31, 23, 19, 16));
 
         } else if (bw == BUTTON_BEVEL) {
             return BasicLayoutInfo.getInstance();

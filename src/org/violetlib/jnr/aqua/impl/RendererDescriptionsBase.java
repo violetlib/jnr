@@ -60,8 +60,14 @@ public abstract class RendererDescriptionsBase
                 case REGULAR:
                     return new BasicRendererDescription(-6, 0, 12, 2);
                 case SMALL:
+                    if (platformVersion >= 101600) {
+                        return new BasicRendererDescription(-4, 0, 10, 2);
+                    }
                     return new BasicRendererDescription(-5, -1, 10, 3);
                 case MINI:
+                    if (platformVersion >= 101600) {
+                        return new BasicRendererDescription(-1, -1, 2, 2);
+                    }
                     return new BasicRendererDescription(-1, 0, 2, 0);
                 default:
                     throw new UnsupportedOperationException();
