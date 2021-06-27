@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2021 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -48,18 +48,20 @@ public abstract class RendererPainter
     @Override
     public void paint(@NotNull Graphics gg, float x, float y)
     {
-        int scaleFactor = JavaSupport.getScaleFactor(gg);
-        int w = (int) Math.ceil(width);
-        int h = (int) Math.ceil(height);
-        Image im = getImage(scaleFactor, w, h);
-        if (im != null) {
-            Graphics2D g2 = JNRPlatformUtils.toGraphics2D(gg);
-            if (g2 != null) {
-                Graphics2D g = (Graphics2D) g2.create();
-                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                AffineTransform tr = AffineTransform.getTranslateInstance(x, y);
-                g.drawImage(im, tr, null);
-                g.dispose();
+        if (width > 0 && height > 0) {
+            int scaleFactor = JavaSupport.getScaleFactor(gg);
+            int w = (int) Math.ceil(width);
+            int h = (int) Math.ceil(height);
+            Image im = getImage(scaleFactor, w, h);
+            if (im != null) {
+                Graphics2D g2 = JNRPlatformUtils.toGraphics2D(gg);
+                if (g2 != null) {
+                    Graphics2D g = (Graphics2D) g2.create();
+                    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    AffineTransform tr = AffineTransform.getTranslateInstance(x, y);
+                    g.drawImage(im, tr, null);
+                    g.dispose();
+                }
             }
         }
     }
