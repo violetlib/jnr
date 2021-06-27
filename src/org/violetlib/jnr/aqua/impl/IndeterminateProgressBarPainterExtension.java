@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Alan Snyder.
+ * Copyright (c) 2020-2021 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -33,6 +33,7 @@ public class IndeterminateProgressBarPainterExtension
     protected final @NotNull IndeterminateProgressIndicatorConfiguration pg;
     protected final @Nullable Map<String,Color> colors;
     protected final @NotNull Color background;
+    protected final @NotNull Color thumb;
 
     public IndeterminateProgressBarPainterExtension(@NotNull AquaUILayoutInfo uiLayout,
                                                     @NotNull IndeterminateProgressIndicatorConfiguration g,
@@ -41,8 +42,16 @@ public class IndeterminateProgressBarPainterExtension
         this.uiLayout = uiLayout;
         this.pg = g;
         this.colors = appearance != null ? appearance.getColors() : null;
-        this.background = appearance != null && appearance.isDark()
-                            ? new Color(255, 255, 255, 24) : new Color(0, 0, 0, 16);
+        AquaUIPainter.State state = pg.getState();
+
+        boolean isDark = appearance != null && appearance.isDark();
+        this.background = isDark ? new Color(255, 255, 255, 24) : new Color(0, 0, 0, 16);
+        if (state == AquaUIPainter.State.DISABLED || state.isInactive()) {
+            thumb = isDark ? new Color(255, 255, 255, 64) : new Color(0, 0, 0, 64);
+        } else {
+            Color accent = colors != null ? colors.get("controlAccent") : null;
+            thumb = accent != null ? accent : Color.LIGHT_GRAY;
+        }
     }
 
     @Override
@@ -56,11 +65,7 @@ public class IndeterminateProgressBarPainterExtension
         g.setColor(background);
         g.fill(new RoundRectangle2D.Float(0, 0, width, height, 3, 3));
 
-        Color color = colors != null ? colors.get("controlAccent") : null;
-        if (color == null) {
-            color = Color.LIGHT_GRAY;
-        }
-        g.setColor(color);
+        g.setColor(thumb);
 
         int frameCount = 90; // must agree with VAqua (AquaProgressBarUI)
         float length = isVertical ? height : width;
