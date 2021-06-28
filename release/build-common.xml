@@ -3,6 +3,7 @@
 <project
     xmlns:resolver="antlib:org.apache.maven.resolver.ant"
     xmlns:ivy="antlib:org.apache.ivy.ant"
+    xmlns:antcontrib="antlib:net.sf.antcontrib"
     name="Aqua Native Rendering common build script">
 
     <!-- A Java 9 or later compiler is required -->
@@ -32,6 +33,7 @@
     <property name="src" value="${base}/src"/>
     <property name="src8" value="${base}/Java8Support/src"/>
     <property name="src9" value="${base}/Java9Support/src"/>
+    <property name="jniname" value="libVAquaRendering"/>
     <property name="jnisrc" value="${base}/jni"/>
     <property name="builddir" value="out"/>
     <property name="classesdir" value="${builddir}/classes"/>
@@ -41,6 +43,11 @@
 
     <property name="SDKroot" value="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"/>
     <property name="cc" value="/usr/bin/cc"/>
+    <property name="lipo" location="/usr/bin/lipo"/>
+
+    <!-- Note: open source JavaNativeFoundation is required to build for arm, see https://github.com/apple/openjdk -->
+
+    <property name="JNFdir" location="${SDKroot}/System/Library/Frameworks/JavaVM.framework/Versions/A/Frameworks"/>
 
     <property name="debug" value="false"/>
     <property name="debugoption" value=""/>
@@ -162,17 +169,16 @@
         <property name="additional.jni.frameworks" value=""/>
 
         <exec executable="${cc}" failonerror="true" >
-            <arg value="-arch"/>
-            <arg value="x86_64"/>
+            <arg value="-target"/>
+            <arg value="x86_64-apple-macos10.7"/>
 
             <arg value="-isysroot"/>
             <arg value="${SDKroot}"/>
-            <env key="MACOSX_DEPLOYMENT_TARGET" value="10.7"/>
 
             <arg value="${debugoption}"/>
 
             <arg value="-o"/>
-            <arg value="${jnidir}/libVAquaRendering.dylib"/>
+            <arg value="${jnidir}/${jniname}-x86.dylib"/>
 
             <arg value="-I${jdk}/include"/>
             <arg value="-I${jdk}/include/darwin"/>
@@ -187,9 +193,10 @@
 
             <arg value="-F/${SDKroot}/System/Library/Frameworks/JavaVM.framework/Versions/A/Frameworks"/>
             <arg value="-framework"/>
-            <arg value="JavaNativeFoundation"/>
-            <arg value="-framework"/>
             <arg value="JavaRuntimeSupport"/>
+            <arg value="-F${JNFdir}"/>
+            <arg value="-framework"/>
+            <arg value="JavaNativeFoundation"/>
 
             <arg value="${jnisrc}/AppearanceSupport.m"/>
             <arg value="${jnisrc}/org_violetlib_jnr_aqua_impl_AquaUIPainterBase.m"/>
@@ -197,6 +204,71 @@
             <arg line="${additional.jni.sources}"/>
         </exec>
 
+        <exec executable="${cc}" failonerror="true" >
+            <arg value="-target"/>
+            <arg value="arm64-apple-macos11"/>
+
+            <arg value="-isysroot"/>
+            <arg value="${SDKroot}"/>
+
+            <arg value="${debugoption}"/>
+
+            <arg value="-o"/>
+            <arg value="${jnidir}/${jniname}-arm.dylib"/>
+
+            <arg value="-I${jdk}/include"/>
+            <arg value="-I${jdk}/include/darwin"/>
+            <arg value="-I${headersdir}"/>
+
+            <arg value="-dynamiclib"/>
+            <arg value="-ObjC"/>
+
+            <arg value="-framework"/>
+            <arg value="Cocoa"/>
+            <arg line="${additional.jni.frameworks}"/>
+
+            <arg value="-F/${SDKroot}/System/Library/Frameworks/JavaVM.framework/Versions/A/Frameworks"/>
+            <arg value="-framework"/>
+            <arg value="JavaRuntimeSupport"/>
+            <arg value="-F${JNFdir}"/>
+            <arg value="-framework"/>
+            <arg value="JavaNativeFoundation"/>
+
+            <arg value="${jnisrc}/AppearanceSupport.m"/>
+            <arg value="${jnisrc}/org_violetlib_jnr_aqua_impl_AquaUIPainterBase.m"/>
+            <arg value="${jnisrc}/org_violetlib_jnr_aqua_impl_AquaNativePainter.m"/>
+            <arg line="${additional.jni.sources}"/>
+        </exec>
+
+        <exec executable="${lipo}" failonerror="true">
+            <arg value="${jnidir}/${jniname}-x86.dylib"/>
+            <arg value="${jnidir}/${jniname}-arm.dylib"/>
+            <arg value="-create"/>
+            <arg value="-output"/>
+            <arg value="${jnidir}/${jniname}.dylib"/>
+        </exec>
+
+        <delete file="${jnidir}/${jniname}-x86.dylib"/>
+        <delete file="${jnidir}/${jniname}-arm.dylib"/>
+
+        <antcontrib:if>
+          <available file="${jnidir}/${jniname}-x86.dylib.dSYM" type="dir"/>
+          <then>
+              <copy todir="${jnidir}/${jniname}.dylib.dSYM">
+                <fileset dir="${jnidir}/${jniname}-x86.dylib.dSYM"/>
+              </copy>
+              <delete file="${jnidir}/${jniname}.dylib.dSYM/Contents/Resources/DWARF/${jniname}-x86.dylib"/>
+              <exec executable="${lipo}" failonerror="true">
+                  <arg value="${jnidir}/${jniname}-x86.dylib.dSYM/Contents/Resources/DWARF/${jniname}-x86.dylib"/>
+                  <arg value="${jnidir}/${jniname}-arm.dylib.dSYM/Contents/Resources/DWARF/${jniname}-arm.dylib"/>
+                  <arg value="-create"/>
+                  <arg value="-output"/>
+                  <arg value="${jnidir}/${jniname}.dylib.dSYM/Contents/Resources/DWARF/${jniname}.dylib"/>
+              </exec>
+              <delete includeEmptyDirs="true" failonerror="false"><fileset dir="${jnidir}/${jniname}-x86.dylib.dSYM"/></delete>
+              <delete includeEmptyDirs="true" failonerror="false"><fileset dir="${jnidir}/${jniname}-arm.dylib.dSYM"/></delete>
+          </then>
+        </antcontrib:if>
     </target>
 
     <target name="AquaNativeRendering" depends="compile-AquaNativeRendering-JNI, compile-AquaNativeRendering-Java, saveIDs">
