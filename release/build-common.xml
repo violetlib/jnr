@@ -198,6 +198,9 @@
             <arg value="-framework"/>
             <arg value="JavaNativeFoundation"/>
 
+            <arg value="-install_name"/>
+            <arg value="${jniname}.dylib"/>
+
             <arg value="${jnisrc}/AppearanceSupport.m"/>
             <arg value="${jnisrc}/org_violetlib_jnr_aqua_impl_AquaUIPainterBase.m"/>
             <arg value="${jnisrc}/org_violetlib_jnr_aqua_impl_AquaNativePainter.m"/>
@@ -233,6 +236,9 @@
             <arg value="-F${JNFdir}"/>
             <arg value="-framework"/>
             <arg value="JavaNativeFoundation"/>
+
+            <arg value="-install_name"/>
+            <arg value="${jniname}.dylib"/>
 
             <arg value="${jnisrc}/AppearanceSupport.m"/>
             <arg value="${jnisrc}/org_violetlib_jnr_aqua_impl_AquaUIPainterBase.m"/>
