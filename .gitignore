@@ -1,6 +1,7 @@
 /.idea
 /api
 /archive
+/build.xml
 /properties.txt
 /dist
 /out
