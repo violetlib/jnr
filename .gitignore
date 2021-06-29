@@ -10,5 +10,6 @@
 /release/full/out
 /release/view/dist
 /release/view/out
+/jni/build.xml
 /jni/org_*.h
 /VAquaRendering.iml
