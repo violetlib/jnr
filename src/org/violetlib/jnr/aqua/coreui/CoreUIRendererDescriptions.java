@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2021 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -109,6 +109,11 @@ public class CoreUIRendererDescriptions
                   && platformVersion >= 101600) {
                 return new BasicRendererDescription(-5, -1, 10, 2);
             }
+
+            if (platformVersion >= 101600) {
+                return new BasicRendererDescription(-1, 0, 2, 0);
+            }
+
             if (platformVersion >= 101100) {
                 BasicRendererDescription x1 = new BasicRendererDescription(0, -1, 0, 2);
                 BasicRendererDescription x2 = new BasicRendererDescription(-0.5f, -1, 1, 2);
@@ -187,7 +192,9 @@ public class CoreUIRendererDescriptions
                     break;
                 }
 
-                yOffset = size2D(sz, -0.51f, -1.49f, -2);  // regular size should be -1 at 1x
+                if (platformVersion <= 101600) {
+                    yOffset = size2D(sz, -0.51f, -1.49f, -2);  // regular size should be -1 at 1x
+                }
                 leftOffset = size(sz, -5, -2, -2, -1);
                 leftExtraWidth = size(sz, 5, 2, 2, 1);
                 rightExtraWidth = size(sz, 4, 2, 2, 1);
@@ -220,7 +227,11 @@ public class CoreUIRendererDescriptions
                 break;
 
             case BUTTON_SEGMENTED_INSET:
-                yOffset = size2D(sz, -1, -1.51f, -2);  // small size should be -2 at 1x
+                if (platformVersion >= 101600) {
+                    yOffset = size2D(sz, -1, -2, -2);
+                } else {
+                    yOffset = size2D(sz, -1, -1.51f, -2);  // small size should be -2 at 1x
+                }
                 leftOffset = -1;
                 leftExtraWidth = 1;
                 rightExtraWidth = 1;

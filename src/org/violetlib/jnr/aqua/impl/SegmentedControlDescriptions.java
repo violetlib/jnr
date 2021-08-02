@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2021 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -471,13 +471,13 @@ public class SegmentedControlDescriptions
 
             case BUTTON_SEGMENTED_INSET:
                 left = 1;
-                top = size2D(sz, 3, 2, 1);
-                ha = size2D(sz, 3, 2, 1);
+                top = size2D(sz, 11, 3, 2, 1);
+                ha = size2D(sz, 11, 3, 2, 1);
                 break;
 
             case BUTTON_SEGMENTED_SMALL_SQUARE:
-                top = size2D(sz, 1, 1, 0);
-                ha = size2D(sz, 1, 1, 0);
+                top = size2D(sz, 9, 1, 1, 0);
+                ha = size2D(sz, 9, 1, 1, 0);
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED:

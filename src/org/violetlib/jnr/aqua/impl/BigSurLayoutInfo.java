@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Alan Snyder.
+ * Copyright (c) 2020-2021 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -12,16 +12,9 @@ import java.awt.geom.Rectangle2D;
 
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
-import org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.Orientation;
-import org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.Position;
-import org.violetlib.jnr.aqua.AquaUIPainter.ProgressWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.Size;
-import org.violetlib.jnr.aqua.AquaUIPainter.SliderWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.TextFieldWidget;
+import org.violetlib.jnr.aqua.AquaUIPainter.*;
 import org.violetlib.jnr.aqua.ButtonLayoutConfiguration;
+import org.violetlib.jnr.aqua.ComboBoxLayoutConfiguration;
 import org.violetlib.jnr.aqua.PopupButtonLayoutConfiguration;
 import org.violetlib.jnr.aqua.ProgressIndicatorLayoutConfiguration;
 import org.violetlib.jnr.aqua.SegmentedButtonLayoutConfiguration;
@@ -40,6 +33,7 @@ import org.violetlib.jnr.impl.JNRUtils;
 import org.jetbrains.annotations.*;
 
 import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.ComboBoxWidget.*;
 import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.*;
 import static org.violetlib.jnr.impl.JNRUtils.*;
 
@@ -52,6 +46,24 @@ public class BigSurLayoutInfo
 {
     public BigSurLayoutInfo()
     {
+    }
+
+    @Override
+    public @Nullable Insetter getButtonLabelInsets(@NotNull ButtonLayoutConfiguration g)
+    {
+        ButtonWidget bw = g.getButtonWidget();
+        Size sz = g.getSize();
+        LayoutInfo layoutInfo = getLayoutInfo(g);
+
+        if (bw == BUTTON_PUSH) {
+            float top = size(sz, 2, 1, 1);
+            float bottom = size(sz, 2, 2, 2);
+            float left = size(sz, 4, 4, 3);
+            float right = left;
+            return Insetters.createFixed(top, left, bottom, right, layoutInfo);
+        }
+
+        return super.getButtonLabelInsets(g);
     }
 
     @Override
@@ -100,13 +112,13 @@ public class BigSurLayoutInfo
             return BasicLayoutInfo.createFixedHeight(16);
 
         } else if (bw == BUTTON_ROUNDED_RECT) {
-            return BasicLayoutInfo.createFixedHeight(size(sz, 19, 19, 17, 15));
+            return BasicLayoutInfo.createFixedHeight(size(sz, 18, 18, 16, 14));
 
         } else if (bw == BUTTON_TEXTURED) {
-            return BasicLayoutInfo.createFixedHeight(size(sz, 25, 23, 19, 16));
+            return BasicLayoutInfo.createFixedHeight(size(sz, 23, 23, 20, 16));
 
         } else if (bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS) {
-            return BasicLayoutInfo.createFixedHeight(size(sz, 27, 24, 19, 16));
+            return BasicLayoutInfo.createFixedHeight(size(sz, 27, 23, 20, 16));
 
         } else if (bw == BUTTON_ROUND) {
             return BasicLayoutInfo.createFixed(size(sz, 34, 26, 22, 19), size(sz, 34, 26, 22, 19));
@@ -145,23 +157,23 @@ public class BigSurLayoutInfo
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
             case BUTTON_SEGMENTED_SEPARATED:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 32, 24, 20, 16));
+                return BasicLayoutInfo.createFixedHeight(size(sz, 31, 23, 19, 16));
 
             case BUTTON_SEGMENTED_INSET:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 18, 16, 14));
 
             case BUTTON_SEGMENTED_SMALL_SQUARE:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 21, 19, 17));
+                return BasicLayoutInfo.createFixedHeight(size(sz, 19, 16, 14));
 
             case BUTTON_SEGMENTED_TEXTURED:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_SCURVE:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 21, 16, 13));
+                return BasicLayoutInfo.createFixedHeight(size(sz, 23, 20, 16));
 
             case BUTTON_SEGMENTED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 28, 22, 17, 15));
+                return BasicLayoutInfo.createFixedHeight(size(sz, 28, 23, 20, 16));
 
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
@@ -210,8 +222,26 @@ public class BigSurLayoutInfo
         switch (bw) {
             case BUTTON_POP_UP:
             case BUTTON_POP_DOWN: {
-                float fixedHeight = size(sz, 31, 22, 19, 16);
-                float minWidth = size(sz, 44, 25, 24, 20);
+                float fixedHeight = size(sz, 31, 23, 19, 16);
+                float minWidth = size(sz, 44, 34, 26, 24);
+                return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
+            }
+            case BUTTON_POP_UP_GRADIENT:
+            case BUTTON_POP_DOWN_GRADIENT:
+                return BasicLayoutInfo.createFixedHeight(size(sz, 19, 16, 16));
+
+            case BUTTON_POP_UP_TEXTURED:
+            case BUTTON_POP_UP_TEXTURED_TOOLBAR:
+            case BUTTON_POP_DOWN_TEXTURED:
+            case BUTTON_POP_DOWN_TEXTURED_TOOLBAR: {
+                float fixedHeight = size(sz, 23, 20, 16);
+                float minWidth = size(sz, 39, 32, 25);
+                return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
+            }
+            case BUTTON_POP_DOWN_ROUND_RECT:
+            case BUTTON_POP_UP_ROUND_RECT: {
+                float fixedHeight = size(sz, 18, 16, 14);
+                float minWidth = size(sz, 26, 23, 23);
                 return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
             }
         }
@@ -223,23 +253,29 @@ public class BigSurLayoutInfo
     public @NotNull Insetter getPopupButtonContentInsets(@NotNull PopupButtonLayoutConfiguration g)
     {
         PopupButtonWidget bw = g.getPopupButtonWidget();
-        if (bw == BUTTON_POP_UP || bw == BUTTON_POP_DOWN) {
+        if (bw == BUTTON_POP_UP || bw == BUTTON_POP_DOWN | bw == BUTTON_POP_UP_TEXTURED | bw == BUTTON_POP_DOWN_TEXTURED) {
             Size sz = g.getSize();
             float top = 1;
             float bottom = 1;
-            float far = 3;
-            float near = size2D(sz, 28, 21, 17, 14);
+            float far = size2D(sz, 4, 3, 3, 3);
+            float near = size2D(sz, 29, 21, 17, 14);
 
             switch (bw) {
                 case BUTTON_POP_UP:
                 default:
-                    bottom = size2D(sz, 3, 2.5, 2.5, 2);
-                    top = size2D(sz, 3, 0.5, 0.5, 1);
+                    bottom = size2D(sz, 2.5, 2.5, 1.5, 2);
+                    top = size2D(sz, 1.5, 2, 1.51, 1);
                     break;
                 case BUTTON_POP_DOWN:
-                    bottom = size2D(sz, 2, 2.5, 2, 2);
-                    top = size2D(sz, 3, 0, 0, 0);
+                    bottom = size2D(sz, 1.5, 2, 2, 2);
+                    top = size2D(sz, 1.5, 1, 1, 1);
                     break;
+                case BUTTON_POP_UP_TEXTURED:
+                case BUTTON_POP_DOWN_TEXTURED:
+                    top = size2D(sz, 1, 1, 2, 1);
+                    bottom = 2;
+                    far = 2;
+                    near = size2D(sz, 17, 15, 13);
             }
             LayoutInfo layoutInfo = getLayoutInfo(g);
             return g.isLeftToRight()
@@ -247,6 +283,45 @@ public class BigSurLayoutInfo
                      : Insetters.createFixed(top, near, bottom, far, layoutInfo);
         }
         return super.getPopupButtonContentInsets(g);
+    }
+
+    @Override
+    public @NotNull Insetter getComboBoxEditorInsets(@NotNull ComboBoxLayoutConfiguration g)
+    {
+        ComboBoxWidget bw = g.getWidget();
+        Size sz = g.getSize();
+
+        if (bw == ComboBoxWidget.BUTTON_COMBO_BOX_CELL) {
+            float inset = size(sz, 18, 18, 13);
+            return g.isLeftToRight() ? Insetters.createFixed(0, 0, 0, inset) : Insetters.createFixed(0, inset, 0, 0);
+        }
+
+        LayoutInfo layoutInfo = getLayoutInfo(g);
+        float near;
+        float far;
+        float top;
+        float bottom;
+
+        if (bw == BUTTON_COMBO_BOX_TEXTURED) {
+            near = size(sz, 20, 15, 13);
+            far = 2.5f;
+            top = 1;
+            bottom = 2;
+        } else if (bw == BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
+            near = size(sz, 23, 18, 15);
+            far = 2.5f;
+            top = 1;
+            bottom = 2;
+        } else {
+            near = size2D(sz, 21, 17.5, 14.5);
+            far = 0.5f;
+            top = 1;
+            bottom = size2D(sz, 2, 2, 1);
+        }
+
+        return g.isLeftToRight()
+                 ? Insetters.createFixed(top, far, bottom, near, layoutInfo)
+                 : Insetters.createFixed(top, near, bottom, far, layoutInfo);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Alan Snyder.
+ * Copyright (c) 2018-2021 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -61,7 +61,7 @@ public abstract class RendererDescriptionsBase
                     return new BasicRendererDescription(-6, 0, 12, 2);
                 case SMALL:
                     if (platformVersion >= 101600) {
-                        return new BasicRendererDescription(-4, 0, 10, 2);
+                        return new BasicRendererDescription(-5, 0, 10, 2);
                     }
                     return new BasicRendererDescription(-5, -1, 10, 3);
                 case MINI:
@@ -208,16 +208,30 @@ public abstract class RendererDescriptionsBase
             case BUTTON_SEGMENTED_SLIDER:
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
-                switch (sz) {
-                    case LARGE:
-                    case REGULAR:
-                        return createVertical(0, 1);
-                    case SMALL:
-                        return createVertical(0.49f, 2);
-                    case MINI:
-                        return createVertical(-0.51f, 5);
-                    default:
-                        throw new UnsupportedOperationException();
+                if (platformVersion >= 101600) {
+                    switch (sz) {
+                        case LARGE:
+                        case REGULAR:
+                            return createVertical(-1, 1);
+                        case SMALL:
+                            return createVertical(-1, 2);
+                        case MINI:
+                            return createVertical(-3, 5);
+                        default:
+                            throw new UnsupportedOperationException();
+                    }
+                } else {
+                    switch (sz) {
+                        case LARGE:
+                        case REGULAR:
+                            return createVertical(0, 1);
+                        case SMALL:
+                            return createVertical(0.49f, 2);
+                        case MINI:
+                            return createVertical(-0.51f, 5);
+                        default:
+                            throw new UnsupportedOperationException();
+                    }
                 }
 
             case BUTTON_SEGMENTED_INSET:
@@ -268,6 +282,7 @@ public abstract class RendererDescriptionsBase
             case BUTTON_SEGMENTED_SMALL_SQUARE:
                 switch (sz) {
                     case LARGE:
+                        return createVertical(0, 8);
                     case REGULAR:
                         return createVertical(0, 2);
                     case SMALL:
@@ -349,6 +364,7 @@ public abstract class RendererDescriptionsBase
     {
         PopupButtonWidget bw = g.getPopupButtonWidget();
         Size sz = g.getSize();
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
 
         boolean isSquare = bw == PopupButtonWidget.BUTTON_POP_UP_SQUARE
                              || bw == PopupButtonWidget.BUTTON_POP_DOWN_SQUARE;
@@ -361,19 +377,34 @@ public abstract class RendererDescriptionsBase
 
         switch (bw) {
             case BUTTON_POP_UP:
-                switch (sz) {
-                    case LARGE:
-                    case REGULAR:
-                        return new BasicRendererDescription(-2, 0, 5, 0);
-                    case SMALL:
-                        return new BasicRendererDescription(-3, 0, 6, 0);
-                    case MINI:
-                        return new BasicRendererDescription(-1, 0, 3, 0);
-                    default:
-                        throw new UnsupportedOperationException();
+                if (platformVersion >= 101600) {
+                    switch (sz) {
+                        case LARGE:
+                            return new BasicRendererDescription(-4, -2, 8, 3);
+                        case REGULAR:
+                            return new BasicRendererDescription(-2, 0, 5, 2);
+                        case SMALL:
+                            return new BasicRendererDescription(-3, 0, 6, 2);
+                        case MINI:
+                            return new BasicRendererDescription(-1, -0.51f, 3, 1);
+                        default:
+                            throw new UnsupportedOperationException();
+                    }
+                } else {
+                    switch (sz) {
+                        case LARGE:
+                        case REGULAR:
+                            return new BasicRendererDescription(-2, 0, 5, 0);
+                        case SMALL:
+                            return new BasicRendererDescription(-3, 0, 6, 0);
+                        case MINI:
+                            return new BasicRendererDescription(-1, 0, 3, 0);
+                        default:
+                            throw new UnsupportedOperationException();
+                    }
                 }
             case BUTTON_POP_UP_CELL:
-                // extra height not needed for Core UI renderer
+                // extra height not needed for Core UI renderer (see subclass)
                 switch (sz) {
                     case LARGE:
                     case REGULAR:
@@ -398,16 +429,31 @@ public abstract class RendererDescriptionsBase
                         throw new UnsupportedOperationException();
                 }
             case BUTTON_POP_DOWN:
-                switch (sz) {
-                    case LARGE:
-                    case REGULAR:
-                        return new BasicRendererDescription(-3, 0, 6, 1);
-                    case SMALL:
-                        return new BasicRendererDescription(-3, 0, 6, 1);
-                    case MINI:
-                        return new BasicRendererDescription(0, 0, 1, 0);
-                    default:
-                        throw new UnsupportedOperationException();
+                if (platformVersion >= 101600) {
+                    switch (sz) {
+                        case LARGE:
+                            return new BasicRendererDescription(-4, -1, 8, 2);
+                        case REGULAR:
+                            return new BasicRendererDescription(-2, 0, 5, 2);
+                        case SMALL:
+                            return new BasicRendererDescription(-3, -0.51f, 6, 2);
+                        case MINI:
+                            return new BasicRendererDescription(-1, -1, 3, 2);
+                        default:
+                            throw new UnsupportedOperationException();
+                    }
+                } else {
+                    switch (sz) {
+                        case LARGE:
+                        case REGULAR:
+                            return new BasicRendererDescription(-3, 0, 6, 1);
+                        case SMALL:
+                            return new BasicRendererDescription(-3, 0, 6, 1);
+                        case MINI:
+                            return new BasicRendererDescription(0, 0, 1, 0);
+                        default:
+                            throw new UnsupportedOperationException();
+                    }
                 }
             case BUTTON_POP_DOWN_CELL:
                 switch (sz) {
@@ -450,7 +496,21 @@ public abstract class RendererDescriptionsBase
             case BUTTON_POP_UP_TEXTURED:
             case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
             case BUTTON_POP_UP_TEXTURED_TOOLBAR:
-                return new BasicRendererDescription(0, 0, 0, 0);
+                if (platformVersion >= 101600) {
+                    switch (sz) {
+                        case LARGE:
+                        case REGULAR:
+                            return new BasicRendererDescription(-2, 0, 5, 2);
+                        case SMALL:
+                            return new BasicRendererDescription(-2.51f, 0, 5.51f, 2);
+                        case MINI:
+                            return new BasicRendererDescription(-1, -1, 3, 2);
+                        default:
+                            throw new UnsupportedOperationException();
+                    }
+                } else {
+                    return new BasicRendererDescription(0, 0, 0, 0);
+                }
 
             case BUTTON_POP_UP_GRADIENT:
             case BUTTON_POP_DOWN_GRADIENT:

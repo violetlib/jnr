@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2021 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -169,9 +169,11 @@ public class PopupButtonLayoutConfiguration
         {
             case BUTTON_POP_DOWN_BEVEL:
             case BUTTON_POP_UP_BEVEL:
+                return false;
             case BUTTON_POP_DOWN_GRADIENT:
             case BUTTON_POP_UP_GRADIENT:
-                return false;
+                int platformVersion = JNRPlatformUtils.getPlatformVersion();
+                return platformVersion >= 101600;
             default:
                 return true;
         }

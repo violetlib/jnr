@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2021 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -105,7 +105,10 @@ public class HybridAquaUIPainter
             SegmentedButtonWidget w = sg.getWidget();
             int platformVersion = JNRPlatformUtils.getPlatformVersion();
             // The NSView painter produces more accurate backgrounds for gradient buttons
-            if (w == SegmentedButtonWidget.BUTTON_SEGMENTED_SMALL_SQUARE) {
+            if (w == SegmentedButtonWidget.BUTTON_SEGMENTED_SMALL_SQUARE && platformVersion < 101600) {
+                return viewPainter;
+            }
+            if (w == SegmentedButtonWidget.BUTTON_SEGMENTED_INSET && platformVersion >= 101600 && sg.getSize() == Size.LARGE) {
                 return viewPainter;
             }
             if (platformVersion < 101300) {

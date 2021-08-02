@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2021 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -26,13 +26,13 @@ public class PopupRenderer
 {
     protected final @NotNull PopupButtonConfiguration g;
     protected final @Nullable Renderer buttonRenderer;
-    protected final @Nullable Renderer arrowsRenderer;
-    protected final @Nullable Insetter arrowsInsets;
+    protected final @NotNull Renderer arrowsRenderer;
+    protected final @NotNull Insetter arrowsInsets;
 
     public PopupRenderer(@NotNull PopupButtonConfiguration g,
                          @Nullable Renderer buttonRenderer,
-                         @Nullable Renderer arrowsRenderer,
-                         @Nullable Insetter arrowsInsets)
+                         @NotNull Renderer arrowsRenderer,
+                         @NotNull Insetter arrowsInsets)
     {
         this.g = g;
         this.buttonRenderer = buttonRenderer;
@@ -50,10 +50,8 @@ public class PopupRenderer
             buttonRenderer.composeTo(compositor);
         }
 
-        if (arrowsRenderer != null && arrowsInsets != null) {
-            Rectangle2D bounds = arrowsInsets.apply2D(w, h);
-            Renderer r = Renderer.createOffsetRenderer(arrowsRenderer, bounds);
-            r.composeTo(compositor);
-        }
+        Rectangle2D bounds = arrowsInsets.apply2D(w, h);
+        Renderer r = Renderer.createOffsetRenderer(arrowsRenderer, bounds);
+        r.composeTo(compositor);
     }
 }
