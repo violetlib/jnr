@@ -64,7 +64,9 @@ public abstract class AquaUIPainterAbstractBase
     protected static @NotNull AquaUILayoutInfo createLayout()
     {
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
-        if (platformVersion >= 101600) {
+        if (platformVersion >= 120000) {
+            return new MontereyLayoutInfo();
+        } else if (platformVersion >= 101600) {
             return new BigSurLayoutInfo();
         } else if (platformVersion >= 101100) {
             return new ElCapitanLayoutInfo();
