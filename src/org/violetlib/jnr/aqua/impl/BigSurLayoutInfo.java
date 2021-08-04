@@ -61,6 +61,15 @@ public class BigSurLayoutInfo
             float left = size(sz, 4, 4, 3);
             float right = left;
             return Insetters.createFixed(top, left, bottom, right, layoutInfo);
+        } else if (bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
+            float topBottom = 4.5f;
+            float side = 3.5f;
+            return Insetters.createFixed(topBottom, side, topBottom, side, layoutInfo);
+        } else if (bw == BUTTON_TEXTURED) {
+            float top = 1;
+            float bottom = 1;
+            float side = 3;
+            return Insetters.createFixed(top, side, bottom, side, layoutInfo);
         }
 
         return super.getButtonLabelInsets(g);
@@ -96,13 +105,13 @@ public class BigSurLayoutInfo
             return BasicLayoutInfo.createFixed(size(sz, 20, 18, 14, 10), size(sz, 20, 18, 15, 10));
 
         } else if (bw == BUTTON_DISCLOSURE) {
-            return BasicLayoutInfo.createFixed(size(sz, 30, 28, 28, 19), size(sz, 30, 26, 26, 16));
+            return BasicLayoutInfo.createFixed(size(sz, 26, 22, 18, 15), size(sz, 27, 23, 19, 16));
 
         } else if (bw == BUTTON_HELP) {
-            return BasicLayoutInfo.createFixed(size(sz, 35, 25, 18, 16), size(sz, 35, 25, 19, 17));
+            return BasicLayoutInfo.createFixed(size(sz, 28, 22, 18, 15), size(sz, 29, 23, 19, 16));
 
         } else if (bw == BUTTON_GRADIENT) {
-            return BasicLayoutInfo.getInstance();
+            return BasicLayoutInfo.createMinimumHeight(size(sz, 23, 21, 19, 17));
 
         } else if (bw == BUTTON_RECESSED) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 19, 19, 17, 15));
@@ -115,13 +124,13 @@ public class BigSurLayoutInfo
             return BasicLayoutInfo.createFixedHeight(size(sz, 18, 18, 16, 14));
 
         } else if (bw == BUTTON_TEXTURED) {
-            return BasicLayoutInfo.createFixedHeight(size(sz, 23, 23, 20, 16));
+            return BasicLayoutInfo.createFixedHeight(size(sz, 20, 20, 16, 13));
 
         } else if (bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS) {
-            return BasicLayoutInfo.createFixedHeight(size(sz, 27, 23, 20, 16));
+            return BasicLayoutInfo.createFixedHeight(size(sz, 28, 22, 18, 15));
 
         } else if (bw == BUTTON_ROUND) {
-            return BasicLayoutInfo.createFixed(size(sz, 34, 26, 22, 19), size(sz, 34, 26, 22, 19));
+            return BasicLayoutInfo.createFixed(size(sz, 30, 22, 18, 15), size(sz, 31, 23, 19, 16));
 
         } else if (bw == BUTTON_ROUND_INSET) {
             return BasicLayoutInfo.createFixed(18, 18);
@@ -163,12 +172,12 @@ public class BigSurLayoutInfo
                 return BasicLayoutInfo.createFixedHeight(size(sz, 18, 16, 14));
 
             case BUTTON_SEGMENTED_SMALL_SQUARE:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 19, 16, 14));
+                return BasicLayoutInfo.createFixedHeight(size(sz, 23, 21, 19, 17));
 
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_SCURVE:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 23, 20, 16));
+                return BasicLayoutInfo.createFixedHeight(size(sz, 20, 16, 13));
 
             case BUTTON_SEGMENTED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
@@ -193,15 +202,33 @@ public class BigSurLayoutInfo
         LayoutInfo layoutInfo = getLayoutInfo(g);
         Size sz = g.getSize();
 
-        if (bw == SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED) {
-            float left = size2D(sz, 2, 2, 1.5);
-            float right = size2D(sz, 3, 3, 2.5);
-            float top = size2D(sz, 3, 3.5, 3.5);
-            float bottom = size2D(sz, 1, 0.5, 0);
+        if (bw == SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED
+              || bw == SegmentedButtonWidget.BUTTON_SEGMENTED_SCURVE
+              || bw == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED
+              || bw == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED
+        ) {
             Position pos = g.getPosition();
+
+            float top = 1;
+            float bottom = 2;
+            float left = 1;
+            float right = left;
+            float endAdjust = 2;
+
             boolean isLeftEnd = pos == Position.FIRST || pos == Position.ONLY;
             boolean isRightEnd = pos == Position.LAST || pos == Position.ONLY;
-            float endAdjust = 2;
+
+            if (bw == SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED) {
+                left = size2D(sz, 2, 2, 1.5);
+                right = size2D(sz, 3, 3, 2.5);
+                top = 1.51f;
+                bottom = 2.51f;
+            } else if (bw == SegmentedButtonWidget.BUTTON_SEGMENTED_SCURVE
+                     || bw == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED
+                     || bw == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED
+            ) {
+                bottom = 1;
+            }
             if (isLeftEnd) {
                 left += endAdjust;
             }
@@ -210,6 +237,7 @@ public class BigSurLayoutInfo
             }
             return Insetters.createFixed(top, left, bottom, right, layoutInfo);
         }
+
         return super.getSegmentedButtonLabelInsets(g);
     }
 
@@ -228,7 +256,7 @@ public class BigSurLayoutInfo
             }
             case BUTTON_POP_UP_GRADIENT:
             case BUTTON_POP_DOWN_GRADIENT:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 19, 16, 16));
+                return BasicLayoutInfo.createFixedHeight(size(sz, 23, 21, 19, 17));
 
             case BUTTON_POP_UP_TEXTURED:
             case BUTTON_POP_UP_TEXTURED_TOOLBAR:
@@ -283,6 +311,33 @@ public class BigSurLayoutInfo
                      : Insetters.createFixed(top, near, bottom, far, layoutInfo);
         }
         return super.getPopupButtonContentInsets(g);
+    }
+
+    @Override
+    protected @NotNull LayoutInfo getComboBoxLayoutInfo(@NotNull ComboBoxLayoutConfiguration g)
+    {
+        ComboBoxWidget bw = g.getWidget();
+        Size sz = g.getSize();
+
+        if (bw == ComboBoxWidget.BUTTON_COMBO_BOX_CELL) {
+            return BasicLayoutInfo.createMinimumHeight(size(sz, 14, 11, 11));
+
+        } else if (bw == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED) {
+            float fixedHeight = size(sz, 22, 18, 15);  // changed in El Capitan
+            float minWidth = size(sz, 27, 24, 22);
+            return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
+
+        } else if (bw == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
+            // introduced in El Capitan
+            float fixedHeight = size(sz, 24, 20, 17);
+            float minWidth = size(sz, 27, 24, 22);
+            return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
+
+        } else {
+            float fixedHeight = size(sz, 22, 19, 15);
+            float minWidth = size(sz, 34, 27, 24);
+            return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
+        }
     }
 
     @Override

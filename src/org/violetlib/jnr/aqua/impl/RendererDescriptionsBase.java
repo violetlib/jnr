@@ -282,7 +282,11 @@ public abstract class RendererDescriptionsBase
             case BUTTON_SEGMENTED_SMALL_SQUARE:
                 switch (sz) {
                     case LARGE:
-                        return createVertical(0, 8);
+                        if (platformVersion >= 101600) {
+                            return createVertical(0, 2);
+                        } else {
+                            return createVertical(0, 8);
+                        }
                     case REGULAR:
                         return createVertical(0, 2);
                     case SMALL:

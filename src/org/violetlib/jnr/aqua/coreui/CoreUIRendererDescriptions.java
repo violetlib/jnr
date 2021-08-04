@@ -92,17 +92,52 @@ public class CoreUIRendererDescriptions
             }
 
         } else if (bw == BUTTON_ROUND) {
-            switch (sz) {
-                case LARGE:
-                case REGULAR:
-                    return new BasicRendererDescription(0, 0, 0, 2);
-                case SMALL:
-                    return new BasicRendererDescription(0, 0, 0, 4);
-                case MINI:
-                    return new BasicRendererDescription(0, 0, 0, 2);
-                default:
-                    throw new UnsupportedOperationException();
+            if (platformVersion >= 101600) {
+                return new BasicRendererDescription(0, -0.51f, 0, 0);
+            } else {
+                switch (sz) {
+                    case LARGE:
+                    case REGULAR:
+                        return new BasicRendererDescription(0, 0, 0, 2);
+                    case SMALL:
+                        return new BasicRendererDescription(0, 0, 0, 4);
+                    case MINI:
+                        return new BasicRendererDescription(0, 0, 0, 2);
+                    default:
+                        throw new UnsupportedOperationException();
+                }
             }
+
+        } else if (bw == BUTTON_HELP) {
+            if (platformVersion >= 101600) {
+                switch (sz) {
+                    case LARGE:
+                        return new BasicRendererDescription(0.49f, 0, 0, 6);
+                    case REGULAR:
+                        return new BasicRendererDescription(-0.49f, 0, 0, 2);
+                    case SMALL:
+                        return new BasicRendererDescription(0, 0, 0, 0);
+                    case MINI:
+                        return new BasicRendererDescription(0.49f, 0, 0, 0);
+                    default:
+                        throw new UnsupportedOperationException();
+                }
+            } else {
+                switch (sz) {
+                    case LARGE:
+                    case REGULAR:
+                        return new BasicRendererDescription(0, 0, 0, platformVersion < 101200 ? 3 : 0);
+                    case SMALL:
+                        return new BasicRendererDescription(0, 0, 0, 0);
+                    case MINI:
+                        return platformVersion < 101200
+                                 ? new BasicRendererDescription(0, -0.5f, 1, 0)
+                                 : new BasicRendererDescription(-0.49f, 0, 1, 0);
+                    default:
+                        throw new UnsupportedOperationException();
+                }
+            }
+
         } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS) {
             if ((bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS)
                   && sz == Size.LARGE
@@ -111,6 +146,9 @@ public class CoreUIRendererDescriptions
             }
 
             if (platformVersion >= 101600) {
+                if (bw == BUTTON_TEXTURED && (sz == Size.MINI || sz == Size.SMALL)) {
+                    return new BasicRendererDescription(-1, 0, 2, 1);
+                }
                 return new BasicRendererDescription(-1, 0, 2, 0);
             }
 
@@ -118,6 +156,28 @@ public class CoreUIRendererDescriptions
                 BasicRendererDescription x1 = new BasicRendererDescription(0, -1, 0, 2);
                 BasicRendererDescription x2 = new BasicRendererDescription(-0.5f, -1, 1, 2);
                 return new MultiResolutionRendererDescription(x1, x2);
+            } else {
+                return new BasicRendererDescription(0, 0, 0, 0);
+            }
+
+        } else if (bw == BUTTON_DISCLOSURE) {
+            if (platformVersion >= 101600) {
+                return new BasicRendererDescription(0, 0, 0, 0);
+            } else {
+                switch (sz) {
+                    case LARGE:
+                    case REGULAR:
+                    case SMALL:
+                        return new BasicRendererDescription(0, 0, 0, 0);
+                    case MINI:
+                        return new BasicRendererDescription(0, 0, 2, 0);
+                    default:
+                        throw new UnsupportedOperationException();
+                }
+            }
+        } else if (bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
+            if (platformVersion >= 101600) {
+                return new BasicRendererDescription(0, 0, 0, 1);
             } else {
                 return new BasicRendererDescription(0, 0, 0, 0);
             }
@@ -154,7 +214,6 @@ public class CoreUIRendererDescriptions
                     leftOffset = size(sz, -4, -1, -1, -1);
                     leftExtraWidth = size(sz, 4, 1, 1, 1);
                     rightExtraWidth = size(sz, 4, 1, 1, 1);
-                    yOffset = size(sz, -1, -1, -1, -3);
                     break;
                 } else if (platformVersion >= 101500 && bw == BUTTON_SEGMENTED_SEPARATED) {
                     Position pos = g.getPosition();
@@ -248,16 +307,17 @@ public class CoreUIRendererDescriptions
 
                 if (platformVersion >= 101600) {
                     if (!bw.isToolbar()) {
-                        int x = g.getPosition() == Position.FIRST ? -1 : 0;
-                        if (!bw.isSeparated()) {
-                            return new BasicRendererDescription(x, 0, 1, 0);
-                        } else {
-                            return new BasicRendererDescription(x, 0, 2, 1);
+                        switch (g.getPosition()) {
+                            case FIRST:  return new BasicRendererDescription(-1, 0, 1, 1);
+                            case MIDDLE: return new BasicRendererDescription( 0, 0, 0, 1);
+                            case LAST:   return new BasicRendererDescription( 0, 0, 1, 1);
+                            case ONLY:   return new BasicRendererDescription(-1, 0, 2, 1);
                         }
+                        throw new UnsupportedOperationException("Unknown position");
                     } else if (bw.isSeparated()) {
                         if (sz == Size.LARGE) {
                             Position pos = g.getPosition();
-                            int x = pos == Position.FIRST || pos == Position.ONLY? -6 : 0;
+                            int x = pos == Position.FIRST || pos == Position.ONLY ? -6 : 0;
                             // This state dependence is unbelievable. Someday it will probably change.
                             State st = g.getState();
                             int y = st == State.PRESSED
@@ -270,14 +330,30 @@ public class CoreUIRendererDescriptions
                         // This state dependence is unbelievable. Someday it will probably change.
                         State st = g.getState();
                         int y = g.isSelected() && st != State.PRESSED && st != State.ROLLOVER ? -2 : -1;
-                        return new BasicRendererDescription(-1, y, 1, 3);
+                        switch (g.getPosition()) {
+                            case FIRST:  return new BasicRendererDescription(-1, y, 1, 3);
+                            case MIDDLE: return new BasicRendererDescription( 0, y, 0, 3);
+                            case LAST:   return new BasicRendererDescription( 0, y, 1, 3);
+                            case ONLY:   return new BasicRendererDescription(-1, y, 2, 3);
+                        }
+                        throw new UnsupportedOperationException("Unknown position");
                     } else {
                         if (sz == Size.LARGE) {
-                            return new BasicRendererDescription(-6, 0, 11, 0);
+                            switch (g.getPosition()) {
+                                case FIRST:  return new BasicRendererDescription(-6, 0, 6, 0);
+                                case MIDDLE: return new BasicRendererDescription( 0, 0, 0, 0);
+                                case LAST:   return new BasicRendererDescription( 0, 0, 6, 0);
+                                case ONLY:   return new BasicRendererDescription(-6, 0, 11, 0);
+                            }
+                            throw new UnsupportedOperationException("Unknown position");
                         }
-                        int x = g.getPosition() == Position.FIRST ? -1 : 0;
-                        int w = g.getPosition() == Position.FIRST ? 1 : 0;
-                        return new BasicRendererDescription(x, 0, w, 0);
+                        switch (g.getPosition()) {
+                            case FIRST:  return new BasicRendererDescription(-1, 0, 1, 0);
+                            case MIDDLE: return new BasicRendererDescription( 0, 0, 0, 0);
+                            case LAST:   return new BasicRendererDescription( 0, 0, 1, 0);
+                            case ONLY:   return new BasicRendererDescription(-1, 0, 2, 0);
+                        }
+                        throw new UnsupportedOperationException("Unknown position");
                     }
                 }
 

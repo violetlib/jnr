@@ -68,6 +68,25 @@ public class ViewRendererDescriptions
                 }
             } else if (bw == BUTTON_TEXTURED) {
                 return new BasicRendererDescription(-1, 0, 2, 0);
+            } else if (bw == BUTTON_ROUND) {
+                if (platformVersion >= 101600) {
+                    return new BasicRendererDescription(0, 0, 0, 0);
+                }
+            } else if (bw == BUTTON_HELP) {
+                if (platformVersion >= 101600) {
+                    switch (sz) {
+                        case LARGE:
+                            return new BasicRendererDescription(0.49f, 0, 0, 6);
+                        case REGULAR:
+                            return new BasicRendererDescription(-0.49f, 0, 0, 2);
+                        case SMALL:
+                            return new BasicRendererDescription(0, 0, 0, 0);
+                        case MINI:
+                            return new BasicRendererDescription(0.49f, 0, 0, 0);
+                        default:
+                            throw new UnsupportedOperationException();
+                    }
+                }
             }
         }
 
