@@ -405,8 +405,14 @@ public class BigSurLayoutInfo
     protected @NotNull LayoutInfo getTextFieldLayoutInfo(@NotNull TextFieldLayoutConfiguration g)
     {
         TextFieldWidget w = g.getWidget();
-        if (w.isRound() || w.isSearch()) {
-            return BasicLayoutInfo.createFixedHeight(size(g.getSize(), 28, 22, 19, 17));
+        Size sz = g.getSize();
+        if (w.isRound()) {
+            return BasicLayoutInfo.createFixedHeight(size(sz, 28, 22, 19, 17));
+        }
+        if (w.isSearch()) {
+            int minimumWidth = w.hasMenu() ? size(sz, 28, 26, 26) : size(sz, 24, 22, 20);
+            int fixedHeight = size(sz, 28, 22, 19, 17);
+            return BasicLayoutInfo.create(false, minimumWidth, true, fixedHeight);
         }
 
         return BasicLayoutInfo.getInstance();
