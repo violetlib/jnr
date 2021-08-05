@@ -16,7 +16,6 @@ import org.jetbrains.annotations.*;
 
 import static org.violetlib.jnr.aqua.AquaUIPainter.*;
 import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
-import static org.violetlib.jnr.impl.JNRUtils.*;
 
 /**
 
@@ -31,8 +30,14 @@ public class MontereyLayoutInfo
         ButtonWidget bw = g.getButtonWidget();
         Size sz = g.getSize();
 
-        if (bw == BUTTON_BEVEL) {
-            return BasicLayoutInfo.createMinimumHeight(size(sz, 0, 0, 0, 0));
+        if (bw == BUTTON_BEVEL_ROUND) {
+            switch (sz) {
+                case LARGE: return BasicLayoutInfo.createMinimum(18, 30);
+                case REGULAR: return BasicLayoutInfo.createMinimum(18, 22);
+                case SMALL: return BasicLayoutInfo.createMinimum(14, 18);
+                case MINI: return BasicLayoutInfo.createMinimum(14, 16);
+                default: throw new UnsupportedOperationException("Unsupported size");
+            }
         }
 
         return super.getButtonLayoutInfo(g);

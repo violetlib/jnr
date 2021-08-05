@@ -175,11 +175,23 @@ public class CoreUIRendererDescriptions
                         throw new UnsupportedOperationException();
                 }
             }
+
         } else if (bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
             if (platformVersion >= 101600) {
                 return new BasicRendererDescription(0, 0, 0, 1);
             } else {
                 return new BasicRendererDescription(0, 0, 0, 0);
+            }
+
+        } else if (bw == BUTTON_BEVEL_ROUND) {
+            if (platformVersion >= 120000) {
+                if (sz == Size.MINI) {
+                    return new BasicRendererDescription(-1, -1, 2, 1);
+                } else {
+                    return new BasicRendererDescription(-2, -2, 4, 4);
+                }
+            } else {
+                return new BasicRendererDescription(-2, -2, 4, 4);
             }
         } else {
             return super.getButtonRendererDescription(g);

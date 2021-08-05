@@ -37,6 +37,19 @@ public class ViewRendererDescriptions
     public @NotNull RendererDescription getButtonRendererDescription(@NotNull ButtonConfiguration g)
     {
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
+
+        if (platformVersion >= 120000) {
+            AquaUIPainter.ButtonWidget bw = g.getButtonWidget();
+            AquaUIPainter.Size sz = g.getSize();
+            if (bw == BUTTON_BEVEL_ROUND) {
+                if (sz == AquaUIPainter.Size.MINI) {
+                    return new BasicRendererDescription(-1, -1, 2, 1);
+                } else {
+                    return new BasicRendererDescription(-2, -2, 4, 4);
+                }
+            }
+        }
+
         if (platformVersion >= 101600) {
             AquaUIPainter.ButtonWidget bw = g.getButtonWidget();
             AquaUIPainter.Size sz = g.getSize();
