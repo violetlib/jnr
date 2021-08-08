@@ -53,7 +53,7 @@
     <property name="debugoption" value=""/>
 
     <property name="annotationsVersion" value="20.1.0"/>
-    <property name="vappearancesVersion" value="2"/>
+    <property name="vappearancesVersion" value="3"/>
 
     <target name="init">
         <echo level="info" message="${fullReleaseName}"/>
