@@ -285,8 +285,10 @@ public class BigSurLayoutInfo
             Size sz = g.getSize();
             float top = 1;
             float bottom = 1;
-            float far = size2D(sz, 4, 3, 3, 3);
-            float near = size2D(sz, 29, 21, 17, 14);
+            //float far = size2D(sz, 4, 3, 3, 3);
+            //float near = size2D(sz, 29, 21, 17, 14);
+            float far = size2D(sz, 6, 5, 4, 3);
+            float near = size2D(sz, 30, 22, 18, 15);
 
             switch (bw) {
                 case BUTTON_POP_UP:
@@ -302,8 +304,8 @@ public class BigSurLayoutInfo
                 case BUTTON_POP_DOWN_TEXTURED:
                     top = size2D(sz, 1, 1, 2, 1);
                     bottom = 2;
-                    far = 2;
-                    near = size2D(sz, 17, 15, 13);
+                    //far = 2;
+                    //near = size2D(sz, 17, 15, 13);
             }
             LayoutInfo layoutInfo = getLayoutInfo(g);
             return g.isLeftToRight()
