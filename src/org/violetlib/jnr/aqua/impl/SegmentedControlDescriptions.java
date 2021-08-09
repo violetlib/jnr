@@ -27,24 +27,24 @@ public class SegmentedControlDescriptions
     {
         int version = AquaUIPainterBase.internalGetSegmentedButtonRenderingVersion();
         if (version == AquaUIPainterBase.SEGMENTED_10_10) {
-            return getInsets10(g, scale);
+            return getInsets10_10(g, scale);
         } else if (version == AquaUIPainterBase.SEGMENTED_10_11) {
-            return getInsets11(g, scale);
+            return getInsets10_11(g, scale);
         } else if (version == AquaUIPainterBase.SEGMENTED_10_13) {
-            return getInsets13new(g, scale);
+            return getInsets10_13new(g, scale);
         } else if (version == AquaUIPainterBase.SEGMENTED_10_14) {
-            return getInsets14new(g, scale);
+            return getInsets10_14new(g, scale);
         } else if (version == AquaUIPainterBase.SEGMENTED_10_13_OLD) {
-            return getInsets13old(g, scale);
+            return getInsets10_13old(g, scale);
         } else if (version == AquaUIPainterBase.SEGMENTED_10_14_OLD) {
-            return getInsets14old(g, scale);
+            return getInsets10_14old(g, scale);
         } else if (version == AquaUIPainterBase.SEGMENTED_11_0) {
-            return getInsets16(g, scale);
+            return getInsets11(g, scale);
         }
         throw new UnsupportedOperationException();
     }
 
-    private @NotNull RenderInsets getInsets10(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    private @NotNull RenderInsets getInsets10_10(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
     {
         SegmentedButtonWidget bw = g.getWidget();
         Size sz = g.getSize();
@@ -103,7 +103,7 @@ public class SegmentedControlDescriptions
         return createRenderInsets(left, top, left * 2, ha, scale);
     }
 
-    protected @NotNull RenderInsets getInsets11(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    protected @NotNull RenderInsets getInsets10_11(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
     {
         // Renderer descriptions for macOS 10.11 and 10.12
 
@@ -168,7 +168,7 @@ public class SegmentedControlDescriptions
         return createRenderInsets(left, top, left * 2, ha, scale);
     }
 
-    protected @NotNull RenderInsets getInsets13new(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    protected @NotNull RenderInsets getInsets10_13new(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
     {
         // Renderer descriptions for macOS 10.13 new rendering
 
@@ -230,7 +230,7 @@ public class SegmentedControlDescriptions
         return createRenderInsets(left, top, left * 2, ha, scale);
     }
 
-    protected @NotNull RenderInsets getInsets13old(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    protected @NotNull RenderInsets getInsets10_13old(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
     {
         // Renderer descriptions for macOS 10.13 old rendering
 
@@ -299,7 +299,7 @@ public class SegmentedControlDescriptions
         return createRenderInsets(left, top, left * 2, ha, scale);
     }
 
-    protected @NotNull RenderInsets getInsets14old(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    protected @NotNull RenderInsets getInsets10_14old(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
     {
         // Renderer descriptions for macOS 10.14 old rendering
 
@@ -368,7 +368,7 @@ public class SegmentedControlDescriptions
         return createRenderInsets(left, top, left * 2, ha, scale);
     }
 
-    protected @NotNull RenderInsets getInsets14new(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    protected @NotNull RenderInsets getInsets10_14new(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
     {
         // Renderer descriptions for macOS 10.14 new rendering
 
@@ -426,7 +426,7 @@ public class SegmentedControlDescriptions
         return createRenderInsets(left, top, left * 2, ha, scale);
     }
 
-    protected @NotNull RenderInsets getInsets16(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    protected @NotNull RenderInsets getInsets11(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
     {
         // Renderer descriptions for macOS 11 (aka 10.16) rendering
 
@@ -577,28 +577,30 @@ public class SegmentedControlDescriptions
         return new SegmentedControl1LayoutInfo(adjustment);
     }
 
-    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo(@NotNull SegmentedButtonLayoutConfiguration g,
+                                                                      int scale)
     {
         int version = AquaUIPainterBase.internalGetSegmentedButtonRenderingVersion();
         if (version == AquaUIPainterBase.SEGMENTED_10_10) {
-            return getSegment4LayoutInfo10(g, scale);
+            return getSegment4LayoutInfo10_10(g, scale);
         } else if (version == AquaUIPainterBase.SEGMENTED_10_11) {
-            return getSegment4LayoutInfo11(g, scale);
+            return getSegment4LayoutInfo10_11(g, scale);
         } else if (version == AquaUIPainterBase.SEGMENTED_10_13) {
-            return getSegment4LayoutInfo13new(g, scale);
+            return getSegment4LayoutInfo10_13new(g, scale);
         } else if (version == AquaUIPainterBase.SEGMENTED_10_14) {
-            return getSegment4LayoutInfo14new(g, scale);
+            return getSegment4LayoutInfo10_14new(g, scale);
         } else if (version == AquaUIPainterBase.SEGMENTED_10_13_OLD) {
-            return getSegment4LayoutInfo13old(g, scale);
+            return getSegment4LayoutInfo10_13old(g, scale);
         } else if (version == AquaUIPainterBase.SEGMENTED_10_14_OLD) {
-            return getSegment4LayoutInfo14old(g, scale);
+            return getSegment4LayoutInfo10_14old(g, scale);
         } else if (version == AquaUIPainterBase.SEGMENTED_11_0) {
-            return getSegment4LayoutInfo16(g, scale);
+            return getSegment4LayoutInfo11(g, scale);
         }
         throw new UnsupportedOperationException();
     }
 
-    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo10(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo10_10(@NotNull SegmentedButtonLayoutConfiguration g,
+                                                                           int scale)
     {
         SegmentedButtonWidget bw = g.getWidget();
         Size sz = g.getSize();
@@ -658,7 +660,8 @@ public class SegmentedControlDescriptions
         return new SegmentedControl4LayoutInfo(dp, 1, first, middle, last);
     }
 
-    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo11(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo10_11(@NotNull SegmentedButtonLayoutConfiguration g,
+                                                                           int scale)
     {
         SegmentedButtonWidget bw = g.getWidget();
         Size sz = g.getSize();
@@ -725,7 +728,8 @@ public class SegmentedControlDescriptions
         return new SegmentedControl4LayoutInfo(dp, 1, first, middle, last);
     }
 
-    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo13new(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo10_13new(@NotNull SegmentedButtonLayoutConfiguration g,
+                                                                              int scale)
     {
         double dividerVisualWidth = scale == 2 ? 0.5 : 1;
         Size sz = g.getSize();
@@ -786,7 +790,8 @@ public class SegmentedControlDescriptions
         return new SegmentedControl4LayoutInfo(dp, dividerVisualWidth, first, middle, last);
     }
 
-    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo14new(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo10_14new(@NotNull SegmentedButtonLayoutConfiguration g,
+                                                                              int scale)
     {
         SegmentedButtonWidget bw = g.getWidget();
         Size sz = g.getSize();
@@ -846,7 +851,8 @@ public class SegmentedControlDescriptions
         return new SegmentedControl4LayoutInfo(LEFT, 1, first, 1, last);
     }
 
-    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo13old(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo10_13old(@NotNull SegmentedButtonLayoutConfiguration g,
+                                                                              int scale)
     {
         SegmentedButtonWidget bw = g.getWidget();
         Size sz = g.getSize();
@@ -909,7 +915,8 @@ public class SegmentedControlDescriptions
         return new SegmentedControl4LayoutInfo(dp, 1, first, middle, last);
     }
 
-    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo14old(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo10_14old(@NotNull SegmentedButtonLayoutConfiguration g,
+                                                                              int scale)
     {
         SegmentedButtonWidget bw = g.getWidget();
         Size sz = g.getSize();
@@ -963,7 +970,8 @@ public class SegmentedControlDescriptions
         return new SegmentedControl4LayoutInfo(RIGHT, 1, first, middle, last);
     }
 
-    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo16(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo11(@NotNull SegmentedButtonLayoutConfiguration g,
+                                                                        int scale)
     {
         Size sz = g.getSize();
 
