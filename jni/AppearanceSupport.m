@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Alan Snyder.
+ * Copyright (c) 2018-2021 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -33,12 +33,12 @@ void setAppearance(NSUInteger appearanceID) {
     if (appearanceID != configuredAppearanceID) {
         if (knownAppearanceNames && appearanceID >= 0 && appearanceID < knownAppearanceNames.count) {
             NSString *appearanceName = (NSString *) knownAppearanceNames[appearanceID];
-            configuredAppearance = [NSAppearance appearanceNamed:appearanceName];
+            configuredAppearance = [[NSAppearance appearanceNamed:appearanceName] retain];
             configuredAppearanceID = appearanceID;
             NSLog(@"Selected appearance: %@", appearanceName);
         } else {
             NSLog(@"Invalid appearance ID: %ld", (long) appearanceID);
-            configuredAppearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua];
+            configuredAppearance = [[NSAppearance appearanceNamed:NSAppearanceNameAqua] retain];
             configuredAppearanceID = -1;
         }
     }

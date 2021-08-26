@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2021 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -86,13 +86,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_coreui_CoreUIPainter_nativeJR
         CGColorSpaceRelease(colorspace);
 
         CGContextScaleCTM(cgRef, xscale, yscale);
-
         NSRect bounds = NSMakeRect(0, 0, w / xscale, h / yscale);
-
-        if (configuredAppearance) {
-            // not currently useful, but may be useful some day
-            NSAppearance.currentAppearance = configuredAppearance;
-        }
         JRSUIControlDraw(renderer, control, cgRef, bounds);
 
         (*env)->ReleasePrimitiveArrayCritical(env, data, rawPixelData, 0);
