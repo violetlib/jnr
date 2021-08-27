@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2021 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -13,6 +13,7 @@ import java.util.Objects;
 import org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 import org.violetlib.jnr.aqua.AquaUIPainter.UILayoutDirection;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 import org.jetbrains.annotations.*;
 
@@ -29,6 +30,13 @@ public class ButtonLayoutConfiguration
 
     public ButtonLayoutConfiguration(@NotNull ButtonWidget bw, @NotNull Size size, @NotNull UILayoutDirection ld)
     {
+        if (size == Size.LARGE) {
+            int platformVersion = JNRPlatformUtils.getPlatformVersion();
+            if (platformVersion < 101600) {
+                size = Size.REGULAR;
+            }
+        }
+
         this.bw = bw;
         this.size = size;
         this.ld = ld;
