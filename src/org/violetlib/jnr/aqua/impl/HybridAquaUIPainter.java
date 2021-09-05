@@ -122,6 +122,14 @@ public class HybridAquaUIPainter
                     return viewPainter;
                 }
             }
+            if (platformVersion >= 101600) {
+                // The CoreUI renderer on macOS 11 and 12 paints a low resolution image.
+                // Use the NSView renderer in those cases where it works properly.
+                if ((w.isSlider() && w.isToolbar()) || w.isTextured() || w == SegmentedButtonWidget.BUTTON_SEGMENTED) {
+                    return coreUIPainter;
+                }
+                return viewPainter;
+            }
             return coreUIPainter;
         } else if (g instanceof GradientConfiguration) {
             return coreUIPainter;
