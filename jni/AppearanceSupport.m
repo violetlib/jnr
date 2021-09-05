@@ -28,8 +28,13 @@ NSUInteger registerAppearance(NSString *appearanceName)
     return knownAppearanceNames.count - 1;
 }
 
-void setAppearance(NSUInteger appearanceID) {
+void updateCurrentAppearance() {
+    if (configuredAppearance != nil) {
+        configuredAppearance = [[NSAppearance appearanceNamed:configuredAppearance.name] retain];
+    }
+}
 
+void setAppearance(NSUInteger appearanceID) {
     if (appearanceID != configuredAppearanceID) {
         if (knownAppearanceNames && appearanceID >= 0 && appearanceID < knownAppearanceNames.count) {
             NSString *appearanceName = (NSString *) knownAppearanceNames[appearanceID];

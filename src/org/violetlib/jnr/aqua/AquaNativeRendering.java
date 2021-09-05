@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2021 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 
+import org.violetlib.jnr.aqua.impl.AquaUIPainterBase;
 import org.violetlib.jnr.aqua.impl.HybridAquaUIPainter;
 import org.violetlib.jnr.aqua.impl.NativeSupport;
 import org.violetlib.jnr.impl.ImageCache;
@@ -53,6 +54,11 @@ public class AquaNativeRendering
         }
 
         throw new UnsupportedOperationException("Unable to create a native painter");
+    }
+
+    public static void invalidateAppearances()
+    {
+        AquaUIPainterBase.nativeInvalidateAppearances();
     }
 
     public static void clearCache()
