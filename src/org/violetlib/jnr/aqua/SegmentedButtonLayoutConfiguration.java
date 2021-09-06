@@ -36,6 +36,9 @@ public class SegmentedButtonLayoutConfiguration
             int platformVersion = JNRPlatformUtils.getPlatformVersion();
             if (platformVersion < 101600) {
                 size = Size.REGULAR;
+            } else {
+                // No renderer does large textured and textured separated, but CoreUI can do the toolbar equivalent.
+                bw = bw.toToolbarWidget();
             }
         }
 
