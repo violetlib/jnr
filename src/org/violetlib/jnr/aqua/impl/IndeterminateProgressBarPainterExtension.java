@@ -58,12 +58,13 @@ public class IndeterminateProgressBarPainterExtension
     public void paint(@NotNull Graphics2D g, float width, float height)
     {
         boolean isVertical = pg.getOrientation() == AquaUIPainter.Orientation.VERTICAL;
+        float arc = pg.getSize() == AquaUIPainter.Size.SMALL ? 3 : 6;
 
         g = (Graphics2D) g.create();
         g.clip(new Rectangle2D.Float(0, 0, width, height));
 
         g.setColor(background);
-        g.fill(new RoundRectangle2D.Float(0, 0, width, height, 3, 3));
+        g.fill(new RoundRectangle2D.Float(0, 0, width, height, arc, arc));
 
         g.setColor(thumb);
 
@@ -75,7 +76,6 @@ public class IndeterminateProgressBarPainterExtension
         int position1 = (int) Math.floor(interval * animationFrame - segment);
         int position2 = (int) Math.ceil(position1 + segment);
         int thick = Math.round(isVertical ? width : height);
-        float arc = pg.getSize() == AquaUIPainter.Size.SMALL ? 3 : 6;
         if (isVertical) {
             int pos = (int) length - position1 - segment;
             g.fill(new RoundRectangle2D.Float(0, pos, thick, position2 - position1, arc, arc));
