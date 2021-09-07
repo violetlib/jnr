@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2021 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -202,10 +202,11 @@ public class NativeSupport
         if (s != null) {
             int pos = s.indexOf('.');
             if (pos > 0) {
-                int n = Integer.parseInt(s.substring(0, pos));
-                if (n > 0) {
-                    return n;
-                }
+                s = s.substring(0, pos);
+            }
+            int n = Integer.parseInt(s);
+            if (n > 0) {
+                return n;
             }
         }
         return 0;
