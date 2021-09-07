@@ -128,8 +128,8 @@ public class AquaNativeRendering
 
         isInitialized = true;
 
-        AquaUIPainter viewPainter = null;
-        AquaUIPainter coreUIPainter = null;
+        AquaUIPainter viewPainter;
+        AquaUIPainter coreUIPainter;
         AquaUIPainter jrsPainter = null;
 
         {
@@ -141,8 +141,8 @@ public class AquaNativeRendering
         boolean useJRS = jrsVersion >= 15;
 
         {
-            // JRS does not support dark appearance
-            // TBD: check to see if the dark appearance is being used, if possible
+            // JRS does not support dark appearance. Well, actually it does in macOS 11, but it does not support
+            // individual components using a different appearance.
 
             boolean useJRSToAccessCoreUI = useJRS;
             int platformVersion = JNRPlatformUtils.getPlatformVersion();

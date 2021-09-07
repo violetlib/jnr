@@ -108,32 +108,37 @@ public class HybridAquaUIPainter
             if (w == SegmentedButtonWidget.BUTTON_SEGMENTED_SMALL_SQUARE && platformVersion < 101600) {
                 return viewPainter;
             }
-            if (w == SegmentedButtonWidget.BUTTON_SEGMENTED_INSET && platformVersion >= 101600 && sg.getSize() == Size.LARGE) {
-                return viewPainter;
-            }
             if (platformVersion < 101300) {
-                  if (w == SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED
-                     || w == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED
-                     || w == SegmentedButtonWidget.BUTTON_SEGMENTED_SCURVE) {
-                      return viewPainter;
-                  }
+                if (w == SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED
+                      || w == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED
+                      || w == SegmentedButtonWidget.BUTTON_SEGMENTED_SCURVE) {
+                    return viewPainter;
+                }
             } else if (platformVersion < 101400) {
                 if (w == SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED) {
                     return viewPainter;
                 }
-            }
-            if (platformVersion >= 101600) {
-                // The CoreUI renderer on macOS 11 and 12 paints a low resolution image.
-                // Use the NSView renderer in those cases where it works properly.
+            } else if (platformVersion >= 101600) {
+                // The direct CoreUI painter creates blurry images.
+                // The JRS CoreUI painter is good except for the slider style, but it does not support
+                // components using an appearance other than the application effective appearance.
+                // Therefore, use the NSView painter except where it does not work.
+
                 if ((w.isSlider() && w.isToolbar())
-                  || w.isTextured()
-                  || w == SegmentedButtonWidget.BUTTON_SEGMENTED
-                  || sg.getState() == State.PRESSED) {
+                      || w.isTextured()
+                      || w == SegmentedButtonWidget.BUTTON_SEGMENTED
+                      || sg.getState() == State.PRESSED) {
                     return coreUIPainter;
                 }
-                return viewPainter;
+
+//                if (w == SegmentedButtonWidget.BUTTON_SEGMENTED_INSET && sg.getSize() == Size.LARGE) {
+//                    return viewPainter;
+//                }
+//                if (w == SegmentedButtonWidget.BUTTON_SEGMENTED_SLIDER) {
+//                    return viewPainter;
+//                }
             }
-            return coreUIPainter;
+            return viewPainter;
         } else if (g instanceof GradientConfiguration) {
             return coreUIPainter;
         } else if (g instanceof ComboBoxConfiguration) {

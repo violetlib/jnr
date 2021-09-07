@@ -17,6 +17,8 @@ import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 import org.jetbrains.annotations.*;
 
+import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.*;
+
 /**
   A layout configuration for a segmented button.
 */
@@ -32,8 +34,27 @@ public class SegmentedButtonLayoutConfiguration
                                               @NotNull Size size,
                                               @NotNull Position position)
     {
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+
+        // Map unsupported styles to the closest equivalent.
+        // Note: Rounded (BUTTON_SEGMENTED) is obsolete as an exclusive segmented control but it is still used for
+        // default toggle buttons and default select any segmented buttons.
+
+        if (platformVersion >= 101600) {
+            switch (bw) {
+                case BUTTON_TAB:
+                case BUTTON_SEGMENTED_TEXTURED:
+                    bw = BUTTON_SEGMENTED_SLIDER;
+                    break;
+                case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+                    bw = BUTTON_SEGMENTED_SEPARATED;
+                    break;
+                case BUTTON_SEGMENTED_TOOLBAR:
+                    bw = BUTTON_SEGMENTED_SCURVE;
+            }
+        }
+
         if (size == Size.LARGE) {
-            int platformVersion = JNRPlatformUtils.getPlatformVersion();
             if (platformVersion < 101600) {
                 size = Size.REGULAR;
             } else {
