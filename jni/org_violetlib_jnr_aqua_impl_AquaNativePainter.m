@@ -19,8 +19,6 @@
 #include "org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter.h"
 #include "AppearanceSupport.h"
 
-extern Boolean _CFExecutableLinkedOnOrAfter(CFIndex);
-
 static BOOL isActive;
 static BOOL isEnabled;
 static NSGraphicsContext *currentGraphicsContext;
@@ -64,6 +62,11 @@ static const int NSSegmentStyleSeparated_Textured = 81;
 static const int NSSegmentStyleSlider = 82;
 static const int NSSegmentStyleTexturedSquare_Toolbar = 1000 + NSSegmentStyleTexturedSquare;
 static const int NSSegmentStyleSeparated_Toolbar = 1000 + NSSegmentStyleSeparated_Textured;
+
+// Flag indicating whether this code was built with a Big Sur or newer SDK.
+// Code compiled against newer SDKs seems to use different constants for 
+// some component sizes
+static const BOOL BuiltWithBigSurOrHigher = __MAC_OS_X_VERSION_MAX_ALLOWED >= 101600;
 
 // debug support
 
@@ -616,8 +619,7 @@ static int setupSlider()
     if (osVersion < 101600) {
         sliderVersion = SLIDER_10_10;
     } else {
-        Boolean isNewStyle = _CFExecutableLinkedOnOrAfter(11);
-        sliderVersion = isNewStyle ? SLIDER_11_0 : SLIDER_10_10;
+        sliderVersion = BuiltWithBigSurOrHigher ? SLIDER_11_0 : SLIDER_10_10;
     }
 
     return sliderVersion;
@@ -875,11 +877,10 @@ static int setupSegmented()
     } else if (osVersion < 101300) {
         segmentedVersion = SEGMENTED_10_11;
     } else if (osVersion < 101600) {
-        Boolean isNewStyle = _CFExecutableLinkedOnOrAfter(11);
         if (osVersion < 101400) {
-            segmentedVersion = isNewStyle ? SEGMENTED_10_13 : SEGMENTED_10_13_OLD;
+            segmentedVersion = BuiltWithBigSurOrHigher ? SEGMENTED_10_13 : SEGMENTED_10_13_OLD;
         } else {
-            segmentedVersion = isNewStyle ? SEGMENTED_10_14 : SEGMENTED_10_14_OLD;
+            segmentedVersion = BuiltWithBigSurOrHigher ? SEGMENTED_10_14 : SEGMENTED_10_14_OLD;
         }
     } else {
         segmentedVersion = SEGMENTED_11_0;
