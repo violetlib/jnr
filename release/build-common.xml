@@ -9,7 +9,6 @@
     <!-- A Java 9 or later compiler is required -->
 
     <exec executable="java_home" outputproperty="jdk">
-        <arg value="-F"/>
         <arg value="-v"/>
         <arg value="9+"/>
     </exec>
