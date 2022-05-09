@@ -63,11 +63,6 @@ static const int NSSegmentStyleSlider = 82;
 static const int NSSegmentStyleTexturedSquare_Toolbar = 1000 + NSSegmentStyleTexturedSquare;
 static const int NSSegmentStyleSeparated_Toolbar = 1000 + NSSegmentStyleSeparated_Textured;
 
-// Flag indicating whether this code was built with a Big Sur or newer SDK.
-// Code compiled against newer SDKs seems to use different constants for 
-// some component sizes
-static const BOOL BuiltWithBigSurOrHigher = __MAC_OS_X_VERSION_MAX_ALLOWED >= 101600;
-
 // debug support
 
 static NSString *createIndentation(int indent) {
@@ -619,7 +614,7 @@ static int setupSlider()
     if (osVersion < 101600) {
         sliderVersion = SLIDER_10_10;
     } else {
-        sliderVersion = BuiltWithBigSurOrHigher ? SLIDER_11_0 : SLIDER_10_10;
+        sliderVersion = SLIDER_11_0;
     }
 
     return sliderVersion;
@@ -878,9 +873,9 @@ static int setupSegmented()
         segmentedVersion = SEGMENTED_10_11;
     } else if (osVersion < 101600) {
         if (osVersion < 101400) {
-            segmentedVersion = BuiltWithBigSurOrHigher ? SEGMENTED_10_13 : SEGMENTED_10_13_OLD;
+            segmentedVersion = SEGMENTED_10_13;
         } else {
-            segmentedVersion = BuiltWithBigSurOrHigher ? SEGMENTED_10_14 : SEGMENTED_10_14_OLD;
+            segmentedVersion = SEGMENTED_10_14;
         }
     } else {
         segmentedVersion = SEGMENTED_11_0;
