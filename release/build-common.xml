@@ -44,10 +44,14 @@
     <property name="cc" value="/usr/bin/cc"/>
     <property name="lipo" location="/usr/bin/lipo"/>
 
-    <!-- Note: open source JavaNativeFoundation is required to build for arm, see https://github.com/apple/openjdk -->
-
-    <property name="JNFdir" location="${SDKroot}/System/Library/Frameworks/JavaVM.framework/Versions/A/Frameworks"/>
-
+    <!-- 
+      JNFdir specifies the location of Apple's JavaNativeFoundation.framework which can be acquired 
+      at https://github.com/apple/openjdk/tree/xcodejdk14-release/apple/JavaNativeFoundation
+      Build it using Xcode and place the resulting JavaNativeFoundation.framework in the lib folder,
+      or override the JNFdir property to point to a folder that contains your own build of the framework.
+    -->
+    <property name="JNFdir" location="${base}/lib/"/>
+    
     <property name="debug" value="false"/>
     <property name="debugoption" value=""/>
 
