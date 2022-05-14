@@ -19,8 +19,6 @@
 #include "org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter.h"
 #include "AppearanceSupport.h"
 
-extern Boolean _CFExecutableLinkedOnOrAfter(CFIndex);
-
 static BOOL isActive;
 static BOOL isEnabled;
 static NSGraphicsContext *currentGraphicsContext;
@@ -616,8 +614,7 @@ static int setupSlider()
     if (osVersion < 101600) {
         sliderVersion = SLIDER_10_10;
     } else {
-        Boolean isNewStyle = _CFExecutableLinkedOnOrAfter(11);
-        sliderVersion = isNewStyle ? SLIDER_11_0 : SLIDER_10_10;
+        sliderVersion = SLIDER_11_0;
     }
 
     return sliderVersion;
@@ -875,11 +872,10 @@ static int setupSegmented()
     } else if (osVersion < 101300) {
         segmentedVersion = SEGMENTED_10_11;
     } else if (osVersion < 101600) {
-        Boolean isNewStyle = _CFExecutableLinkedOnOrAfter(11);
         if (osVersion < 101400) {
-            segmentedVersion = isNewStyle ? SEGMENTED_10_13 : SEGMENTED_10_13_OLD;
+            segmentedVersion = SEGMENTED_10_13;
         } else {
-            segmentedVersion = isNewStyle ? SEGMENTED_10_14 : SEGMENTED_10_14_OLD;
+            segmentedVersion = SEGMENTED_10_14;
         }
     } else {
         segmentedVersion = SEGMENTED_11_0;
