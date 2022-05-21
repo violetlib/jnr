@@ -198,14 +198,14 @@
                     <arg value="Cocoa"/>
                     <arg line="${additional.jni.frameworks}"/>
 
+                    <arg value="-F${SDKroot}/System/Library/Frameworks/JavaVM.framework/Versions/Current/Frameworks"/>
+                    <arg value="-framework"/>
+                    <arg value="JavaRuntimeSupport"/>
+                    
                     <arg value="-F${JNFdir}"/>
                     <arg value="-framework"/>
                     <arg value="JavaNativeFoundation"/>
-
-                    <arg value="-F${SDKroot}/System/Library/Frameworks"/>
-                    <arg value="-framework"/>
-                    <arg value="JavaRuntimeSupport"/>
-
+                    
                     <arg value="-install_name"/>
                     <arg value="${jniname}.dylib"/>
 
