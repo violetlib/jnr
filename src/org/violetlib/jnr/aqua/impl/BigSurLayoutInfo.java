@@ -61,6 +61,11 @@ public class BigSurLayoutInfo
             float left = size(sz, 4, 4, 3);
             float right = left;
             return Insetters.createFixed(top, left, bottom, right, layoutInfo);
+        } else if (bw == BUTTON_BEVEL) {
+            float top = size(sz, 2, 1, 1);
+            float bottom = size(sz, 2, 1, 1);
+            float side = size(sz, 4, 4, 3);
+            return Insetters.createFixed(top, side, bottom, side, layoutInfo);
         } else if (bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
             float topBottom = 4.5f;
             float side = 3.5f;
