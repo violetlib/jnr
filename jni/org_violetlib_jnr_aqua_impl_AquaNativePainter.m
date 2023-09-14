@@ -1025,7 +1025,6 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedContr
         setControlState(view, st);
 
         [view setUserInterfaceLayoutDirection: NSUserInterfaceLayoutDirectionLeftToRight];
-        view.trackingMode = tracking;
         [view setSegmentCount: 4];
         [view setLabel: @"" forSegment: 0];
         [view setLabel: @"" forSegment: 1];
@@ -1035,6 +1034,8 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedContr
         [view setWidth: sw2 forSegment: 1];
         [view setWidth: sw3 forSegment: 2];
         [view setWidth: sw4 forSegment: 3];
+
+        view.trackingMode = NSSegmentSwitchTrackingSelectAny;
         [view setEnabled: isEnabled forSegment: 0];
         [view setEnabled: isEnabled forSegment: 1];
         [view setEnabled: isEnabled forSegment: 2];
@@ -1043,6 +1044,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedContr
         [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_2) != 0 forSegment: 1];
         [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_3) != 0 forSegment: 2];
         [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_4) != 0 forSegment: 3];
+        view.trackingMode = tracking;
 
         [view setFrame: controlFrame];
         installContentView(view, isToolbar);
