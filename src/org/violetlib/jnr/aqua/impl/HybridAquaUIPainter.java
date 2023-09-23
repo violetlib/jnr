@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021 Alan Snyder.
+ * Copyright (c) 2015-2023 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,19 +8,17 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
-import java.util.Map;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.Painter;
 import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.impl.Colors;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.vappearances.VAppearance;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.util.Map;
 
 /**
   A hybrid painter that uses the best available implementation for each given configuration.
@@ -127,7 +125,9 @@ public class HybridAquaUIPainter
                 if ((w.isSlider() && w.isToolbar())
                       || w.isTextured()
                       || w == SegmentedButtonWidget.BUTTON_SEGMENTED
-                      || sg.getState() == State.PRESSED) {
+                      || sg.getState() == State.PRESSED
+                      || sg.getState() == State.PRESSED_DEFAULT
+                ) {
                     return coreUIPainter;
                 }
 

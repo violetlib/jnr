@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2023 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,20 +8,15 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
-import java.security.PrivilegedAction;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.*;
-import org.violetlib.jnr.impl.BasicRenderer;
-import org.violetlib.jnr.impl.JNRPlatformUtils;
-import org.violetlib.jnr.impl.Renderer;
-import org.violetlib.jnr.impl.RendererDebugInfo;
-import org.violetlib.jnr.impl.RendererDescription;
+import org.violetlib.jnr.impl.*;
 import org.violetlib.vappearances.VAppearance;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.security.PrivilegedAction;
 
 /**
   A painter that renders Aqua widgets by creating and rendering native views. This class supports only the UI for
@@ -157,6 +152,7 @@ public class AquaNativePainter
     protected static final int DefaultState = 4;
     protected static final int RolloverState = 5;
     protected static final int DisabledInactiveState = 6;
+    protected static final int DefaultPressedState = 7;
 
     // Internal codes for window type
     protected static final int DocumentWindowType = 0;
@@ -663,6 +659,8 @@ public class AquaNativePainter
                 return PressedState;
             case ACTIVE_DEFAULT:
                 return DefaultState;
+            case PRESSED_DEFAULT:
+                return DefaultPressedState;
             case ROLLOVER:
                 return RolloverState;
         }

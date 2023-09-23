@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021 Alan Snyder.
+ * Copyright (c) 2015-2023 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,34 +8,22 @@
 
 package org.violetlib.jnr.aqua.coreui;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.violetlib.jnr.Insetter;
+import org.violetlib.jnr.aqua.*;
+import org.violetlib.jnr.aqua.impl.*;
+import org.violetlib.jnr.impl.*;
+
 import java.awt.geom.Rectangle2D;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.List;
 
-import org.violetlib.jnr.Insetter;
-import org.violetlib.jnr.aqua.*;
-import org.violetlib.jnr.aqua.impl.AquaUIPainterBase;
-import org.violetlib.jnr.aqua.impl.FromMaskOperator;
-import org.violetlib.jnr.aqua.impl.LinearSliderRenderer;
-import org.violetlib.jnr.aqua.impl.NativeSupport;
-import org.violetlib.jnr.aqua.impl.PopupRenderer;
-import org.violetlib.jnr.aqua.impl.SliderTickConfiguration;
-import org.violetlib.jnr.aqua.impl.TitleBarRendererBase;
-import org.violetlib.jnr.impl.BasicRenderer;
-import org.violetlib.jnr.impl.BasicRendererDescription;
-import org.violetlib.jnr.impl.FlipVerticalRenderer;
-import org.violetlib.jnr.impl.JNRPlatformUtils;
-import org.violetlib.jnr.impl.Renderer;
-import org.violetlib.jnr.impl.RendererDescription;
-import org.violetlib.jnr.impl.ReusableCompositor;
-import org.violetlib.jnr.impl.SliderTickMarkRendererFactory;
-
-import org.jetbrains.annotations.*;
-
-import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR;
 import static org.violetlib.jnr.aqua.coreui.CoreUIKeys.*;
-import static org.violetlib.jnr.aqua.coreui.CoreUISegmentSeparatorTypes.*;
+import static org.violetlib.jnr.aqua.coreui.CoreUISegmentSeparatorTypes.BOTH_SELECTED;
+import static org.violetlib.jnr.aqua.coreui.CoreUISegmentSeparatorTypes.NONE_SELECTED;
 
 /**
   A painter that renders Aqua widgets using the native rendering used by the Aqua look and feel, implemented by the
@@ -243,6 +231,9 @@ public class CoreUIPainter
             }
         } else if (bw == ButtonWidget.BUTTON_DISCLOSURE) {
             direction = bs == ButtonState.OFF ? CoreUIDirections.DOWN : CoreUIDirections.UP;
+        } else if (bw == ButtonWidget.BUTTON_PUSH && bs == ButtonState.STATELESS
+          && (st == State.ACTIVE_DEFAULT || st == State.PRESSED_DEFAULT)) {
+            bs = ButtonState.ON;
         }
 
         Object buttonState = toButtonState(bs);
@@ -275,6 +266,7 @@ public class CoreUIPainter
           BACKGROUND_TYPE_KEY, background,
           SIZE_KEY, size,
           STATE_KEY, toState(st),
+          PREVIOUS_STATE_KEY, toPreviousState(st),
           PRESENTATION_STATE_KEY, toPresentationState(st),
           IS_FOCUSED_KEY, getFocused(g, g.isFocused()),
           VALUE_KEY, buttonState,
@@ -1609,10 +1601,10 @@ public class CoreUIPainter
             case INACTIVE:
                 return "inactive";
             case DISABLED:
-                return "disabled";
             case DISABLED_INACTIVE:
                 return "disabled";
             case PRESSED:
+            case PRESSED_DEFAULT:
                 return "pressed";
             case ACTIVE_DEFAULT:
                 return "pulsed";
@@ -1620,6 +1612,20 @@ public class CoreUIPainter
                 return "rollover";
         }
         throw new UnsupportedOperationException();
+    }
+
+    /**
+      Map the specified state to the value of the previous state parameter used by native code.
+    */
+
+    protected @NotNull String toPreviousState(@NotNull State st)
+    {
+        switch (st)
+        {
+            case PRESSED_DEFAULT:
+                return "pulsed";
+        }
+        return null;
     }
 
     /**
@@ -1685,6 +1691,7 @@ public class CoreUIPainter
             case DISABLED_INACTIVE:
                 return CoreUIPresentationStates.INACTIVE;
             case PRESSED:
+            case PRESSED_DEFAULT:
                 return CoreUIPresentationStates.ACTIVE;
             case ACTIVE_DEFAULT:
                 return CoreUIPresentationStates.ACTIVE;

@@ -39,6 +39,7 @@ static const int PressedState = 3;
 static const int DefaultState = 4;
 static const int RolloverState = 5;
 static const int DisabledInactiveState = 6;
+static const int DefaultPressedState = 7;
 
 // Codes for text field types
 static const int TextFieldNormal = 0;
@@ -569,6 +570,7 @@ static void setControlState(NSView* v, int st)
       isActive = NO;
       break;
     case PressedState:
+    case DefaultPressedState:
       break;
     case DefaultState:
       break;
@@ -763,9 +765,12 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
         [currentWindow setDefaultButtonCell: NULL];
 
-        if (st == DefaultState) {
+        if (st == DefaultState || st == DefaultPressedState) {
 
             [currentWindow setDefaultButtonCell: [buttonView cell]];
+            if (st == DefaultPressedState) {
+                isHighlight = YES;
+            }
 
         } else if (st == PressedState) {
 
@@ -1990,6 +1995,7 @@ static void configureTitleBarButton(NSButton *b, int buttonState)
 
         switch (buttonState) {
           case PressedState:
+          case DefaultPressedState:
             isHighlight = YES;
             // fall through
           case ActiveState:

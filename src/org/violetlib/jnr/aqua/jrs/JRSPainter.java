@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021 Alan Snyder.
+ * Copyright (c) 2015-2023 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,29 +8,20 @@
 
 package org.violetlib.jnr.aqua.jrs;
 
-import java.awt.geom.Rectangle2D;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.Painter;
 import org.violetlib.jnr.aqua.*;
-import org.violetlib.jnr.aqua.impl.AquaUIPainterBase;
-import org.violetlib.jnr.aqua.impl.FromMaskOperator;
-import org.violetlib.jnr.aqua.impl.LinearSliderRenderer;
-import org.violetlib.jnr.aqua.impl.PopupRenderer;
-import org.violetlib.jnr.aqua.impl.SliderTickConfiguration;
-import org.violetlib.jnr.aqua.impl.TitleBarRendererBase;
-import org.violetlib.jnr.impl.BasicRenderer;
-import org.violetlib.jnr.impl.BasicRendererDescription;
-import org.violetlib.jnr.impl.Renderer;
-import org.violetlib.jnr.impl.RendererDescription;
-import org.violetlib.jnr.impl.ReusableCompositor;
+import org.violetlib.jnr.aqua.impl.*;
+import org.violetlib.jnr.impl.*;
 import org.violetlib.jnr.impl.jrs.JRSUIConstants;
 import org.violetlib.jnr.impl.jrs.JRSUIControl;
 import org.violetlib.jnr.impl.jrs.JRSUIState;
 import org.violetlib.vappearances.VAppearance;
 
-import org.jetbrains.annotations.*;
+import java.awt.geom.Rectangle2D;
 
 /**
   A painter that renders Aqua widgets using the native rendering used by the Aqua look and feel, by way of the JDK
@@ -120,6 +111,7 @@ public class JRSPainter
                 maker.setProperty(JRSUIConstants.State.DISABLED);
                 break;
             case PRESSED:
+            case PRESSED_DEFAULT:
                 maker.setProperty(JRSUIConstants.State.PRESSED);
                 break;
             case ACTIVE_DEFAULT:

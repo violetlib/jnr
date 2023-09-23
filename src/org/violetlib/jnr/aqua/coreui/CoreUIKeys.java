@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2023 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -39,6 +39,7 @@ public class CoreUIKeys
     public static final String PRESENTATION_STATE_KEY = "kCUIPresentationStateKey";
     public static final String PRESENTATION_STATE_ACTIVE_KEY = "kCUIPresentationStateActiveKey";
     public static final String PRESSED_PART_KEY = "pressedpart";
+    public static final String PREVIOUS_STATE_KEY = "kCUIPreviousStateKey";
     public static final String SEGMENT_LEADING_SEPARATOR_KEY = "kCUISegmentLeadingSeparatorKey";
     public static final String SEGMENT_TRAILING_SEPARATOR_KEY = "kCUISegmentTrailingSeparatorKey";
     public static final String SEGMENT_LEADING_SEPARATOR_TYPE_KEY = "kCUISegmentLeadingSeparatorTypeKey";

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2023 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,16 +8,14 @@
 
 package org.violetlib.jnr.aqua;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
-import java.util.Map;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.Painter;
 import org.violetlib.vappearances.VAppearance;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.util.Map;
 
 /**
   An interface that supports native rendering for the Aqua look and feel. The goals of this interface are to isolate the
@@ -119,6 +117,7 @@ public interface AquaUIPainter
         DISABLED_INACTIVE,
         PRESSED,
         ACTIVE_DEFAULT,  // for the default button when it is active
+        PRESSED_DEFAULT,  // for the default button when it is active
         ROLLOVER;
 
         public boolean isInactive()
