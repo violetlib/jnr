@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2023 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,18 +8,13 @@
 
 package org.violetlib.jnr.aqua.coreui;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
+import org.jetbrains.annotations.NotNull;
+import org.violetlib.jnr.aqua.ButtonConfiguration;
+import org.violetlib.jnr.impl.*;
+
+import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.awt.image.ColorModel;
-
-import org.violetlib.jnr.aqua.ButtonConfiguration;
-import org.violetlib.jnr.impl.BasicRenderer;
-import org.violetlib.jnr.impl.PainterExtension;
-import org.violetlib.jnr.impl.Renderer;
-import org.violetlib.jnr.impl.ReusableCompositor;
-
-import org.jetbrains.annotations.*;
 
 /**
   This renderer erases the central area where the background should show through.
@@ -40,24 +35,31 @@ public class ColorWellRenderer
     @Override
     public void composeTo(@NotNull ReusableCompositor compositor)
     {
+        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+
         int rw = compositor.getRasterWidth();
         int rh = compositor.getRasterHeight();
         int scaleFactor = compositor.getScaleFactor();
 
-        int lt = scaleFactor;      // line thickness
-        int gt = 4 * scaleFactor;  // gap thickness
-        int bt = lt * 2 + gt;      // border thickness (two lines plus a gap)
+        int bt;
+        if (platformVersion < 130000) {
+            int lt = scaleFactor;      // line thickness
+            int gt = 4 * scaleFactor;  // gap thickness
+            bt = lt * 2 + gt;          // border thickness (two lines plus a gap)
+        } else {
+            bt = 5 * scaleFactor;
+        }
 
         basic.composeTo(compositor);
 
-        BorderPainter bp = new BorderPainter(scaleFactor);
+        if (platformVersion < 130000) {
+            BorderPainter bp = new BorderPainter(scaleFactor);
 
-        // Painting should work, but it does not paint pixels as expected
-        //compositor.composePainter(bp, 0, 0);
+            // Painting should work, but it does not paint pixels as expected
+            //compositor.composePainter(bp, 0, 0);
 
-        compositor.renderFrom(bp);
+            compositor.renderFrom(bp);
 
-        {
             // erase the central portion so that the background shows through
             int dx = bt;
             int dy = bt;
@@ -107,7 +109,7 @@ public class ColorWellRenderer
         }
 
         @Override
-        public void render(@NotNull int[] data, int rw, int rh, float w, float h)
+        public void render(int @NotNull [] data, int rw, int rh, float w, float h)
         {
             drawRect(data, rw, rh, outer, 0, 0, rw, rh);
             drawRect(data, rw, rh, inner, 5 * scaleFactor, 5 * scaleFactor, rw - 10 * scaleFactor, rh - 10 * scaleFactor);
