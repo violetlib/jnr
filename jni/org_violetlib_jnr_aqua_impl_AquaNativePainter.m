@@ -983,6 +983,23 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedContr
     return result;
 }
 
+static jint getSelectionFlag(int i)
+{
+    if (i == 0) {
+        return org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_1;
+    }
+    if (i == 1) {
+        return org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_2;
+    }
+    if (i == 2) {
+        return org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_3;
+    }
+    if (i == 3) {
+        return org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_4;
+    }
+    return 0;
+}
+
 /*
  * Class:     org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter
  * Method:    nativePaintSegmentedControl4
@@ -1040,16 +1057,26 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedContr
         [view setWidth: sw3 forSegment: 2];
         [view setWidth: sw4 forSegment: 3];
 
-        view.trackingMode = NSSegmentSwitchTrackingSelectAny;
+        view.trackingMode = tracking;
         [view setEnabled: isEnabled forSegment: 0];
         [view setEnabled: isEnabled forSegment: 1];
         [view setEnabled: isEnabled forSegment: 2];
         [view setEnabled: isEnabled forSegment: 3];
-        [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_1) != 0 forSegment: 0];
-        [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_2) != 0 forSegment: 1];
-        [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_3) != 0 forSegment: 2];
-        [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_4) != 0 forSegment: 3];
-        view.trackingMode = tracking;
+
+        if (tracking == NSSegmentSwitchTrackingSelectOne) {
+            for (int i = 0; i < 4; i++) {
+                jint selectionFlag = getSelectionFlag(i);
+                if ((selectionFlags & selectionFlag) != 0) {
+                    [view setSelected: YES forSegment: i];
+                    break;
+                }
+            }
+        } else {
+            [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_1) != 0 forSegment: 0];
+            [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_2) != 0 forSegment: 1];
+            [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_3) != 0 forSegment: 2];
+            [view setSelected: (selectionFlags & org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter_SELECT_SEGMENT_4) != 0 forSegment: 3];
+        }
 
         [view setFrame: controlFrame];
         installContentView(view, isToolbar);
