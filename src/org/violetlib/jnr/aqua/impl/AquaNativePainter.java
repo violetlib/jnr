@@ -207,6 +207,8 @@ public class AquaNativePainter
         configureNativeAppearance(appearance);
     }
 
+    private static final float[] NO_COLOR = new float[] { -1, -1, -1, -1 };
+
     @Override
     protected @NotNull Renderer getButtonRenderer(@NotNull ButtonConfiguration g)
     {
@@ -227,7 +229,9 @@ public class AquaNativePainter
 
         if (widget == ButtonWidget.BUTTON_COLOR_WELL) {
             int state = toState(st);
-            BasicRenderer r = (data, rw, rh, w, h) -> nativePaintColorWell(data, rw, rh, w, h, state);
+            Color c = ColorWellButtonConfiguration.getColor(g);
+            float[] cc = c != null ? c.getRGBComponents(null) : NO_COLOR;
+            BasicRenderer r = (data, rw, rh, w, h) -> nativePaintColorWell(data, rw, rh, w, h, state, cc[0], cc[1], cc[2], cc[3]);
             return Renderer.create(r, rd);
         }
 
@@ -1087,7 +1091,7 @@ public class AquaNativePainter
     private static native void nativePaintIndeterminateProgressIndicator(int[] data, int rw, int rh, float w, float h, int size, int state, int orientation, boolean isSpinner, int frame);
     private static native void nativePaintProgressIndicator(int[] data, int rw, int rh, float w, float h, int size, int state, int orientation, double value);
     private static native void nativePaintButton(int[] data, int rw, int rh, float w, float h, int buttonType, int bezelStyle, int size, int state, boolean isFocused, int value, int layoutDirection);
-    private static native void nativePaintColorWell(int[] data, int rw, int rh, float w, float h, int state);
+    private static native void nativePaintColorWell(int[] data, int rw, int rh, float w, float h, int state, float r, float g, float b, float a);
     private static native void nativePaintToolBarItemWell(int[] data, int rw, int rh, float w, float h, int state, boolean isFrameOnly);
     private static native void nativePaintGroupBox(int[] data, int rw, int rh, float w, float h, int titlePosition, int state, boolean isFrameOnly);
     private static native void nativePaintListBox(int[] data, int rw, int rh, float w, float h, int state, boolean isFocused, boolean isFrameOnly);

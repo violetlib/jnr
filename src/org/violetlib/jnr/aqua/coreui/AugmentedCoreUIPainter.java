@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2023 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,33 +8,11 @@
 
 package org.violetlib.jnr.aqua.coreui;
 
-import org.violetlib.jnr.aqua.ButtonConfiguration;
-import org.violetlib.jnr.aqua.ComboBoxConfiguration;
-import org.violetlib.jnr.aqua.GroupBoxConfiguration;
-import org.violetlib.jnr.aqua.PopupButtonConfiguration;
-import org.violetlib.jnr.aqua.ScrollBarConfiguration;
-import org.violetlib.jnr.aqua.SegmentedButtonConfiguration;
-import org.violetlib.jnr.aqua.SliderConfiguration;
-import org.violetlib.jnr.aqua.SplitPaneDividerConfiguration;
-import org.violetlib.jnr.aqua.TableColumnHeaderConfiguration;
-import org.violetlib.jnr.aqua.impl.CircularSliderPainterExtension;
-import org.violetlib.jnr.aqua.impl.LegacyScrollBarPainterExtension;
-import org.violetlib.jnr.aqua.impl.LinearSliderPainterExtension;
-import org.violetlib.jnr.aqua.impl.OverlayScrollBarPainterExtension;
-import org.violetlib.jnr.aqua.impl.PopUpArrowPainter;
-import org.violetlib.jnr.aqua.impl.PullDownArrowPainter;
-import org.violetlib.jnr.aqua.impl.RoundToolbarButtonPainterExtension;
-import org.violetlib.jnr.aqua.impl.TableColumnHeaderCellPainterExtension;
-import org.violetlib.jnr.aqua.impl.ThinSplitPaneDividerPainterExtension;
-import org.violetlib.jnr.impl.AdjustDarkToolbarButtonRenderer;
-import org.violetlib.jnr.impl.BasicRenderer;
-import org.violetlib.jnr.impl.DarkGroupBoxRenderer;
-import org.violetlib.jnr.impl.JNRPlatformUtils;
-import org.violetlib.jnr.impl.PainterExtension;
-import org.violetlib.jnr.impl.Renderer;
-import org.violetlib.jnr.impl.ReusableCompositor;
-
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.violetlib.jnr.aqua.*;
+import org.violetlib.jnr.aqua.impl.*;
+import org.violetlib.jnr.impl.*;
 
 import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.*;
 import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.*;
@@ -95,7 +73,8 @@ public class AugmentedCoreUIPainter
     {
         Renderer r = super.getButtonRenderer(g);
         if (g.getButtonWidget() == ButtonWidget.BUTTON_COLOR_WELL) {
-            return new ColorWellRenderer(g, r);
+            boolean isDark = appearance != null && appearance.isDark();
+            return new ColorWellRenderer(g, r, isDark);
         }
         if (g.getButtonWidget() == ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR) {
             int platformVersion = JNRPlatformUtils.getPlatformVersion();

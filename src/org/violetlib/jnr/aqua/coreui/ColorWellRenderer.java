@@ -10,10 +10,14 @@ package org.violetlib.jnr.aqua.coreui;
 
 import org.jetbrains.annotations.NotNull;
 import org.violetlib.jnr.aqua.ButtonConfiguration;
+import org.violetlib.jnr.aqua.ColorWellButtonConfiguration;
 import org.violetlib.jnr.impl.*;
 
 import java.awt.*;
 import java.awt.color.ColorSpace;
+import java.awt.geom.Path2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.image.ColorModel;
 
 /**
@@ -25,11 +29,13 @@ public class ColorWellRenderer
 {
     private final @NotNull ButtonConfiguration bg;
     private final @NotNull Renderer basic;
+    private final boolean isDark;
 
-    public ColorWellRenderer(@NotNull ButtonConfiguration bg, @NotNull Renderer basic)
+    public ColorWellRenderer(@NotNull ButtonConfiguration bg, @NotNull Renderer basic, boolean isDark)
     {
         this.bg = bg;
         this.basic = basic;
+        this.isDark = isDark;
     }
 
     @Override
@@ -52,6 +58,14 @@ public class ColorWellRenderer
 
         basic.composeTo(compositor);
 
+        if (bg instanceof ColorWellButtonConfiguration) {
+            ColorWellButtonConfiguration cg = (ColorWellButtonConfiguration) bg;
+            Color c = cg.getSelectedColor();
+            ColorWellPainter p = new ColorWellPainter(c, isDark);
+            compositor.composePainter(p, 0, 0);
+            return;
+        }
+
         if (platformVersion < 130000) {
             BorderPainter bp = new BorderPainter(scaleFactor);
 
@@ -66,6 +80,74 @@ public class ColorWellRenderer
             int dw = rw - 2 * bt;
             int dh = rh - 2 * bt;
             compositor.erase(dx, dy, dw, dh);
+        }
+    }
+
+    protected class ColorWellPainter
+       implements PainterExtension
+    {
+        private final @NotNull Color c;
+        private final boolean isDark;
+
+        public ColorWellPainter(@NotNull Color c, boolean isDark)
+        {
+            this.c = c;
+            this.isDark = isDark;
+        }
+
+        @Override
+        public void paint(@NotNull Graphics2D g, float width, float height)
+        {
+            int platformVersion = JNRPlatformUtils.getPlatformVersion();
+
+            int x = 0;
+            int y = 0;
+
+            float t = 6;
+            float s = 6;
+            float x1 = x + s;
+            float ww = width - 2 * s;
+            float x2 = x1 + ww;
+            float y1 = y + t;
+            float hh = height - 2 * t;
+            float y2 = y1 + hh;
+
+            Graphics2D gg = (Graphics2D) g.create();
+
+            Shape rr;
+            if (platformVersion >= 130000) {
+                gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                rr = new RoundRectangle2D.Float(x1, y1, ww, hh, 4, 4);
+            } else {
+                rr = new Rectangle2D.Float(x1, y1, ww, hh);
+            }
+
+            if (c.getAlpha() != 255) {
+                // Color is translucent. Paint a black and white background under the color swatch.
+                gg.setColor(Color.BLACK);
+                gg.fill(rr);
+
+                Path2D.Float p = new Path2D.Float();
+                p.moveTo(x1, y2);
+                p.lineTo(x2, y1);
+                p.lineTo(x2, y2);
+                p.closePath();
+
+                gg.clip(rr);
+                gg.setColor(Color.WHITE);
+                gg.fill(p);
+                gg.setClip(null);
+            }
+
+            gg.setColor(c);
+            gg.fill(rr);
+
+            if (platformVersion >= 130000 && c.getAlpha() != 255) {
+                gg.setColor(isDark ? new Color(255, 255, 255, 52) : new Color(0, 0, 0, 52));
+                gg.draw(rr);
+            }
+
+            gg.dispose();
         }
     }
 

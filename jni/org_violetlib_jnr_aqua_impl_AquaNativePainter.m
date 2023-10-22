@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021 Alan Snyder.
+ * Copyright (c) 2015-2023 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -805,10 +805,10 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 /*
  * Class:     org_violetlib_jnr_aqua_impl_AquaNativePainter
  * Method:    nativePaintColorWell
- * Signature: ([IIIFFI)V
+ * Signature: ([IIIFFIFFFF)V
  */
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintColorWell
-  (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint st)
+  (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint st, jfloat r, jfloat g, jfloat b, jfloat a)
 {
     COCOA_ENTER(env);
 
@@ -818,6 +818,14 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         installContentView(view, NO);
         setControlState(view, st);
         [view setIntegerValue: st == PressedState];        // does not work
+        if (r >= 0) {
+            NSColor *color = [NSColor colorWithSRGBRed: r green: g blue: b alpha: a];
+            view.color = color;
+            if (@available(macOS 14, *)) {
+                view.supportsAlpha = YES;
+            }
+            NSColor.ignoresAlpha = NO;
+        }
         displayView(view, gc, frameRect);
     });
 
