@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2023 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,16 +8,12 @@
 
 package org.violetlib.jnr.aqua;
 
-import java.util.Objects;
-
-import org.violetlib.jnr.aqua.AquaUIPainter.ButtonState;
-import org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.Size;
-import org.violetlib.jnr.aqua.AquaUIPainter.State;
-import org.violetlib.jnr.aqua.AquaUIPainter.UILayoutDirection;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.violetlib.jnr.aqua.AquaUIPainter.*;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
 
-import org.jetbrains.annotations.*;
+import java.util.Objects;
 
 /**
   A configuration for a button.
@@ -68,6 +64,11 @@ public class ButtonConfiguration
                                @NotNull ButtonState buttonState)
     {
         this(g.getButtonWidget(), g.getSize(), state, isFocused, buttonState, g.getLayoutDirection());
+    }
+
+    protected ButtonConfiguration(@NotNull ButtonConfiguration g)
+    {
+        this(g.getButtonWidget(), g.getSize(), g.getState(), g.isFocused(), g.getButtonState(), g.getLayoutDirection());
     }
 
     @Override
