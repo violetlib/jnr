@@ -2111,7 +2111,10 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 JNIEXPORT jintArray JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativeGetTitleBarButtonLayoutInfo
   (JNIEnv *env, jclass cl, jint type)
 {
-    __block jintArray result = NULL;
+    jintArray result = NULL;
+
+    int actualRawData[12];
+    __block int *rawData = actualRawData;
 
     COCOA_ENTER(env);
 
@@ -2138,8 +2141,6 @@ JNIEXPORT jintArray JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_n
         if (resizeButton) {
             configureTitleBarButton(resizeButton, ActiveState);
         }
-
-        int rawData[12];
 
         if (closeButton) {
             int n = 0;
@@ -2168,10 +2169,11 @@ JNIEXPORT jintArray JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_n
             rawData[n+3] = frame.size.height;
         }
 
-        jintArray data = (*env)->NewIntArray(env, 12);
-        (*env)->SetIntArrayRegion(env, data, 0, 12, rawData);
-        result = data;
     });
+
+    jintArray data = (*env)->NewIntArray(env, 12);
+    (*env)->SetIntArrayRegion(env, data, 0, 12, rawData);
+    result = data;
 
     COCOA_EXIT(env);
 
