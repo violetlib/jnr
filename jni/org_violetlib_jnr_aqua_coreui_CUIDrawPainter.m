@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2023 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -9,9 +9,8 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <Cocoa/Cocoa.h>
-#import <JavaNativeFoundation/JavaNativeFoundation.h>
 
-#include "JNI.h"
+#include "jnix.h"
 #include "org_violetlib_jnr_aqua_coreui_CoreUIPainter.h"
 #include "CoreUISupport.h"
 #include "AppearanceSupport.h"
@@ -31,7 +30,7 @@
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_coreui_CoreUIPainter_nativePaint
   (JNIEnv *env, jclass cl, jintArray data, jint w, jint h, jfloat xscale, jfloat yscale, jobjectArray args, jboolean useLayer)
 {
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     jsize argsCount = (*env) -> GetArrayLength(env, args);
     jsize keyCount = argsCount / 2;
@@ -109,5 +108,5 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_coreui_CoreUIPainter_nativePa
 
     CFRelease(d);
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 }

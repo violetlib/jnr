@@ -23,7 +23,6 @@
  * questions.
  */
 
-#import <JavaNativeFoundation/JavaNativeFoundation.h>
 #import <JavaRuntimeSupport/JavaRuntimeSupport.h>
 
 #import "org_violetlib_jnr_impl_jrs_JRSUIControl.h"
@@ -32,6 +31,13 @@
 
 #import "JRSUIConstantSync.h"
 
+#ifndef jlong_to_ptr
+#define jlong_to_ptr(a) ((void *)(uintptr_t)(a))
+#endif
+
+#ifndef ptr_to_jlong
+#define ptr_to_jlong(a) ((jlong)(uintptr_t)(a))
+#endif
 
 static JRSUIRendererRef gRenderer;
 

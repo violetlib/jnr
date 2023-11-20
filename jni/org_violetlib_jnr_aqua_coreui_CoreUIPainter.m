@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021 Alan Snyder.
+ * Copyright (c) 2015-2023 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -9,10 +9,9 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <Cocoa/Cocoa.h>
-#import <JavaNativeFoundation/JavaNativeFoundation.h>
 #import <JavaRuntimeSupport/JavaRuntimeSupport.h>
 
-#include "JNI.h"
+#include "jnix.h"
 #include "org_violetlib_jnr_aqua_coreui_CoreUIPainter.h"
 #include "AppearanceSupport.h"
 #include "CoreUISupport.h"
@@ -33,7 +32,7 @@ static JRSUIRendererRef renderer;
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_coreui_CoreUIPainter_nativeJRSPaint
   (JNIEnv *env, jclass cl, jintArray data, jint w, jint h, jfloat xscale, jfloat yscale, jobjectArray args)
 {
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     jsize argsCount = (*env) -> GetArrayLength(env, args);
     jsize keyCount = argsCount / 2;
@@ -95,5 +94,5 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_coreui_CoreUIPainter_nativeJR
 
     JRSUIControlRelease(control);
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 }

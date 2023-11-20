@@ -9,12 +9,11 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <Cocoa/Cocoa.h>
-#import <JavaNativeFoundation/JavaNativeFoundation.h>
 
 #include <math.h>
 #include <stdlib.h>
 
-#include "JNI.h"
+#include "jnix.h"
 #include "org_violetlib_jnr_aqua_impl_AquaNativePainter.h"
 #include "org_violetlib_jnr_aqua_impl_AquaNativeSegmentedControlPainter.h"
 #include "AppearanceSupport.h"
@@ -356,7 +355,7 @@ static jint osVersion;
 
 static void runOnMainThread(void (^block)())
 {
-    [JNFRunLoop performOnMainThreadWaiting:YES withBlock:block];
+    APPKIT_EXEC(block);
 }
 
 static void initOnMainThread()
@@ -652,7 +651,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_setLay
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintIndeterminateProgressIndicator
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint sz, jint st, jint o, jboolean isSpinner, jint frame)
 {
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     ensureWindowSize(2*w, h);
 
@@ -683,7 +682,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         }
     });
 
-  COCOA_EXIT(env);
+  COCOA_EXIT();
 }
 
 /*
@@ -694,7 +693,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintProgressIndicator
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint sz, jint st, jint o, jdouble v)
 {
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     performGraphics(env, data, rw, rh, w, h, ^(NSGraphicsContext *gc){
         NSRect frameRect = NSMakeRect(0, 0, w, h);
@@ -708,7 +707,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         displayView(view, gc, frameRect);
     });
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 }
 
 static NSButton *buttonView;
@@ -722,7 +721,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h,
     jint buttonType, jint bezelStyle, jint sz, jint st, jboolean isFocused, jint value, jint layoutDirection)
 {
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     performGraphics(env, data, rw, rh, w, h, ^(NSGraphicsContext *gc){
 
@@ -799,7 +798,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
     });
 
-  COCOA_EXIT(env);
+  COCOA_EXIT();
 }
 
 /*
@@ -810,7 +809,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintColorWell
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint st, jfloat r, jfloat g, jfloat b, jfloat a)
 {
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     performGraphics(env, data, rw, rh, w, h, ^(NSGraphicsContext *gc){
         NSRect frameRect = NSMakeRect(0, 0, w, h);
@@ -829,7 +828,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         displayView(view, gc, frameRect);
     });
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 }
 
 // The following distinguishable versions of segmented control layout and rendering have been identified.
@@ -908,7 +907,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedContr
 {
     jint result = 0;
 
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     setupSegmented();
 
@@ -986,7 +985,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedContr
         }
     }
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 
     return result;
 }
@@ -1020,7 +1019,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedContr
 {
     jint result = 0;
 
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     setupSegmented();
 
@@ -1128,7 +1127,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedContr
         }
     }
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 
     return result;
 }
@@ -1143,11 +1142,11 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 {
     jint result = -1;
 
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     result = setupSlider();
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 
     return result;
 }
@@ -1162,11 +1161,11 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedContr
 {
     jint result = -1;
 
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     result = setupSegmented();
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 
     return result;
 }
@@ -1181,7 +1180,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedContr
 {
     __block jint result = -1;
 
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     runOnMainThread(^(){
         initOnMainThread();
@@ -1201,7 +1200,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedContr
         // For unknown reasons, this height is too small!
     });
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 
     return result;
 }
@@ -1220,7 +1219,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedContr
 
     __block jint result = -1;
 
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     BOOL inToolbar = NO;
     if (segmentStyle >= 1000) {
@@ -1320,7 +1319,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativeSegmentedContr
         }
     }
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 
     return result;
 }
@@ -1335,7 +1334,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 {
     __block jint result = -1;
 
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     // Test the button using two different titles.
     // If the height is the same both times, then the height must be fixed.
@@ -1359,7 +1358,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         }
     });
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 
     return result;
 }
@@ -1374,7 +1373,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 {
     __block jint result = -1;
 
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     // I do not know how to do an unbiased test, since any button that displays a title
     // will probably change its width based on the title. But we do not use a title, so for
@@ -1403,7 +1402,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
     });
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 
     return result;
 }
@@ -1416,7 +1415,7 @@ JNIEXPORT jint JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintComboBox
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint type, jint sz, jint st, jint bezelStyle, jint layoutDirection)
 {
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     performGraphics(env, data, rw, rh, w, h, ^(NSGraphicsContext *gc){
 
@@ -1478,7 +1477,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         displayView(view, gc, frameRect);
     });
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 }
 
 /*
@@ -1490,7 +1489,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jboolean isUp,
     jint sz, jint st, jint bezelStyle, jint layoutDirection)
 {
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     performGraphics(env, data, rw, rh, w, h, ^(NSGraphicsContext *gc){
         NSRect frameRect = NSMakeRect(0, 0, w, h);
@@ -1542,7 +1541,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         displayView(view, gc, frameRect);
     });
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 }
 
 /*
@@ -1564,7 +1563,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintGroupBox
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint titlePosition, jint state, jboolean isFrameOnly)
 {
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     performGraphics(env, data, rw, rh, w, h, ^(NSGraphicsContext *gc){
         NSRect frameRect = NSMakeRect(0, 0, w, h);
@@ -1576,7 +1575,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         displayView(view, gc, frameRect);
     });
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
     }
 
 /*
@@ -1620,7 +1619,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintTextField
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint sz, jint state, jint type)
 {
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     performGraphics(env, data, rw, rh, w, h, ^(NSGraphicsContext *gc){
         NSRect frameRect = NSMakeRect(0, 0, w, h);
@@ -1682,7 +1681,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         displayView(view, gc, frameRect);
     });
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 }
 
 @interface MyTableDelegate : NSObject <NSTableViewDataSource, NSTableViewDelegate>
@@ -1741,7 +1740,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintTableColumnHeader
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint state, jint direction, jboolean isSelected, jint layoutDirection)
 {
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     performGraphics(env, data, rw, rh, w, h, ^(NSGraphicsContext *gc){
 
@@ -1815,7 +1814,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         displayView(view, gc, controlFrame);
     });
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 }
 
 static BOOL setupSliderView(NSSlider *view, jfloat w, jfloat h, jint sliderType, jint sz, jint state, jint numberOfTickMarks, jint tickMarkPosition, jdouble value)
@@ -1872,7 +1871,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint sliderType, jint sz, jint state,
     jboolean isFocused, jdouble value, jint numberOfTickMarks, jint tickMarkPosition)
 {
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     performGraphics(env, data, rw, rh, w, h, ^(NSGraphicsContext *gc){
         NSRect frameRect = NSMakeRect(0, 0, w, h);
@@ -1883,7 +1882,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
         displayView(view, gc, frameRect);
     });
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 }
 
 @interface ThumbCapturingSliderCell : NSSliderCell
@@ -1912,7 +1911,7 @@ NSRect bounds;
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativeGetSliderThumbBounds
   (JNIEnv *env, jclass cl, jfloatArray bounds, jfloat w, jfloat h, jint sliderType, jint sz, jdouble value, jint numberOfTickMarks, jint tickMarkPosition)
 {
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     __block NSRect thumbBounds;
 
@@ -1948,7 +1947,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
     (*env)->ReleasePrimitiveArrayCritical(env, bounds, boundsData, 0);
     free(data);
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 }
 
 /*
@@ -1959,7 +1958,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_nativePaintSpinnerArrows
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint sz, jint state, jboolean isFocused, jboolean isPressedTop)
 {
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     performGraphics(env, data, rw, rh, w, h, ^(NSGraphicsContext *gc){
         NSRect frameRect = NSMakeRect(0, 0, w, h);
@@ -1982,7 +1981,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         displayView(view, gc, frameRect);
     });
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 }
 
 /*
@@ -1995,7 +1994,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 {
     // the thickness of standard dividers cannot be changed, so we ignore the thickness parameter
 
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     performGraphics(env, data, rw, rh, w, h, ^(NSGraphicsContext *gc){
         NSRect frameRect = NSMakeRect(0, 0, w, h);
@@ -2015,7 +2014,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         displayView(splitView, gc, frameRect);
     });
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 }
 
 static void configureTitleBarButton(NSButton *b, int buttonState)
@@ -2053,7 +2052,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
   (JNIEnv *env, jclass cl, jintArray data, jint rw, jint rh, jfloat w, jfloat h, jint type, jint state,
     jint closeState, jint minimizeState, jint resizeState, jboolean resizeIsFullScreen, jboolean isDirty)
 {
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     performGraphics(env, data, rw, rh, w, h, ^(NSGraphicsContext *gc){
         NSRect frameRect = NSMakeRect(0, 0, w, h);
@@ -2100,7 +2099,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         }
     });
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 }
 
 /*
@@ -2116,7 +2115,7 @@ JNIEXPORT jintArray JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_n
     int actualRawData[12];
     __block int *rawData = actualRawData;
 
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     runOnMainThread(^(){
         initOnMainThread();
@@ -2175,7 +2174,7 @@ JNIEXPORT jintArray JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_n
     (*env)->SetIntArrayRegion(env, data, 0, 12, rawData);
     result = data;
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 
     return result;
 }
@@ -2218,7 +2217,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
     // Only Regular and Small sizes are supported
 
-    COCOA_ENTER(env);
+    COCOA_ENTER();
 
     performGraphics(env, data, rw, rh, w, h, ^(NSGraphicsContext *gc){
         NSRect frameRect = NSMakeRect(0, 0, w, h);
@@ -2246,7 +2245,7 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
         displayView(view, gc, frameRect);
     });
 
-    COCOA_EXIT(env);
+    COCOA_EXIT();
 }
 
 /*
@@ -2273,7 +2272,7 @@ JNIEXPORT jstring JNICALL Java_org_violetlib_jnr_aqua_impl_NativeSupport_getJava
     if (dict) {
         NSString *s = (NSString*) [dict objectForKey: @"CFBundleShortVersionString"];
         if (s) {
-            result = JNFNSToJavaString(env, s);
+            result = TO_JAVA_STRING(s);
         }
     }
     return result;
