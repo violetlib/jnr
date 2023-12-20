@@ -50,7 +50,7 @@
     <property name="debugoption" value=""/>
 
     <property name="annotationsVersion" value="20.1.0"/>
-    <property name="vappearancesVersion" value="3"/>
+    <property name="vappearancesVersion" value="4"/>
 
     <target name="init">
         <echo level="info" message="${fullReleaseName}"/>
@@ -177,6 +177,7 @@
                     <arg value="${SDKroot}"/>
 
                     <arg value="${debugoption}"/>
+                    <arg value="-fvisibility=hidden"/>
 
                     <arg value="-o"/>
                     <arg value="${jnidir}/${jniname}-@{name}.dylib"/>
