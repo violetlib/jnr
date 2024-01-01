@@ -279,10 +279,6 @@ extern JNIEnv *JNU_SUPPORT(getAppkitJNIEnvironment());
 #define APPKIT_PERFORM(target, selector, arg) \
     JNU_SUPPORT(appkitPerform)(target, selector, arg);
 
-#define GET_APPKIT_JNI_ENVIRONMENT() \
-    JNU_SUPPORT(getAppkitJNIEnvironment)();
-
-
 
 
 /******** STRING CONVERSION SUPPORT *********/

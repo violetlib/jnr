@@ -29,33 +29,13 @@
 
 #define ThreadUtilities JNU_SUPPORT(InternalThreadUtilities)
 
-static JavaVM *jvm = NULL;
-static JNIEnv *appKitEnv = NULL;
-static jobject appkitThreadGroup = NULL;
 static NSString* JavaRunLoopMode = @"AWTRunLoopMode";
 static NSArray<NSString*> *javaModes = nil;
-
-static inline void attachCurrentThread(void** env) {
-    if ([NSThread isMainThread]) {
-        JavaVMAttachArgs args;
-        args.version = JNI_VERSION_1_4;
-        args.name = "AppKit Thread";
-        args.group = appkitThreadGroup;
-        (*jvm)->AttachCurrentThreadAsDaemon(jvm, env, &args);
-    } else {
-        (*jvm)->AttachCurrentThreadAsDaemon(jvm, env, NULL);
-    }
-}
 
 #define ThreadUtilities JNU_SUPPORT(InternalThreadUtilities)
 
 __attribute__((visibility("default")))
 @interface ThreadUtilities : NSObject { } /* Extend NSObject so can call performSelectorOnMainThread */
-
-+ (JNIEnv*)getJNIEnv;
-+ (JNIEnv*)getJNIEnvUncached;
-+ (void)detachCurrentThread;
-+ (void)setAppkitThreadGroup:(jobject)group;
 
 + (void)performOnMainThreadWaiting:(BOOL)wait block:(void (^)())block;
 + (void)performOnMainThread:(SEL)aSelector on:(id)target withObject:(id)arg waitUntilDone:(BOOL)wait;
@@ -73,28 +53,6 @@ __attribute__((visibility("default")))
                                                JavaRunLoopMode,
                                                nil];
     }
-}
-
-+ (JNIEnv*)getJNIEnv {
-//AWT_ASSERT_APPKIT_THREAD;
-    if (appKitEnv == NULL) {
-        attachCurrentThread((void **)&appKitEnv);
-    }
-    return appKitEnv;
-}
-
-+ (JNIEnv*)getJNIEnvUncached {
-    JNIEnv *env = NULL;
-    attachCurrentThread((void **)&env);
-    return env;
-}
-
-+ (void)detachCurrentThread {
-    (*jvm)->DetachCurrentThread(jvm);
-}
-
-+ (void)setAppkitThreadGroup:(jobject)group {
-    appkitThreadGroup = group;
 }
 
 /* This is needed because we can't directly pass a block to
