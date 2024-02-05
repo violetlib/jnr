@@ -1,33 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project
-    basedir="."
-    default="release"
-    xmlns:resolver="antlib:org.apache.maven.resolver.ant"
-    xmlns:ivy="antlib:org.apache.ivy.ant"
-    name="Aqua Native Rendering">
+<project name="Aqua Native Rendering" default="release">
 
-    <tstamp>
-        <format property="NOW" timezone="GMT" pattern="yyyy-MM-dd'T'HH:mm:ss'Z'"/>
-    </tstamp>
+  <property name="release.variant" value="View"/>
 
-    <property name="release.variant" value="View"/>
+  <import file="../build-common.xml"/>
 
-    <import file="../build-common.xml"/>
+  <property name="java.compile.packages" value="org/violetlib/geom;org/violetlib/jnr;org/violetlib/jnr/aqua;org/violetlib/jnr/aqua/impl;org/violetlib/jnr/impl"/>
 
-    <patternset id="java.compile.patterns">
-      <include name="org/violetlib/geom/*.java"/>
-      <include name="org/violetlib/jnr/*.java"/>
-      <include name="org/violetlib/jnr/aqua/*.java"/>
-      <include name="org/violetlib/jnr/aqua/impl/*.java"/>
-      <include name="org/violetlib/jnr/impl/*.java"/>
-    </patternset>
-
-    <patternset id="java.compile8.patterns">
-      <include name="org/violetlib/jnr/**/*.java"/>
-    </patternset>
-
-    <patternset id="java.compile9.patterns">
-      <include name="org/violetlib/jnr/**/*.java"/>
-    </patternset>
 </project>

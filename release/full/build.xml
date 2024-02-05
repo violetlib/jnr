@@ -1,40 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project
-    basedir="."
-    default="release"
-    name="Aqua Native Rendering">
+<project name="Aqua Native Rendering" default="release">
 
-    <tstamp>
-        <format property="NOW" timezone="GMT" pattern="yyyy-MM-dd'T'HH:mm:ss'Z'"/>
-    </tstamp>
+  <property name="release.variant" value="Hybrid"/>
 
-    <property name="release.variant" value="Hybrid"/>
+  <import file="../build-common.xml"/>
 
-    <import file="../build-common.xml"/>
+  <property name="java.compile.packages" value="org/violetlib/geom;org/violetlib/jnr;org/violetlib/jnr/aqua;org/violetlib/jnr/aqua/impl;org/violetlib/jnr/aqua/coreui;org/violetlib/jnr/aqua/jrs;org/violetlib/jnr/impl"/>
 
-    <patternset id="java.compile.patterns">
-      <include name="org/violetlib/geom/*.java"/>
-      <include name="org/violetlib/jnr/*.java"/>
-      <include name="org/violetlib/jnr/aqua/*.java"/>
-      <include name="org/violetlib/jnr/aqua/impl/*.java"/>
-      <include name="org/violetlib/jnr/aqua/coreui/*.java"/>
-      <include name="org/violetlib/jnr/aqua/jrs/*.java"/>
-      <include name="org/violetlib/jnr/impl/*.java"/>
-    </patternset>
-
-    <patternset id="java.compile8.patterns">
-        <include name="org/violetlib/jnr/**/*.java"/>
-    </patternset>
-
-    <patternset id="java.compile9.patterns">
-      <include name="org/violetlib/jnr/**/*.java"/>
-    </patternset>
-
-    <property name="additional.jni.sources"
-      value="${jnisrc}/org_violetlib_jnr_aqua_coreui_CoreUIPainter.m ${jnisrc}/org_violetlib_jnr_aqua_coreui_CUIDrawPainter.m ${jnisrc}/JRSUIConstantSync.m ${jnisrc}/JRSUIController.m"
+  <property name="additional.jni.sources"
+      value="org_violetlib_jnr_aqua_coreui_CoreUIPainter.m org_violetlib_jnr_aqua_coreui_CUIDrawPainter.m JRSUIConstantSync.m JRSUIController.m"
     />
     
-    <property name="additional.jni.frameworks" value="-framework QuartzCore"/>
+  <property name="additional.jni.frameworks" value="-framework QuartzCore"/>
 
 </project>

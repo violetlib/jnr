@@ -1,260 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project
-    xmlns:resolver="antlib:org.apache.maven.resolver.ant"
-    xmlns:ivy="antlib:org.apache.ivy.ant"
-    xmlns:antcontrib="antlib:net.sf.antcontrib"
-    name="Aqua Native Rendering common build script">
+<project name="Aqua Native Rendering common build script">
 
-    <!-- A Java 9 or later compiler is required -->
+  <typedef resource="org/violetlib/vbuilder/ant/antlib.xml"/>
+  
+  <property name="jdk8" value="/Library/Java/JavaVirtualMachines/jdk-8.jdk"/>
+  <property name="bootclasspath8" value="${jdk8}/Contents/Home/jre/lib/rt.jar"/>
 
-    <exec executable="java_home" outputproperty="jdk">
-        <arg value="-F"/>
-        <arg value="-v"/>
-        <arg value="9+"/>
-    </exec>
+  <dirname property="here" file="${ant.file}"/>
+  <dirname property="rel" file="${here}"/>
+  <dirname property="base" file="${rel}"/>
 
-    <property name="javac" value="${jdk}/bin/javac"/>
+  <echo message="${here}"/>
+  <echo message="${base}"/>
 
-    <!-- A Java 8 boot class path is required -->
+  <property name="RELEASE" value="4"/>
+  <property name="annotationsVersion" value="20.1.0"/>
+  <property name="vappearancesVersion" value="4"/>
 
-    <exec executable="java_home" outputproperty="jdk8">
-        <arg value="-F"/>
-        <arg value="-v"/>
-        <arg value="1.8"/>
-    </exec>
+  <property name="debug" value="false"/>
+  <property name="debugoption" value=""/>
 
-    <property name="bootclasspath" value="${jdk8}/jre/lib/rt.jar" />
+  <tstamp>
+    <format property="NOW" timezone="GMT" pattern="yyyy-MM-dd'T'HH:mm:ss'Z'"/>
+  </tstamp>
 
-    <property name="RELEASE" value="0.9"/>
-    <property name="fullReleaseName" value="${RELEASE} ${NOW}"/>
+  <property name="libname" value="VAquaRendering"/>
 
-    <property name="base" value="../.."/>
-    <property name="src" value="${base}/src"/>
-    <property name="src8" value="${base}/Java8Support/src"/>
-    <property name="src9" value="${base}/Java9Support/src"/>
-    <property name="jniname" value="libVAquaRendering"/>
-    <property name="jnisrc" value="${base}/jni"/>
-    <property name="builddir" value="out"/>
-    <property name="classesdir" value="${builddir}/classes"/>
-    <property name="headersdir" value="${builddir}/headers"/>
-    <property name="jnidir" value="${builddir}/jni"/>
-    <property name="distdir" value="dist"/>
-    <property name="jnuheadersdir" value="${jnisrc}"/>
+  <use coords="org.jetbrains:annotations:${annotationsVersion}"/>
+  <use coords="org.violetlib:vappearances:${vappearancesVersion}"/>
 
-    <property name="SDKroot" value="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"/>
-    <property name="cc" value="/usr/bin/cc"/>
-    <property name="lipo" location="/usr/bin/lipo"/>
+  <property name="artifactCoordinates" value="org.violetlib:jnr:${RELEASE}"/>
 
-    <property name="debug" value="false"/>
-    <property name="debugoption" value=""/>
+  <property name="src" location="${base}/src"/>
+  <property name="src8" value="${base}/Java8Support/src"/>
+  <property name="src9" value="${base}/Java9Support/src"/>
+  <property name="jniname" value="libVAquaRendering"/>
+  <property name="jnisrc" location="${base}/jni"/>
+  <property name="resourcesdir" location="${base}/resources"/>
+  <property name="builddir" location="out"/>
+  <property name="classesdir" location="${builddir}/classes"/>
+  <property name="headersdir" location="${builddir}/headers"/>
+  <property name="jnidir" location="${builddir}/jni"/>
+  <property name="distdir" location="dist"/>
+  <property name="debug" value="false"/>
+  <property name="libdir" location="${base}/lib"/>
+  <property name="jnuheadersdir" value="${jnisrc}"/>
 
-    <property name="annotationsVersion" value="20.1.0"/>
-    <property name="vappearancesVersion" value="4"/>
+  <property name="fullReleaseName" value="${RELEASE} ${NOW}"/>
 
-    <target name="init">
-        <echo level="info" message="${fullReleaseName}"/>
-    </target>
+  <target name="clean">
+    <deleteDirectory directory="${builddir}"/>
+    <deleteDirectory directory="${distdir}"/>
+  </target>
 
-    <target name="saveIDs">
-      <echo file="${classesdir}/org/violetlib/jnr/aqua/RELEASE.txt" message="${release.variant} ${RELEASE}"/>
-      <echo file="${classesdir}/org/violetlib/jnr/aqua/BUILD.txt" message="${NOW}"/>
-    </target>
+  <target name="saveIDs">
+    <echo file="${classesdir}/org/violetlib/jnr/aqua/RELEASE.txt" message="${release.variant} ${RELEASE}"/>
+    <echo file="${classesdir}/org/violetlib/jnr/aqua/BUILD.txt" message="${NOW}"/>
+  </target>
 
-    <target name="clean" description="Remove build directories">
-        <delete includeEmptyDirs="true" failonerror="false">
-          <fileset dir="${builddir}"/>
-          <fileset dir="${distdir}"/>
-        </delete>
-    </target>
+  <target name="native">
+    <jni
+      version="1"
+      compatibilityversion="1"
+      outputfile="${classesdir}/${jniname}.dylib"
+      includepath="${headersdir}:${jnuheadersdir}"
+      installdir="${distdir}"
+      installName="${libname}"
+      visibility="hidden"
+      >
 
-    <!--
-      To use the Maven resolver, the Maven resolver ant tasks uber JAR must be installed in .ant/lib.
-      See https://maven.apache.org/resolver-ant-tasks/
-    -->
+      <target value="x86_64-apple-macos10.10"/>
+      <target value="arm64-apple-macos11"/>
 
-    <target name="resolve-maven">
-        <resolver:resolve>
-          <dependencies>
-            <dependency coords="org.jetbrains:annotations:${annotationsVersion}"/>
-            <dependency coords="org.violetlib:vappearances:${vappearancesVersion}"/>
-          </dependencies>
-          <path refid="cp" classpath="compile"/>
-        </resolver:resolve>
-    </target>
+      <filelist dir="${jnisrc}" files="${additional.jni.sources}">
+        <file name="jnu_support.m"/>
+        <file name="VAppearances.m"/>
+        <file name="jnu_support.m"/>
+        <file name="AppearanceSupport.m"/>
+        <file name="org_violetlib_jnr_aqua_impl_AquaUIPainterBase.m"/>
+        <file name="org_violetlib_jnr_aqua_impl_AquaNativePainter.m"/>
+      </filelist>
 
-    <!--
-      To use the Ivy resolver, the Ivy uber JAR must be downloaded and installed in .ant/lib.
-      See https://ant.apache.org/ivy/
-    -->
+      <framework>Cocoa</framework>
+      <framework>JavaRuntimeSupport</framework>
+      <framework>QuartzCore</framework>
+    </jni>
+  </target>
 
-    <target name="resolve-ivy">
-        <ivy:cachepath pathid="cp">
-            <dependency org="org.jetbrains" name="annotations" rev="${annotationsVersion}"/>
-            <dependency org="org.violetlib" name="vappearances" rev="${vappearancesVersion}"/>
-        </ivy:cachepath>
-    </target>
-
-    <target name="resolve" depends="resolve-maven"/>
-
-    <target name="compile8" depends="resolve">
-      <mkdir dir="${classesdir}"/>
-      <mkdir dir="${headersdir}"/>
-
-      <javac source="1.8" target="1.8"
-          bootclasspath="${bootclasspath}"
-          classpathref="cp"
-          encoding="UTF-8"
-          srcdir="${src}"
-          destdir="${classesdir}"
-          debug="${debug}"
-          optimize="true"
-          includeantruntime="false"
-          fork="true"
-          executable="${javac}"
-          >
-          <compilerarg value="-h"/>
-          <compilerarg path="${headersdir}"/>
-          <patternset refid="java.compile.patterns"/>
-      </javac>
-
-      <javac source="1.8" target="1.8"
-          bootclasspath="${bootclasspath}"
-          classpathref="cp"
-          encoding="UTF-8"
-          srcdir="${src8}"
-          destdir="${classesdir}"
-          debug="${debug}"
-          optimize="true"
-          includeantruntime="false"
-          fork="true"
-          executable="${javac}"
-          >
-          <compilerarg value="-h"/>
-          <compilerarg path="${headersdir}"/>
-          <patternset refid="java.compile8.patterns"/>
-      </javac>
-    </target>
-
-    <target name="compile9" depends="resolve">
-      <mkdir dir="${classesdir}"/>
-      <mkdir dir="${headersdir}"/>
-
-      <javac
-          classpathref="cp"
-          encoding="UTF-8"
-          srcdir="${src9}"
-          destdir="${classesdir}"
-          debug="${debug}"
-          optimize="true"
-          includeantruntime="false"
-          fork="true"
-          executable="${javac}"
-          >
-          <compilerarg value="--release"/>
-          <compilerarg value="9"/>
-          <patternset refid="java.compile9.patterns"/>
-      </javac>
-    </target>
-
-    <target name="compile-AquaNativeRendering-Java" depends="compile8, compile9">
-    </target>
-
-    <target name="compile-AquaNativeRendering-JNI" depends="compile8">
-        <mkdir dir="${jnidir}"/>
-        <property name="additional.jni.sources" value=""/>
-        <property name="additional.jni.frameworks" value=""/>
-
-        <macrodef name="build-for-target">
-            <attribute name="target"/>
-            <attribute name="name"/>
-            <sequential>
-                <exec executable="${cc}" failonerror="true" >
-                    <arg value="-target"/>
-                    <arg value="@{target}"/>
-
-                    <arg value="-isysroot"/>
-                    <arg value="${SDKroot}"/>
-
-                    <arg value="${debugoption}"/>
-                    <arg value="-fvisibility=hidden"/>
-
-                    <arg value="-o"/>
-                    <arg value="${jnidir}/${jniname}-@{name}.dylib"/>
-
-                    <arg value="-I${jdk}/include"/>
-                    <arg value="-I${jdk}/include/darwin"/>
-                    <arg value="-I${headersdir}"/>
-                    <arg value="-I${jnuheadersdir}"/>
-
-                    <arg value="-dynamiclib"/>
-                    <arg value="-ObjC"/>
-
-                    <arg value="-framework"/>
-                    <arg value="Cocoa"/>
-                    <arg line="${additional.jni.frameworks}"/>
-
-                    <arg value="-F/${SDKroot}/System/Library/Frameworks/JavaVM.framework/Versions/A/Frameworks"/>
-                    <arg value="-framework"/>
-                    <arg value="JavaRuntimeSupport"/>
-
-                    <arg value="-install_name"/>
-                    <arg value="${jniname}.dylib"/>
-
-                    <arg value="${jnisrc}/jnu_support.m"/>
-                    <arg value="${jnisrc}/AppearanceSupport.m"/>
-                    <arg value="${jnisrc}/org_violetlib_jnr_aqua_impl_AquaUIPainterBase.m"/>
-                    <arg value="${jnisrc}/org_violetlib_jnr_aqua_impl_AquaNativePainter.m"/>
-                    <arg line="${additional.jni.sources}"/>
-                </exec>
-            </sequential>
-        </macrodef>
-
-        <build-for-target target="x86_64-apple-macos10.7" name="x86"/>
-        <build-for-target target="arm64-apple-macos11" name="arm"/>
-
-        <exec executable="${lipo}" failonerror="true">
-            <arg value="${jnidir}/${jniname}-x86.dylib"/>
-            <arg value="${jnidir}/${jniname}-arm.dylib"/>
-            <arg value="-create"/>
-            <arg value="-output"/>
-            <arg value="${jnidir}/${jniname}.dylib"/>
-        </exec>
-
-        <delete file="${jnidir}/${jniname}-x86.dylib"/>
-        <delete file="${jnidir}/${jniname}-arm.dylib"/>
-
-        <antcontrib:if>
-          <available file="${jnidir}/${jniname}-x86.dylib.dSYM" type="dir"/>
-          <then>
-              <copy todir="${jnidir}/${jniname}.dylib.dSYM">
-                <fileset dir="${jnidir}/${jniname}-x86.dylib.dSYM"/>
-              </copy>
-              <delete file="${jnidir}/${jniname}.dylib.dSYM/Contents/Resources/DWARF/${jniname}-x86.dylib"/>
-              <exec executable="${lipo}" failonerror="true">
-                  <arg value="${jnidir}/${jniname}-x86.dylib.dSYM/Contents/Resources/DWARF/${jniname}-x86.dylib"/>
-                  <arg value="${jnidir}/${jniname}-arm.dylib.dSYM/Contents/Resources/DWARF/${jniname}-arm.dylib"/>
-                  <arg value="-create"/>
-                  <arg value="-output"/>
-                  <arg value="${jnidir}/${jniname}.dylib.dSYM/Contents/Resources/DWARF/${jniname}.dylib"/>
-              </exec>
-              <delete includeEmptyDirs="true" failonerror="false"><fileset dir="${jnidir}/${jniname}-x86.dylib.dSYM"/></delete>
-              <delete includeEmptyDirs="true" failonerror="false"><fileset dir="${jnidir}/${jniname}-arm.dylib.dSYM"/></delete>
-          </then>
-        </antcontrib:if>
-    </target>
-
-    <target name="AquaNativeRendering" depends="compile-AquaNativeRendering-JNI, compile-AquaNativeRendering-Java, saveIDs">
-
-        <echo level="info" message="Building AquaNativeRendering ${release.variant} ${fullReleaseName}"/>
-
-        <mkdir dir="${distdir}"/>
-
-        <jar jarfile="${distdir}/VAquaRendering.jar" basedir="${classesdir}">
-            <fileset dir="${jnidir}/"/>
-        </jar>
-    </target>
-
-    <target name="release" depends="clean,AquaNativeRendering"/>
+  <target name="release" depends="clean, saveIDs">
+    <echo level="info" message="Building ${libname} ${fullReleaseName}"/>
+    <javaLibrary
+      name="${libname}"
+      dist="${distdir}"
+      release="8"
+      mavenCoordinates="${artifactCoordinates}"
+      buildRoot="${builddir}"
+      >
+      <source base="${src}" packages="${java.compile.packages}"/>
+      <source base="${src8}" release="8"/>
+      <source base="${src9}" release="9"/>
+      <classpath compile="org.jetbrains:annotations org.violetlib:vappearances"/>
+    </javaLibrary>
+  </target>
 
 </project>
