@@ -2,6 +2,8 @@
 
 <project name="Aqua Native Rendering common build script">
 
+  <!-- See https://violetlib.org/vbuilder/overview.html" -->
+
   <typedef resource="org/violetlib/vbuilder/ant/antlib.xml"/>
   
   <property name="jdk8" value="/Library/Java/JavaVirtualMachines/jdk-8.jdk"/>
