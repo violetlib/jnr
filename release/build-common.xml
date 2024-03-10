@@ -19,7 +19,7 @@
 
   <property name="artifactCoordinates" value="org.violetlib:jnr:${RELEASE}"/>
 
-  <use key="org.jetbrains:annotations" version="20.1.0"/>
+  <use key="org.jetbrains:annotations" version="20.1.0" scope="compile"/>
   <use key="org.violetlib:vappearances" version="4"/>
 
   <property name="base" location="../.."/>
@@ -59,7 +59,7 @@
       outputfile="${classesdir}/${jniname}.dylib"
       includepath="${headersdir}:${jnuheadersdir}"
       installdir="${distdir}"
-      installName="${libname}"
+      installname="${libname}"
       visibility="hidden"
       >
 
@@ -81,7 +81,7 @@
     </jni>
   </target>
 
-  <target name="release" depends="clean, saveIDs">
+  <target name="build" depends="clean, saveIDs">
     <echo level="info" message="Building ${libname} ${fullReleaseName}"/>
     <javaLibrary
       name="${libname}"
@@ -93,7 +93,6 @@
       <source base="${src}" packages="${java.compile.packages}"/>
       <source base="${src8}" release="8"/>
       <source base="${src9}" release="9"/>
-      <classpath compile="org.jetbrains:annotations org.violetlib:vappearances"/>
     </javaLibrary>
   </target>
 

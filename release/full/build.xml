@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="Aqua Native Rendering" default="release">
+<project name="Aqua Native Rendering" default="build">
 
   <property name="release.variant" value="Hybrid"/>
 
