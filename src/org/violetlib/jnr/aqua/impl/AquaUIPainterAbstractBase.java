@@ -75,16 +75,19 @@ public abstract class AquaUIPainterAbstractBase
         if (platformVersion >= 101100) {
             return new LayoutInfo_10_11();
         }
-            return new LayoutInfo10_10();
-
+        return new LayoutInfo10_10();
     }
 
     protected static @NotNull UIOutliner createOutliner(@NotNull AquaUILayoutInfo uiLayout)
     {
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
-        return platformVersion >= 101600
-                 ? new BigSurOutliner((LayoutInfo_11) uiLayout)
-                 : new YosemiteOutliner((LayoutInfo10_10) uiLayout);
+        if (platformVersion >= 150000) {
+            return new Outliner_15((LayoutInfo_15) uiLayout);
+        }
+        if (platformVersion >= 101600) {
+            return new Outliner_11((LayoutInfo_11) uiLayout);
+        }
+        return new Outliner_10_10((LayoutInfo10_10) uiLayout);
     }
 
     protected AquaUIPainterAbstractBase()

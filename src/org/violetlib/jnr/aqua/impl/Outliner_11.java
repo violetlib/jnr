@@ -29,10 +29,11 @@ import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.BUTTON_
 /**
 
 */
-public class BigSurOutliner
-  extends YosemiteOutliner
+
+public class Outliner_11
+  extends Outliner_10_10
 {
-    public BigSurOutliner(@NotNull LayoutInfo_11 uiLayout)
+    public Outliner_11(@NotNull LayoutInfo_11 uiLayout)
     {
         super(uiLayout);
     }
@@ -173,7 +174,8 @@ public class BigSurOutliner
         return new RoundRectangle2D.Double(x, y, width, height, corner, corner);
     }
 
-    private static @NotNull AquaUIPainter.ButtonState getButtonState(@NotNull ButtonLayoutConfiguration g) {
+    protected static @NotNull AquaUIPainter.ButtonState getButtonState(@NotNull ButtonLayoutConfiguration g)
+    {
         if (g instanceof ButtonConfiguration) {
             ButtonConfiguration bg = (ButtonConfiguration) g;
             return bg.getButtonState();

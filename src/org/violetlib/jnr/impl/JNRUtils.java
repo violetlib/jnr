@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,11 +8,11 @@
 
 package org.violetlib.jnr.impl;
 
-import java.text.DecimalFormat;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 
-import org.jetbrains.annotations.*;
+import java.text.DecimalFormat;
 
 import static org.violetlib.jnr.impl.ImageUtils.*;
 
@@ -48,7 +48,24 @@ public class JNRUtils
             case MINI:
                 return mini;
             case LARGE:
+            case EXTRA_LARGE:
                 return large;
+            default:
+                return regular;
+        }
+    }
+
+    public static int size(@NotNull AquaUIPainter.Size sz, int xlarge, int large, int regular, int small, int mini)
+    {
+        switch (sz) {
+            case SMALL:
+                return small;
+            case MINI:
+                return mini;
+            case LARGE:
+                return large;
+            case EXTRA_LARGE:
+                return xlarge;
             default:
                 return regular;
         }
@@ -86,7 +103,24 @@ public class JNRUtils
             case MINI:
                 return (float) mini;
             case LARGE:
+            case EXTRA_LARGE:
                 return (float) large;
+            default:
+                return (float) regular;
+        }
+    }
+
+    public static float size2D(@NotNull AquaUIPainter.Size sz, double xlarge, double large, double regular, double small, double mini)
+    {
+        switch (sz) {
+            case SMALL:
+                return (float) small;
+            case MINI:
+                return (float) mini;
+            case LARGE:
+                return (float) large;
+            case EXTRA_LARGE:
+                return (float) xlarge;
             default:
                 return (float) regular;
         }

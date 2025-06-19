@@ -28,12 +28,12 @@ import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.*;
   Provides outlines for widgets that can be used to draw focus rings. This version for macOS 10.10+.
 */
 
-public class YosemiteOutliner
+public class Outliner_10_10
   extends UIOutliner
 {
     protected final @NotNull LayoutInfo10_10 uiLayout;
 
-    public YosemiteOutliner(@NotNull LayoutInfo10_10 uiLayout)
+    public Outliner_10_10(@NotNull LayoutInfo10_10 uiLayout)
     {
         this.uiLayout = uiLayout;
     }

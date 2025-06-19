@@ -536,23 +536,29 @@ public class SegmentedControlDescriptions
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_SCURVE:
                 left = size2D(sz, 1, 1, 1, 1);
+                wa = size2D(sz, 12, 2, 2, 2);
                 top = size2D(sz, 9, 1, 2, 1);
                 ha = size2D(sz, 9, 1, 2, 1);
-                wa = size2D(sz, 12, 2, 2, 2);
+                break;
+
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
+                left = size2D(sz, 1, 1, 1, 1);
+                wa = size2D(sz, 12, 12, 12, 12);
+                top = size2D(sz, 9, 1, 2, 1);
+                ha = size2D(sz, 9, 1, 2, 1);
                 break;
 
             case BUTTON_SEGMENTED_TOOLBAR:
                 left = size2D(sz, 5, 2, 2, 1);
+                wa = size2D(sz, 12, 4, 4, 2);
                 top = size2D(sz, 5, 1, 1, 0);
                 ha = size2D(sz, 11, 1, 2, 1);
-                wa = size2D(sz, 12, 4, 4, 2);
 
                 if (g.getPosition() == AquaUIPainter.Position.ONLY) {
                     // This is probably a bug in AppKit
@@ -571,6 +577,31 @@ public class SegmentedControlDescriptions
 
     protected @NotNull RenderInsets getInsets26old(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
     {
+        SegmentedButtonWidget bw = g.getWidget();
+        Size sz = g.getSize();
+
+        double left;
+        double top;
+        double ha;
+        double wa;
+
+        switch (bw) {
+
+            case BUTTON_SEGMENTED_TOOLBAR:
+                left = size2D(sz, 5, 2, 2, 1);
+                wa = size2D(sz, 12, 4, 4, 2);
+                top = size2D(sz, 5, 1, 1, 0);
+                ha = size2D(sz, 11, 1, 2, 1);
+
+                if (g.getPosition() == AquaUIPainter.Position.ONLY) {
+                    // This is probably a bug in AppKit
+                    left = size2D(sz, 1, 1, 1, 1);
+                    top = size2D(sz, 9, 1, 2, 1);
+                }
+
+                return createRenderInsets(left, top, wa, ha, scale);
+        }
+
         return getInsets15(g, scale);  // placeholder
     }
 
@@ -1243,12 +1274,12 @@ public class SegmentedControlDescriptions
     public @NotNull SegmentedControl4LayoutInfo
     getSegment4LayoutInfo26old(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
     {
-        return getSegment4LayoutInfo11(g, scale); // placeholder
+        return getSegment4LayoutInfo15(g, scale); // placeholder
     }
 
     public @NotNull SegmentedControl4LayoutInfo
     getSegment4LayoutInfo26(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
     {
-        return getSegment4LayoutInfo11(g, scale); // placeholder
+        return getSegment4LayoutInfo15(g, scale); // placeholder
     }
 }
