@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,31 +8,25 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
-import java.util.HashMap;
-import java.util.Map;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.NullPainter;
 import org.violetlib.jnr.Painter;
 import org.violetlib.jnr.SliderPainter;
 import org.violetlib.jnr.aqua.*;
-import org.violetlib.jnr.impl.BasicRendererDescription;
-import org.violetlib.jnr.impl.MultiResolutionRendererDescription;
-import org.violetlib.jnr.impl.OffsetPainter;
-import org.violetlib.jnr.impl.Renderer;
-import org.violetlib.jnr.impl.RendererDebugInfo;
-import org.violetlib.jnr.impl.RendererDescription;
+import org.violetlib.jnr.impl.*;
 import org.violetlib.vappearances.VAppearance;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.violetlib.jnr.aqua.impl.AquaNativePainter.*;
-import static org.violetlib.jnr.aqua.impl.AquaNativeSegmentedControlPainter.*;
-import static org.violetlib.jnr.impl.JNRUtils.*;
+import static org.violetlib.jnr.aqua.impl.AquaNativePainter.nativeDetermineSliderRenderingVersion;
+import static org.violetlib.jnr.aqua.impl.AquaNativeSegmentedControlPainter.nativeDetermineSegmentedButtonRenderingVersion;
+import static org.violetlib.jnr.impl.JNRUtils.size;
+import static org.violetlib.jnr.impl.JNRUtils.size2D;
 
 /**
   A common base class for native painters. The assumption of this base class is that most if not all layout related
@@ -62,6 +56,9 @@ public abstract class AquaUIPainterBase
     public static final int SEGMENTED_10_14_OLD = 4;   // rendering on macOS 10.14 that is similar to 10.11, used when linked against an old SDK
     public static final int SEGMENTED_10_14 = 5;       // rendering on macOS 10.14, when linked against SDK 10.11 or later
     public static final int SEGMENTED_11_0 = 6;        // rendering on macOS 11.0, when linked against SDK 11.0 or later
+    public static final int SEGMENTED_15 = 7;          // rendering on macOS 15
+    public static final int SEGMENTED_26_OLD = 8;      // rendering on macOS 26, when linked against an older SDK
+    public static final int SEGMENTED_26 = 9;          // rendering on macOS 26, when linked against SDK 26
 
 // The following distinguishable versions of slider layout and rendering have been identified.
 

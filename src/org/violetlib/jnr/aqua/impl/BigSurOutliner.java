@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Alan Snyder.
+ * Copyright (c) 2020-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,31 +8,23 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.Shape;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.violetlib.geom.GeneralRoundRectangle;
+import org.violetlib.jnr.Insetter;
+import org.violetlib.jnr.aqua.*;
+import org.violetlib.jnr.aqua.AquaUIPainter.*;
+
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 
-import org.violetlib.geom.GeneralRoundRectangle;
-import org.violetlib.jnr.Insetter;
-import org.violetlib.jnr.aqua.AquaUIPainter;
-import org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.ComboBoxWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.Position;
-import org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.Size;
-import org.violetlib.jnr.aqua.ButtonConfiguration;
-import org.violetlib.jnr.aqua.ButtonLayoutConfiguration;
-import org.violetlib.jnr.aqua.ComboBoxLayoutConfiguration;
-import org.violetlib.jnr.aqua.PopupButtonLayoutConfiguration;
-import org.violetlib.jnr.aqua.SegmentedButtonLayoutConfiguration;
-import org.violetlib.jnr.aqua.SliderThumbLayoutConfiguration;
-
-import org.jetbrains.annotations.*;
-
 import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
-import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.*;
-import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.BUTTON_POP_DOWN;
+import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.BUTTON_POP_UP;
+import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_SLIDER;
+import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.BUTTON_TAB;
 
 /**
 
@@ -40,7 +32,7 @@ import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.*;
 public class BigSurOutliner
   extends YosemiteOutliner
 {
-    public BigSurOutliner(@NotNull BigSurLayoutInfo uiLayout)
+    public BigSurOutliner(@NotNull LayoutInfo_11 uiLayout)
     {
         super(uiLayout);
     }

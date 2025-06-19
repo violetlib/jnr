@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Alan Snyder.
+ * Copyright (c) 2021-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,24 +8,25 @@
 
 package org.violetlib.jnr.aqua.impl;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.aqua.ButtonLayoutConfiguration;
 import org.violetlib.jnr.impl.BasicLayoutInfo;
 import org.violetlib.jnr.impl.Insetters;
 
-import org.jetbrains.annotations.*;
-
-import static org.violetlib.jnr.aqua.AquaUIPainter.*;
-import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
-import static org.violetlib.jnr.impl.JNRUtils.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget;
+import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.BUTTON_BEVEL_ROUND;
+import static org.violetlib.jnr.aqua.AquaUIPainter.Size;
+import static org.violetlib.jnr.impl.JNRUtils.size;
 
 /**
-
+  Layout info for macOS 12–14 widgets.
 */
 
-public class MontereyLayoutInfo
-  extends BigSurLayoutInfo
+public class LayoutInfo_12
+  extends LayoutInfo_11
 {
     @Override
     protected @NotNull LayoutInfo getButtonLayoutInfo(@NotNull ButtonLayoutConfiguration g)

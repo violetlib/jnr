@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020 Alan Snyder.
+ * Copyright (c) 2016-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,38 +8,28 @@
 
 package org.violetlib.jnr.aqua.impl;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
-import org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.ComboBoxWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.Position;
-import org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.Size;
-import org.violetlib.jnr.aqua.AquaUIPainter.TextFieldWidget;
-import org.violetlib.jnr.aqua.ButtonLayoutConfiguration;
-import org.violetlib.jnr.aqua.ComboBoxLayoutConfiguration;
-import org.violetlib.jnr.aqua.PopupButtonLayoutConfiguration;
-import org.violetlib.jnr.aqua.SegmentedButtonLayoutConfiguration;
-import org.violetlib.jnr.aqua.TextFieldLayoutConfiguration;
-import org.violetlib.jnr.aqua.ToolBarItemWellLayoutConfiguration;
+import org.violetlib.jnr.aqua.AquaUIPainter.*;
+import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.impl.BasicLayoutInfo;
 import org.violetlib.jnr.impl.Insetters;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
 
-import org.jetbrains.annotations.*;
-
 import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
-import static org.violetlib.jnr.impl.JNRUtils.*;
+import static org.violetlib.jnr.impl.JNRUtils.size;
+import static org.violetlib.jnr.impl.JNRUtils.size2D;
 
 /**
   Layout information for OS 10.11 widgets.
 */
 
-public class ElCapitanLayoutInfo
-  extends YosemiteLayoutInfo
+public class LayoutInfo_10_11
+  extends LayoutInfo10_10
 {
-    public ElCapitanLayoutInfo()
+    public LayoutInfo_10_11()
     {
     }
 

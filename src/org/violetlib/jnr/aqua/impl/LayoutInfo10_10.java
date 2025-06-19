@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,39 +8,30 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.geom.LinearBounds;
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.aqua.*;
-import org.violetlib.jnr.impl.BasicLayoutInfo;
-import org.violetlib.jnr.impl.CenteredInsetter1;
-import org.violetlib.jnr.impl.CombinedInsetter;
-import org.violetlib.jnr.impl.DynamicInsetter1;
-import org.violetlib.jnr.impl.FixedInsetter1;
-import org.violetlib.jnr.impl.FloatingInsetter1;
-import org.violetlib.jnr.impl.Insetter1;
-import org.violetlib.jnr.impl.Insetters;
-import org.violetlib.jnr.impl.JNRUtils;
+import org.violetlib.jnr.impl.*;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 
 import static org.violetlib.jnr.aqua.AquaUIPainter.*;
 import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
-import static org.violetlib.jnr.impl.JNRUtils.*;
+import static org.violetlib.jnr.impl.JNRUtils.size;
+import static org.violetlib.jnr.impl.JNRUtils.size2D;
 
 /**
   Layout information for OS 10.10 widgets.
 */
 
-public class YosemiteLayoutInfo
+public class LayoutInfo10_10
   extends AquaUILayoutInfo
 {
-    public YosemiteLayoutInfo()
+    public LayoutInfo10_10()
     {
     }
 

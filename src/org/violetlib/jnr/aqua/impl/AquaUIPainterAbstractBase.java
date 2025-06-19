@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,26 +8,18 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
-import java.util.Map;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
-import org.violetlib.jnr.aqua.AquaUILayoutInfo;
-import org.violetlib.jnr.aqua.AquaUIPainter;
-import org.violetlib.jnr.aqua.ComboBoxLayoutConfiguration;
-import org.violetlib.jnr.aqua.PopupButtonLayoutConfiguration;
-import org.violetlib.jnr.aqua.ScrollBarThumbConfiguration;
-import org.violetlib.jnr.aqua.ScrollBarThumbLayoutConfiguration;
-import org.violetlib.jnr.aqua.SliderLayoutConfiguration;
+import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.impl.Colors;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.vappearances.VAppearance;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.util.Map;
 
 /**
   An abstract base class containing common code that supports layout but not rendering.
@@ -64,23 +56,35 @@ public abstract class AquaUIPainterAbstractBase
     protected static @NotNull AquaUILayoutInfo createLayout()
     {
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
-        if (platformVersion >= 120000) {
-            return new MontereyLayoutInfo();
-        } else if (platformVersion >= 101600) {
-            return new BigSurLayoutInfo();
-        } else if (platformVersion >= 101100) {
-            return new ElCapitanLayoutInfo();
-        } else {
-            return new YosemiteLayoutInfo();
+        if (platformVersion >= 260000) {
+            int version = AquaUIPainterBase.internalGetSegmentedButtonRenderingVersion();
+            if (version == AquaUIPainterBase.SEGMENTED_26_OLD) {
+                return new LayoutInfo_26old();
+            }
+            return new LayoutInfo_26();
         }
+        if (platformVersion >= 150000) {
+            return new LayoutInfo_15();
+        }
+        if (platformVersion >= 120000) {
+            return new LayoutInfo_12();
+        }
+        if (platformVersion >= 101600) {
+            return new LayoutInfo_11();
+        }
+        if (platformVersion >= 101100) {
+            return new LayoutInfo_10_11();
+        }
+            return new LayoutInfo10_10();
+
     }
 
     protected static @NotNull UIOutliner createOutliner(@NotNull AquaUILayoutInfo uiLayout)
     {
         int platformVersion = JNRPlatformUtils.getPlatformVersion();
         return platformVersion >= 101600
-                 ? new BigSurOutliner((BigSurLayoutInfo) uiLayout)
-                 : new YosemiteOutliner((YosemiteLayoutInfo) uiLayout);
+                 ? new BigSurOutliner((LayoutInfo_11) uiLayout)
+                 : new YosemiteOutliner((LayoutInfo10_10) uiLayout);
     }
 
     protected AquaUIPainterAbstractBase()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,14 +8,14 @@
 
 package org.violetlib.jnr.aqua.impl;
 
+import org.jetbrains.annotations.NotNull;
+import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.SegmentedButtonLayoutConfiguration;
 
-import org.jetbrains.annotations.*;
-
 import static org.violetlib.jnr.aqua.AquaUIPainter.*;
-import static org.violetlib.jnr.aqua.impl.SegmentedControl4LayoutInfo.*;
+import static org.violetlib.jnr.aqua.impl.SegmentedControl4LayoutInfo.DividerPosition;
 import static org.violetlib.jnr.aqua.impl.SegmentedControl4LayoutInfo.DividerPosition.*;
-import static org.violetlib.jnr.impl.JNRUtils.*;
+import static org.violetlib.jnr.impl.JNRUtils.size2D;
 
 /**
   Data for NSView based rendering of segmented controls.
@@ -40,6 +40,12 @@ public class SegmentedControlDescriptions
             return getInsets10_14old(g, scale);
         } else if (version == AquaUIPainterBase.SEGMENTED_11_0) {
             return getInsets11(g, scale);
+        } else if (version == AquaUIPainterBase.SEGMENTED_15) {
+            return getInsets15(g, scale);
+        } else if (version == AquaUIPainterBase.SEGMENTED_26_OLD) {
+            return getInsets26old(g, scale);
+        } else if (version == AquaUIPainterBase.SEGMENTED_26) {
+            return getInsets26(g, scale);
         }
         throw new UnsupportedOperationException();
     }
@@ -432,7 +438,6 @@ public class SegmentedControlDescriptions
 
         SegmentedButtonWidget bw = g.getWidget();
         Size sz = g.getSize();
-//        Position position = g.getPosition();
 
         double left = 0;
         double top;
@@ -444,23 +449,9 @@ public class SegmentedControlDescriptions
             case BUTTON_SEGMENTED_SLIDER:
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
-
                 left = size2D(sz, 5, 2, 2, 1);
-
-//                if (position == ONLY) {
-//                    left = size2D(sz, 1, 1, 1);
-//                } else if (position == MIDDLE || position == LAST) {
-//                    left = 0;
-//                }
-
                 top = size2D(sz, 5, 1, 1, 0);
                 ha = size2D(sz, 5, 1, 1, 0);
-
-//                if (position == FIRST || position == LAST) {
-//                    wa = size2D(sz, 4, 4, 2);
-//                } else if (position == ONLY) {
-//                    wa = size2D(sz, 5, 5, 7);
-//                }
                 break;
 
             case BUTTON_SEGMENTED_SEPARATED:
@@ -506,6 +497,88 @@ public class SegmentedControlDescriptions
         return createRenderInsets(left, top, left * 2, ha, scale);
     }
 
+    protected @NotNull RenderInsets getInsets15(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    {
+        // Renderer descriptions for macOS 15 rendering
+
+        SegmentedButtonWidget bw = g.getWidget();
+        Size sz = g.getSize();
+
+        double left = 0;
+        double top;
+        double ha;
+        double wa;
+
+        switch (bw) {
+            case BUTTON_TAB:
+            case BUTTON_SEGMENTED:
+            case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
+            case BUTTON_SEGMENTED_SEPARATED:
+                left = size2D(sz, 5, 2, 2, 1);
+                top = size2D(sz, 5, 1, 1, 0);
+                ha = size2D(sz, 5, 1, 1, 0);
+                wa = left * 2;
+                break;
+
+            case BUTTON_SEGMENTED_INSET:
+                left = 1;
+                top = size2D(sz, 11, 3, 2, 1);
+                ha = size2D(sz, 11, 3, 2, 1);
+                wa = left * 2;
+                break;
+
+            case BUTTON_SEGMENTED_SMALL_SQUARE:
+                top = size2D(sz, 9, 1, 1, 0);
+                ha = size2D(sz, 9, 1, 1, 0);
+                wa = left * 2;
+                break;
+
+            case BUTTON_SEGMENTED_TEXTURED:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
+            case BUTTON_SEGMENTED_SCURVE:
+                left = size2D(sz, 1, 1, 1, 1);
+                top = size2D(sz, 9, 1, 2, 1);
+                ha = size2D(sz, 9, 1, 2, 1);
+                wa = size2D(sz, 12, 2, 2, 2);
+                break;
+
+            case BUTTON_SEGMENTED_TOOLBAR:
+                left = size2D(sz, 5, 2, 2, 1);
+                top = size2D(sz, 5, 1, 1, 0);
+                ha = size2D(sz, 11, 1, 2, 1);
+                wa = size2D(sz, 12, 4, 4, 2);
+
+                if (g.getPosition() == AquaUIPainter.Position.ONLY) {
+                    // This is probably a bug in AppKit
+                    left = size2D(sz, 1, 1, 1, 1);
+                    top = size2D(sz, 9, 1, 2, 1);
+                }
+
+                break;
+
+            default:
+                throw new UnsupportedOperationException();
+        }
+
+        return createRenderInsets(left, top, wa, ha, scale);
+    }
+
+    protected @NotNull RenderInsets getInsets26old(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    {
+        return getInsets15(g, scale);  // placeholder
+    }
+
+    protected @NotNull RenderInsets getInsets26(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    {
+        return getInsets15(g, scale);  // placeholder
+    }
+
     public static @NotNull RenderInsets createRenderInsets(double left, double top, double wa, double ha, int scale)
     {
         return new RenderInsets(round((float) left, scale), round((float) top, scale), wa, ha);
@@ -534,47 +607,121 @@ public class SegmentedControlDescriptions
         float divider = layout.dividerVisualWidth;
         float first = layout.firstSegmentWidthAdjustment;
         float last = layout.lastSegmentWidthAdjustment;
-        float adjustment = first + last - divider;
+        float adjustment = getSegment1WidthAdjustment(g, scale, first + last - divider);
+        return new SegmentedControl1LayoutInfo(adjustment);
+    }
 
+    public float getSegment1WidthAdjustment(@NotNull SegmentedButtonLayoutConfiguration g,
+                                            int scale,
+                                            float defaultValue)
+    {
         int version = AquaUIPainterBase.internalGetSegmentedButtonRenderingVersion();
         if (version == AquaUIPainterBase.SEGMENTED_11_0) {
-            SegmentedButtonWidget bw = g.getWidget();
-            Size sz = g.getSize();
-            switch (bw) {
-                case BUTTON_TAB:
-                case BUTTON_SEGMENTED:
-                case BUTTON_SEGMENTED_SEPARATED:
-                case BUTTON_SEGMENTED_SLIDER:
-                case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
-                case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
-                    adjustment = size2D(sz, 12, 2, 2, 4);
-                    if (scale == 2) {
-                        adjustment += 0.5;
-                    }
-                    break;
-
-                case BUTTON_SEGMENTED_INSET:
-                case BUTTON_SEGMENTED_SMALL_SQUARE:
-                    adjustment = 2;
-                    break;
-
-                case BUTTON_SEGMENTED_TEXTURED:
-                case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
-                case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
-                case BUTTON_SEGMENTED_TOOLBAR:
-                case BUTTON_SEGMENTED_SCURVE:
-                    adjustment = 4;
-                    break;
-
-                case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-                case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-                case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
-                    adjustment = 6;
-                    break;
-            }
+            return getSegment1WidthAdjustment_11(g, scale, defaultValue);
         }
+        if (version == AquaUIPainterBase.SEGMENTED_15) {
+            return getSegment1WidthAdjustment_15(g, scale, defaultValue);
+        }
+        if (version == AquaUIPainterBase.SEGMENTED_26_OLD) {
+            return getSegment1WidthAdjustment_26old(g, scale, defaultValue);
+        }
+        if (version == AquaUIPainterBase.SEGMENTED_26) {
+            return getSegment1WidthAdjustment_26(g, scale, defaultValue);
+        }
+        return defaultValue;
+    }
 
-        return new SegmentedControl1LayoutInfo(adjustment);
+    public float getSegment1WidthAdjustment_11(@NotNull SegmentedButtonLayoutConfiguration g,
+                                               int scale,
+                                               float defaultValue)
+    {
+        SegmentedButtonWidget bw = g.getWidget();
+        Size sz = g.getSize();
+        switch (bw) {
+            case BUTTON_TAB:
+            case BUTTON_SEGMENTED:
+            case BUTTON_SEGMENTED_SEPARATED:
+            case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
+            {
+                float adjustment = size2D(sz, 12, 2, 2, 4);
+                if (scale == 2) {
+                    adjustment += 0.5f;
+                }
+                return adjustment;
+            }
+
+            case BUTTON_SEGMENTED_INSET:
+            case BUTTON_SEGMENTED_SMALL_SQUARE:
+                return 2;
+
+            case BUTTON_SEGMENTED_TEXTURED:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
+            case BUTTON_SEGMENTED_TOOLBAR:
+            case BUTTON_SEGMENTED_SCURVE:
+                return 4;
+
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
+                return 6;
+        }
+        return defaultValue;
+    }
+
+    public float getSegment1WidthAdjustment_15(@NotNull SegmentedButtonLayoutConfiguration g,
+                                               int scale,
+                                               float defaultValue)
+    {
+        SegmentedButtonWidget bw = g.getWidget();
+        Size sz = g.getSize();
+        switch (bw) {
+            case BUTTON_TAB:
+            case BUTTON_SEGMENTED:
+            case BUTTON_SEGMENTED_SEPARATED:
+            case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
+            {
+                float adjustment = size2D(sz, 12, 2, 2, 4);
+                if (scale == 2) {
+                    adjustment += 0.5f;
+                }
+                return adjustment;
+            }
+
+            case BUTTON_SEGMENTED_INSET:
+            case BUTTON_SEGMENTED_SMALL_SQUARE:
+                return 2;
+
+            case BUTTON_SEGMENTED_TEXTURED:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
+            case BUTTON_SEGMENTED_TOOLBAR:
+            case BUTTON_SEGMENTED_SCURVE:
+                return 4;
+
+        }
+        return defaultValue;
+    }
+
+    public float getSegment1WidthAdjustment_26old(@NotNull SegmentedButtonLayoutConfiguration g,
+                                                  int scale,
+                                                  float defaultValue)
+    {
+        return getSegment1WidthAdjustment_15(g, scale, defaultValue); // placeholder
+    }
+
+    public float getSegment1WidthAdjustment_26(@NotNull SegmentedButtonLayoutConfiguration g,
+                                               int scale,
+                                               float defaultValue)
+    {
+        return getSegment1WidthAdjustment_15(g, scale, defaultValue); // placeholder
     }
 
     public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo(@NotNull SegmentedButtonLayoutConfiguration g,
@@ -595,6 +742,12 @@ public class SegmentedControlDescriptions
             return getSegment4LayoutInfo10_14old(g, scale);
         } else if (version == AquaUIPainterBase.SEGMENTED_11_0) {
             return getSegment4LayoutInfo11(g, scale);
+        } else if (version == AquaUIPainterBase.SEGMENTED_15) {
+            return getSegment4LayoutInfo15(g, scale);
+        } else if (version == AquaUIPainterBase.SEGMENTED_26_OLD) {
+            return getSegment4LayoutInfo26old(g, scale);
+        } else if (version == AquaUIPainterBase.SEGMENTED_26) {
+            return getSegment4LayoutInfo26(g, scale);
         }
         throw new UnsupportedOperationException();
     }
@@ -1029,5 +1182,73 @@ public class SegmentedControlDescriptions
         }
 
         return new SegmentedControl4LayoutInfo(LEFT, dividerVisualWidth, first, middle, last);
+    }
+
+    public @NotNull SegmentedControl4LayoutInfo getSegment4LayoutInfo15(@NotNull SegmentedButtonLayoutConfiguration g,
+                                                                        int scale)
+    {
+        Size sz = g.getSize();
+
+        double dividerVisualWidth = 1;
+        double first = 0;
+        double middle = 0;
+        double last = 0;
+
+        SegmentedButtonWidget bw = g.getWidget();
+
+        switch (bw) {
+            case BUTTON_TAB:
+            case BUTTON_SEGMENTED:
+            case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
+            case BUTTON_SEGMENTED_TOOLBAR:
+                first = size2D(sz, 13, 3, 3, 5);
+                middle = size2D(sz, 13, 3, 3, 5);
+                last = size2D(sz, 12, 2, 2, 4);
+                break;
+
+            case BUTTON_SEGMENTED_SEPARATED:
+                first = size2D(sz, 12, 2, 2, 4);
+                middle = size2D(sz, 11, 1, 1, 3);
+                last = size2D(sz, 11, 1, 1, 3);
+                break;
+
+            case BUTTON_SEGMENTED_INSET:
+            case BUTTON_SEGMENTED_SMALL_SQUARE:
+                first = 3;
+                middle = 3;
+                last = 2;
+                break;
+
+            case BUTTON_SEGMENTED_TEXTURED:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
+            case BUTTON_SEGMENTED_SCURVE:
+                first = size2D(sz, 5, 5, 5, 5);
+                middle = size2D(sz, 5, 5, 5, 5);
+                last = size2D(sz, 4, 4, 4, 4);
+                break;
+
+            default:
+                throw new UnsupportedOperationException();
+        }
+
+        return new SegmentedControl4LayoutInfo(LEFT, dividerVisualWidth, first, middle, last);
+    }
+
+    public @NotNull SegmentedControl4LayoutInfo
+    getSegment4LayoutInfo26old(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    {
+        return getSegment4LayoutInfo11(g, scale); // placeholder
+    }
+
+    public @NotNull SegmentedControl4LayoutInfo
+    getSegment4LayoutInfo26(@NotNull SegmentedButtonLayoutConfiguration g, int scale)
+    {
+        return getSegment4LayoutInfo11(g, scale); // placeholder
     }
 }

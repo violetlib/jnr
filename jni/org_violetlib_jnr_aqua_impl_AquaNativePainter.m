@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -841,6 +841,9 @@ static const int SEGMENTED_10_13 = 3;           // a unique rendering on macOS 1
 static const int SEGMENTED_10_14_OLD = 4;       // rendering on macOS 10.14 that is similar to 10.11, used when linked against an old SDK
 static const int SEGMENTED_10_14 = 5;           // rendering on macOS 10.14, when linked against SDK 10.11 or later
 static const int SEGMENTED_11_0 = 6;            // rendering on macOS 11.0, when linked against SDK 11.0 or later
+static const int SEGMENTED_15 = 7;              // rendering on macOS 15
+static const int SEGMENTED_26_OLD = 8;          // rendering on macOS 26, when linked against an older SDK
+static const int SEGMENTED_26 = 9;              // rendering on macOS 26, when linked against SDK 26
 
 // Note that 11.0 was originally known as 10.16.
 
@@ -889,8 +892,15 @@ static int setupSegmented()
         } else {
             segmentedVersion = SEGMENTED_10_14;
         }
-    } else {
+    } else if (osVersion < 150000) {
         segmentedVersion = SEGMENTED_11_0;
+    } else if (osVersion < 160000) {
+        segmentedVersion = SEGMENTED_15;
+    } else {
+        NSTextField *t = [[NSTextField alloc] init];
+        [t setControlSize: NSControlSizeLarge];
+        NSSize size = t.intrinsicContentSize;
+        segmentedVersion = size.height >= 24 ? SEGMENTED_26 : SEGMENTED_26_OLD;
     }
 
     return segmentedVersion;
