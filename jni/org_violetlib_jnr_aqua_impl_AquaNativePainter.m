@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -399,10 +399,8 @@ static void installContentView(NSView *view, BOOL inToolbar)
 {
     [currentWindow setToolbar: inToolbar];
     [currentWindow setView: view];
-    if (view) {
-        currentWindow.appearance = configuredAppearance;
-        [currentWindow displayIfNeeded];
-    }
+    currentWindow.appearance = configuredAppearance;
+    [currentWindow displayIfNeeded];
 }
 
 static void ensureWindowSize(float width, float height)
@@ -2066,13 +2064,14 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
     performGraphics(env, data, rw, rh, w, h, ^(NSGraphicsContext *gc){
         NSRect frameRect = NSMakeRect(0, 0, w, h);
-        installContentView(nil, NO);
 
         isActive = state == ActiveState;    // only Active and Inactive are supported
 
         NSWindow *window = type == 0 ? fakeDocumentWindow : myPanel;
         [window setFrame: frameRect display:NO];
         [window setDocumentEdited: isDirty];
+        window.appearance = configuredAppearance;
+        [window displayIfNeeded];
 
         // Surprisingly, when highlighted, the buttons also paint the icons.
 
