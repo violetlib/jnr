@@ -271,7 +271,8 @@ public class GeneralRoundRectangle extends RectangularShape implements Expandabl
         double blawH = Math.min(width, Math.abs(blaw)) / 2.0;
         double blahH = Math.min(height, Math.abs(blah)) / 2.0;
 
-        // If the query rect extends into the horizontal or vertical middle band, it definitely intersects
+        // Fast path: if the query rect extends into the horizontal or vertical middle band,
+        // it definitely intersects. The middle band is the region clear of all corner arcs.
         double leftMax = Math.max(tlawH, blawH);
         double rightMax = Math.max(trawH, brawH);
         double topMax = Math.max(tlahH, trahH);
@@ -284,41 +285,80 @@ public class GeneralRoundRectangle extends RectangularShape implements Expandabl
             return true;
         }
 
-        // The query rect is confined to corner zones. Check each relevant corner.
-        double rx0 = x;
-        double ry0 = y;
-        double rx1 = x + w;
-        double ry1 = y + h;
+        // Clip query rect to the bounding rect for corner zone checks.
+        double cx0 = Math.max(x, x0);
+        double cy0 = Math.max(y, y0);
+        double cx1 = Math.min(x + w, x1);
+        double cy1 = Math.min(y + h, y1);
 
-        // Top-left corner
-        if (rx0 < x0 + tlawH && ry0 < y0 + tlahH && tlawH > 0 && tlahH > 0) {
-            if (cornerIntersects(x0, y0, tlawH, tlahH, rx0, ry0, rx1, ry1, 1, 1)) {
+        // Check each corner. If the clipped rect overlaps a corner zone with a non-zero arc,
+        // test whether the rect reaches the elliptical arc. Sharp corners (arc=0) have a
+        // zero-size zone, so they are never entered — this is correct because a sharp corner
+        // cuts no area from the bounding rect.
+        boolean anyMiss = false;
+
+        if (cx0 < x0 + tlawH && cy0 < y0 + tlahH && tlawH > 0 && tlahH > 0) {
+            if (cornerIntersects(x0, y0, tlawH, tlahH, cx0, cy0, cx1, cy1, 1, 1)) {
                 return true;
             }
+            anyMiss = true;
         }
 
-        // Top-right corner
-        if (rx1 > x1 - trawH && ry0 < y0 + trahH && trawH > 0 && trahH > 0) {
-            if (cornerIntersects(x1, y0, trawH, trahH, rx0, ry0, rx1, ry1, -1, 1)) {
+        if (cx1 > x1 - trawH && cy0 < y0 + trahH && trawH > 0 && trahH > 0) {
+            if (cornerIntersects(x1, y0, trawH, trahH, cx0, cy0, cx1, cy1, -1, 1)) {
                 return true;
             }
+            anyMiss = true;
         }
 
-        // Bottom-right corner
-        if (rx1 > x1 - brawH && ry1 > y1 - brahH && brawH > 0 && brahH > 0) {
-            if (cornerIntersects(x1, y1, brawH, brahH, rx0, ry0, rx1, ry1, -1, -1)) {
+        if (cx1 > x1 - brawH && cy1 > y1 - brahH && brawH > 0 && brahH > 0) {
+            if (cornerIntersects(x1, y1, brawH, brahH, cx0, cy0, cx1, cy1, -1, -1)) {
                 return true;
             }
+            anyMiss = true;
         }
 
-        // Bottom-left corner
-        if (rx0 < x0 + blawH && ry1 > y1 - blahH && blawH > 0 && blahH > 0) {
-            if (cornerIntersects(x0, y1, blawH, blahH, rx0, ry0, rx1, ry1, 1, -1)) {
+        if (cx0 < x0 + blawH && cy1 > y1 - blahH && blawH > 0 && blahH > 0) {
+            if (cornerIntersects(x0, y1, blawH, blahH, cx0, cy0, cx1, cy1, 1, -1)) {
                 return true;
             }
+            anyMiss = true;
         }
 
-        return false;
+        // If no corner zones were overlapped, the clipped rect is entirely in the body.
+        if (!anyMiss) {
+            return true;
+        }
+
+        // The clipped rect missed one or more corner ellipses. It may still intersect if
+        // part of the rect extends beyond those corner zones into the body. Check whether
+        // the center of the clipped rect is inside the shape.
+        double midX = (cx0 + cx1) / 2;
+        double midY = (cy0 + cy1) / 2;
+
+        if (tlawH > 0 && tlahH > 0 && midX < x0 + tlawH && midY < y0 + tlahH) {
+            double nx = (midX - (x0 + tlawH)) / tlawH;
+            double ny = (midY - (y0 + tlahH)) / tlahH;
+            return nx * nx + ny * ny <= 1.0;
+        }
+        if (trawH > 0 && trahH > 0 && midX > x1 - trawH && midY < y0 + trahH) {
+            double nx = (midX - (x1 - trawH)) / trawH;
+            double ny = (midY - (y0 + trahH)) / trahH;
+            return nx * nx + ny * ny <= 1.0;
+        }
+        if (brawH > 0 && brahH > 0 && midX > x1 - brawH && midY > y1 - brahH) {
+            double nx = (midX - (x1 - brawH)) / brawH;
+            double ny = (midY - (y1 - brahH)) / brahH;
+            return nx * nx + ny * ny <= 1.0;
+        }
+        if (blawH > 0 && blahH > 0 && midX < x0 + blawH && midY > y1 - blahH) {
+            double nx = (midX - (x0 + blawH)) / blawH;
+            double ny = (midY - (y1 - blahH)) / blahH;
+            return nx * nx + ny * ny <= 1.0;
+        }
+
+        // Center is not in any corner zone — it's in the body.
+        return true;
     }
 
     public boolean contains(double x, double y, double w, double h) {
