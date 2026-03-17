@@ -274,7 +274,7 @@ public class LayoutInfo_11
     public @NotNull Insetter getPopupButtonContentInsets(@NotNull PopupButtonLayoutConfiguration g)
     {
         PopupButtonWidget bw = g.getPopupButtonWidget();
-        if (bw == BUTTON_POP_UP || bw == BUTTON_POP_DOWN | bw == BUTTON_POP_UP_TEXTURED | bw == BUTTON_POP_DOWN_TEXTURED) {
+        if (bw == BUTTON_POP_UP || bw == BUTTON_POP_DOWN || bw == BUTTON_POP_UP_TEXTURED || bw == BUTTON_POP_DOWN_TEXTURED) {
             Size sz = g.getSize();
             float top = 1;
             float bottom = 1;
