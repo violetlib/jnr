@@ -17,6 +17,7 @@ import org.violetlib.jnr.impl.*;
 
 import java.awt.geom.Rectangle2D;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -778,11 +779,11 @@ public class CoreUIPainter
               PRESENTATION_STATE_KEY, toPresentationState(st),
               USER_INTERFACE_LAYOUT_DIRECTION_KEY, toLayoutDirection(ld));
         } else {
-            List<Object> parameters = Arrays.asList(WIDGET_KEY, widget,
+            List<Object> parameters = new ArrayList<>(Arrays.asList(WIDGET_KEY, widget,
               SIZE_KEY, toSize(sz),
               STATE_KEY, toState(st),
               PRESENTATION_STATE_KEY, toPresentationState(st),
-              USER_INTERFACE_LAYOUT_DIRECTION_KEY, toLayoutDirection(ld));
+              USER_INTERFACE_LAYOUT_DIRECTION_KEY, toLayoutDirection(ld)));
             parameters.addAll(extraParameters);
             r = getRenderer(parameters.toArray());
         }
