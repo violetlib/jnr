@@ -28,7 +28,7 @@ import org.jetbrains.annotations.*;
 
 public class AquaNativeRendering
 {
-    private static boolean isInitialized;
+    private static volatile boolean isInitialized;
 
     private static @Nullable AquaUIPainter preferredPainter;
 
@@ -100,9 +100,8 @@ public class AquaNativeRendering
 
     private static @NotNull String getStringResource(@NotNull String name)
     {
-        InputStream s = AquaNativeRendering.class.getResourceAsStream(name);
-        if (s != null) {
-            try {
+        try (InputStream s = AquaNativeRendering.class.getResourceAsStream(name)) {
+            if (s != null) {
                 BufferedReader r = new BufferedReader(new InputStreamReader(s));
                 StringBuilder sb = new StringBuilder();
                 for (; ; ) {
@@ -113,8 +112,8 @@ public class AquaNativeRendering
                     sb.append((char) ch);
                 }
                 return sb.toString();
-            } catch (IOException ex) {
             }
+        } catch (IOException ex) {
         }
 
         return "Unknown";
@@ -125,8 +124,6 @@ public class AquaNativeRendering
         if (isInitialized) {
             return;
         }
-
-        isInitialized = true;
 
         AquaUIPainter viewPainter;
         AquaUIPainter coreUIPainter;
@@ -171,6 +168,8 @@ public class AquaNativeRendering
             debug("Using JRS painter as preferred painter");
             preferredPainter = jrsPainter;  // last because it has the most limitations
         }
+
+        isInitialized = true;
     }
 
     protected static void debug(@NotNull String s)
