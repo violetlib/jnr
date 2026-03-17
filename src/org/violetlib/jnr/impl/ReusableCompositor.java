@@ -248,6 +248,7 @@ public class ReusableCompositor
         this.rasterWidth = rasterWidth;
         this.rasterHeight = rasterHeight;
         this.scaleFactor = scaleFactor;
+        isConfigured = false;
         isEmpty = true;
     }
 
