@@ -65,13 +65,13 @@ public class ScrollBarThumbLayoutConfiguration
             return false;
         }
         ScrollBarThumbLayoutConfiguration that = (ScrollBarThumbLayoutConfiguration) o;
-        return value == that.value;
+        return value == that.value && Float.compare(thumbExtent, that.thumbExtent) == 0;
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(super.hashCode(), value);
+        return Objects.hash(super.hashCode(), value, thumbExtent);
     }
 
     @Override
