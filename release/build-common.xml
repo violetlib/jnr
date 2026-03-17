@@ -36,6 +36,9 @@
   <property name="distdir" location="dist"/>
   <property name="debug" value="false"/>
   <property name="libdir" location="${base}/lib"/>
+  <property name="testsrc" location="${base}/test"/>
+  <property name="testlibdir" location="${base}/lib/test"/>
+  <property name="testclassesdir" location="${builddir}/test-classes"/>
   <property name="jnuheadersdir" value="${jnisrc}"/>
   <property name="debug" value="false"/>
   <property name="debugoption" value=""/>
@@ -79,6 +82,31 @@
       <framework>JavaRuntimeSupport</framework>
       <framework>QuartzCore</framework>
     </jni>
+  </target>
+
+  <target name="test" depends="build">
+    <mkdir dir="${testclassesdir}"/>
+    <javac srcdir="${testsrc}" destdir="${testclassesdir}"
+           source="8" target="8"
+           includeantruntime="false">
+      <classpath>
+        <pathelement location="${classesdir}"/>
+        <fileset dir="${distdir}" includes="*.jar"/>
+        <fileset dir="${testlibdir}" includes="*.jar"/>
+      </classpath>
+    </javac>
+    <junit printsummary="yes" haltonfailure="yes" fork="yes">
+      <classpath>
+        <pathelement location="${testclassesdir}"/>
+        <pathelement location="${classesdir}"/>
+        <fileset dir="${distdir}" includes="*.jar"/>
+        <fileset dir="${testlibdir}" includes="*.jar"/>
+      </classpath>
+      <formatter type="plain" usefile="false"/>
+      <batchtest>
+        <fileset dir="${testsrc}" includes="**/*Test.java"/>
+      </batchtest>
+    </junit>
   </target>
 
   <target name="build" depends="clean, saveIDs">
