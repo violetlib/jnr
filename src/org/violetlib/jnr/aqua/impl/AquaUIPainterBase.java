@@ -146,10 +146,19 @@ public abstract class AquaUIPainterBase
     public @NotNull Painter getPainter(@NotNull Configuration g)
       throws UnsupportedOperationException
     {
-        LayoutInfo layoutInfo = uiLayout.getLayoutInfo((LayoutConfiguration) g);
-        Renderer r = getRenderer(g);
-        Painter p = getPainter(layoutInfo, g, r);
-        return customizePainter(p, g, layoutInfo);
+        // Save and restore w/h because getRenderer may adjust them (see getSliderRenderer)
+        // and those adjustments must not leak beyond this call.
+        int savedW = w;
+        int savedH = h;
+        try {
+            LayoutInfo layoutInfo = uiLayout.getLayoutInfo((LayoutConfiguration) g);
+            Renderer r = getRenderer(g);
+            Painter p = getPainter(layoutInfo, g, r);
+            return customizePainter(p, g, layoutInfo);
+        } finally {
+            w = savedW;
+            h = savedH;
+        }
     }
 
     protected @NotNull Painter customizePainter(@NotNull Painter p, @NotNull Configuration g, @NotNull LayoutInfo layoutInfo)
