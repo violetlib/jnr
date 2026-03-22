@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -23,8 +23,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.violetlib.jnr.aqua.impl.AquaNativePainter.nativeDetermineSliderRenderingVersion;
-import static org.violetlib.jnr.aqua.impl.AquaNativeSegmentedControlPainter.nativeDetermineSegmentedButtonRenderingVersion;
+import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED;
+import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED;
 import static org.violetlib.jnr.impl.JNRUtils.size;
 import static org.violetlib.jnr.impl.JNRUtils.size2D;
 
@@ -70,62 +70,6 @@ public abstract class AquaUIPainterBase
         this.rendererDescriptions = rds;
     }
 
-    private static int cachedSegmentedButtonRenderingVersion = -2;
-    private static int cachedSliderRenderingVersion = -2;
-
-    /**
-      Identify the version of the native rendering of segmented controls.
-
-      @return the version, or -1 if this information is unavailable.
-    */
-
-    public static int internalGetSegmentedButtonRenderingVersion()
-    {
-        if (cachedSegmentedButtonRenderingVersion >= -1) {
-            return cachedSegmentedButtonRenderingVersion;
-        }
-
-        cachedSegmentedButtonRenderingVersion = nativeDetermineSegmentedButtonRenderingVersion();
-        return cachedSegmentedButtonRenderingVersion;
-    }
-
-    /**
-      Identify the version of the native rendering of segmented controls.
-
-      @return the version, or -1 if this information is unavailable.
-    */
-
-    public int getSegmentedButtonRenderingVersion()
-    {
-        return internalGetSegmentedButtonRenderingVersion();
-    }
-
-    /**
-      Identify the version of the native rendering of sliders.
-
-      @return the version, or -1 if this information is unavailable.
-    */
-
-    public static int internalGetSliderRenderingVersion()
-    {
-        if (cachedSliderRenderingVersion >= -1) {
-            return cachedSliderRenderingVersion;
-        }
-
-        cachedSliderRenderingVersion = nativeDetermineSliderRenderingVersion();
-        return cachedSliderRenderingVersion;
-    }
-
-    /**
-      Identify the version of the native rendering of sliders.
-
-      @return the version, or -1 if this information is unavailable.
-    */
-
-    public int getSliderRenderingVersion()
-    {
-        return internalGetSliderRenderingVersion();
-    }
 
     @Override
     public @Nullable Shape getOutline(@NotNull LayoutConfiguration g)
@@ -146,13 +90,22 @@ public abstract class AquaUIPainterBase
     public @NotNull Painter getPainter(@NotNull Configuration g)
       throws UnsupportedOperationException
     {
+        return getPainter(g, null);
+    }
+
+    @Override
+    public @NotNull Painter getPainter(@NotNull Configuration g, @Nullable RendererDescription rd)
+      throws UnsupportedOperationException
+    {
         LayoutInfo layoutInfo = uiLayout.getLayoutInfo((LayoutConfiguration) g);
-        Renderer r = getRenderer(g);
+        Renderer r = getRenderer(g, rd);
         Painter p = getPainter(layoutInfo, g, r);
         return customizePainter(p, g, layoutInfo);
     }
 
-    protected @NotNull Painter customizePainter(@NotNull Painter p, @NotNull Configuration g, @NotNull LayoutInfo layoutInfo)
+    protected @NotNull Painter customizePainter(@NotNull Painter p,
+                                                @NotNull Configuration g,
+                                                @NotNull LayoutInfo layoutInfo)
     {
         if (g instanceof SliderConfiguration) {
             SliderConfiguration sg = (SliderConfiguration) g;
@@ -165,8 +118,40 @@ public abstract class AquaUIPainterBase
     // public to support evaluation
     public @NotNull Renderer getRenderer(@NotNull Configuration g)
     {
+        return getRenderer(g, null);
+    }
+
+    // public to support evaluation
+    public @NotNull Renderer getRenderer(@NotNull Configuration g, @Nullable RendererDescription rd)
+    {
+        rendererDescriptions.setOverride(rd);
+
         if (g instanceof ButtonConfiguration) {
             ButtonConfiguration gg = (ButtonConfiguration) g;
+            Object w = gg.getWidget();
+            ButtonState bs = gg.getButtonState();
+            State state = gg.getState();
+            int version = AquaNativeRendering.getSystemRenderingVersion();
+
+            if (version >= 120000 && version < macOS26) {
+                // Avoid using the accent color background when inactive
+                if ((w == ButtonWidget.BUTTON_BEVEL_ROUND || w == ButtonWidget.BUTTON_ROUND)
+                  && bs == ButtonState.ON && state == State.INACTIVE) {
+                    state = State.DISABLED_INACTIVE;
+                    gg = gg.with(state);
+                }
+            }
+
+            // Textured buttons can use a "brighter" background to show the selected state.
+            if (version < macOS11) {
+                if (w == ButtonWidget.BUTTON_TEXTURED || w == ButtonWidget.BUTTON_TEXTURED_TOOLBAR) {
+                    if (bs == ButtonState.ON && state == State.ACTIVE) {
+                        state = State.ROLLOVER;
+                        gg = gg.with(state);
+                    }
+                }
+            }
+
             return getButtonRenderer(gg);
         }
 
@@ -202,6 +187,21 @@ public abstract class AquaUIPainterBase
 
         if (g instanceof SegmentedButtonConfiguration) {
             SegmentedButtonConfiguration gg = (SegmentedButtonConfiguration) g;
+
+            int version = AquaNativeRendering.getSystemRenderingVersion();
+            if (version >= macOS11 && version < macOS26) {
+                SegmentedButtonWidget w = gg.getWidget();
+                if (gg.isSelected() && gg.getState() == State.DISABLED && (w == BUTTON_SEGMENTED || w == BUTTON_SEGMENTED_SEPARATED)) {
+                    // No renderer handles all cases correctly.
+                    // Mapping to ACTIVE or DISABLED_INACTIVE forces the renderer to use the correct background.
+                    if (w == BUTTON_SEGMENTED && gg.getTracking() == SwitchTracking.SELECT_ONE) {
+                        gg = gg.withState(State.DISABLED_INACTIVE);
+                    } else {
+                        gg = gg.withState(State.ACTIVE);
+                    }
+                }
+            }
+
             return getSegmentedButtonRenderer(gg);
         }
 
@@ -305,12 +305,6 @@ public abstract class AquaUIPainterBase
 
     protected @NotNull ButtonWidget toCanonicalButtonStyle(ButtonWidget bw)
     {
-//        switch (bw) {
-//            case BUTTON_ROUND_INSET:
-//                return ButtonWidget.BUTTON_ROUND;
-//            case BUTTON_ROUND_TEXTURED:
-//                return ButtonWidget.BUTTON_ROUND;
-//        }
         return bw;
     }
 
@@ -486,7 +480,7 @@ public abstract class AquaUIPainterBase
         // A border is displayed only for enabled ON states. It does not change when inactive.
 
         if (state == State.ACTIVE_DEFAULT || state == State.INACTIVE || state == State.DISABLED
-              || state == State.DISABLED_INACTIVE) {
+          || state == State.DISABLED_INACTIVE) {
             return State.ACTIVE;
         }
         return state;
@@ -574,6 +568,12 @@ public abstract class AquaUIPainterBase
         public void paint(@NotNull Graphics g, float x, float y)
         {
             p.paint(g, x, y);
+        }
+
+        @Override
+        public @Nullable Image getImage(int scaleFactor, int width, int height)
+        {
+            return p.getImage(scaleFactor, width, height);
         }
     }
 

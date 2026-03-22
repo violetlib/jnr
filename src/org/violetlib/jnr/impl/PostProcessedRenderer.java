@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Alan Snyder.
+ * Copyright (c) 2018-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,9 +8,9 @@
 
 package org.violetlib.jnr.impl;
 
-import java.util.Arrays;
+import org.jetbrains.annotations.NotNull;
 
-import org.jetbrains.annotations.*;
+import java.util.Arrays;
 
 import static org.violetlib.jnr.impl.ImageUtils.*;
 
@@ -38,7 +38,7 @@ public abstract class PostProcessedRenderer
     }
 
     @Override
-    public void render(@NotNull int[] data, int rw, int rh, float w, float h)
+    public void render(int @NotNull [] data, int rw, int rh, float w, float h)
     {
         int requiredSize = rw * rh;
         if (requiredSize > 0) {
@@ -60,12 +60,12 @@ public abstract class PostProcessedRenderer
       @param rh The number of rows in the raster.
     */
 
-    protected void process(@NotNull int[] buffer, int rw, int rh)
+    protected void process(int @NotNull [] buffer, int rw, int rh)
     {
         processPixels(buffer, rw, rh);
     }
 
-    protected void processPixels(@NotNull int[] buffer, int rw, int rh)
+    protected void processPixels(int @NotNull [] buffer, int rw, int rh)
     {
         for (int row = 0; row < rh; row++) {
             for (int col = 0; col < rw; col++) {
@@ -154,7 +154,7 @@ public abstract class PostProcessedRenderer
       @param rh The number of rows in the raster.
     */
 
-    protected void install(@NotNull int[] buffer, @NotNull int[] output, int rw, int rh)
+    protected void install(int @NotNull [] buffer, int @NotNull [] output, int rw, int rh)
     {
         int count = rw * rh;
         System.arraycopy(buffer, 0, output, 0, count);

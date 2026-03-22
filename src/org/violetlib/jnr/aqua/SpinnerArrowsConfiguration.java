@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,12 +8,12 @@
 
 package org.violetlib.jnr.aqua;
 
-import java.util.Objects;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 import org.violetlib.jnr.aqua.AquaUIPainter.State;
 
-import org.jetbrains.annotations.*;
+import java.util.Objects;
 
 /**
   A configuration for spinner arrows.
@@ -33,6 +33,7 @@ public class SpinnerArrowsConfiguration
                                       boolean isPressedTop)
     {
         super(size);
+
         this.state = state;
         this.isFocused = isFocused;
         this.isPressedTop = isPressedTop;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -11,9 +11,10 @@ package org.violetlib.jnr.aqua;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaUIPainter.*;
-import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 import java.util.Objects;
+
+import static org.violetlib.jnr.aqua.AquaUIPainter.macOS11;
 
 /**
   A configuration for a button.
@@ -37,20 +38,25 @@ public class ButtonConfiguration
     {
         super(bw, size, ld);
 
-        // On Yosemite, a selected color well displays the same as a pressed color well.
+        bw = super.getButtonWidget();
 
-        if (bw == ButtonWidget.BUTTON_COLOR_WELL && buttonState != ButtonState.OFF) {
-            if (state == State.ACTIVE) {
-                state = State.PRESSED;
+        if (!AquaNativeRendering.isRaw()) {
+
+            // On Yosemite, a selected color well displays the same as a pressed color well.
+
+            if (bw == ButtonWidget.BUTTON_COLOR_WELL && buttonState != ButtonState.OFF) {
+                if (state == State.ACTIVE) {
+                    state = State.PRESSED;
+                }
             }
-        }
 
-        // Many buttons do not alter their appearance when inactive. In many cases using CoreUI, the way to accomplish
-        // that is to change the inactive state to the active equivalent. Replacing the state also simplifies selection
-        // of a text color and improves caching.
+            // Many buttons do not alter their appearance when inactive. In many cases using CoreUI, the way to
+            // accomplish that is to change the inactive state to the active equivalent. Replacing the state also
+            // simplifies selection of a text color and improves caching.
 
-        if (state.isInactive() && !isSensitiveToInactiveState(bw, buttonState)) {
-            state = state.toActive();
+            if (state.isInactive() && !isSensitiveToInactiveState(bw, buttonState, state == State.DISABLED_INACTIVE)) {
+                state = state.toActive();
+            }
         }
 
         this.state = state;
@@ -95,6 +101,37 @@ public class ButtonConfiguration
     }
 
     @Override
+    public @NotNull LayoutConfiguration getLayoutConfiguration()
+    {
+        return this;
+    }
+
+    @Override
+    public @NotNull ButtonConfiguration with(@NotNull ButtonWidget widget)
+    {
+        if (widget == this.getButtonWidget()) {
+            return this;
+        }
+        return new ButtonConfiguration(widget, getSize(), getState(), isFocused(), getButtonState(), getLayoutDirection());
+    }
+
+    public @NotNull ButtonConfiguration with(@NotNull Size sz)
+    {
+        if (sz == this.getSize()) {
+            return this;
+        }
+        return new ButtonConfiguration(getButtonWidget(), sz, getState(), isFocused(), getButtonState(), getLayoutDirection());
+    }
+
+    public @NotNull ButtonConfiguration with(@NotNull State state)
+    {
+        if (state == this.getState()) {
+            return this;
+        }
+        return new ButtonConfiguration(getButtonWidget(), getSize(), state, isFocused(), getButtonState(), getLayoutDirection());
+    }
+
+    @Override
     public boolean equals(@Nullable Object o)
     {
         if (this == o) {
@@ -123,18 +160,28 @@ public class ButtonConfiguration
         return super.toString() + " " + state + " " + buttonState + fs;
     }
 
-   private static boolean isSensitiveToInactiveState(@NotNull ButtonWidget bw, @NotNull ButtonState bs)
+    private static boolean isSensitiveToInactiveState(@NotNull ButtonWidget bw,
+                                                      @NotNull ButtonState bs,
+                                                      boolean isDisabled)
     {
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
+        if (version >= 150000 || bw.isToolbar()) {
+            // All controls on a toolbar dim when inactive.
+            return true;
+        }
 
         // Push buttons are sensitive if they are in the "on" state
         if (bw == ButtonWidget.BUTTON_PUSH) {
             return bs == ButtonState.ON;
         }
 
+        if (bw == ButtonWidget.BUTTON_GLASS) {
+            return true;
+        }
+
         // Round buttons are sensitive if they are in the "on" state, starting with macOS 10.15
         if (bw == ButtonWidget.BUTTON_ROUND) {
-            return bs == ButtonState.ON && platformVersion >= 101500;
+            return bs == ButtonState.ON && version >= 101500;
         }
 
         // Checkboxes and radio buttons are sensitive
@@ -143,12 +190,17 @@ public class ButtonConfiguration
         }
 
         // Inline buttons are sensitive in 11.0
-        if (bw == ButtonWidget.BUTTON_INLINE && platformVersion >= 101600) {
+        if (bw == ButtonWidget.BUTTON_INLINE && version >= macOS11) {
             return true;
         }
 
+        // Enabled bevel round buttons in the "on" state are sensitive starting in macOS 12
+        if (bw == ButtonWidget.BUTTON_BEVEL_ROUND && bs == ButtonState.ON && !isDisabled) {
+            return version >= 120000;
+        }
+
         // Starting with macOS 10.15, there are no additional sensitive buttons
-        if (platformVersion >= 101500) {
+        if (version >= 101500) {
             return false;
         }
 

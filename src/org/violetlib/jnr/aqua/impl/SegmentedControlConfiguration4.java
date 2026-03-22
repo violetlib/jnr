@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Alan Snyder.
+ * Copyright (c) 2020=2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,9 +8,8 @@
 
 package org.violetlib.jnr.aqua.impl;
 
+import org.jetbrains.annotations.NotNull;
 import org.violetlib.jnr.aqua.AquaUIPainter;
-
-import org.jetbrains.annotations.*;
 
 /**
   A configuration defining the parameters that must be specified to render a segmented control with four segments.
@@ -23,7 +22,6 @@ public class SegmentedControlConfiguration4
     public final float w2;
     public final float w3;
     public final float w4;
-    public final @NotNull AquaUIPainter.SwitchTracking tracking;
     public final boolean s1;
     public final boolean s2;
     public final boolean s3;
@@ -56,7 +54,7 @@ public class SegmentedControlConfiguration4
     )
       throws IllegalArgumentException
     {
-        super(widget, isToolbar, sz, st);
+        super(widget, isToolbar, sz, st, tr);
 
         validateSegmentWidth(w1);
         validateSegmentWidth(w2);
@@ -67,7 +65,6 @@ public class SegmentedControlConfiguration4
         this.w2 = w2;
         this.w3 = w3;
         this.w4 = w4;
-        this.tracking = tr;
         this.s1 = s1;
         this.s2 = s2;
         this.s3 = s3;

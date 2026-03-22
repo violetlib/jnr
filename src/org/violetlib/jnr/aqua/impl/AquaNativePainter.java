@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -11,12 +11,18 @@ package org.violetlib.jnr.aqua.impl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.*;
-import org.violetlib.jnr.impl.*;
+import org.violetlib.jnr.impl.BasicRenderer;
+import org.violetlib.jnr.impl.Renderer;
+import org.violetlib.jnr.impl.RendererDebugInfo;
+import org.violetlib.jnr.impl.RendererDescription;
 import org.violetlib.vappearances.VAppearance;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.security.PrivilegedAction;
+
+import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
+import static org.violetlib.jnr.aqua.impl.AquaNativeSegmentedControlPainter.nativeDetermineSegmentedButtonRenderingVersion;
 
 /**
   A painter that renders Aqua widgets by creating and rendering native views. This class supports only the UI for
@@ -43,21 +49,22 @@ public class AquaNativePainter
     */
 
     // NSBezelStyle
-    protected static final int NSRoundedBezelStyle           = 1;
-    protected static final int NSRegularSquareBezelStyle     = 2;
+    protected static final int NSRoundedBezelStyle           = 1;    // AKA NSBezelStylePush
+    protected static final int NSRegularSquareBezelStyle     = 2;    // AKA NSBezelStyleFlexiblePush
     protected static final int NSThickSquareBezelStyle       = 3;    // seems the same as NSRegularSquareBezelStyle
     protected static final int NSThickerSquareBezelStyle     = 4;    // seems the same as NSRegularSquareBezelStyle
-    protected static final int NSDisclosureBezelStyle        = 5;
+    protected static final int NSDisclosureBezelStyle        = 5;    // AKA NSBezelStyleDisclosure
     protected static final int NSShadowlessSquareBezelStyle  = 6;
-    protected static final int NSCircularBezelStyle          = 7;
+    protected static final int NSCircularBezelStyle          = 7;    // AKA NSBezelStyleCircular
     protected static final int NSTexturedSquareBezelStyle    = 8;    // seems to produce rounded corners
-    protected static final int NSHelpButtonBezelStyle        = 9;
-    protected static final int NSSmallSquareBezelStyle       = 10;
-    protected static final int NSTexturedRoundedBezelStyle   = 11;
-    protected static final int NSRoundRectBezelStyle         = 12;
-    protected static final int NSRecessedBezelStyle          = 13;
-    protected static final int NSRoundedDisclosureBezelStyle = 14;
-    protected static final int NSInlineBezelStyle            = 15;
+    protected static final int NSHelpButtonBezelStyle        = 9;    // AKA NSBezelStyleHelpButton
+    protected static final int NSSmallSquareBezelStyle       = 10;   // AKA NSBezelStyleSmallSquare (Gradient)
+    protected static final int NSTexturedRoundedBezelStyle   = 11;   // AKA NSBezelStyleToolbar
+    protected static final int NSRoundRectBezelStyle         = 12;   // AKA NSBezelStyleAccessoryBarAction
+    protected static final int NSRecessedBezelStyle          = 13;   // AKA NSBezelStyleAccessoryBar
+    protected static final int NSRoundedDisclosureBezelStyle = 14;   // AKA NSBezelStylePushDisclosure
+    protected static final int NSInlineBezelStyle            = 15;   // AKA NSBezelStyleBadge
+    protected static final int NSBezelStyleGlass             = 16;
 
     // The following are internal bezel styles. They indicate that the button is on a toolbar.
     protected static final int NSCircularBezelStyle_Toolbar = 1000 + NSCircularBezelStyle;
@@ -143,6 +150,7 @@ public class AquaNativePainter
     protected static final int NSSplitViewDividerStyleThick = 1;
     protected static final int NSSplitViewDividerStyleThin = 2;
     protected static final int NSSplitViewDividerStylePaneSplitter = 3;
+    protected static final int NSSplitViewDividerStyleTransparent = 1000;
 
     // Internal codes for control state
     protected static final int ActiveState = 0;
@@ -163,6 +171,9 @@ public class AquaNativePainter
     protected static final int OverlayScrollBar = 1;          // the initial rendering of an overlay scroll bar
     protected static final int RolloverOverlayScrollBar = 2;  // the rendering of an overlay scroll bar after the mouse moves over it
 
+    private static int cachedSegmentedButtonRenderingVersion = -2;
+    private static int cachedSliderRenderingVersion = -2;
+
     static {
         java.security.AccessController.doPrivileged(new PrivilegedAction<Void>() {
             public Void run() {
@@ -174,6 +185,38 @@ public class AquaNativePainter
 
     protected static @Nullable TitleBarLayoutInfo titleBarLayoutInfo;
 
+    /**
+      Identify the version of the native rendering of segmented controls.
+
+      @return the version, or -1 if this information is unavailable.
+    */
+
+    public static int getSegmentedButtonRenderingVersion()
+    {
+        if (cachedSegmentedButtonRenderingVersion >= -1) {
+            return cachedSegmentedButtonRenderingVersion;
+        }
+
+        cachedSegmentedButtonRenderingVersion = nativeDetermineSegmentedButtonRenderingVersion();
+        return cachedSegmentedButtonRenderingVersion;
+    }
+
+    /**
+      Identify the version of the native rendering of sliders.
+
+      @return the version, or -1 if this information is unavailable.
+    */
+
+    public static int getSliderRenderingVersion()
+    {
+        if (cachedSliderRenderingVersion >= -1) {
+            return cachedSliderRenderingVersion;
+        }
+
+        cachedSliderRenderingVersion = nativeDetermineSliderRenderingVersion();
+        return cachedSliderRenderingVersion;
+    }
+
     public static @NotNull TitleBarLayoutInfo getTitleBarLayoutInfo()
     {
         if (titleBarLayoutInfo == null) {
@@ -182,7 +225,8 @@ public class AquaNativePainter
         return titleBarLayoutInfo;
     }
 
-    private static final @NotNull ViewRendererDescriptions rendererDescriptions = new ViewRendererDescriptions();
+    private static final @NotNull RendererDescriptions rendererDescriptions
+      = new BasicRendererDescriptions(new ViewRendererDescriptions());
 
     protected final @NotNull AquaNativeSegmentedControlPainter segmentedControlPainter;
 
@@ -215,15 +259,39 @@ public class AquaNativePainter
         ButtonWidget widget = g.getButtonWidget();
         State st = g.getState();
         ButtonState bs = g.getButtonState();
+        int pv = AquaNativeRendering.getSystemRenderingVersion();
+
+        if (widget == BUTTON_ROUND_TEXTURED || widget == BUTTON_ROUND_TEXTURED_TOOLBAR) {
+            int version = AquaNativeRendering.getSystemRenderingVersion();
+            if (version >= macOS11) {
+                // The NSView renderer makes textured buttons look like ordinary buttons, with an accent color
+                // background when selected. A button with no background or border looks better, although that changes
+                // the preferred text color in light mode.
+                return Renderer.NULL_RENDERER;
+            }
+        }
 
         if (widget == ButtonWidget.BUTTON_TOOLBAR_ITEM) {
-            // A tool bar item button only paints a background when ON
-            if (bs != ButtonState.ON) {
+            // Prior to macOS 26, a toolbar item button only paints a background when ON
+            if (bs != ButtonState.ON || pv >= macOS26) {
                 return NULL_RENDERER;
             }
             ToolBarItemWellConfiguration tg = new ToolBarItemWellConfiguration(st, false);
             return getToolBarItemWellRenderer(tg);
         }
+
+        // Workaround for current problem in macOS 26. The BUTTON_PUSH widget does not paint the
+        // accent color background when a toggle button is ON.
+        if (pv >= macOS26 && bs != ButtonState.STATELESS && widget == ButtonWidget.BUTTON_PUSH) {
+            widget = ButtonWidget.BUTTON_BEVEL_ROUND;
+        }
+
+//        if (pv >= macOS11) {
+//            if (widget == BUTTON_TEXTURED_TOOLBAR) {
+//                // Toolbar styles are not supported by the NSView renderer
+//                widget = BUTTON_TEXTURED;
+//            }
+//        }
 
         RendererDescription rd = rendererDescriptions.getButtonRendererDescription(g);
 
@@ -243,7 +311,7 @@ public class AquaNativePainter
             }
         }
 
-        final ButtonWidget bw = toCanonicalButtonStyle(widget);
+        ButtonWidget bw = toCanonicalButtonStyle(widget);
         int size = toSize(g.getSize());
         int state = toState(st);
         int value = toButtonValue(bs);
@@ -254,6 +322,19 @@ public class AquaNativePainter
         BasicRenderer r = (data, rw, rh, w, h) -> nativePaintButton(data, rw, rh, w, h,
           buttonType, bezelStyle, size, state, g.isFocused(), value, uiLayoutDirection);
         return Renderer.create(r, rd);
+    }
+
+    @Override
+    protected @NotNull ButtonWidget toCanonicalButtonStyle(ButtonWidget bw)
+    {
+        switch (bw) {
+            case BUTTON_ROUND_INSET:
+            case BUTTON_ROUND_TEXTURED:
+                return ButtonWidget.BUTTON_ROUND;
+            case BUTTON_PUSH_INSET2:
+                return ButtonWidget.BUTTON_PUSH;
+        }
+        return bw;
     }
 
     @Override
@@ -276,15 +357,16 @@ public class AquaNativePainter
         // Currently, the native painter cannot paint a track without a thumb.
 
         ScrollBarWidget bw = g.getWidget();
-        if (bw == ScrollBarWidget.OVERLAY || bw == ScrollBarWidget.OVERLAY_ROLLOVER) {
-            throw new UnsupportedOperationException();
+        if (bw == ScrollBarWidget.OVERLAY || bw == ScrollBarWidget.OVERLAY_ROLLOVER || bw == ScrollBarWidget.LEGACY_SIDEBAR) {
+            throw new UnsupportedOperationException(bw.toString());
         }
 
         int type = toScrollBarType(bw);
         int size = toSize(g.getSize());
         int state = toState(g.getState());
+        boolean suppressTrack = g.isTrackSuppressed();
         BasicRenderer r = (data, rw, rh, w, h) -> nativePaintScrollBar(data, rw, rh, w, h,
-          type, size, state, g.getThumbPosition(), g.getThumbExtent());
+          type, size, state, g.getThumbPosition(), g.getThumbExtent(), suppressTrack);
         return Renderer.create(r, rd);
     }
 
@@ -365,7 +447,7 @@ public class AquaNativePainter
                 type = TextFieldSearchWithMenuAndCancel_Toolbar;
                 break;
             default:
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException(g.getWidget().toString());
         }
 
         int size = toSize(g.getSize());
@@ -384,7 +466,9 @@ public class AquaNativePainter
         int type = toComboBoxType(g.getWidget());
         int bezel = toBezelStyle(g.getWidget());
         int ld = toUILayoutDirection(g.getLayoutDirection());
-        BasicRenderer r = (data, rw, rh, w, h) -> nativePaintComboBox(data, rw, rh, w, h, type, size, state, bezel, ld);
+        Rectangle2D indicatorBounds = getComboBoxIndicatorBounds(g);
+        int indicatorWidth = (int) Math.ceil(indicatorBounds.getWidth());
+        BasicRenderer r = (data, rw, rh, w, h) -> nativePaintComboBox(data, rw, rh, w, h, type, size, state, bezel, ld, indicatorWidth);
         return Renderer.create(r, rd);
     }
 
@@ -394,17 +478,40 @@ public class AquaNativePainter
         // On Yosemite, the square style bombs if the mini size is selected.
         // This restriction is currently handled in the configuration.
 
+        int version = AquaNativeRendering.getSystemRenderingVersion();
+        PopupButtonWidget bw = g.getPopupButtonWidget();
+        if (version >= macOS26) {
+            if (bw == PopupButtonWidget.BUTTON_POP_UP_TEXTURED
+              || bw == PopupButtonWidget.BUTTON_POP_UP_ROUND_RECT
+              || bw == PopupButtonWidget.BUTTON_POP_UP_BEVEL) {
+                bw = PopupButtonWidget.BUTTON_POP_UP;
+                g = g.with(bw);
+            } else if (bw == PopupButtonWidget.BUTTON_POP_DOWN_TEXTURED
+              || bw == PopupButtonWidget.BUTTON_POP_DOWN_ROUND_RECT
+              || bw == PopupButtonWidget.BUTTON_POP_DOWN_BEVEL) {
+                bw = PopupButtonWidget.BUTTON_POP_DOWN;
+                g = g.with(bw);
+            }
+        }
+
         RendererDescription rd = rendererDescriptions.getPopupButtonRendererDescription(g);
 
-        PopupButtonWidget bw = g.getPopupButtonWidget();
         boolean isUp = g.isPopUp();
         int size = toSize(g.getSize());
         int state = toState(g.getState());
         int ld = toUILayoutDirection(g.getLayoutDirection());
         int bezelStyle = toBezelStyle(bw);
 
+        if (version >= macOS11 && version < macOS26) {
+            if (bw.isTextured()) {
+                // NSView paints a bevel style bezel. Better to have none.
+                bezelStyle = 0;
+            }
+        }
+
+        int theBezelStyle = bezelStyle;
         BasicRenderer r = (data, rw, rh, w, h) -> nativePaintPopUpButton(data, rw, rh, w, h,
-          isUp, size, state, bezelStyle, ld);
+          isUp, size, state, theBezelStyle, ld);
         return Renderer.create(r, rd);
     }
 
@@ -481,13 +588,13 @@ public class AquaNativePainter
     {
         RendererDescription rd = rendererDescriptions.getSliderRendererDescription(g);
 
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
 
         SliderWidget sw = g.getWidget();
         Size sz = g.getSize();
 
         // Mini sliders were not supported in older releases (not sure when that changed)
-        if (g.getSize() == Size.MINI && platformVersion < 101400) {
+        if (g.getSize() == Size.MINI && version < 101400) {
             sz = Size.SMALL;
         }
 
@@ -508,8 +615,11 @@ public class AquaNativePainter
         int size = toSize(sz);
         int state = toState(g.getState());
         int position = toTickMarkPosition(g.getTickMarkPosition());
+        boolean isNeutralDefined = g.isNeutralValueDefined();
+        double neutralValue = isNeutralDefined ? g.getNeutralValue() : 0;
         BasicRenderer r = (data, rw, rh, w, h) -> nativePaintSlider(data, rw, rh, w, h,
-          sliderType, size, state, g.isFocused(), g.getValue(), g.getNumberOfTickMarks(), position);
+          sliderType, size, state, g.isFocused(), g.getValue(),
+          g.getNumberOfTickMarks(), position, isNeutralDefined, neutralValue);
         return Renderer.create(r, rd);
     }
 
@@ -577,7 +687,12 @@ public class AquaNativePainter
     {
         RendererDescription rd = rendererDescriptions.getSplitPaneDividerRendererDescription(g);
 
-        int dividerType = toDividerType(g.getWidget());
+        DividerWidget widget = g.getWidget();
+        if (widget == DividerWidget.TRANSPARENT_DIVIDER) {
+            return NULL_RENDERER;
+        }
+
+        int dividerType = toDividerType(widget);
         int state = toState(g.getState());
         int orientation = toOrientation(g.getOrientation());
         BasicRenderer r = (data, rw, rh, w, h) -> nativePaintSplitPaneDivider(data, rw, rh, w, h,
@@ -590,7 +705,7 @@ public class AquaNativePainter
     {
         RendererDescription rd = rendererDescriptions.getGradientRendererDescription(g);
 
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(g.getWidget().toString());
     }
 
     @Override
@@ -639,6 +754,8 @@ public class AquaNativePainter
                 return 2;
             case LARGE:
                 return 3;
+            case EXTRA_LARGE:
+                return 4;
         }
         throw new UnsupportedOperationException();
     }
@@ -784,7 +901,6 @@ public class AquaNativePainter
             case BUTTON_SEGMENTED_TEXTURED:
                 return NSSegmentStyleTexturedSquare;
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
                 return NSSegmentStyleTexturedSquare_Toolbar;
             case BUTTON_SEGMENTED_TOOLBAR:
                 return NSSegmentStyleTexturedRounded;
@@ -795,15 +911,13 @@ public class AquaNativePainter
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
                 return NSSegmentStyleSeparated_Textured;
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 return NSSegmentStyleSeparated_Toolbar;
             case BUTTON_SEGMENTED_SLIDER:
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
-            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                 // same as rounded with the implication of select one behavior
                 return NSSegmentStyleRounded;
         }
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(bw.toString());
     }
 
     // Note: This is an internal hack; NSComboBox does not use bezel style.
@@ -819,7 +933,7 @@ public class AquaNativePainter
             case BUTTON_COMBO_BOX_TEXTURED_TOOLBAR:
                 return NSTexturedRoundedBezelStyle_Toolbar;
         }
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(w.toString());
     }
 
     protected int toBezelStyle(@NotNull PopupButtonWidget bw)
@@ -861,16 +975,18 @@ public class AquaNativePainter
             case BUTTON_POP_UP_SQUARE:
                 return NSShadowlessSquareBezelStyle;
         }
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(bw.toString());
     }
 
     protected int toBezelStyle(@NotNull ButtonWidget bw)
     {
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
 
         switch (bw) {
             case BUTTON_PUSH:
                 return NSRoundedBezelStyle;
+            case BUTTON_GLASS:
+                return NSBezelStyleGlass;
             case BUTTON_BEVEL:
                 return NSShadowlessSquareBezelStyle;
             case BUTTON_BEVEL_ROUND:
@@ -896,15 +1012,14 @@ public class AquaNativePainter
             case BUTTON_TEXTURED:
                 return NSTexturedRoundedBezelStyle;
             case BUTTON_TEXTURED_TOOLBAR:
-            case BUTTON_TEXTURED_TOOLBAR_ICONS:
                 return NSTexturedRoundedBezelStyle_Toolbar;
             case BUTTON_ROUND:
                 return NSCircularBezelStyle;
             case BUTTON_ROUND_TEXTURED:
             case BUTTON_ROUND_TEXTURED_TOOLBAR:
-                return platformVersion >= 101100 ? NSCircularBezelStyle_Toolbar : NSCircularBezelStyle;
+                return version >= 101100 ? NSCircularBezelStyle_Toolbar : NSCircularBezelStyle;
         }
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(bw.toString());
     }
 
     protected int toButtonType(@NotNull ButtonWidget bw)
@@ -1030,7 +1145,7 @@ public class AquaNativePainter
             case UTILITY_WINDOW:
                 return UtilityWindowType;
             default:
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException(bw.toString());
         }
     }
 
@@ -1045,7 +1160,7 @@ public class AquaNativePainter
             case OVERLAY_ROLLOVER:
                 return RolloverOverlayScrollBar;
             default:
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException(bw.toString());
         }
     }
 
@@ -1063,23 +1178,26 @@ public class AquaNativePainter
         int windowType = toWindowType(bw);
         int[] data = nativeGetTitleBarButtonLayoutInfo(windowType);
         if (data != null) {
-            Rectangle close = new Rectangle(data[0], data[1], data[2], data[3]);
-            Rectangle minimize = new Rectangle(data[4], data[5], data[6], data[7]);
-            Rectangle resize = new Rectangle(data[8], data[9], data[10], data[11]);
-            return new Rectangle[] { close, minimize, resize };
-        } else {
-            int x = bw == TitleBarWidget.DOCUMENT_WINDOW ? 7 : 5;
-            int sep = bw == TitleBarWidget.DOCUMENT_WINDOW ? 6 : 5;
-            int w = bw == TitleBarWidget.DOCUMENT_WINDOW ? 14 : 13;
-            int h = bw == TitleBarWidget.DOCUMENT_WINDOW ? 16 : 14;
-            int y = 3;
-            Rectangle close = new Rectangle(x, y, w, h);
-            x += w + sep;
-            Rectangle minimize = new Rectangle(x, y, w, h);
-            x += w + sep;
-            Rectangle resize = new Rectangle(x, y, w, h);
-            return new Rectangle[] { close, minimize, resize };
+            try {
+                Rectangle close = new Rectangle(data[0], data[1], data[2], data[3]);
+                Rectangle minimize = new Rectangle(data[4], data[5], data[6], data[7]);
+                Rectangle resize = new Rectangle(data[8], data[9], data[10], data[11]);
+                return new Rectangle[] { close, minimize, resize };
+            } catch (IllegalArgumentException e) {
+                NativeSupport.log("Invalid title bar information: " + e.getMessage());
+            }
         }
+        int x = bw == TitleBarWidget.DOCUMENT_WINDOW ? 7 : 5;
+        int sep = bw == TitleBarWidget.DOCUMENT_WINDOW ? 6 : 5;
+        int w = bw == TitleBarWidget.DOCUMENT_WINDOW ? 14 : 13;
+        int h = bw == TitleBarWidget.DOCUMENT_WINDOW ? 16 : 14;
+        int y = 3;
+        Rectangle close = new Rectangle(x, y, w, h);
+        x += w + sep;
+        Rectangle minimize = new Rectangle(x, y, w, h);
+        x += w + sep;
+        Rectangle resize = new Rectangle(x, y, w, h);
+        return new Rectangle[] { close, minimize, resize };
     }
 
     @Override
@@ -1096,14 +1214,15 @@ public class AquaNativePainter
     private static native void nativePaintGroupBox(int[] data, int rw, int rh, float w, float h, int titlePosition, int state, boolean isFrameOnly);
     private static native void nativePaintListBox(int[] data, int rw, int rh, float w, float h, int state, boolean isFocused, boolean isFrameOnly);
     private static native void nativePaintTextField(int[] data, int rw, int rh, float w, float h, int sz, int state, int type);
-    private static native void nativePaintComboBox(int[] data, int rw, int rh, float w, float h, int type, int size, int state, int bezelStyle, int layoutDirection);
+    private static native void nativePaintComboBox(int[] data, int rw, int rh, float w, float h, int type, int size, int state, int bezelStyle, int layoutDirection, int indicatorWidth);
     private static native void nativePaintPopUpButton(int[] data, int rw, int rh, float w, float h, boolean isUp, int size, int state, int bezelStyle, int layoutDirection);
     private static native void nativePaintTableColumnHeader(int[] data, int rw, int rh, float w, float h, int state, int direction, boolean isSelected, int layoutDirection);
-    private static native void nativePaintSlider(int[] data, int rw, int rh, float w, float h, int sliderType, int size, int state, boolean isFocused, double value, int numberOfTickMarks, int position);
+    private static native void nativePaintSlider(int[] data, int rw, int rh, float w, float h, int sliderType, int size, int state, boolean isFocused, double value,
+                                                 int numberOfTickMarks, int position, boolean isNeutralDefined, double neutralValue);
     private static native void nativePaintSpinnerArrows(int[] data, int rw, int rh, float w, float h, int sz, int state, boolean isFocused, boolean isPressedTop);
     private static native void nativePaintSplitPaneDivider(int[] data, int rw, int rh, float w, float h, int type, int state, int orientation, int thickness);
     private static native void nativePaintTitleBar(int[] data, int rw, int rh, float w, float h, int windowType, int state, int closeState, int minimizeState, int resizeState, boolean resizeIsFullScreen, boolean isDirty);
-    private static native void nativePaintScrollBar(int[] data, int rw, int rh, float w, float h, int type, int size, int state, float thumbPosition, float thumbExtent);
+    private static native void nativePaintScrollBar(int[] data, int rw, int rh, float w, float h, int type, int size, int state, float thumbPosition, float thumbExtent, boolean suppressTrack);
 
     private static native int[] nativeGetTitleBarButtonLayoutInfo(int windowType);
     private static native void nativeGetSliderThumbBounds(float[] a, float w, float h, int sliderType, int size, double value, int numberOfTickMarks, int position);

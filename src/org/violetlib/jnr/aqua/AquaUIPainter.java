@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -11,6 +11,7 @@ package org.violetlib.jnr.aqua;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.Painter;
+import org.violetlib.jnr.impl.RendererDescription;
 import org.violetlib.vappearances.VAppearance;
 
 import java.awt.*;
@@ -78,7 +79,7 @@ public interface AquaUIPainter
 
         JSlider has a tick color option.
 
-        Do the North etc directions relate to L/R UI direction or can Left etc be used? See AquaTabbedPaneUI.
+        Do the North etc. directions relate to L/R UI direction or can Left etc. be used? See AquaTabbedPaneUI.
     */
 
     /**
@@ -239,6 +240,17 @@ public interface AquaUIPainter
     }
 
     /**
+      A description of the content of a control that may affect layout.
+    */
+
+    enum UIContent
+    {
+        TEXT_ONLY,      // text but no icon, font size can be varied to match a fixed height
+        ICON_ONLY,      // image without text
+        TEXT_AND_ICON
+    }
+
+    /**
       Generic button widgets.
     */
 
@@ -254,7 +266,7 @@ public interface AquaUIPainter
 
     enum ButtonWidget implements GenericButtonWidget
     {
-        BUTTON_PUSH,                  // the default style, fixed height, not suitable for a toggle button
+        BUTTON_PUSH,                    // the default style, fixed height, (previously) not suitable for a toggle button
         BUTTON_CHECK_BOX,
         BUTTON_RADIO,
         BUTTON_DISCLOSURE,
@@ -263,19 +275,20 @@ public interface AquaUIPainter
         BUTTON_GRADIENT,                // a square button with no border - recommended for icon buttons - push, toggle, or menu (small square)
         BUTTON_RECESSED,                // a recessed scope (toggle) button; fixed height; displayed without border when not selected
         BUTTON_INLINE,                  // a short, fixed height button with rounded ends, used as a push button or indicator inside lists
-        BUTTON_ROUNDED_RECT,            // fixed height, displays as an rectangle outline with rounded corners and no background, darkens when pressed, in IB
+        BUTTON_ROUNDED_RECT,            // fixed height, displays as a rectangle outline with rounded corners and no background, darkens when pressed, in IB
         BUTTON_TEXTURED,                // fixed height, recommended for use in window frame, previously called scurve, now called textured rounded
-        BUTTON_TEXTURED_TOOLBAR,        // introduced in 10.11 for textured buttons on the tool bar (taller)
-        BUTTON_TEXTURED_TOOLBAR_ICONS,  // added in release 10 for macOS 11; textured controls on the tool bar, icons only
-        BUTTON_TOOLBAR_ITEM,            // a tool bar item
+        BUTTON_TEXTURED_TOOLBAR,        // introduced in 10.11 for textured buttons on the toolbar (taller)
+        BUTTON_TOOLBAR_ITEM,            // a toolbar item (vertically arranged icon and text)
+        BUTTON_TOOLBAR,                 // A button with text or an icon (not both) on a toolbar, also used as the virtual button of a split toolbar item
         BUTTON_COLOR_WELL,              // a color well
+        BUTTON_GLASS,                   // introduced in macOS 26, similar to a flexible push button
+        BUTTON_BEVEL_ROUND,             // Bevel button with rounded corners (I call this Bevel), AKA flexible push
 
         // The following styles are no longer recommended
 
         BUTTON_BEVEL,                   // Bevel button with square corners (I call this Square)
-        BUTTON_BEVEL_ROUND,             // Bevel button with rounded corners (I call this Bevel)
-        BUTTON_ROUND,                   // a round white button with a border
-        BUTTON_ROUND_INSET,             // a round transparent button with an outline, probably obsolete
+        BUTTON_ROUND,                   // a round white button with a border (AKA circular)
+        BUTTON_ROUND_INSET,             // a round transparent button with an outline, obsolete
         BUTTON_ROUND_TEXTURED,          // a round white borderless button with a shadow
         BUTTON_ROUND_TEXTURED_TOOLBAR,  // introduced in 10.11 for round textured buttons on the toolbar (taller)
         BUTTON_PUSH_INSET2;             // an obsolete style supported by Core UI
@@ -284,23 +297,18 @@ public interface AquaUIPainter
         public boolean isTextured()
         {
             return this == BUTTON_TEXTURED
-                     || this == BUTTON_TEXTURED_TOOLBAR
-                     || this == BUTTON_TEXTURED_TOOLBAR_ICONS
-                     || this == BUTTON_ROUND_TEXTURED
-                     || this == BUTTON_ROUND_TEXTURED_TOOLBAR;
+              || this == BUTTON_TEXTURED_TOOLBAR
+              || this == BUTTON_ROUND_TEXTURED
+              || this == BUTTON_ROUND_TEXTURED_TOOLBAR;
         }
 
         @Override
         public boolean isToolbar()
         {
             return this == BUTTON_TEXTURED_TOOLBAR
-                     || this == BUTTON_TEXTURED_TOOLBAR_ICONS
-                     || this == BUTTON_ROUND_TEXTURED_TOOLBAR;
-        }
-
-        public boolean isIconsOnly()
-        {
-            return this == BUTTON_TEXTURED_TOOLBAR_ICONS;
+              || this == BUTTON_ROUND_TEXTURED_TOOLBAR
+              || this == BUTTON_TOOLBAR
+              || this == BUTTON_TOOLBAR_ITEM;
         }
     }
 
@@ -316,14 +324,14 @@ public interface AquaUIPainter
         BUTTON_SEGMENTED_INSET,                             // also known as Round Rect, a transparent button whose outline has rounded corners
         BUTTON_SEGMENTED_SMALL_SQUARE,                      // a square button similar to a gradient button
         BUTTON_SEGMENTED_TEXTURED,                          // also known as Textured Rounded, for use in window frames
-        BUTTON_SEGMENTED_TEXTURED_TOOLBAR,                  // introduced in 10.11 for textured segmented controls on the tool bar (taller)
-        BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS,            // added in release 10 for macOS 11; textured segmented controls on the tool bar, icons only
+        BUTTON_SEGMENTED_TEXTURED_TOOLBAR,                  // introduced in 10.11 for textured segmented controls on the toolbar (taller)
         BUTTON_SEGMENTED_TEXTURED_SEPARATED,                // separated buttons that look like Textured buttons, for use in window frames
-        BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR,        // introduced in 10.11 for textured segmented controls on the tool bar (taller)
-        BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS,  // introduced in 10.11 for textured segmented controls on the tool bar (taller), icons only
-        BUTTON_SEGMENTED_SLIDER,                            // added in release 10 for macOS 11; select one rounded style, also used for tab
-        BUTTON_SEGMENTED_SLIDER_TOOLBAR,                    // added in release 10 for macOS 11; select one textured style on the toolbar, has text labels
-        BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS,              // added in release 10 for macOS 11; select one textured style on the toolbar, icons only
+        BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR,        // introduced in 10.11 for textured segmented controls on the toolbar (taller)
+        BUTTON_SEGMENTED_SLIDER,                            // added in release 10 for macOS 11; rounded style, also used for tab
+        BUTTON_SEGMENTED_SLIDER_TOOLBAR,                    // added in release 10 for macOS 11; toolbar style, has text labels
+
+        // Slider styles are used for select one controls prior to macOS 26, in later releases they are used for
+        // both select one and select any. In macOS 26, the slider styles are equivalent.
 
         // The following styles are obsolete and are replaced by other styles in Yosemite
 
@@ -333,45 +341,32 @@ public interface AquaUIPainter
         public boolean isSeparated()
         {
             return this == BUTTON_SEGMENTED_SEPARATED
-                     || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED
-                     || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR
-                     || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS;
+              || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED
+              || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR;
         }
 
         public boolean isSlider()
         {
             return this == BUTTON_SEGMENTED_SLIDER
-                     || this == BUTTON_SEGMENTED_SLIDER_TOOLBAR
-                     || this == BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS;
+              || this == BUTTON_SEGMENTED_SLIDER_TOOLBAR;
         }
 
         @Override
         public boolean isToolbar()
         {
-            return this == BUTTON_SEGMENTED_TEXTURED_TOOLBAR
-                     || this == BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS
-                     || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR
-                     || this == BUTTON_SEGMENTED_SLIDER_TOOLBAR
-                     || this == BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS
-                     || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS;
+            return this == BUTTON_SEGMENTED_TOOLBAR
+              || this == BUTTON_SEGMENTED_TEXTURED_TOOLBAR
+              || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR
+              || this == BUTTON_SEGMENTED_SLIDER_TOOLBAR;
         }
 
         @Override
         public boolean isTextured()
         {
             return this == BUTTON_SEGMENTED_TEXTURED
-                     || this == BUTTON_SEGMENTED_TEXTURED_TOOLBAR
-                     || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED
-                     || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR
-                     || this == BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS
-                     || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS;
-        }
-
-        public boolean isIconsOnly()
-        {
-            return this == BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS
-                     || this == BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS
-                     || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS;
+              || this == BUTTON_SEGMENTED_TEXTURED_TOOLBAR
+              || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED
+              || this == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR;
         }
 
         public @NotNull SegmentedButtonWidget toToolbarWidget()
@@ -381,6 +376,8 @@ public interface AquaUIPainter
                     return BUTTON_SEGMENTED_TEXTURED_TOOLBAR;
                 case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
                     return BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR;
+                case BUTTON_SEGMENTED_SLIDER:
+                    return BUTTON_SEGMENTED_SLIDER_TOOLBAR;
             }
             return this;
         }
@@ -388,24 +385,28 @@ public interface AquaUIPainter
         public @NotNull SegmentedButtonWidget toBasicWidget()
         {
             switch (this) {
+                case BUTTON_SEGMENTED_TOOLBAR:
+                    return BUTTON_SEGMENTED_SCURVE;
                 case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
                     return BUTTON_SEGMENTED_TEXTURED;
                 case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
                     return BUTTON_SEGMENTED_TEXTURED_SEPARATED;
+                case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
+                    return BUTTON_SEGMENTED_SLIDER;
             }
             return this;
         }
     }
 
     /**
-      Widgets for a text field.
+      Widgets for a text field or pane.
     */
 
     enum TextFieldWidget
     {
-        TEXT_FIELD(false, false, false, false),                 // square corners, no fixed height
-        TEXT_FIELD_ROUND(false, false, false, false),           // rounded corners, fixed height
-        TEXT_FIELD_ROUND_TOOLBAR(false, false, false, true),    // for text fields on the tool bar (taller)
+        TEXT_FIELD(false, false, false, false),                 // no fixed height, square corners prior to macOS 26
+        TEXT_FIELD_ROUND(false, false, false, false),           // fixed height, rounded corners
+        TEXT_FIELD_ROUND_TOOLBAR(false, false, false, true),    // for text fields on the toolbar (taller)
         TEXT_FIELD_SEARCH(true, false, false, false),
         TEXT_FIELD_SEARCH_WITH_CANCEL(true, false, true, false),
         TEXT_FIELD_SEARCH_WITH_MENU(true, true, false, false),
@@ -451,6 +452,24 @@ public interface AquaUIPainter
         public boolean isRound()
         {
             return this == TEXT_FIELD_ROUND || this == TEXT_FIELD_ROUND_TOOLBAR;
+        }
+
+        public @NotNull TextFieldWidget toBasicWidget()
+        {
+            switch (this) {
+                case TEXT_FIELD_ROUND_TOOLBAR:
+                    return TEXT_FIELD_ROUND;
+                case TEXT_FIELD_SEARCH_TOOLBAR:
+                    return TEXT_FIELD_SEARCH;
+                case TEXT_FIELD_SEARCH_WITH_CANCEL_TOOLBAR:
+                    return TEXT_FIELD_SEARCH_WITH_CANCEL;
+                case TEXT_FIELD_SEARCH_WITH_MENU_TOOLBAR:
+                    return TEXT_FIELD_SEARCH_WITH_MENU;
+                case TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL_TOOLBAR:
+                    return TEXT_FIELD_SEARCH_WITH_MENU_AND_CANCEL;
+                default:
+                    return this;
+            }
         }
     }
 
@@ -509,19 +528,67 @@ public interface AquaUIPainter
             return this == BUTTON_POP_DOWN || this == BUTTON_POP_UP;
         }
 
+        public boolean isPopUp()
+        {
+            return this == BUTTON_POP_UP
+              || this == BUTTON_POP_UP_CELL
+              || this == BUTTON_POP_UP_BEVEL
+              || this == BUTTON_POP_UP_ROUND_RECT
+              || this == BUTTON_POP_UP_RECESSED
+              || this == BUTTON_POP_UP_TEXTURED
+              || this == BUTTON_POP_UP_TEXTURED_TOOLBAR
+              || this == BUTTON_POP_UP_GRADIENT
+              || this == BUTTON_POP_UP_SQUARE;
+        }
+
+
         @Override
         public boolean isTextured()
         {
             return this == BUTTON_POP_DOWN_TEXTURED
-                     || this == BUTTON_POP_DOWN_TEXTURED_TOOLBAR
-                     || this == BUTTON_POP_UP_TEXTURED
-                     || this == BUTTON_POP_UP_TEXTURED_TOOLBAR;
+              || this == BUTTON_POP_DOWN_TEXTURED_TOOLBAR
+              || this == BUTTON_POP_UP_TEXTURED
+              || this == BUTTON_POP_UP_TEXTURED_TOOLBAR;
         }
 
         @Override
         public boolean isToolbar()
         {
             return this == BUTTON_POP_DOWN_TEXTURED_TOOLBAR || this == BUTTON_POP_UP_TEXTURED_TOOLBAR;
+        }
+
+        public @Nullable ButtonWidget getEquivalentButtonWidget()
+        {
+            switch (this) {
+                case BUTTON_POP_UP:
+                case BUTTON_POP_DOWN:
+                    return ButtonWidget.BUTTON_PUSH;
+                case BUTTON_POP_UP_RECESSED:
+                case BUTTON_POP_DOWN_RECESSED:
+                    return ButtonWidget.BUTTON_RECESSED;
+                case BUTTON_POP_UP_ROUND_RECT:
+                case BUTTON_POP_DOWN_ROUND_RECT:
+                    return ButtonWidget.BUTTON_ROUNDED_RECT;
+                case BUTTON_POP_UP_BEVEL:
+                case BUTTON_POP_DOWN_BEVEL:
+                    return ButtonWidget.BUTTON_BEVEL_ROUND;
+                case BUTTON_POP_UP_GRADIENT:
+                case BUTTON_POP_DOWN_GRADIENT:
+                    return ButtonWidget.BUTTON_GRADIENT;
+                case BUTTON_POP_UP_SQUARE:
+                case BUTTON_POP_DOWN_SQUARE:
+                    return ButtonWidget.BUTTON_BEVEL;
+                case BUTTON_POP_UP_TEXTURED:
+                case BUTTON_POP_DOWN_TEXTURED:
+                    return ButtonWidget.BUTTON_TEXTURED;
+                case BUTTON_POP_UP_TEXTURED_TOOLBAR:
+                case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
+                    return ButtonWidget.BUTTON_TEXTURED_TOOLBAR;
+                case BUTTON_POP_UP_CELL:
+                case BUTTON_POP_DOWN_CELL:
+                    return null;
+            }
+            throw new UnsupportedOperationException("Unrecognized popup button widget: " + this);
         }
     }
 
@@ -563,7 +630,8 @@ public interface AquaUIPainter
     */
     enum ScrollBarWidget
     {
-        LEGACY,
+        LEGACY,  // when scroll bars are always displayed
+        LEGACY_SIDEBAR,
         OVERLAY,
         OVERLAY_ROLLOVER
     }
@@ -601,7 +669,8 @@ public interface AquaUIPainter
     {
         PANE_SPLITTER,
         THIN_DIVIDER,
-        THICK_DIVIDER
+        THICK_DIVIDER,
+        TRANSPARENT_DIVIDER // for sidebar split panes on macOS 26+
     }
 
     /**
@@ -623,6 +692,9 @@ public interface AquaUIPainter
         GRADIENT_SIDE_BAR_SELECTION,
         GRADIENT_SIDE_BAR_SELECTION_MULTIPLE
     }
+
+    int macOS11 = AquaNativeRendering.macOS11;
+    int macOS26 = AquaNativeRendering.macOS26;
 
 //    /**
 //        Enable or disable alignment.
@@ -670,13 +742,27 @@ public interface AquaUIPainter
     void configure(int w, int h);
 
     /**
-      Return a widget painter based on the specified configuration and the previously configured widget size.
+      Return a widget painter based on the specified configuration and the previously configured widget size and
+      appearance.
       @param g The widget configuration.
       @return the painter.
       @throws UnsupportedOperationException if the configuration is not supported.
     */
 
     @NotNull Painter getPainter(@NotNull Configuration g)
+      throws UnsupportedOperationException;
+
+    /**
+      Return a widget painter based on the specified configuration and the previously configured widget size and
+      appearance.
+      @param g The widget configuration.
+      @param rd If not null, this renderer description replaces the registered renderer description, for the
+      purpose of renderer debugging.
+      @return the painter.
+      @throws UnsupportedOperationException if the configuration is not supported.
+    */
+
+    @NotNull Painter getPainter(@NotNull Configuration g, @Nullable RendererDescription rd)
       throws UnsupportedOperationException;
 
     /**

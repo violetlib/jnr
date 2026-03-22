@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025 Alan Snyder.
+ * Copyright (c) 2020-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -21,7 +21,8 @@ import java.awt.geom.Rectangle2D;
 import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
 import static org.violetlib.jnr.aqua.AquaUIPainter.ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED;
 import static org.violetlib.jnr.aqua.AquaUIPainter.ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR;
-import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.BUTTON_POP_DOWN;
+import static org.violetlib.jnr.aqua.AquaUIPainter.PopupButtonWidget.BUTTON_POP_UP;
 import static org.violetlib.jnr.impl.JNRUtils.size;
 import static org.violetlib.jnr.impl.JNRUtils.size2D;
 
@@ -41,28 +42,30 @@ public class LayoutInfo_11
     {
         ButtonWidget bw = g.getButtonWidget();
         Size sz = g.getSize();
-        LayoutInfo layoutInfo = getLayoutInfo(g);
 
         if (bw == BUTTON_PUSH) {
-            float top = size(sz, 2, 1, 1);
-            float bottom = size(sz, 2, 2, 2);
-            float left = size(sz, 4, 4, 3);
-            float right = left;
-            return Insetters.createFixed(top, left, bottom, right, layoutInfo);
+            float top = size2D(sz, 1, 1.5, 1, 1);
+            float bottom = size2D(sz, 2, 1.5, 2, 2);
+            float side = size(sz, 4, 4, 4, 3);
+            return createInsetter(g, top, bottom, side, side);
         } else if (bw == BUTTON_BEVEL) {
             float top = size(sz, 2, 1, 1);
             float bottom = size(sz, 2, 1, 1);
             float side = size(sz, 4, 4, 3);
-            return Insetters.createFixed(top, side, bottom, side, layoutInfo);
-        } else if (bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
-            float topBottom = 4.5f;
-            float side = 3.5f;
-            return Insetters.createFixed(topBottom, side, topBottom, side, layoutInfo);
-        } else if (bw == BUTTON_TEXTURED) {
-            float top = 1;
-            float bottom = 1;
-            float side = 3;
-            return Insetters.createFixed(top, side, bottom, side, layoutInfo);
+            return createInsetter(g, top, bottom, side);
+        } else if (bw == BUTTON_BEVEL_ROUND) {
+            float top = size(sz, 4, 3, 3, 3);
+            float bottom = size(sz, 5, 4, 4, 4);
+            float side = size(sz, 4, 4, 4, 3);
+            return createInsetter(g, top, bottom, side);
+        } else if (bw == BUTTON_ROUND || bw == BUTTON_ROUND_INSET || bw == BUTTON_ROUND_TEXTURED
+          || bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
+            float s = size2D(sz, 5, 4, 3.5, 3);
+            return createInsetter(g, s, s, s);
+        } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR) {
+            float s = 2;
+            float side = size(sz, 8, 7, 6, 4);
+            return createInsetter(g, s, s, side);
         }
 
         return super.getButtonLabelInsets(g);
@@ -89,7 +92,15 @@ public class LayoutInfo_11
             return BasicLayoutInfo.getInstance();
 
         } else if (bw == BUTTON_BEVEL_ROUND) {
-            return BasicLayoutInfo.getInstance();
+            // The flexible PUSH style
+            switch (sz) {
+                case EXTRA_LARGE:
+                case LARGE: return BasicLayoutInfo.createMinimum(18, 30);
+                case REGULAR: return BasicLayoutInfo.createMinimum(18, 22);
+                case SMALL: return BasicLayoutInfo.createMinimum(14, 18);
+                case MINI: return BasicLayoutInfo.createMinimum(14, 16);
+                default: throw new UnsupportedOperationException("Unsupported size");
+            }
 
         } else if (bw == BUTTON_CHECK_BOX) {
             return BasicLayoutInfo.createFixed(size(sz, 20, 18, 14, 10), size(sz, 20, 18, 15, 11));
@@ -101,13 +112,13 @@ public class LayoutInfo_11
             return BasicLayoutInfo.createFixed(size(sz, 26, 22, 18, 15), size(sz, 27, 23, 19, 16));
 
         } else if (bw == BUTTON_HELP) {
-            return BasicLayoutInfo.createFixed(size(sz, 28, 22, 18, 15), size(sz, 29, 23, 19, 16));
+            return BasicLayoutInfo.createFixed(size(sz, 29, 22, 18, 16), size(sz, 29, 23, 19, 16));
 
         } else if (bw == BUTTON_GRADIENT) {
             return BasicLayoutInfo.createMinimumHeight(size(sz, 23, 21, 19, 17));
 
         } else if (bw == BUTTON_RECESSED) {
-            return BasicLayoutInfo.createFixedHeight(size(sz, 19, 19, 17, 15));
+            return BasicLayoutInfo.createFixedHeight(size(sz, 28, 19, 17, 15));
 
         } else if (bw == BUTTON_INLINE) {
             // Note that the NSView does not limit the size, but there seems to be an intended fixed size.
@@ -119,26 +130,27 @@ public class LayoutInfo_11
         } else if (bw == BUTTON_TEXTURED) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 20, 20, 16, 13));
 
-        } else if (bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS) {
+        } else if (bw == BUTTON_TOOLBAR) {
+            int s = size(sz, 38, 32, 28, 24);
+            return BasicLayoutInfo.create(false, s, true, s);
+
+        } else if (bw == BUTTON_TEXTURED_TOOLBAR) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 28, 22, 18, 15));
 
-        } else if (bw == BUTTON_ROUND) {
-            return BasicLayoutInfo.createFixed(size(sz, 30, 22, 18, 15), size(sz, 31, 23, 19, 16));
+        } else if (bw == BUTTON_ROUND || bw == BUTTON_ROUND_INSET) {
+            int s = size(sz, 30, 22, 18, 15);
+            return BasicLayoutInfo.createFixed(s, s);
 
-        } else if (bw == BUTTON_ROUND_INSET) {
-            return BasicLayoutInfo.createFixed(18, 18);
-
-        } else if (bw == BUTTON_ROUND_TEXTURED) {
-            return BasicLayoutInfo.createFixed(size(sz, 21, 18, 15), size(sz, 22, 19, 16));
-
-        } else if (bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
-            return BasicLayoutInfo.createFixed(28, 28);
+        } else if (bw == BUTTON_ROUND_TEXTURED || bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
+            // Simulated
+            int s = size(sz, 30, 22, 18, 15);
+            return BasicLayoutInfo.createFixed(s, s);
 
         } else if (bw == BUTTON_DISCLOSURE_TRIANGLE) {
             return BasicLayoutInfo.createFixed(13, 13);
 
         } else if (bw == BUTTON_PUSH_INSET2) {
-            return BasicLayoutInfo.createFixedHeight(size(sz, 19, 17, 15));
+            return BasicLayoutInfo.createFixedHeight(size(sz, 30, 22, 18, 15));
 
         } else if (bw == BUTTON_COLOR_WELL) {
             return BasicLayoutInfo.createMinimum(44, 23);
@@ -158,6 +170,9 @@ public class LayoutInfo_11
             case BUTTON_TAB:
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
+            case BUTTON_SEGMENTED_TOOLBAR:
+                return BasicLayoutInfo.createFixedHeight(size(sz, 30, 22, 18, 15));
+
             case BUTTON_SEGMENTED_SEPARATED:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 31, 23, 19, 16));
 
@@ -165,23 +180,19 @@ public class LayoutInfo_11
                 return BasicLayoutInfo.createFixedHeight(size(sz, 18, 16, 14));
 
             case BUTTON_SEGMENTED_SMALL_SQUARE:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 23, 21, 19, 17));
+                return BasicLayoutInfo.createFixedHeight(size(sz, 21, 21, 19, 17));
 
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_SCURVE:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 20, 16, 13));
 
-            case BUTTON_SEGMENTED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 28, 23, 20, 16));
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+                return BasicLayoutInfo.createFixedHeight(size(sz, 28, 22, 18, 15));
 
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
-            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
-                return BasicLayoutInfo.createFixedHeight(size(sz, 29, 23, 19, 16));
+                return BasicLayoutInfo.createFixedHeight(size(sz, 30, 23, 19, 16));
 
             default:
                 throw new UnsupportedOperationException();
@@ -196,14 +207,14 @@ public class LayoutInfo_11
         Size sz = g.getSize();
 
         if (bw == SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED
-              || bw == SegmentedButtonWidget.BUTTON_SEGMENTED_SCURVE
-              || bw == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED
-              || bw == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED
+          || bw == SegmentedButtonWidget.BUTTON_SEGMENTED_SCURVE
+          || bw == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED
+          || bw == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED
         ) {
             Position pos = g.getPosition();
 
-            float top = 1;
-            float bottom = 2;
+            float top = size2D(sz, 3, 2, 2, 1);
+            float bottom = size2D(sz, 2, 2, 1.5, 1);
             float left = 1;
             float right = left;
             float endAdjust = 2;
@@ -214,14 +225,25 @@ public class LayoutInfo_11
             if (bw == SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED) {
                 left = size2D(sz, 2, 2, 1.5);
                 right = size2D(sz, 3, 3, 2.5);
-                top = 1.51f;
-                bottom = 2.51f;
-            } else if (bw == SegmentedButtonWidget.BUTTON_SEGMENTED_SCURVE
-                     || bw == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED
-                     || bw == SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED
-            ) {
-                bottom = 1;
+                top = 2;
+                bottom = 2;
             }
+            if (isLeftEnd) {
+                left += endAdjust;
+            }
+            if (isRightEnd) {
+                right += endAdjust;
+            }
+            return Insetters.createFixed(top, left, bottom, right, layoutInfo);
+        } else if (bw.isTextured() && bw.isToolbar()) {
+            AquaUIPainter.Position pos = g.getPosition();
+            boolean isLeftEnd = pos == AquaUIPainter.Position.FIRST || pos == AquaUIPainter.Position.ONLY;
+            boolean isRightEnd = pos == AquaUIPainter.Position.LAST || pos == AquaUIPainter.Position.ONLY;
+            float top = 1;
+            float bottom = 1;
+            float left = bw.isSeparated() ? 3 : 1;
+            float right = left;
+            float endAdjust = bw.isSeparated() ? 0 : 2;
             if (isLeftEnd) {
                 left += endAdjust;
             }
@@ -235,7 +257,7 @@ public class LayoutInfo_11
     }
 
     @Override
-    protected @NotNull LayoutInfo getPopUpButtonLayoutInfo(@NotNull PopupButtonLayoutConfiguration g)
+    protected @NotNull LayoutInfo getPopupButtonLayoutInfo(@NotNull PopupButtonLayoutConfiguration g)
     {
         PopupButtonWidget bw = g.getPopupButtonWidget();
         Size sz = g.getSize();
@@ -252,58 +274,62 @@ public class LayoutInfo_11
                 return BasicLayoutInfo.createFixedHeight(size(sz, 23, 21, 19, 17));
 
             case BUTTON_POP_UP_TEXTURED:
-            case BUTTON_POP_UP_TEXTURED_TOOLBAR:
-            case BUTTON_POP_DOWN_TEXTURED:
-            case BUTTON_POP_DOWN_TEXTURED_TOOLBAR: {
-                float fixedHeight = size(sz, 23, 20, 16);
+            case BUTTON_POP_DOWN_TEXTURED: {
+                float fixedHeight = size(sz, 32, 23, 19, 16);
                 float minWidth = size(sz, 39, 32, 25);
                 return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
             }
+
+            case BUTTON_POP_UP_TEXTURED_TOOLBAR:
+            case BUTTON_POP_DOWN_TEXTURED_TOOLBAR: {
+                float fixedHeight = size(sz, 28, 22, 18, 15);
+                float minWidth = size(sz, 39, 32, 25);
+                return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
+            }
+
             case BUTTON_POP_DOWN_ROUND_RECT:
             case BUTTON_POP_UP_ROUND_RECT: {
                 float fixedHeight = size(sz, 18, 16, 14);
                 float minWidth = size(sz, 26, 23, 23);
                 return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
             }
+
+            case BUTTON_POP_DOWN_RECESSED:
+            case BUTTON_POP_UP_RECESSED:
+                return BasicLayoutInfo.createFixedHeight(size(sz, 28, 18, 16, 14));
         }
 
-        return super.getPopUpButtonLayoutInfo(g);
+        return super.getPopupButtonLayoutInfo(g);
     }
 
     @Override
     public @NotNull Insetter getPopupButtonContentInsets(@NotNull PopupButtonLayoutConfiguration g)
     {
         PopupButtonWidget bw = g.getPopupButtonWidget();
-        if (bw == BUTTON_POP_UP || bw == BUTTON_POP_DOWN | bw == BUTTON_POP_UP_TEXTURED | bw == BUTTON_POP_DOWN_TEXTURED) {
+        if (bw == BUTTON_POP_UP || bw == BUTTON_POP_DOWN | bw.isTextured()) {
             Size sz = g.getSize();
-            float top = 1;
-            float bottom = 1;
-            //float far = size2D(sz, 4, 3, 3, 3);
-            //float near = size2D(sz, 29, 21, 17, 14);
+            float top;
+            float bottom;
             float far = size2D(sz, 6, 5, 4, 3);
-            float near = size2D(sz, 30, 22, 18, 15);
+            float near = size2D(sz, 28, 18, 16, 14);
 
-            switch (bw) {
-                case BUTTON_POP_UP:
-                default:
-                    bottom = size2D(sz, 2.5, 2.5, 1.5, 2);
-                    top = size2D(sz, 1.5, 2, 1.51, 1);
-                    break;
-                case BUTTON_POP_DOWN:
-                    bottom = size2D(sz, 1.5, 2, 2, 2);
-                    top = size2D(sz, 1.5, 1, 1, 1);
-                    break;
-                case BUTTON_POP_UP_TEXTURED:
-                case BUTTON_POP_DOWN_TEXTURED:
-                    top = size2D(sz, 1, 1, 2, 1);
-                    bottom = 2;
-                    //far = 2;
-                    //near = size2D(sz, 17, 15, 13);
+            if (bw.isTextured()) {
+                top = size2D(sz, 2, 3, 2, 2);
+                bottom = top;
+            } else {
+                switch (bw) {
+                    case BUTTON_POP_UP:
+                    default:
+                        bottom = size2D(sz, 2.5, 2.5, 1.5, 2);
+                        top = size2D(sz, 1.5, 2, 1.51, 1);
+                        break;
+                    case BUTTON_POP_DOWN:
+                        bottom = size2D(sz, 1.5, 2, 2, 2);
+                        top = size2D(sz, 1.5, 1, 1, 1);
+                        break;
+                }
             }
-            LayoutInfo layoutInfo = getLayoutInfo(g);
-            return g.isLeftToRight()
-                     ? Insetters.createFixed(top, far, bottom, near, layoutInfo)
-                     : Insetters.createFixed(top, near, bottom, far, layoutInfo);
+            return createInsetter(g, top, bottom, far, near);
         }
         return super.getPopupButtonContentInsets(g);
     }
@@ -319,13 +345,13 @@ public class LayoutInfo_11
 
         } else if (bw == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED) {
             float fixedHeight = size(sz, 22, 18, 15);  // changed in El Capitan
-            float minWidth = size(sz, 27, 24, 22);
+            float minWidth = size(sz, 32, 24, 22);
             return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
 
         } else if (bw == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
             // introduced in El Capitan
-            float fixedHeight = size(sz, 24, 20, 17);
-            float minWidth = size(sz, 27, 24, 22);
+            float fixedHeight = size(sz, 28, 22, 18, 15);
+            float minWidth = size(sz, 45, 33, 24, 22);
             return BasicLayoutInfo.create(false, minWidth, true, fixedHeight);
 
         } else {
@@ -346,32 +372,29 @@ public class LayoutInfo_11
             return g.isLeftToRight() ? Insetters.createFixed(0, 0, 0, inset) : Insetters.createFixed(0, inset, 0, 0);
         }
 
-        LayoutInfo layoutInfo = getLayoutInfo(g);
         float near;
         float far;
         float top;
         float bottom;
 
         if (bw == BUTTON_COMBO_BOX_TEXTURED) {
-            near = size(sz, 20, 15, 13);
+            near = size(sz, 21, 17, 14);
             far = 2.5f;
             top = 1;
             bottom = 2;
         } else if (bw == BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
-            near = size(sz, 23, 18, 15);
+            near = size(sz, 27, 23, 18, 15);
             far = 2.5f;
             top = 1;
             bottom = 2;
         } else {
-            near = size2D(sz, 21, 17.5, 14.5);
+            near = size2D(sz, 21, 21, 17.5, 14.5);
             far = 0.5f;
             top = 1;
             bottom = size2D(sz, 2, 2, 1);
         }
 
-        return g.isLeftToRight()
-                 ? Insetters.createFixed(top, far, bottom, near, layoutInfo)
-                 : Insetters.createFixed(top, near, bottom, far, layoutInfo);
+        return createInsetter(g, top, bottom, far, near);
     }
 
     @Override
@@ -397,20 +420,99 @@ public class LayoutInfo_11
     }
 
     @Override
+    protected @NotNull LayoutInfo getSpinnerArrowsLayoutInfo(@NotNull SpinnerArrowsLayoutConfiguration g)
+    {
+        Size sz = g.getSize();
+        int width = size(sz, 17, 15, 13);
+        int height = size(sz, 23, 20, 17);
+        return BasicLayoutInfo.createFixed(width, height);
+    }
+
+    @Override
     protected @NotNull LayoutInfo getTextFieldLayoutInfo(@NotNull TextFieldLayoutConfiguration g)
     {
         TextFieldWidget w = g.getWidget();
         Size sz = g.getSize();
         if (w.isRound()) {
-            return BasicLayoutInfo.createFixedHeight(size(sz, 28, 22, 19, 17));
+            return BasicLayoutInfo.createFixedHeight(size(sz, 28, 22, 19, 15));
         }
         if (w.isSearch()) {
             int minimumWidth = w.hasMenu() ? size(sz, 28, 26, 26) : size(sz, 24, 22, 20);
-            int fixedHeight = size(sz, 28, 22, 19, 17);
+            int fixedHeight = size(sz, 28, 22, 18, 15);
             return BasicLayoutInfo.create(false, minimumWidth, true, fixedHeight);
         }
 
         return BasicLayoutInfo.getInstance();
+    }
+
+    @Override
+    public @NotNull Insetter getTextFieldTextInsets(@NotNull TextFieldLayoutConfiguration g)
+    {
+        TextFieldWidget tw = g.getWidget();
+        Size sz = g.getSize();
+
+        float top;
+        float left;
+        float right;
+        float bottom;
+
+        int d = 0;
+        float gap = 6;
+
+        if (tw.isSearch()) {
+            if (tw.hasMenu()) {
+                d = 4;
+                gap = 3.5f;
+            }
+            if (g.isLeftToRight()) {
+                Insetter insets = getSearchButtonPaintingInsets(g);
+                if (insets != null) {
+                    Rectangle2D bounds = insets.apply2D(100, 100);
+                    left = (float) (bounds.getX() + bounds.getWidth() + gap);
+                } else {
+                    left = size(sz, 27+d, 26+d, 22+d);
+                }
+                right = size(sz, 22, 19, 16);
+            } else {
+                Insetter insets = getSearchButtonPaintingInsets(g);
+                if (insets != null) {
+                    Rectangle2D bounds = insets.apply2D(100, 100);
+                    right = (float) (100 - bounds.getX() + gap);
+                } else {
+                    right = size(sz, 27+d, 26+d, 22+d);
+                }
+                left = size(sz, 22, 19, 16);
+            }
+
+            if (tw.isToolbar()) {
+                top = size2D(sz, 3, 1.5, 1.5);
+                bottom = size2D(sz, 3, 2, 1.5);
+            } else {
+                top = size2D(sz, 3, 1.5, 1.5);
+                bottom = size2D(sz, 3, 1.5, 1.5);
+            }
+
+        } else switch (tw) {
+            case TEXT_FIELD:
+                top = bottom = left = right = 1;
+                break;
+
+            case TEXT_FIELD_ROUND:
+                top = size(sz, 1, 1, 1, 3);
+                bottom = 1;
+                left = right = 2.5f;
+                break;
+
+            case TEXT_FIELD_ROUND_TOOLBAR:
+                top = 1;
+                bottom = size(sz, 2, 2, 2, 1);
+                left = right = 2.5f;
+                break;
+
+            default:
+                throw new UnsupportedOperationException();
+        }
+        return createInsetter(g, top, bottom, left, right);
     }
 
     @Override
@@ -419,7 +521,7 @@ public class LayoutInfo_11
         // macOS 11 introduced new linear slider styles with different layout properties. However, the NSView renderer
         // may or may not use the new style, based on runtime determined linkage information.
 
-        if (!g.isLinear() || AquaUIPainterBase.internalGetSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
+        if (!g.isLinear() || AquaNativePainter.getSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
             return super.getSliderLayoutInfo(g);
         }
 
@@ -461,7 +563,7 @@ public class LayoutInfo_11
         // macOS 11 introduced new slider styles with different layout properties. However, the NSView renderer
         // may or may not use the new style, based on runtime determined linkage information.
 
-        if (AquaUIPainterBase.internalGetSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
+        if (AquaNativePainter.getSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
             return super.getSliderTrackPaintingInsets(g);
         }
 
@@ -500,7 +602,7 @@ public class LayoutInfo_11
         // macOS 11 introduced new linear slider styles with different layout properties. However, the NSView renderer
         // may or may not use the new style, based on runtime determined linkage information.
 
-        if (!g.isLinear() || AquaUIPainterBase.internalGetSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
+        if (!g.isLinear() || AquaNativePainter.getSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
             return super.getSliderThumbLayoutInfo(g, isForPainting);
         }
 
@@ -541,7 +643,7 @@ public class LayoutInfo_11
         // macOS 11 introduced new linear slider styles with different layout properties. However, the NSView renderer
         // may or may not use the new style, based on runtime determined linkage information.
 
-        if (!g.isLinear() || AquaUIPainterBase.internalGetSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
+        if (!g.isLinear() || AquaNativePainter.getSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
             return super.getSliderThumbInsets(g, thumbPosition, isForPainting);
         }
 
@@ -596,7 +698,7 @@ public class LayoutInfo_11
         // macOS 11 introduced new linear slider styles with different layout properties. However, the NSView renderer
         // may or may not use the new style, based on runtime determined linkage information.
 
-        if (!g.isLinear() || AquaUIPainterBase.internalGetSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
+        if (!g.isLinear() || AquaNativePainter.getSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
             return super.getPointerOffset(g);
         }
 
@@ -611,7 +713,7 @@ public class LayoutInfo_11
         // macOS 11 introduced new linear slider styles with different layout properties. However, the NSView renderer
         // may or may not use the new style, based on runtime determined linkage information.
 
-        if (!g.isLinear() || AquaUIPainterBase.internalGetSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
+        if (!g.isLinear() || AquaNativePainter.getSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
             return super.getSliderThumbCenter(bounds, g, thumbPosition);
         }
 
@@ -659,7 +761,7 @@ public class LayoutInfo_11
     @Override
     public @NotNull Insetter getSliderTickMarkPaintingInsets(@NotNull SliderLayoutConfiguration g)
     {
-        int style = AquaUIPainterBase.internalGetSliderRenderingVersion();
+        int style = AquaNativePainter.getSliderRenderingVersion();
         if (style == AquaUIPainterBase.SLIDER_11_0 && g.isLinear() && g.hasTickMarks()) {
             float FAKE_LENGTH = 100;
             LayoutInfo sliderLayout = getSliderLayoutInfo(g);
@@ -693,5 +795,20 @@ public class LayoutInfo_11
         }
 
         return super.getSliderTickMarkPaintingInsets(g);
+    }
+
+    @Override
+    protected @NotNull LayoutInfo getTitleBarLayoutInfo(@NotNull TitleBarLayoutConfiguration g)
+    {
+        // Not sure when these values changed
+        switch (g.getWidget())
+        {
+            case DOCUMENT_WINDOW:
+                return BasicLayoutInfo.createFixedHeight(28);
+            case UTILITY_WINDOW:
+                return BasicLayoutInfo.createFixedHeight(19);
+            default:
+                throw new UnsupportedOperationException();
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,9 +8,10 @@
 
 package org.violetlib.jnr.impl;
 
-import java.awt.Image;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
 
 /**
   A painter that uses a renderer and caches the rendered image. The cache key is created by a subclass method.
@@ -53,7 +54,7 @@ public abstract class CachingRendererPainter
     }
 
     @Override
-    protected @Nullable Image getImage(int scaleFactor, int width, int height)
+    public @Nullable Image getImage(int scaleFactor, int width, int height)
     {
         ImageCache.PixelsKey key = createKey(scaleFactor, width, height);
 

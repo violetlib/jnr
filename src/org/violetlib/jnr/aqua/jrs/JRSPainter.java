@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -23,6 +23,8 @@ import org.violetlib.vappearances.VAppearance;
 
 import java.awt.geom.Rectangle2D;
 
+import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR;
+
 /**
   A painter that renders Aqua widgets using the native rendering used by the Aqua look and feel, by way of the JDK
   classes that interface to the (undocumented) Java Runtime Support framework. Caching of rendered images is supported.
@@ -33,7 +35,11 @@ public class JRSPainter
 {
     protected final JRSRendererMaker maker;
 
-    private static final @NotNull JRSRendererDescriptions rendererDescriptions = new JRSRendererDescriptions();
+    private static final @NotNull JRSRendererDescriptions myRendererDescriptions
+      = new JRSRendererDescriptions();
+
+    private static final @NotNull RendererDescriptions rendererDescriptions
+      = new BasicRendererDescriptions(myRendererDescriptions);
 
     public JRSPainter()
       throws UnsupportedOperationException
@@ -90,6 +96,7 @@ public class JRSPainter
                 maker.set(JRSUIConstants.Size.MINI);
                 break;
             case LARGE:
+            case EXTRA_LARGE:
                 maker.set(JRSUIConstants.Size.LARGE);
                 break;
             default:
@@ -173,12 +180,23 @@ public class JRSPainter
         ButtonWidget bw = toCanonicalButtonStyle(g.getButtonWidget());
 
         if (bw == ButtonWidget.BUTTON_TOOLBAR_ITEM) {
-            // A tool bar item button only paints a background when ON
-            if (g.getButtonState() != ButtonState.ON) {
+            // A toolbar item button only paints a background when ON
+            if (g.getButtonState() != ButtonState.ON || AquaNativeRendering.getSystemRenderingVersion() >= macOS26) {
                 return NULL_RENDERER;
             }
             ToolBarItemWellConfiguration tg = new ToolBarItemWellConfiguration(g.getState(), true);
             return getToolBarItemWellRenderer(tg);
+        }
+
+        Size sz = g.getSize();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
+
+        if (bw == ButtonWidget.BUTTON_ROUNDED_RECT && sz == Size.LARGE && version >= macOS11) {
+            sz = Size.REGULAR;
+            g = g.with(sz);
+        } else if (bw == BUTTON_ROUND_TEXTURED_TOOLBAR && version >= macOS11) {
+            sz = Size.LARGE;
+            g = g.with(sz);
         }
 
         RendererDescription rd = rendererDescriptions.getButtonRendererDescription(g);
@@ -192,6 +210,7 @@ public class JRSPainter
 
         switch (bw) {
             case BUTTON_PUSH:
+            case BUTTON_GLASS:
                 maker.set(JRSUIConstants.Widget.BUTTON_PUSH);
                 break;
             case BUTTON_BEVEL:
@@ -241,7 +260,6 @@ public class JRSPainter
                 break;
             case BUTTON_TEXTURED:
             case BUTTON_TEXTURED_TOOLBAR:  // not supported
-            case BUTTON_TEXTURED_TOOLBAR_ICONS:  // not supported
                 maker.set(JRSUIConstants.Widget.BUTTON_PUSH_TEXTURED);
                 break;
             case BUTTON_ROUND:
@@ -275,7 +293,7 @@ public class JRSPainter
             bs = ButtonState.STATELESS;
         }
 
-        configureSize(g.getSize());
+        configureSize(sz);
         configureState(st);
         maker.set(JRSUIConstants.AlignmentVertical.CENTER);
         maker.set(JRSUIConstants.AlignmentHorizontal.CENTER);
@@ -320,7 +338,6 @@ public class JRSPainter
                      || bw == ButtonWidget.BUTTON_GRADIENT
                      || bw == ButtonWidget.BUTTON_TEXTURED
                      || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR
-                     || bw == ButtonWidget.BUTTON_TEXTURED_TOOLBAR_ICONS
                      || bw == ButtonWidget.BUTTON_ROUND) {
             switch (bs) {
                 case ON:
@@ -387,7 +404,7 @@ public class JRSPainter
     protected @NotNull Renderer getScrollBarRenderer(@NotNull ScrollBarConfiguration g)
     {
         RendererDescription rd = rendererDescriptions.getScrollBarRendererDescription(g);
-        RendererDescription trd = rendererDescriptions.getScrollBarThumbRendererDescription(g);
+        RendererDescription trd = myRendererDescriptions.getScrollBarThumbRendererDescription(g);
 
         State st = g.getState();
 
@@ -650,7 +667,6 @@ public class JRSPainter
             case BUTTON_TAB:
             case BUTTON_SEGMENTED_SLIDER:
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
-            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                 maker.set(JRSUIConstants.Widget.TAB);
                 break;
             case BUTTON_SEGMENTED:
@@ -670,7 +686,6 @@ public class JRSPainter
                 break;
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:  // not supported
-            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:  // not supported
                 maker.set(JRSUIConstants.Widget.BUTTON_SEGMENTED_TEXTURED);
                 break;
             case BUTTON_SEGMENTED_TOOLBAR:
@@ -681,7 +696,6 @@ public class JRSPainter
                 break;
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 // not supported
                 // an attempted workaround, must coordinate with renderer description
                 pos = Position.ONLY;
@@ -868,9 +882,8 @@ public class JRSPainter
         configureLayoutDirection(g.getLayoutDirection());
         BasicRenderer r = maker.getRenderer();
 
-        JRSRendererDescriptions rds = rendererDescriptions;
         Size arrowSize = g.getSize();  // already converted as needed to a supported size
-        RendererDescription rd = rds.getPopUpArrowRendererDescription(g, arrowSize);
+        RendererDescription rd = myRendererDescriptions.getPopUpArrowRendererDescription(g, arrowSize);
         return Renderer.create(r, rd);
     }
 
@@ -1065,7 +1078,7 @@ public class JRSPainter
             return Renderer.create(maker.getRenderer(), rd);
         }
 
-        int style = getSliderRenderingVersion();
+        int style = AquaNativePainter.getSliderRenderingVersion();
         Renderer trackRenderer = getSliderTrackRenderer(g);
         Renderer tickMarkRenderer = getSliderTickMarkRenderer(g);
         Renderer thumbRenderer = getSliderThumbRenderer(g);
@@ -1233,6 +1246,8 @@ public class JRSPainter
             case PANE_SPLITTER:
                 maker.set(JRSUIConstants.Widget.DIVIDER_SPLITTER);
                 break;
+            case TRANSPARENT_DIVIDER:
+                return NULL_RENDERER;
             default:
                 throw new UnsupportedOperationException();
         }

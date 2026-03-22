@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,16 +8,12 @@
 
 package org.violetlib.jnr.aqua;
 
-import java.util.Objects;
-
-import org.violetlib.jnr.aqua.AquaUIPainter.Orientation;
-import org.violetlib.jnr.aqua.AquaUIPainter.ScrollBarKnobWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.ScrollBarWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.Size;
-import org.violetlib.jnr.aqua.AquaUIPainter.State;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.violetlib.jnr.aqua.AquaUIPainter.*;
 import org.violetlib.jnr.impl.JNRUtils;
 
-import org.jetbrains.annotations.*;
+import java.util.Objects;
 
 /**
   A configuration for a scroll bar.
@@ -94,6 +90,29 @@ public class ScrollBarConfiguration
     public boolean isTrackSuppressed()
     {
         return noTrack;
+    }
+
+    @Override
+    public @NotNull ScrollBarConfiguration toOverlay()
+    {
+        return new ScrollBarConfiguration(ScrollBarWidget.OVERLAY, getKnobWidget(), getSize(), getState(),
+          getOrientation(), getThumbPosition(), getThumbExtent(), isTrackSuppressed());
+    }
+
+    public @NotNull ScrollBarConfiguration withThumbExtent(float thumbExtent)
+    {
+        if (thumbExtent == this.thumbExtent) {
+            return this;
+        }
+        return new ScrollBarConfiguration(getWidget(), kw, getSize(), state, getOrientation(), thumbPosition, thumbExtent, noTrack);
+    }
+
+    public @NotNull ScrollBarConfiguration withKnobWidget(@NotNull ScrollBarKnobWidget kw)
+    {
+        if (kw == this.kw) {
+            return this;
+        }
+        return new ScrollBarConfiguration(getWidget(), kw, getSize(), state, getOrientation(), thumbPosition, thumbExtent, noTrack);
     }
 
     @Override

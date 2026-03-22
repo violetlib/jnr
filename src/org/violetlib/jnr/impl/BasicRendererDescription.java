@@ -8,10 +8,11 @@
 
 package org.violetlib.jnr.impl;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.awt.geom.Rectangle2D;
 import java.util.Objects;
-
-import org.jetbrains.annotations.*;
 
 /**
   A renderer description based on fixed offsets and raster size adjustments.
@@ -22,6 +23,26 @@ import org.jetbrains.annotations.*;
 public final class BasicRendererDescription
   implements RendererDescription
 {
+    /**
+      Create a renderer description that does not depend upon the scale factor. All parameters are specified in device
+      independent pixels.
+
+      @param xOffset The X offset of the raster origin from the target region origin. A positive value means that the
+      raster will be shifted left before being painted.
+      @param yOffset The Y offset of the raster origin from the target region origin. A positive value means that the
+      raster will be shifted up before being painted.
+      @param widthAdjustment This adjustment will be added to the target region width to determine the width of the
+      raster given to the renderer. A positive value means that the raster will be wider than the target region.
+      @param heightAdjustment This adjustment will be added to the target region height to determine the height of the
+      raster given to the renderer. A positive value means that the raster will be taller than the target region.
+    */
+
+    public static @NotNull RendererDescription create(float xOffset, float widthAdjustment,
+                                                      float yOffset, float heightAdjustment)
+    {
+        return new BasicRendererDescription(-xOffset, -yOffset, widthAdjustment, heightAdjustment);
+    }
+
     private final float xOffset;
     private final float yOffset;
     private final float widthAdjustment;

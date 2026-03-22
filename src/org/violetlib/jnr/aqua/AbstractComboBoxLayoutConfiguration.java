@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,23 +8,23 @@
 
 package org.violetlib.jnr.aqua;
 
+import org.jetbrains.annotations.NotNull;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 import org.violetlib.jnr.aqua.AquaUIPainter.UILayoutDirection;
-
-import org.jetbrains.annotations.*;
 
 /**
   A common base class for an editable or non-editable combo box layout configuration.
 */
 
 public abstract class AbstractComboBoxLayoutConfiguration
-  extends LayoutConfiguration
+  extends LayoutDirectionSensitiveLayoutConfigurationImpl
 {
+    public AbstractComboBoxLayoutConfiguration(@NotNull UILayoutDirection ld)
+    {
+        super(ld);
+    }
+
     public abstract @NotNull Size getSize();
 
-    public abstract @NotNull UILayoutDirection getLayoutDirection();
-
     public abstract boolean isCell();
-
-    public abstract boolean isLeftToRight();
 }

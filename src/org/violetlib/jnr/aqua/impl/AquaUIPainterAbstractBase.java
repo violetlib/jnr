@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -14,7 +14,6 @@ import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.impl.Colors;
-import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.vappearances.VAppearance;
 
 import java.awt.*;
@@ -55,24 +54,21 @@ public abstract class AquaUIPainterAbstractBase
 
     protected static @NotNull AquaUILayoutInfo createLayout()
     {
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
-        if (platformVersion >= 260000) {
-            int version = AquaUIPainterBase.internalGetSegmentedButtonRenderingVersion();
-            if (version == AquaUIPainterBase.SEGMENTED_26_OLD) {
+        int version = AquaNativeRendering.getSystemRenderingVersion();
+        if (version >= macOS26) {
+            int sv = AquaNativePainter.getSegmentedButtonRenderingVersion();
+            if (sv == AquaUIPainterBase.SEGMENTED_26_OLD) {
                 return new LayoutInfo_26old();
             }
             return new LayoutInfo_26();
         }
-        if (platformVersion >= 150000) {
+        if (version >= 150000) {
             return new LayoutInfo_15();
         }
-        if (platformVersion >= 120000) {
-            return new LayoutInfo_12();
-        }
-        if (platformVersion >= 101600) {
+        if (version >= macOS11) {
             return new LayoutInfo_11();
         }
-        if (platformVersion >= 101100) {
+        if (version >= 101100) {
             return new LayoutInfo_10_11();
         }
         return new LayoutInfo10_10();
@@ -80,11 +76,14 @@ public abstract class AquaUIPainterAbstractBase
 
     protected static @NotNull UIOutliner createOutliner(@NotNull AquaUILayoutInfo uiLayout)
     {
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
-        if (platformVersion >= 150000) {
+        int version = AquaNativeRendering.getSystemRenderingVersion();
+        if (version >= macOS26) {
+            return new Outliner_26((LayoutInfo_26) uiLayout);
+        }
+        if (version >= 150000) {
             return new Outliner_15((LayoutInfo_15) uiLayout);
         }
-        if (platformVersion >= 101600) {
+        if (version >= macOS11) {
             return new Outliner_11((LayoutInfo_11) uiLayout);
         }
         return new Outliner_10_10((LayoutInfo10_10) uiLayout);

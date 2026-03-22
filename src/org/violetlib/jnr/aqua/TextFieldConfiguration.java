@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,17 +8,17 @@
 
 package org.violetlib.jnr.aqua;
 
-import java.util.Objects;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 import org.violetlib.jnr.aqua.AquaUIPainter.State;
 import org.violetlib.jnr.aqua.AquaUIPainter.TextFieldWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.UILayoutDirection;
 
-import org.jetbrains.annotations.*;
+import java.util.Objects;
 
 /**
-  A configuration for a text field.
+  A configuration for a text field or pane.
 */
 
 public class TextFieldConfiguration
@@ -48,6 +48,15 @@ public class TextFieldConfiguration
     public boolean isFocused()
     {
         return isFocused;
+    }
+
+    @Override
+    public @NotNull TextFieldConfiguration withSize(@NotNull Size size)
+    {
+        if (size == this.getSize()) {
+            return this;
+        }
+        return new TextFieldConfiguration(getWidget(), size, state, isFocused, getLayoutDirection());
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,15 +8,15 @@
 
 package org.violetlib.jnr.impl;
 
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.util.Arrays;
 
-import org.jetbrains.annotations.*;
-
-import static org.violetlib.jnr.impl.ImageUtils.*;
+import static org.violetlib.jnr.impl.ImageUtils.alpha;
 
 /**
   A compositor that renders into an INT_ARGB_PRE raster from various sources. Multiple renderings can be composed into
@@ -41,7 +41,7 @@ public class ReusableCompositor
 
     // Note: the data is intended to be private, which is why ReusableCompositor does not support the PixelRaster interface.
 
-    private @Nullable int[] data;  // the actual raster buffer, reallocated as needed to contain at least the required number of pixels.
+    private int @Nullable [] data;  // the actual raster buffer, reallocated as needed to contain at least the required number of pixels.
     // May be null if the raster has zero size.
 
     private final @NotNull PixelRaster dataAccess = new MyPixelRaster();  // for internal access to the data
@@ -89,7 +89,7 @@ public class ReusableCompositor
       Create a reusable compositor using the specified buffer.
     */
 
-    public ReusableCompositor(@NotNull int[] data, int rw, int rh, int scaleFactor)
+    public ReusableCompositor(int @NotNull [] data, int rw, int rh, int scaleFactor)
     {
         if (rw < 0 || rh < 0) {
             throw new IllegalArgumentException("Invalid negative raster width and/or height");
@@ -110,7 +110,7 @@ public class ReusableCompositor
     private class MyPixelRaster
       implements PixelRaster
     {
-        private final @NotNull int[] emptyRaster = new int[0];
+        private final int @NotNull [] emptyRaster = new int[0];
 
         @Override
         public void provide(@NotNull Accessor a)

@@ -30,6 +30,7 @@
 #import "org_violetlib_jnr_impl_jrs_JRSUIConstants_Hit.h"
 
 #import "JRSUIConstantSync.h"
+#import "log.h"
 
 #ifndef jlong_to_ptr
 #define jlong_to_ptr(a) ((void *)(uintptr_t)(a))
@@ -128,8 +129,7 @@ static inline jint syncChangesToControl
         size_t dataSize;
         void *value = (void *)getValueFor(code, changeBuffer, &dataSize);
         if (value == NULL) {
-            NSLog(@"null pointer for %@ for value %d", key, (int)code);
-
+            OSLog(@"null pointer for %@ for value %d", key, (int)code);
             return org_violetlib_jnr_impl_jrs_JRSUIControl_NULL_PTR;
         }
 

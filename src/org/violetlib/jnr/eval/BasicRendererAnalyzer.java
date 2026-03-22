@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,15 +8,15 @@
 
 package org.violetlib.jnr.eval;
 
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.impl.NativeSupport;
 import org.violetlib.jnr.impl.BasicRenderer;
 import org.violetlib.jnr.impl.Renderer;
 import org.violetlib.jnr.impl.ReusableCompositor;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 /**
   Examine the output of a renderer to determine its characteristics.
@@ -107,7 +107,7 @@ public class BasicRendererAnalyzer
 
         if (fixedHeight > 0) {
             int ch;
-            int limit = fh + 20 * scaleFactor;
+            int limit = fh + 40 * scaleFactor;
             for (ch = fixedHeight; ch <= limit; ch++) {
                 ImageAnalyzer ca = analyzeRendering(r, w, ch);
                 Rectangle b = ca.getEffectiveBounds();
@@ -130,7 +130,7 @@ public class BasicRendererAnalyzer
 
         if (fixedWidth > 0) {
             int cw;
-            int limit = fw + 20 * scaleFactor;
+            int limit = fw + 40 * scaleFactor;
             for (cw = fixedWidth; cw <= limit; cw++) {
                 ImageAnalyzer ca = analyzeRendering(r, cw, h);
                 Rectangle b = ca.getEffectiveBounds();

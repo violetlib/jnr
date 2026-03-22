@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,15 +8,12 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.*;
 import java.security.AccessControlException;
 import java.util.StringTokenizer;
-
-import org.jetbrains.annotations.*;
 
 /**
   Provides the native library used by the Aqua Native Painter.
@@ -92,7 +89,7 @@ public class NativeSupport
 
         try {
             syslog(msg);
-        } catch (Throwable th) {
+        } catch (Throwable ignore) {
         }
     }
 

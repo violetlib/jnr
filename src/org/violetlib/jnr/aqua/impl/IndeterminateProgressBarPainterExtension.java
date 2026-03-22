@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Alan Snyder.
+ * Copyright (c) 2020-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,19 +8,17 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.RoundRectangle2D;
-import java.util.Map;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaUILayoutInfo;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.IndeterminateProgressIndicatorConfiguration;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
+import java.util.Map;
 
 /**
 
@@ -59,13 +57,12 @@ public class IndeterminateProgressBarPainterExtension
     {
         boolean isVertical = pg.getOrientation() == AquaUIPainter.Orientation.VERTICAL;
         float arc = pg.getSize() == AquaUIPainter.Size.SMALL ? 3 : 6;
+        RoundRectangle2D.Float shape = new RoundRectangle2D.Float(0, 0, width, height, arc, arc);
 
         g = (Graphics2D) g.create();
-        g.clip(new Rectangle2D.Float(0, 0, width, height));
-
+        g.clip(shape);
         g.setColor(background);
-        g.fill(new RoundRectangle2D.Float(0, 0, width, height, arc, arc));
-
+        g.fill(shape);
         g.setColor(thumb);
 
         int frameCount = 90; // must agree with VAqua (AquaProgressBarUI)

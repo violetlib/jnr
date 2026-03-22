@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,28 +8,26 @@
 
 package org.violetlib.jnr.aqua.coreui;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.aqua.AquaUIPainter.*;
-import org.violetlib.jnr.aqua.ButtonConfiguration;
-import org.violetlib.jnr.aqua.ComboBoxConfiguration;
-import org.violetlib.jnr.aqua.PopupButtonConfiguration;
-import org.violetlib.jnr.aqua.ScrollBarConfiguration;
-import org.violetlib.jnr.aqua.SegmentedButtonConfiguration;
-import org.violetlib.jnr.aqua.SliderConfiguration;
-import org.violetlib.jnr.aqua.SplitPaneDividerConfiguration;
+import org.violetlib.jnr.aqua.impl.AquaNativePainter;
 import org.violetlib.jnr.aqua.impl.AquaUIPainterBase;
 import org.violetlib.jnr.aqua.impl.NativeSupport;
-import org.violetlib.jnr.aqua.impl.RendererDescriptionsBase;
+import org.violetlib.jnr.aqua.impl.RendererDescriptionsImpl;
 import org.violetlib.jnr.impl.BasicRendererDescription;
-import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.JNRUtils;
 import org.violetlib.jnr.impl.MultiResolutionRendererDescription;
 import org.violetlib.jnr.impl.RendererDescription;
 
-import org.jetbrains.annotations.*;
-
 import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
-import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.*;
-import static org.violetlib.jnr.impl.JNRUtils.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED;
+import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR;
+import static org.violetlib.jnr.aqua.AquaUIPainter.macOS11;
+import static org.violetlib.jnr.aqua.AquaUIPainter.macOS26;
+import static org.violetlib.jnr.impl.JNRUtils.size;
+import static org.violetlib.jnr.impl.JNRUtils.size2D;
 
 /**
   Renderer descriptions for Core UI based rendering on OS X 10.10 and later. This mostly includes rendering via the Java
@@ -37,37 +35,41 @@ import static org.violetlib.jnr.impl.JNRUtils.*;
 */
 
 public class CoreUIRendererDescriptions
-  extends RendererDescriptionsBase
+  extends RendererDescriptionsImpl
 {
+    public CoreUIRendererDescriptions()
+    {
+    }
+
     @Override
-    public @NotNull RendererDescription getSplitPaneDividerRendererDescription(@NotNull SplitPaneDividerConfiguration g)
+    public @NotNull RendererDescription getRendererDescription(@NotNull SplitPaneDividerConfiguration g)
     {
         DividerWidget dw = g.getWidget();
         Orientation o = g.getOrientation();
 
         switch (g.getWidget())
         {
-            case THIN_DIVIDER:
-            case THICK_DIVIDER:
-                return new BasicRendererDescription(0, 0, 0, 0);
             case PANE_SPLITTER:
                 return o == Orientation.HORIZONTAL
-                         ? new BasicRendererDescription(0, -1, 0, 2)
-                         : new BasicRendererDescription(-1, 0, 2, 0);
+                  ? new BasicRendererDescription(0, -1, 0, 2)
+                  : new BasicRendererDescription(-1, 0, 2, 0);
+            case THIN_DIVIDER:
+            case THICK_DIVIDER:
             default:
-                return null;
+                return new BasicRendererDescription(0, 0, 0, 0);
         }
     }
 
     @Override
-    public @NotNull RendererDescription getButtonRendererDescription(@NotNull ButtonConfiguration g)
+    public @NotNull RendererDescription getRendererDescription(@NotNull ButtonConfiguration g)
     {
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
         ButtonWidget bw = toCanonicalButtonStyle(g.getButtonWidget());
         Size sz = g.getSize();
 
         if (bw == BUTTON_CHECK_BOX) {
             switch (sz) {
+                case EXTRA_LARGE:
                 case LARGE:
                 case REGULAR:
                     return new BasicRendererDescription(0, 0, 0, 0);
@@ -80,22 +82,27 @@ public class CoreUIRendererDescriptions
 
         } else if (bw == BUTTON_RADIO) {
             switch (sz) {
+                case EXTRA_LARGE:
                 case LARGE:
                 case REGULAR:
                     return new BasicRendererDescription(0, 0, 0, 0);
                 case SMALL:
                     return new BasicRendererDescription(0, 0, 0, 1);
                 case MINI:
+                    if (version < 101500) {
+                        return BasicRendererDescription.create(0, 0, 0, 1);
+                    }
                     return new BasicRendererDescription(0, -0.49f, 0, 1);
                 default:
                     throw new UnsupportedOperationException();
             }
 
         } else if (bw == BUTTON_ROUND) {
-            if (platformVersion >= 101600) {
+            if (version >= macOS11) {
                 return new BasicRendererDescription(0, -0.51f, 0, 0);
             } else {
                 switch (sz) {
+                    case EXTRA_LARGE:
                     case LARGE:
                     case REGULAR:
                         return new BasicRendererDescription(0, 0, 0, 2);
@@ -109,10 +116,11 @@ public class CoreUIRendererDescriptions
             }
 
         } else if (bw == BUTTON_HELP) {
-            if (platformVersion >= 101600) {
+            if (version >= macOS11) {
                 switch (sz) {
+                    case EXTRA_LARGE:
                     case LARGE:
-                        return new BasicRendererDescription(0.49f, 0, 0, 6);
+                        return new BasicRendererDescription(-0.49f, 0, 0, 6);
                     case REGULAR:
                         return new BasicRendererDescription(-0.49f, 0, 0, 2);
                     case SMALL:
@@ -122,37 +130,73 @@ public class CoreUIRendererDescriptions
                     default:
                         throw new UnsupportedOperationException();
                 }
-            } else {
+            } else if (version >= 101500) {
                 switch (sz) {
+                    case EXTRA_LARGE:
                     case LARGE:
                     case REGULAR:
-                        return new BasicRendererDescription(0, 0, 0, platformVersion < 101200 ? 3 : 0);
+                        return BasicRendererDescription.create(0, 0, 0, 4);
+                    case SMALL:
+                        return BasicRendererDescription.create(0, 0, 0, 0);
+                    case MINI:
+                        return BasicRendererDescription.create(0, 1, 0, 0);
+                    default:
+                        throw new UnsupportedOperationException();
+                }
+            } else if (version >= 101400) {
+                switch (sz) {
+                    case EXTRA_LARGE:
+                    case LARGE:
+                    case REGULAR:
+                        return BasicRendererDescription.create(0, 0, 0, 3);
+                    case SMALL:
+                        return BasicRendererDescription.create(0, 0, 0, 0);
+                    case MINI:
+                        return BasicRendererDescription.create(0, 1, 0, 0);
+                    default:
+                        throw new UnsupportedOperationException();
+                }
+            } else {
+                switch (sz) {
+                    case EXTRA_LARGE:
+                    case LARGE:
+                    case REGULAR:
+                        return new BasicRendererDescription(0, 0, 0, version < 101200 ? 3 : 0);
                     case SMALL:
                         return new BasicRendererDescription(0, 0, 0, 0);
                     case MINI:
-                        return platformVersion < 101200
-                                 ? new BasicRendererDescription(0, -0.5f, 1, 0)
-                                 : new BasicRendererDescription(-0.49f, 0, 1, 0);
+                        return version < 101200
+                          ? new BasicRendererDescription(0, -0.5f, 1, 0)
+                          : new BasicRendererDescription(-0.49f, 0, 1, 0);
                     default:
                         throw new UnsupportedOperationException();
                 }
             }
 
-        } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS) {
-            if ((bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS)
-                  && sz == Size.LARGE
-                  && platformVersion >= 101600) {
+        } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR) {
+
+            if (bw == BUTTON_TEXTURED_TOOLBAR && sz == Size.LARGE && version >= macOS11) {
                 return new BasicRendererDescription(-5, -1, 10, 2);
             }
 
-            if (platformVersion >= 101600) {
-                if (bw == BUTTON_TEXTURED && (sz == Size.MINI || sz == Size.SMALL)) {
-                    return new BasicRendererDescription(-1, 0, 2, 1);
-                }
-                return new BasicRendererDescription(-1, 0, 2, 0);
+            if (version >= macOS11) {
+                return BasicRendererDescription.create(1, 2, 0, 1);
             }
 
-            if (platformVersion >= 101100) {
+            if (version >= 101100 && version < 101200 || version >= 101500) {
+                if (bw.isToolbar()) {
+                    return BasicRendererDescription.create(1, 2, 0, 1);
+                }
+                return BasicRendererDescription.create(0, 0, 0, 1);
+            }
+
+            if (version >= 101200) {
+                if (!bw.isToolbar()) {
+                    return BasicRendererDescription.create(0, 0, 0, 1);
+                }
+            }
+
+            if (version >= 101100) {
                 BasicRendererDescription x1 = new BasicRendererDescription(0, -1, 0, 2);
                 BasicRendererDescription x2 = new BasicRendererDescription(-0.5f, -1, 1, 2);
                 return new MultiResolutionRendererDescription(x1, x2);
@@ -161,10 +205,11 @@ public class CoreUIRendererDescriptions
             }
 
         } else if (bw == BUTTON_DISCLOSURE) {
-            if (platformVersion >= 101600) {
+            if (version >= macOS11) {
                 return new BasicRendererDescription(0, 0, 0, 0);
             } else {
                 switch (sz) {
+                    case EXTRA_LARGE:
                     case LARGE:
                     case REGULAR:
                     case SMALL:
@@ -177,14 +222,21 @@ public class CoreUIRendererDescriptions
             }
 
         } else if (bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
-            if (platformVersion >= 101600) {
+            if (version >= macOS11) {
                 return new BasicRendererDescription(0, 0, 0, 1);
             } else {
-                return new BasicRendererDescription(0, 0, 0, 0);
+                return super.getRendererDescription(g);
+            }
+
+        } else if (bw == BUTTON_ROUND_TEXTURED) {
+            if (version >= 101500 && version < macOS11) {
+                return new BasicRendererDescription(0, 0, 0, 1);
+            } else {
+                return super.getRendererDescription(g);
             }
 
         } else if (bw == BUTTON_BEVEL_ROUND) {
-            if (platformVersion >= 120000) {
+            if (version >= 120000) {
                 if (sz == Size.MINI) {
                     return new BasicRendererDescription(-1, -1, 2, 1);
                 } else {
@@ -193,20 +245,24 @@ public class CoreUIRendererDescriptions
             } else {
                 return new BasicRendererDescription(-2, -2, 4, 4);
             }
+
+        } else if (bw == BUTTON_ROUNDED_RECT) {
+            return BasicRendererDescription.create(0, 0, 0, 1);
+
         } else {
-            return super.getButtonRendererDescription(g);
+            return super.getRendererDescription(g);
         }
     }
 
     @Override
-    public @NotNull RendererDescription getSegmentedButtonRendererDescription(@NotNull SegmentedButtonConfiguration g)
+    public @NotNull RendererDescription getRendererDescription(@NotNull SegmentedButtonConfiguration g)
     {
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
 
         SegmentedButtonWidget bw = g.getWidget();
         Size sz = g.getSize();
 
-        RendererDescription rd = super.getSegmentedButtonRendererDescription(g);
+        RendererDescription rd = super.getRendererDescription(g);
 
         float extraWidth = 0;
         float xOffset = 0;
@@ -222,12 +278,12 @@ public class CoreUIRendererDescriptions
             case BUTTON_SEGMENTED_SEPARATED:
             case BUTTON_SEGMENTED_SLIDER:
 
-                if (platformVersion >= 101600 && bw == BUTTON_SEGMENTED_SEPARATED) {
+                if (version >= macOS11 && bw == BUTTON_SEGMENTED_SEPARATED) {
                     leftOffset = size(sz, -4, -1, -1, -1);
                     leftExtraWidth = size(sz, 4, 1, 1, 1);
                     rightExtraWidth = size(sz, 4, 1, 1, 1);
                     break;
-                } else if (platformVersion >= 101500 && bw == BUTTON_SEGMENTED_SEPARATED) {
+                } else if (version >= 101500 && bw == BUTTON_SEGMENTED_SEPARATED) {
                     Position pos = g.getPosition();
                     xOffset = pos == Position.MIDDLE ? 0 : size(sz, -2, -2, -1);
                     leftExtraWidth = size(sz, 2, 2, 1);
@@ -235,7 +291,7 @@ public class CoreUIRendererDescriptions
                     yOffset = size2D(sz, 0, -1, 0.51);
                     extraHeight = size(sz, 0, 0, -5);
                     break;
-                } else if (platformVersion >= 101400 && bw == BUTTON_SEGMENTED_SEPARATED) {
+                } else if (version >= 101400 && bw == BUTTON_SEGMENTED_SEPARATED) {
                     Position pos = g.getPosition();
                     xOffset = pos == Position.MIDDLE ? 0 : size(sz, -2, -2, -1);
                     leftExtraWidth = size(sz, 2, 2, 1);
@@ -243,7 +299,7 @@ public class CoreUIRendererDescriptions
                     yOffset = size2D(sz, 0, -0.49, 0.51);
                     extraHeight = size(sz, 0, -2, -5);
                     break;
-                } else if (platformVersion >= 101300 && bw == BUTTON_SEGMENTED_SEPARATED) {
+                } else if (version >= 101300 && bw == BUTTON_SEGMENTED_SEPARATED) {
                     xOffset = -0.49f;
                     leftOffset = size2D(sz, -2, -2, -1);
                     extraWidth = 1;
@@ -252,7 +308,7 @@ public class CoreUIRendererDescriptions
                     yOffset = size2D(sz, 0, -0.98, 0.51);
                     extraHeight = size(sz, -1, -2, -5);
                     break;
-                } else if (platformVersion >= 101200 && bw == BUTTON_SEGMENTED_SEPARATED) {
+                } else if (version >= 101200 && bw == BUTTON_SEGMENTED_SEPARATED) {
                     xOffset = -0.49f;
                     leftOffset = size2D(sz, -2, -2, -1);
                     extraWidth = 1;
@@ -263,7 +319,7 @@ public class CoreUIRendererDescriptions
                     break;
                 }
 
-                if (platformVersion <= 101600) {
+                if (version <= macOS11) {
                     yOffset = size2D(sz, -0.51f, -1.49f, -2);  // regular size should be -1 at 1x
                 }
                 leftOffset = size(sz, -5, -2, -2, -1);
@@ -280,8 +336,6 @@ public class CoreUIRendererDescriptions
                 break;
 
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
-            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
-
                 yOffset = size2D(sz, -1, 0, -0.49f, -1.49f);
                 leftOffset = size(sz, -6, -1, -1, -1);
                 leftExtraWidth = size(sz, 6, 1, 1, 1);
@@ -298,7 +352,7 @@ public class CoreUIRendererDescriptions
                 break;
 
             case BUTTON_SEGMENTED_INSET:
-                if (platformVersion >= 101600) {
+                if (version >= macOS11) {
                     yOffset = size2D(sz, -1, -2, -2);
                 } else {
                     yOffset = size2D(sz, -1, -1.51f, -2);  // small size should be -2 at 1x
@@ -312,12 +366,10 @@ public class CoreUIRendererDescriptions
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
 
-                if (platformVersion >= 101600) {
+                if (version >= macOS11) {
                     if (!bw.isToolbar()) {
                         switch (g.getPosition()) {
                             case FIRST:  return new BasicRendererDescription(-1, 0, 1, 1);
@@ -327,21 +379,63 @@ public class CoreUIRendererDescriptions
                         }
                         throw new UnsupportedOperationException("Unknown position");
                     } else if (bw.isSeparated()) {
+                        if (sz == Size.REGULAR
+                          && bw == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR
+                          && version >= 150000 && version < macOS26) {
+                            // A special case: the renderer changes with high contrast enabled.
+                            // Note: size LARGE not supported on macOS 15
+                            // TBD: does this happen on macOS 26 in compatibility mode?
+                            // This special case appears to be unnecessary on 15.7.4.
+                            // Apparently, the problem was fixed, but I don't know in which release.
+
+                            Position pos = g.getPosition();
+                            int x = pos == Position.FIRST || pos == Position.ONLY ? -1 : 0;
+                            int w = pos == Position.FIRST ? 1 : pos == Position.ONLY ? 2 : 0;
+                            int y = 0;
+                            int h = 0;
+
+//                            int y = 1; // unusual positive number
+//                            try {
+//                                VAppearance appearance = VAppearances.getApplicationEffectiveAppearance();
+//                                if (appearance.isHighContrast()) {
+//                                    y = 0;
+//                                    h = 1;
+//                                }
+//                            } catch (IOException ignore) {
+//                            }
+
+                            return new BasicRendererDescription(x, y, w, h);
+                        }
+
                         if (sz == Size.LARGE) {
                             Position pos = g.getPosition();
                             int x = pos == Position.FIRST || pos == Position.ONLY ? -6 : 0;
-                            // This state dependence is unbelievable. Someday it will probably change.
-                            State st = g.getState();
-                            int y = st == State.PRESSED
-                                      || st == State.ROLLOVER
-                                      || g.isSelected()
-                                      ? -6 : 0;
-                            RendererDescription srd = new BasicRendererDescription(x, y, 0, 11);
+                            int y = 0;
+                            int h = 0;
+                            if (version < 150000) {
+                                // This state dependence is unbelievable. Someday it will probably change.
+                                State st = g.getState();
+                                if (st == State.PRESSED || st == State.ROLLOVER || g.isSelected()) {
+                                    y = -6;
+                                }
+                                h = 11;
+                            }
+                            RendererDescription srd = new BasicRendererDescription(x, y, 0, h);
                             return adjustSegmentedRendererDescription(g, srd, 0, 0, 0, 0, 6, 5, 0);
                         }
-                        // This state dependence is unbelievable. Someday it will probably change.
-                        State st = g.getState();
-                        int y = g.isSelected() && st != State.PRESSED && st != State.ROLLOVER ? -2 : -1;
+
+                        int y = -1;
+
+                        // This problem has been fixed. Tested on 11 and 13.
+//                        if (version < 150000) {
+//                            // This state dependence is unbelievable. Someday it will probably change.
+//                            State st = g.getState();
+//                            if (g.isSelected() && st != State.PRESSED && st != State.ROLLOVER) {
+//                                y = -2;
+//                            }
+//                        }
+
+
                         switch (g.getPosition()) {
                             case FIRST:  return new BasicRendererDescription(-1, y, 1, 3);
                             case MIDDLE: return new BasicRendererDescription( 0, y, 0, 3);
@@ -369,12 +463,16 @@ public class CoreUIRendererDescriptions
                     }
                 }
 
+                if (version >= 101100 && version < 101200) {
+                    return rd;
+                }
+
                 if (sz == Size.MINI) {
                     rd = createVertical(0, 4);
                 }
-                float smallYOffset = platformVersion >= 101100
-                                       ? bw.isToolbar() ? -0.49f : -1.49f
-                                       : -1;
+                float smallYOffset = version >= 101100
+                  ? bw.isToolbar() ? -0.49f : -1.49f
+                  : -1;
                 yOffset = size2D(sz, 0, smallYOffset, -2);
                 if (bw.isSeparated()) {
                     return getTexturedSeparatedRendererDescription(g, rd, yOffset);
@@ -499,16 +597,17 @@ public class CoreUIRendererDescriptions
     }
 
     @Override
-    public @NotNull RendererDescription getComboBoxRendererDescription(@NotNull ComboBoxConfiguration g)
+    public @NotNull RendererDescription getRendererDescription(@NotNull ComboBoxConfiguration g)
     {
         ComboBoxWidget bw = g.getWidget();
         Size sz = g.getSize();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
 
         if (bw == ComboBoxWidget.BUTTON_COMBO_BOX_CELL) {
             switch (sz) {
+                case EXTRA_LARGE:
                 case LARGE:
                 case REGULAR:
-                    return new BasicRendererDescription(0, -3, 2, 3);
                 case SMALL:
                     return new BasicRendererDescription(0, -3, 2, 3);
                 case MINI:
@@ -516,36 +615,96 @@ public class CoreUIRendererDescriptions
                 default:
                     throw new UnsupportedOperationException();
             }
-        } else if (bw == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED
-                     || bw == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR){
+        } else if (bw == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED) {
+            if (version < 101100) {
+                return BasicRendererDescription.create(0, 0, 0, 0);
+            }
+            if (version < 101300) {
+                return BasicRendererDescription.create(0, 0, 0, 1);
+            }
+            if (version < 101400 && sz == Size.MINI) {
+                return BasicRendererDescription.create(0, 0, 0, 1);
+            } else if (version < 101500) {
+                return BasicRendererDescription.create(0, 0, 0, 1);
+            }
+
             switch (sz) {
+                case EXTRA_LARGE:
                 case LARGE:
                 case REGULAR:
-                    return new BasicRendererDescription(0, 0, 0, 0);
+                    return BasicRendererDescription.create(0, 0, 0, 1);
                 case SMALL:
-                    return new BasicRendererDescription(0, 0, 0, 0);
+                    return BasicRendererDescription.create(0, 0, 1, 3);
                 case MINI:
                     return new BasicRendererDescription(0, 0, 0, 0);
                 default:
                     throw new UnsupportedOperationException();
             }
-        } else {
+        } else if (bw == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
+            if (version < 101100) {
+                return BasicRendererDescription.create(0, 0, 0, 0);
+            }
+
             switch (sz) {
+                case EXTRA_LARGE:
                 case LARGE:
-                case REGULAR:
-                    return new BasicRendererDescription(-0.5f, 0, 2, 1);
                 case SMALL:
-                    return new BasicRendererDescription(-0.5f, 0, 1, 0);
                 case MINI:
-                    return new BasicRendererDescription(-0.5f, -0.51f, 2, 1);
+                    return BasicRendererDescription.create(1, 2, 0, 1);
+                case REGULAR:
+                    if (version >= macOS11) {
+                        return BasicRendererDescription.create(1, 2, 0, 1);
+                    }
+                    return BasicRendererDescription.create(1, 1, 0, 0);
                 default:
                     throw new UnsupportedOperationException();
+            }
+        } else {
+            if (version >= macOS11) {
+                switch (sz) {
+                    case EXTRA_LARGE:
+                    case LARGE:
+                    case REGULAR:
+                        return BasicRendererDescription.create(0, 2, 0, 1);
+                    case SMALL:
+                        return BasicRendererDescription.create(0, 1, 0.51f, 1);
+                    case MINI:
+                        return BasicRendererDescription.create(0, 2, 1, 2);
+                    default:
+                        throw new UnsupportedOperationException();
+                }
+            } else if (version >= 101100) {
+                switch (sz) {
+                    case EXTRA_LARGE:
+                    case LARGE:
+                    case REGULAR:
+                        return BasicRendererDescription.create(0, 2, 0, 1);
+                    case SMALL:
+                        return BasicRendererDescription.create(0, 1, 0, 0);
+                    case MINI:
+                        return BasicRendererDescription.create(0, 2, 0, 0);
+                    default:
+                        throw new UnsupportedOperationException();
+                }
+            } else {
+                switch (sz) {
+                    case EXTRA_LARGE:
+                    case LARGE:
+                    case REGULAR:
+                        return BasicRendererDescription.create(0, 2, 0, 0);
+                    case SMALL:
+                        return BasicRendererDescription.create(0, 1, 0, 0);
+                    case MINI:
+                        return BasicRendererDescription.create(0, 0, 0, 0);
+                    default:
+                        throw new UnsupportedOperationException();
+                }
             }
         }
     }
 
     @Override
-    public @NotNull RendererDescription getPopupButtonRendererDescription(@NotNull PopupButtonConfiguration g)
+    public @NotNull RendererDescription getRendererDescription(@NotNull PopupButtonConfiguration g)
     {
         PopupButtonWidget bw = g.getPopupButtonWidget();
         Size sz = g.getSize();
@@ -553,6 +712,7 @@ public class CoreUIRendererDescriptions
         if (bw == PopupButtonWidget.BUTTON_POP_UP_CELL) {
             // extra height not needed for Core UI renderer
             switch (sz) {
+                case EXTRA_LARGE:
                 case LARGE:
                 case REGULAR:
                     return new BasicRendererDescription(0, 0, 0, 0);
@@ -565,7 +725,66 @@ public class CoreUIRendererDescriptions
             }
         }
 
-        return super.getPopupButtonRendererDescription(g);
+        int platformVersion = AquaNativeRendering.getSystemRenderingVersion();
+        if (bw.isTextured() && platformVersion >= 150000) {
+            if (bw.isToolbar()) {
+                switch (sz) {
+                    case EXTRA_LARGE:
+                    case LARGE:
+                        return new BasicRendererDescription(-5, -1, 10, 1);
+                    case REGULAR:
+                    case SMALL:
+                    case MINI:
+                        return new BasicRendererDescription(-1, 0, 1, 1);
+                    default:
+                        throw new UnsupportedOperationException();
+                }
+            }
+
+            switch (sz) {
+                case EXTRA_LARGE:
+                case LARGE:
+                    return new BasicRendererDescription(-4, 0, 5.5f, 0);
+                case REGULAR:
+                    return new BasicRendererDescription(-2, 0, 5, 3);
+                case SMALL:
+                    return new BasicRendererDescription(-3, 0, 6, 2);
+                case MINI:
+                    return new BasicRendererDescription(-1, 0, 3, 1);
+                default:
+                    throw new UnsupportedOperationException();
+            }
+        } else if (bw.isTextured() && platformVersion >= macOS11) {
+            if (bw.isToolbar()) {
+                switch (sz) {
+                    case EXTRA_LARGE:
+                    case LARGE:
+                        return BasicRendererDescription.create(5, 10, 0, 0);
+                    case REGULAR:
+                    case SMALL:
+                    case MINI:
+                        return BasicRendererDescription.create(1, 2, 0, 1);
+                    default:
+                        throw new UnsupportedOperationException();
+                }
+            } else {
+                switch (sz) {
+                    case EXTRA_LARGE:
+                    case LARGE:
+                        return BasicRendererDescription.create(4, 6, 1, 1);
+                    case REGULAR:
+                        return BasicRendererDescription.create(2, 5, 0, 2);
+                    case SMALL:
+                        return BasicRendererDescription.create(3, 6, 0, 1);
+                    case MINI:
+                        return BasicRendererDescription.create(1, 3, 1, 2);
+                    default:
+                        throw new UnsupportedOperationException();
+                }
+            }
+        }
+
+        return super.getRendererDescription(g);
     }
 
     public @Nullable RendererDescription getPopUpArrowRendererDescription(@NotNull PopupButtonConfiguration g,
@@ -599,13 +818,13 @@ public class CoreUIRendererDescriptions
     }
 
     @Override
-    public @NotNull RendererDescription getSliderThumbRendererDescription(@NotNull SliderConfiguration g)
+    public @NotNull RendererDescription getCustomSliderThumbRendererDescription(@NotNull SliderConfiguration g)
     {
         // macOS 11 introduced new linear slider styles with different layout properties. However, the NSView renderer
         // may or may not use the new style, based on runtime determined linkage information.
 
-        if (!g.isLinear() || AquaUIPainterBase.internalGetSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
-            return super.getSliderThumbRendererDescription(g);
+        if (!g.isLinear() || AquaNativePainter.getSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
+            return super.getCustomSliderThumbRendererDescription(g);
         }
 
         return getSlider11ThumbRendererDescription(g);
@@ -619,17 +838,51 @@ public class CoreUIRendererDescriptions
     }
 
     @Override
-    public @NotNull RendererDescription getSliderTickMarkRendererDescription(@NotNull SliderConfiguration g)
+    public @NotNull RendererDescription getCustomSliderTickMarkRendererDescription(@NotNull SliderConfiguration g)
     {
         // macOS 11 introduced new linear slider styles with different layout properties. However, the NSView renderer
         // may or may not use the new style, based on runtime determined linkage information.
 
-        if (!g.isLinear() || AquaUIPainterBase.internalGetSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
-            return super.getSliderTickMarkRendererDescription(g);
+        if (!g.isLinear() || AquaNativePainter.getSliderRenderingVersion() == AquaUIPainterBase.SLIDER_10_10) {
+            return super.getCustomSliderTickMarkRendererDescription(g);
         }
 
         Size sz = g.getSize();
         float h = g.hasTickMarks() ? size2D(sz, 4, 0, 0) : 0;
         return new BasicRendererDescription(0, 0, 0, h);
+    }
+
+    public @NotNull RendererDescription getTextFieldRendererDescription(@NotNull TextFieldConfiguration g)
+    {
+        TextFieldWidget w = g.getWidget();
+        Size sz = g.getSize();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
+
+        if (version >= macOS26) {
+            return BasicRendererDescription.create(0, 0, 0, 0);
+        }
+
+        if (version >= 150000 && !w.isToolbar() && w != TextFieldWidget.TEXT_FIELD && sz == Size.MINI) {
+            return BasicRendererDescription.create(1, 2, 1, 1);
+        }
+
+        if (version >= macOS11) {
+            if (w == TextFieldWidget.TEXT_FIELD_ROUND_TOOLBAR) {
+                switch (sz) {
+                    case MINI:
+                    case SMALL:
+                    case REGULAR:
+                    case LARGE:
+                        return BasicRendererDescription.create(1, 2, 1, 3);
+                }
+            }
+        }
+
+        if (w.isSearch() && version >= macOS11 && version < 150000) {
+            // This renderer description is used to paint a text field (frame only)
+            return BasicRendererDescription.create(1, 2, 0, 1);
+        }
+
+        return super.getTextFieldRendererDescription(g);
     }
 }

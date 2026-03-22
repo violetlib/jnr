@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,14 +8,16 @@
 
 package org.violetlib.jnr.aqua;
 
-import java.util.Objects;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 import org.violetlib.jnr.aqua.AquaUIPainter.SliderWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.TickMarkPosition;
-import org.violetlib.jnr.impl.JNRPlatformUtils;
 
-import org.jetbrains.annotations.*;
+import java.util.Objects;
+
+import static org.violetlib.jnr.aqua.AquaUIPainter.macOS11;
+import static org.violetlib.jnr.aqua.AquaUIPainter.macOS26;
 
 /**
   A layout configuration for a slider.
@@ -45,17 +47,39 @@ public class SliderLayoutConfiguration
             }
         }
 
-        // Mini circular sliders are not supported
-        // Mini linear sliders are not supported before 10.14 (or so)
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
-        if (size == Size.MINI && (sw == SliderWidget.SLIDER_CIRCULAR || platformVersion < 101400)) {
-            size = Size.SMALL;
+        if (!AquaNativeRendering.isRaw()) {
+            int version = AquaNativeRendering.getSystemRenderingVersion();
+            if (size == Size.EXTRA_LARGE && version < macOS26) {
+                size = Size.LARGE;
+            }
+            if (size == Size.LARGE && !isLargeSizeSupported(version, sw)) {
+                size = Size.REGULAR;
+            } else if (size == Size.MINI && !isMiniSizeSupported(version, sw)) {
+                size = Size.SMALL;
+            }
         }
 
         this.sw = sw;
         this.size = size;
         this.numberOfTickMarks = numberOfTickMarks;
         this.position = position;
+    }
+
+    private static boolean isLargeSizeSupported(int version, @NotNull SliderWidget sw)
+    {
+        if (version < macOS11) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isMiniSizeSupported(int version, @NotNull SliderWidget sw)
+    {
+        if (sw == SliderWidget.SLIDER_CIRCULAR) {
+            return version >= macOS26;
+        } else {
+            return version >= 150000;
+        }
     }
 
     protected SliderLayoutConfiguration(@NotNull SliderLayoutConfiguration g)
@@ -72,6 +96,7 @@ public class SliderLayoutConfiguration
         return sw;
     }
 
+    @Override
     public @NotNull Size getSize()
     {
         return size;

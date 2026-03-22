@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -12,9 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.violetlib.geom.GeneralRoundRectangle;
 import org.violetlib.jnr.Insetter;
-import org.violetlib.jnr.aqua.AquaUIPainter.*;
 import org.violetlib.jnr.aqua.*;
-import org.violetlib.jnr.impl.JNRPlatformUtils;
+import org.violetlib.jnr.aqua.AquaUIPainter.*;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -75,11 +74,11 @@ public class Outliner_10_10
         // circle buttons
 
         if (bw == BUTTON_RADIO
-              || bw == BUTTON_HELP
-              || bw == BUTTON_ROUND
-              || bw == BUTTON_ROUND_INSET
-              || bw == BUTTON_ROUND_TEXTURED
-              || bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
+          || bw == BUTTON_HELP
+          || bw == BUTTON_ROUND
+          || bw == BUTTON_ROUND_INSET
+          || bw == BUTTON_ROUND_TEXTURED
+          || bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
 
             switch (bw)
             {
@@ -144,7 +143,7 @@ public class Outliner_10_10
             corner = 16;
         } else if (bw == BUTTON_RECESSED) {
             corner = 6;
-        } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS) {
+        } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR) {
             corner = 6;
             height -= 0.5;
         } else if (bw == BUTTON_DISCLOSURE_TRIANGLE) {
@@ -185,7 +184,6 @@ public class Outliner_10_10
             case BUTTON_SEGMENTED_SEPARATED:
             case BUTTON_SEGMENTED_SLIDER:
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
-            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                 corner = 6;
 
                 x += size2D(sz, isLeft ? 0.5f : 0, 0, 0);
@@ -218,14 +216,12 @@ public class Outliner_10_10
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
                 width += size2D(sz, 0, 0, 0);
                 height += size2D(sz, -1, -2, -1);
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 if (pos == Position.ONLY || pos == Position.FIRST) {
                     width -= 0.5;
                 }
@@ -258,7 +254,7 @@ public class Outliner_10_10
     @Override
     protected @Nullable Shape getComboBoxOutline(@NotNull Rectangle2D bounds, @NotNull ComboBoxLayoutConfiguration g)
     {
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
 
         double x = bounds.getX();
         double y = bounds.getY();
@@ -284,12 +280,12 @@ public class Outliner_10_10
 
         } else if (widget == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED || widget == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
             double corner = 4;
-            if (platformVersion >= 101300) {
+            if (version >= 101300) {
                 x += 0.5f;
                 width -= 1;
                 height -= 1;
                 corner = 8;
-            } else if (platformVersion >= 101100) {
+            } else if (version >= 101100) {
                 corner = 8;
             }
             return new GeneralRoundRectangle(x, y, width, height, corner, corner, corner, corner, corner, corner, corner, corner);
@@ -344,11 +340,7 @@ public class Outliner_10_10
             x += size2D(sz, 0, 0, -0.5f);
             return new Rectangle2D.Double(x, y, width, height);
 
-        } else if (bw == BUTTON_POP_UP_TEXTURED
-                     || bw == BUTTON_POP_DOWN_TEXTURED
-                     || bw == BUTTON_POP_UP_TEXTURED_TOOLBAR
-                     || bw == BUTTON_POP_DOWN_TEXTURED_TOOLBAR) {
-
+        } else if (bw.isTextured()) {
             height -= 0.5;
             double corner = 6;
             return new RoundRectangle2D.Double(x, y, width, height, corner, corner);

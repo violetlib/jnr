@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,11 +8,11 @@
 
 package org.violetlib.jnr.impl;
 
-import java.awt.Graphics;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.Painter;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
 
 /**
 
@@ -36,5 +36,12 @@ public class OffsetPainter
     public void paint(@NotNull Graphics g, float x, float y)
     {
         p.paint(g, x + xOffset, y + yOffset);
+    }
+
+    @Override
+    public @Nullable Image getImage(int scaleFactor, int width, int height)
+    {
+        // Offset not supported
+        return p.getImage(scaleFactor, width, height);
     }
 }

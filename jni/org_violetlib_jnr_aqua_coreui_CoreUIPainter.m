@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -12,6 +12,7 @@
 #import <JavaRuntimeSupport/JavaRuntimeSupport.h>
 
 #include "jnix.h"
+#include "log.h"
 #include "org_violetlib_jnr_aqua_coreui_CoreUIPainter.h"
 #include "AppearanceSupport.h"
 #include "CoreUISupport.h"
@@ -50,11 +51,11 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_coreui_CoreUIPainter_nativeJR
             CFTypeRef key = CopyCFTypeToJava(env, jkey);
             CFTypeRef value = CopyCFTypeToJava(env, jvalue);
             if (key == nil) {
-                NSLog(@"Invalid CoreUI key");
+                OSLog(@"Invalid CoreUI key");
                 continue;
             }
             if (value == nil) {
-                NSLog(@"Invalid CoreUI value");
+                OSLog(@"Invalid CoreUI value");
                 continue;
             }
         keys[argCount] = key;

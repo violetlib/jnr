@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,11 +8,13 @@
 
 package org.violetlib.jnr.aqua;
 
-import java.util.Objects;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
 
-import org.jetbrains.annotations.*;
+import java.util.Objects;
+
+import static org.violetlib.jnr.aqua.AquaUIPainter.macOS26;
 
 /**
   A layout configuration for spinner arrows.
@@ -25,6 +27,13 @@ public class SpinnerArrowsLayoutConfiguration
 
     public SpinnerArrowsLayoutConfiguration(@NotNull Size size)
     {
+        if (!AquaNativeRendering.isRaw()) {
+            int version = AquaNativeRendering.getSystemRenderingVersion();
+            if ((size == Size.EXTRA_LARGE || size == Size.LARGE) && version < macOS26) {
+                size = Size.REGULAR;
+            }
+        }
+
         this.size = size;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,16 +8,10 @@
 
 package org.violetlib.jnr.impl;
 
-import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferInt;
-import java.awt.image.DirectColorModel;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
+import org.jetbrains.annotations.NotNull;
 
-import org.jetbrains.annotations.*;
+import java.awt.color.ColorSpace;
+import java.awt.image.*;
 
 /**
   Basic support for creating images from INT_ARGB_PRE raster data.
@@ -32,12 +26,12 @@ public class BasicImageSupport
         return colorModel;
     }
 
-    public static @NotNull BufferedImage createImage(@NotNull int[] buffer, int w, int h)
+    public static @NotNull BufferedImage createImage(int @NotNull [] buffer, int w, int h)
     {
         return createImage(buffer, w, h, w);
     }
 
-    public static @NotNull BufferedImage createImage(@NotNull int[] buffer, int w, int h, int scan)
+    public static @NotNull BufferedImage createImage(int @NotNull [] buffer, int w, int h, int scan)
     {
         return createBufferedImage(colorModel, buffer, w, h, scan);
     }
@@ -54,7 +48,7 @@ public class BasicImageSupport
         );
     }
 
-    private static @NotNull BufferedImage createBufferedImage(@NotNull ColorModel cm, @NotNull int[] buffer, int w, int h, int scan)
+    private static @NotNull BufferedImage createBufferedImage(@NotNull ColorModel cm, int @NotNull [] buffer, int w, int h, int scan)
     {
         DataBuffer db = new DataBufferInt(buffer, buffer.length);
         int[] bandMasks = new int[4];

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,16 +8,12 @@
 
 package org.violetlib.jnr.aqua;
 
-import java.util.Objects;
-
-import org.violetlib.jnr.aqua.AquaUIPainter.Orientation;
-import org.violetlib.jnr.aqua.AquaUIPainter.ProgressWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.Size;
-import org.violetlib.jnr.aqua.AquaUIPainter.State;
-import org.violetlib.jnr.aqua.AquaUIPainter.UILayoutDirection;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.violetlib.jnr.aqua.AquaUIPainter.*;
 import org.violetlib.jnr.impl.JNRUtils;
 
-import org.jetbrains.annotations.*;
+import java.util.Objects;
 
 /**
   A configuration for a determinate progress indicator.
@@ -25,7 +21,7 @@ import org.jetbrains.annotations.*;
 
 public class ProgressIndicatorConfiguration
   extends ProgressIndicatorLayoutConfiguration
-  implements Configuration
+  implements Configuration, LayoutDirectionSensitiveConfiguration
 {
     private final @NotNull State state;
     private final double value;
@@ -67,11 +63,13 @@ public class ProgressIndicatorConfiguration
         return value;
     }
 
+    @Override
     public @NotNull UILayoutDirection getLayoutDirection()
     {
         return ld;
     }
 
+    @Override
     public boolean isLeftToRight()
     {
         return ld == UILayoutDirection.LEFT_TO_RIGHT;

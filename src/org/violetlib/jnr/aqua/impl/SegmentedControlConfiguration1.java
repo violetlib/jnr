@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Alan Snyder.
+ * Copyright (c) 2020-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,9 +8,8 @@
 
 package org.violetlib.jnr.aqua.impl;
 
+import org.jetbrains.annotations.NotNull;
 import org.violetlib.jnr.aqua.AquaUIPainter;
-
-import org.jetbrains.annotations.*;
 
 /**
   A configuration defining the parameters that must be specified to render a segmented control with one segment.
@@ -30,6 +29,8 @@ public class SegmentedControlConfiguration1
       @param st The control state.
       @param w The nominal width (in points) of the segment.
       @param isSelected True if the segment should be selected.
+      @param tracking The tracking mode (select one or select any). Although there is no behavioral difference
+      between select one and select any, the rendering can be different.
     */
 
     public SegmentedControlConfiguration1(@NotNull AquaUIPainter.SegmentedButtonWidget widget,
@@ -37,11 +38,12 @@ public class SegmentedControlConfiguration1
                                           @NotNull AquaUIPainter.Size sz,
                                           @NotNull AquaUIPainter.State st,
                                           float w,
-                                          boolean isSelected
-    )
+                                          boolean isSelected,
+                                          @NotNull AquaUIPainter.SwitchTracking tracking
+                                          )
       throws IllegalArgumentException
     {
-        super(widget, isToolbar, sz, st);
+        super(widget, isToolbar, sz, st, tracking);
 
         validateSegmentWidth(w);
         this.w = w;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Alan Snyder.
+ * Copyright (c) 2018-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,13 +8,8 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.RoundRectangle2D;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaUILayoutInfo;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.AquaUIPainter.ScrollBarKnobWidget;
@@ -23,7 +18,9 @@ import org.violetlib.jnr.impl.Colors;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
 
 /**
   Simulates the rendering of legacy scroll bars.
@@ -44,7 +41,6 @@ public class LegacyScrollBarPainterExtension
     {
         this.uiLayout = uiLayout;
         this.g = g;
-        boolean isDark = appearance != null && appearance.isDark();
         this.showThumb = g.getKnobWidget() != ScrollBarKnobWidget.NONE;
         isRollover = g.getState() == AquaUIPainter.State.ROLLOVER;
         colors = Colors.getColors(appearance);

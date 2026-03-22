@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,15 +8,14 @@
 
 package org.violetlib.jnr.aqua.jrs;
 
+import org.jetbrains.annotations.NotNull;
+import org.violetlib.jnr.aqua.AquaNativeRendering;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.SegmentedButtonConfiguration;
 import org.violetlib.jnr.aqua.coreui.CoreUIRendererDescriptions;
 import org.violetlib.jnr.aqua.impl.NativeSupport;
 import org.violetlib.jnr.impl.BasicRendererDescription;
-import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.RendererDescription;
-
-import org.jetbrains.annotations.*;
 
 import static org.violetlib.jnr.impl.JNRUtils.*;
 
@@ -28,18 +27,17 @@ public class JRSRendererDescriptions
   extends CoreUIRendererDescriptions
 {
     @Override
-    public @NotNull RendererDescription getSegmentedButtonRendererDescription(@NotNull SegmentedButtonConfiguration g)
+    public @NotNull RendererDescription getRendererDescription(@NotNull SegmentedButtonConfiguration g)
     {
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
-        boolean v2 = platformVersion >= 101100;
+        int version = AquaNativeRendering.getSystemRenderingVersion();
+        boolean v2 = version >= 101100;
 
         AquaUIPainter.SegmentedButtonWidget w = g.getWidget();
         AquaUIPainter.Size sz = g.getSize();
         AquaUIPainter.Position position = g.getPosition();
 
         if (w == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED
-              || w == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR
-              || w == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS) {
+          || w == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR) {
             // an attempted workaround, must coordinate with renderer
             g = g.withWidget(AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED);
         } else if (w == AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED) {
@@ -47,7 +45,7 @@ public class JRSRendererDescriptions
             g = g.withWidget(AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED);
         }
 
-        RendererDescription rd = super.getSegmentedButtonRendererDescription(g);
+        RendererDescription rd = super.getRendererDescription(g);
 
         try {
 
@@ -101,7 +99,6 @@ public class JRSRendererDescriptions
                 }
 
                 case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:    // supported by workaround
-                case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
                 {
                     float y = v2 ? size2D(sz, -2.49f, -3, -3) : size2D(sz, -1, -2, -2);
                     return fix(rd, g, y);

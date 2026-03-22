@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,14 +8,14 @@
 
 package org.violetlib.jnr.aqua;
 
-import java.util.Objects;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaUIPainter.State;
 
-import org.jetbrains.annotations.*;
+import java.util.Objects;
 
 /**
-  A configuration for a tool bar item well. For internal use. A tool bar item well background is painted only when the
+  A configuration for a toolbar item well. For internal use. A toolbar item well background is painted only when the
   item is selected. When the item is not selected, no background is painted.
 */
 
@@ -28,9 +28,12 @@ public class ToolBarItemWellConfiguration
 
     public ToolBarItemWellConfiguration(@NotNull State state, boolean isFrameOnly)
     {
-        // In Yosemite, there are only two cases: active and inactive.
+        if (!AquaNativeRendering.isRaw()) {
+            // In Yosemite, there are only two cases: active and inactive.
+            state = state == State.ACTIVE ? State.ACTIVE : State.INACTIVE;
+        }
 
-        this.state = state == State.ACTIVE ? State.ACTIVE : State.INACTIVE;
+        this.state = state;
         this.isFrameOnly = isFrameOnly;
     }
 

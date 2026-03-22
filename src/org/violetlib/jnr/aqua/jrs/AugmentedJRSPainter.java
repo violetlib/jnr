@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,18 +8,12 @@
 
 package org.violetlib.jnr.aqua.jrs;
 
-import org.violetlib.jnr.aqua.ComboBoxConfiguration;
-import org.violetlib.jnr.aqua.PopupButtonConfiguration;
-import org.violetlib.jnr.aqua.ScrollBarConfiguration;
-import org.violetlib.jnr.aqua.SliderConfiguration;
-import org.violetlib.jnr.aqua.SplitPaneDividerConfiguration;
-import org.violetlib.jnr.aqua.TableColumnHeaderConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.aqua.impl.*;
-import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.jnr.impl.Renderer;
-
-import org.jetbrains.annotations.*;
 
 /**
   This class augments the JRS native painting code to work around its deficiencies.
@@ -110,10 +104,10 @@ public class AugmentedJRSPainter
     @Override
     protected @NotNull Renderer getScrollBarRenderer(@NotNull ScrollBarConfiguration g)
     {
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
         ScrollBarWidget sw = g.getWidget();
 
-        if (platformVersion < 101400) {
+        if (version < 101400) {
             return super.getScrollBarRenderer(g);
         }
 
@@ -138,7 +132,7 @@ public class AugmentedJRSPainter
     @Override
     protected @Nullable Renderer getSliderTickMarkRenderer(@NotNull SliderConfiguration g)
     {
-        int style = getSliderRenderingVersion();
+        int style = AquaNativePainter.getSliderRenderingVersion();
         if (style == SLIDER_10_10 && g.isLinear() && g.hasTickMarks()) {
             return Renderer.create(new LinearSliderPainterExtension(uiLayout, g, appearance));
         } else {

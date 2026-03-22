@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -20,7 +20,8 @@ import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR;
+import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.*;
 import static org.violetlib.jnr.aqua.coreui.CoreUIKeys.*;
 import static org.violetlib.jnr.aqua.coreui.CoreUISegmentSeparatorTypes.BOTH_SELECTED;
 import static org.violetlib.jnr.aqua.coreui.CoreUISegmentSeparatorTypes.NONE_SELECTED;
@@ -59,7 +60,11 @@ public class CoreUIPainter
         });
     }
 
-    protected static final @NotNull CoreUIRendererDescriptions rendererDescriptions = new CoreUIRendererDescriptions();
+    protected static final @NotNull CoreUIRendererDescriptions myRendererDescriptions
+      = new CoreUIRendererDescriptions();
+
+    protected static final @NotNull RendererDescriptions rendererDescriptions
+      = new BasicRendererDescriptions(myRendererDescriptions);
 
     protected boolean useJRS;  // if true, use the Java Runtime Support framework to access Core UI rendering
 
@@ -112,19 +117,31 @@ public class CoreUIPainter
         ButtonWidget bw = toCanonicalButtonStyle(g.getButtonWidget());
 
         if (bw == ButtonWidget.BUTTON_TOOLBAR_ITEM) {
-            // A tool bar item button only paints a background when ON
-            if (g.getButtonState() != ButtonState.ON) {
+            // A toolbar item button only paints a background when ON
+            if (g.getButtonState() != ButtonState.ON || AquaNativeRendering.getSystemRenderingVersion() >= macOS26) {
                 return NULL_RENDERER;
             }
             ToolBarItemWellConfiguration tg = new ToolBarItemWellConfiguration(g.getState(), true);
             return getToolBarItemWellRenderer(tg);
         }
 
-        RendererDescription rd = rendererDescriptions.getButtonRendererDescription(g);
         State st = g.getState();
         ButtonState bs = g.getButtonState();
         Size sz = g.getSize();
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
+
+        if (bw == ButtonWidget.BUTTON_ROUNDED_RECT && sz == Size.LARGE && version >= macOS11) {
+            sz = Size.REGULAR;
+            g = g.with(sz);
+        } else if (bw == BUTTON_ROUND_TEXTURED_TOOLBAR && version >= macOS11) {
+            sz = Size.LARGE;
+            g = g.with(sz);
+        } else if (bw == BUTTON_ROUND_INSET && version >= macOS11) {
+            bw = BUTTON_ROUND;
+            g = g.with(bw);
+        }
+
+        RendererDescription rd = rendererDescriptions.getButtonRendererDescription(g);
 
         boolean hasRolloverEffect = false;
 
@@ -132,6 +149,7 @@ public class CoreUIPainter
 
         switch (bw) {
             case BUTTON_PUSH:
+            case BUTTON_GLASS:
                 widget = CoreUIWidgets.BUTTON_PUSH; break;
             case BUTTON_BEVEL:
                 widget = CoreUIWidgets.BUTTON_BEVEL; break;
@@ -150,11 +168,14 @@ public class CoreUIPainter
             // The following button types are not used in the Aqua look and feel. Some are used in Quaqua.
 
             case BUTTON_DISCLOSURE_TRIANGLE:
-                widget = CoreUIWidgets.BUTTON_DISCLOSURE_TRIANGLE; break;
+                widget = CoreUIWidgets.BUTTON_DISCLOSURE_TRIANGLE;
+                break;
             case BUTTON_GRADIENT:
-                widget = CoreUIWidgets.BUTTON_BEVEL_INSET; break;
+                widget = CoreUIWidgets.BUTTON_BEVEL_INSET;
+                break;
             case BUTTON_HELP:
-                widget = CoreUIWidgets.BUTTON_HELP; break;
+                widget = CoreUIWidgets.BUTTON_HELP;
+                break;
             case BUTTON_RECESSED:
 
                 // CoreUI may paint a background when there should be no background.
@@ -171,32 +192,38 @@ public class CoreUIPainter
 
                 st = adjustRecessedState(st);
 
-                widget = CoreUIWidgets.BUTTON_PUSH_SCOPE; break;
+                widget = CoreUIWidgets.BUTTON_PUSH_SCOPE;
+                break;
             case BUTTON_ROUNDED_RECT:
-                widget = CoreUIWidgets.BUTTON_PUSH_INSET; break;
+                widget = CoreUIWidgets.BUTTON_PUSH_INSET;
+                break;
             case BUTTON_ROUND:
-                widget = CoreUIWidgets.BUTTON_ROUND; break;
+                widget = CoreUIWidgets.BUTTON_ROUND;
+                break;
             case BUTTON_ROUND_INSET:
-                widget = CoreUIWidgets.BUTTON_ROUND_INSET; break;
+                widget = CoreUIWidgets.BUTTON_ROUND_INSET;
+                break;
             case BUTTON_ROUND_TEXTURED:
-                widget = CoreUIWidgets.BUTTON_ROUND_TEXTURED; break;
+                widget = CoreUIWidgets.BUTTON_ROUND_TEXTURED;
+                break;
             case BUTTON_ROUND_TEXTURED_TOOLBAR:
-                if (platformVersion >= 101600) {
-                    sz = Size.LARGE;
-                }
-                widget = CoreUIWidgets.BUTTON_ROUND_TOOLBAR; break;
+                widget = CoreUIWidgets.BUTTON_ROUND_TOOLBAR;
+                break;
             case BUTTON_INLINE:
-                widget = CoreUIWidgets.BUTTON_PUSH_SLIDESHOW; break;  // not correct, inline buttons are not supported by Core UI
+                widget = CoreUIWidgets.BUTTON_PUSH_SLIDESHOW;
+                break;  // not correct, inline buttons are not supported by Core UI
             case BUTTON_TEXTURED:
-                widget = CoreUIWidgets.BUTTON_SEGMENTED_TEXTURED; break;
+                widget = CoreUIWidgets.BUTTON_SEGMENTED_TEXTURED;
+                break;
             case BUTTON_TEXTURED_TOOLBAR:
-            case BUTTON_TEXTURED_TOOLBAR_ICONS:
-                widget = platformVersion >= 101100 ? CoreUIWidgets.BUTTON_SEGMENTED_TOOLBAR : CoreUIWidgets.BUTTON_SEGMENTED_TEXTURED; break;
+                widget = version >= 101100 ? CoreUIWidgets.BUTTON_SEGMENTED_TOOLBAR : CoreUIWidgets.BUTTON_SEGMENTED_TEXTURED;
+                break;
             case BUTTON_PUSH_INSET2:
-                widget = CoreUIWidgets.BUTTON_PUSH_INSET2; break;
+                widget = CoreUIWidgets.BUTTON_PUSH_INSET2;
+                break;
             case BUTTON_COLOR_WELL:
-                widget = CoreUIWidgets.COLOR_WELL; break;
-
+                widget = CoreUIWidgets.COLOR_WELL;
+                break;
             default:
                 throw new UnsupportedOperationException();
         }
@@ -239,7 +266,7 @@ public class CoreUIPainter
         Object buttonState = toButtonState(bs);
 
         // Rounded rect and rounded bevel buttons (previously) use PRESSED instead of VALUE to indicate selection (when enabled)
-        if (bw == ButtonWidget.BUTTON_ROUNDED_RECT || (platformVersion < 101400 && bw == ButtonWidget.BUTTON_BEVEL_ROUND)) {
+        if (bw == ButtonWidget.BUTTON_ROUNDED_RECT || (version < 101400 && bw == ButtonWidget.BUTTON_BEVEL_ROUND)) {
             if (bs == ButtonState.ON && (st == State.ACTIVE || st == State.INACTIVE)) {
                 st = State.PRESSED;
             }
@@ -253,13 +280,6 @@ public class CoreUIPainter
         }
 
         String variant = null;
-        if (platformVersion >= 101600 && bw.isToolbar()) {
-            if (bw.isIconsOnly()) {
-                variant = "";
-            } else {
-                variant = CoreUIVariants.VARIANT_TEXT_CONTENT;
-            }
-        }
 
         BasicRenderer r = getRenderer(
           WIDGET_KEY, widget,
@@ -295,7 +315,7 @@ public class CoreUIPainter
     protected @NotNull Renderer getScrollBarRenderer(@NotNull ScrollBarConfiguration g)
     {
         RendererDescription rd = rendererDescriptions.getScrollBarRendererDescription(g);
-        RendererDescription trd = rendererDescriptions.getScrollBarThumbRendererDescription(g);
+        RendererDescription trd = myRendererDescriptions.getScrollBarThumbRendererDescription(g);
         ScrollBarWidget bw = g.getWidget();
         Size sz = g.getSize();
         State st = g.getState();
@@ -413,8 +433,8 @@ public class CoreUIPainter
         RendererDescription rd = rendererDescriptions.getToolBarItemWellRendererDescription(g);
         String widget = CoreUIWidgets.TOOL_BAR_ITEM_WELL;
         State st = g.getState();
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
-        boolean useLayer = platformVersion >= 101600;  // workaround?
+        int version = AquaNativeRendering.getSystemRenderingVersion();
+        boolean useLayer = version >= macOS11;  // workaround?
 
         BasicRenderer r =  getRendererOptionallyLayered(
           useLayer,
@@ -649,14 +669,14 @@ public class CoreUIPainter
 
     private @NotNull String getWidget(@NotNull ComboBoxWidget w)
     {
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
         switch (w) {
             case BUTTON_COMBO_BOX_TEXTURED:
                 return CoreUIWidgets.BUTTON_COMBO_BOX_TEXTURED;
             case BUTTON_COMBO_BOX_TEXTURED_TOOLBAR:
-                return platformVersion >= 101100
-                         ? CoreUIWidgets.BUTTON_COMBO_BOX_TOOLBAR
-                         : CoreUIWidgets.BUTTON_COMBO_BOX_TEXTURED;
+                return version >= 101100
+                  ? CoreUIWidgets.BUTTON_COMBO_BOX_TOOLBAR
+                  : CoreUIWidgets.BUTTON_COMBO_BOX_TEXTURED;
             default:
                 return CoreUIWidgets.BUTTON_COMBO_BOX;
         }
@@ -665,6 +685,17 @@ public class CoreUIPainter
     @Override
     protected @NotNull Renderer getPopupButtonRenderer(@NotNull PopupButtonConfiguration g)
     {
+        PopupButtonWidget w = g.getPopupButtonWidget();
+
+        int version = AquaNativeRendering.getSystemRenderingVersion();
+        if (version >= 150000 && w.isToolbar()) {
+            // Avoid painting a border unless high contrast mode
+            if (appearance == null || !appearance.isHighContrast()) {
+                g = w.isPopUp()
+                  ? g.with(PopupButtonWidget.BUTTON_POP_UP_CELL) : g.with(PopupButtonWidget.BUTTON_POP_DOWN_CELL);
+            }
+        }
+
         Renderer basicRenderer = getBasicPopupButtonRenderer(g);
         Renderer arrowsRenderer = getPopupArrowRenderer(g);
         if (arrowsRenderer != null) {
@@ -678,7 +709,7 @@ public class CoreUIPainter
     }
 
     /**
-      Return the renderer used to draw the button part of a pop up button.
+      Return the renderer used to draw the button part of a pop-up button. Some renderers also paint the arrow.
     */
 
     public @Nullable Renderer getBasicPopupButtonRenderer(@NotNull PopupButtonConfiguration g)
@@ -693,7 +724,7 @@ public class CoreUIPainter
         String widget;
         List<String> extraParameters = null;
         RendererDescription rd = rendererDescriptions.getBasicPopupButtonRendererDescription(g);
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
 
         boolean hasRolloverEffect = false;
 
@@ -735,9 +766,9 @@ public class CoreUIPainter
                 break;
 
             case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
-                widget = platformVersion >= 101100
-                           ? CoreUIWidgets.BUTTON_POP_DOWN_TOOLBAR
-                           : CoreUIWidgets.BUTTON_POP_DOWN_TEXTURED;
+                widget = version >= 101100
+                  ? CoreUIWidgets.BUTTON_POP_DOWN_TOOLBAR
+                  : CoreUIWidgets.BUTTON_POP_DOWN_TEXTURED;
                 break;
 
             case BUTTON_POP_UP_TEXTURED:
@@ -745,9 +776,9 @@ public class CoreUIPainter
                 break;
 
             case BUTTON_POP_UP_TEXTURED_TOOLBAR:
-                widget = platformVersion >= 101100
-                           ? CoreUIWidgets.BUTTON_POP_UP_TOOLBAR
-                           : CoreUIWidgets.BUTTON_POP_UP_TEXTURED;
+                widget = version >= 101100
+                  ? CoreUIWidgets.BUTTON_POP_UP_TOOLBAR
+                  : CoreUIWidgets.BUTTON_POP_UP_TEXTURED;
                 break;
 
             case BUTTON_POP_DOWN_GRADIENT:
@@ -840,12 +871,11 @@ public class CoreUIPainter
               USER_INTERFACE_LAYOUT_DIRECTION_KEY, ld,
               SIZE_KEY, toSize(arrowSize),
               STATE_KEY, st);
-            CoreUIRendererDescriptions rds = rendererDescriptions;
-            RendererDescription rd = rds.getPopUpArrowRendererDescription(g, arrowSize);
+            RendererDescription rd = myRendererDescriptions.getPopUpArrowRendererDescription(g, arrowSize);
             return Renderer.create(r, rd);
         } else {
-            int platformVersion = JNRPlatformUtils.getPlatformVersion();
-            String imageName = platformVersion >= 101100 ? "DropDownIndicator" : "image.DropDownIndicator";
+            int version = AquaNativeRendering.getSystemRenderingVersion();
+            String imageName = version >= 101100 ? "DropDownIndicator" : "image.DropDownIndicator";
             BasicRenderer r = getRenderer(
               WIDGET_KEY, CoreUIWidgets.IMAGE,
               IMAGE_IS_GRAYSCALE_KEY, true,
@@ -853,8 +883,7 @@ public class CoreUIPainter
               BACKGROUND_TYPE_KEY, bt,
               USER_INTERFACE_LAYOUT_DIRECTION_KEY, ld,
               STATE_KEY, st);
-            CoreUIRendererDescriptions rds = rendererDescriptions;
-            RendererDescription rd = rds.getPullDownArrowRendererDescription(g);
+            RendererDescription rd = myRendererDescriptions.getPullDownArrowRendererDescription(g);
             return Renderer.create(r, rd);
         }
     }
@@ -944,8 +973,8 @@ public class CoreUIPainter
             }
 
             String ps = g.getTitleBarState() == State.ACTIVE
-                          ? CoreUIPresentationStates.ACTIVE
-                          : CoreUIPresentationStates.INACTIVE;
+              ? CoreUIPresentationStates.ACTIVE
+              : CoreUIPresentationStates.INACTIVE;
 
             if (g.isDirty() && bw == TitleBarButtonWidget.CLOSE_BOX) {
                 BasicRenderer r =  getRenderer(
@@ -1083,7 +1112,7 @@ public class CoreUIPainter
 
     protected @NotNull Renderer getLinearSliderRenderer(@NotNull SliderConfiguration g)
     {
-        int style = getSliderRenderingVersion();
+        int style = AquaNativePainter.getSliderRenderingVersion();
 
         // CoreUI is unable to render an upside-down slider, so we render it as a normal vertical slider, then flip
         // the rendering.
@@ -1143,7 +1172,7 @@ public class CoreUIPainter
     protected @Nullable Renderer getSliderTickMarkRenderer(@NotNull SliderConfiguration g)
     {
         if (g.isLinear() && g.hasTickMarks()) {
-            int style = getSliderRenderingVersion();
+            int style = AquaNativePainter.getSliderRenderingVersion();
             if (style == SLIDER_11_0) {
                 return getLinearSlider11TickMarkRenderer(g);
             }
@@ -1162,7 +1191,7 @@ public class CoreUIPainter
     {
         SliderConfiguration sg = g.getSliderConfiguration();
         if (sg.isLinear() && sg.hasTickMarks()) {
-            int style = getSliderRenderingVersion();
+            int style = AquaNativePainter.getSliderRenderingVersion();
             if (style == SLIDER_11_0) {
                 SliderTickMarkRendererFactory f = getLinearSlider11IndividualTickMarkRendererFactory();
                 return f.getSliderTickMarkRenderer(sg, g.isTinted());
@@ -1216,7 +1245,7 @@ public class CoreUIPainter
             return NULL_RENDERER;
         }
 
-        int style = getSliderRenderingVersion();
+        int style = AquaNativePainter.getSliderRenderingVersion();
         Size sz = g.getSize();
         Object uiDirection = CoreUIUserInterfaceDirections.LEFT_TO_RIGHT;
         double value = g.getValue();
@@ -1271,7 +1300,7 @@ public class CoreUIPainter
             return NULL_RENDERER;
         }
 
-        int style = getSliderRenderingVersion();
+        int style = AquaNativePainter.getSliderRenderingVersion();
         Size sz = g.getSize();
         State st = g.getState();
         if (st == State.ROLLOVER) {
@@ -1327,6 +1356,7 @@ public class CoreUIPainter
 
         switch (g.getWidget()) {
             case THIN_DIVIDER:
+            case TRANSPARENT_DIVIDER:
                 // Thin dividers are not drawn using CoreUI
                 return NULL_RENDERER;
             case THICK_DIVIDER:
@@ -1350,6 +1380,14 @@ public class CoreUIPainter
     @Override
     protected @NotNull Renderer getSegmentedButtonRenderer(@NotNull SegmentedButtonConfiguration g)
     {
+        int version = AquaNativeRendering.getSystemRenderingVersion();
+        if (version >= macOS11 && version < 150000) {
+            SegmentedButtonWidget w = g.getWidget();
+            if (w == BUTTON_SEGMENTED_TEXTURED_TOOLBAR) {
+                g = g.withWidget(BUTTON_SEGMENTED_TEXTURED);
+            }
+        }
+
         RendererDescription rd = rendererDescriptions.getSegmentedButtonRendererDescription(g);
         BasicRenderer r = getSegmentedButtonBasicRenderer(g, false);
         return Renderer.create(r, rd);
@@ -1366,7 +1404,7 @@ public class CoreUIPainter
     {
         SegmentedButtonWidget bw = g.getWidget();
         State st = g.getState();
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
         boolean isSelected = g.isSelected();
         boolean isLeftNeighborSelected = g.getLeftDividerState() == SegmentedButtonConfiguration.DividerState.SELECTED;
         boolean isRightNeighborSelected = g.getRightDividerState() == SegmentedButtonConfiguration.DividerState.SELECTED;
@@ -1384,8 +1422,8 @@ public class CoreUIPainter
             leftType = CoreUISegmentSeparatorTypes.NONE_SELECTED;
             if (isSelected) {
                 leftType = isLeftNeighborSelected
-                             ? BOTH_SELECTED
-                             : CoreUISegmentSeparatorTypes.RIGHT_SELECTED;
+                  ? BOTH_SELECTED
+                  : CoreUISegmentSeparatorTypes.RIGHT_SELECTED;
             } else if (isLeftNeighborSelected) {
                 leftType = CoreUISegmentSeparatorTypes.LEFT_SELECTED;
             }
@@ -1393,8 +1431,8 @@ public class CoreUIPainter
             rightType = CoreUISegmentSeparatorTypes.NONE_SELECTED;
             if (isSelected) {
                 rightType = isRightNeighborSelected
-                              ? BOTH_SELECTED
-                              : CoreUISegmentSeparatorTypes.LEFT_SELECTED;
+                  ? BOTH_SELECTED
+                  : CoreUISegmentSeparatorTypes.LEFT_SELECTED;
             } else if (isRightNeighborSelected) {
                 rightType = CoreUISegmentSeparatorTypes.RIGHT_SELECTED;
             }
@@ -1403,7 +1441,7 @@ public class CoreUIPainter
         boolean useLayer = false;
 
         // In 11.0, segment button backgrounds do not change when disabled.
-        if (platformVersion >= 101600) {
+        if (version >= macOS11) {
             useLayer = true;
             if (st == State.DISABLED) {
                 st = State.ACTIVE;
@@ -1415,8 +1453,15 @@ public class CoreUIPainter
         // On 10.14, textured segmented button backgrounds do not change when inactive, but CoreUI will paint them
         // differently. The configurations cannot be canonicalized because the text colors differ.
 
-        if (bw.isTextured() && !bw.isToolbar() && st.isInactive() && (platformVersion >= 101400 && platformVersion < 101500)) {
+        if (bw.isTextured() && !bw.isToolbar() && st.isInactive() && (version >= 101400 && version < 101500)) {
             st = st.toActive();
+        }
+
+        // On 15, CoreUI paints nothing for ROLLOVER for these styles
+        if (version >= 150000 && st == State.ROLLOVER) {
+            if (bw == BUTTON_SEGMENTED_SEPARATED || bw == BUTTON_SEGMENTED_INSET || bw == BUTTON_SEGMENTED_SMALL_SQUARE) {
+                st = State.ACTIVE;
+            }
         }
 
         // Selected buttons in a textured select-any control use the background of the corresponding unselected button.
@@ -1428,7 +1473,7 @@ public class CoreUIPainter
         // are incorrect when painted using CoreUI draw, but are correct using CoreUI layers.
 
         if (appearance != null && appearance.isDark() && st.isInactive() && !isSelected
-              && bw == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR) {
+          && bw == BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR) {
             useLayer = true;
         }
 
@@ -1443,8 +1488,12 @@ public class CoreUIPainter
             case BUTTON_SEGMENTED_SLIDER:
                 widget = CoreUIWidgets.BUTTON_SEGMENTED_SLIDER; break;
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
-            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
-                widget = CoreUIWidgets.BUTTON_SEGMENTED_SLIDER_TOOLBAR; break;
+                if (version >= 150000) {
+                    widget = CoreUIWidgets.BUTTON_SEGMENTED_SLIDER;
+                } else {
+                    widget = CoreUIWidgets.BUTTON_SEGMENTED_SLIDER_TOOLBAR;
+                }
+                break;
             case BUTTON_SEGMENTED_INSET:
                 widget = CoreUIWidgets.BUTTON_SEGMENTED_INSET; break;
             case BUTTON_SEGMENTED_SCURVE:
@@ -1452,43 +1501,52 @@ public class CoreUIPainter
             case BUTTON_SEGMENTED_TEXTURED:
                 widget = CoreUIWidgets.BUTTON_SEGMENTED_TEXTURED; break;
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
-                if (platformVersion >= 101600) {
+                if (version >= macOS11 && version < 150000) {
                     // selection state is indicated by the text/icon color
                     isSelected = false;
                 }
-                widget = platformVersion >= 101100
-                           ? CoreUIWidgets.BUTTON_SEGMENTED_TOOLBAR
-                           : CoreUIWidgets.BUTTON_SEGMENTED_TEXTURED;
+                if (version >= 150000) {
+                    widget = CoreUIWidgets.BUTTON_SEGMENTED_TEXTURED;
+                } else if (version >= 101100) {
+                    widget = CoreUIWidgets.BUTTON_SEGMENTED_TOOLBAR;
+                } else {
+                    widget = CoreUIWidgets.BUTTON_SEGMENTED_TEXTURED;
+                }
                 break;
             case BUTTON_SEGMENTED_TOOLBAR:
-                widget = CoreUIWidgets.BUTTON_SEGMENTED_TOOLBAR; break;
+                if (version >= 150000) {
+                    widget = CoreUIWidgets.BUTTON_SEGMENTED_TEXTURED;
+                } else {
+                    widget = CoreUIWidgets.BUTTON_SEGMENTED_TOOLBAR;
+                }
+                break;
             case BUTTON_SEGMENTED_SMALL_SQUARE:
                 widget = CoreUIWidgets.BUTTON_BEVEL_INSET; break;
             case BUTTON_SEGMENTED_SEPARATED:
                 widget = CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED; break;
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-                widget = platformVersion >= 101100
-                           ? CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TEXTURED
-                           : CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR; break;
+                if (version >= 101100) {
+                    widget = CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TEXTURED;
+                } else {
+                    widget = CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR;
+                }
+                break;
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
-                if (platformVersion >= 101600 && g.getTracking() == SwitchTracking.SELECT_ANY) {
+                if (version >= macOS11 && version < 150000 && g.getTracking() == SwitchTracking.SELECT_ANY) {
                     // selection state is indicated by the text/icon color
                     isSelected = false;
                 }
-                widget = platformVersion >= 101100
-                           ? CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR
-                           : CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR; break;
+                if (version >= 101100) {
+                    widget = CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TEXTURED;
+                } else {
+                    widget = CoreUIWidgets.BUTTON_SEGMENTED_SEPARATED_TOOLBAR;
+                }
+                break;
         }
 
         String variant = null;
-        if (platformVersion >= 101600 && bw.isToolbar()) {
-            if (bw.isIconsOnly()) {
-                variant = "";
-            } else {
-                variant = CoreUIVariants.VARIANT_TEXT_CONTENT;
-            }
+        if (version >= macOS11 && bw.isToolbar()) {
+            variant = CoreUIVariants.VARIANT_TEXT_CONTENT;
         }
 
         return getRendererOptionallyLayered(
@@ -1583,6 +1641,7 @@ public class CoreUIPainter
             case REGULAR:
                 return CoreUISizeVariants.REGULAR;
             case LARGE:
+            case EXTRA_LARGE:
                 return CoreUISizeVariants.LARGE;
         }
         throw new UnsupportedOperationException();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Alan Snyder.
+ * Copyright (c) 2020-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,7 +8,7 @@
 
 package org.violetlib.jnr.impl;
 
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.NotNull;
 
 /**
 
@@ -17,11 +17,11 @@ import org.jetbrains.annotations.*;
 public class PixelRasterImpl
   implements PixelRaster
 {
-    private final @NotNull int[] data;
-    private final @NotNull int width;
-    private final @NotNull int height;
+    private final int @NotNull [] data;
+    private final int width;
+    private final int height;
 
-    public PixelRasterImpl(@NotNull int[] data, int width, int height)
+    public PixelRasterImpl(int @NotNull [] data, int width, int height)
     {
         this.data = data;
         this.width = width;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021 Alan Snyder.
+ * Copyright (c) 2018-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -7,6 +7,7 @@
  */
 
 #include "AppearanceSupport.h"
+#include "log.h"
 
 static NSMutableArray *knownAppearanceNames;
 
@@ -40,9 +41,9 @@ void setAppearance(NSUInteger appearanceID) {
             NSString *appearanceName = (NSString *) knownAppearanceNames[appearanceID];
             configuredAppearance = [[NSAppearance appearanceNamed:appearanceName] retain];
             configuredAppearanceID = appearanceID;
-            NSLog(@"Selected appearance: %@", appearanceName);
+            OSLog(@"VAR: selected appearance: %@", appearanceName);
         } else {
-            NSLog(@"Invalid appearance ID: %ld", (long) appearanceID);
+            OSLog(@"VAR: invalid appearance ID: %ld", (long) appearanceID);
             configuredAppearance = [[NSAppearance appearanceNamed:NSAppearanceNameAqua] retain];
             configuredAppearanceID = -1;
         }

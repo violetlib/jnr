@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Alan Snyder.
+ * Copyright (c) 2020-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,12 +8,11 @@
 
 package org.violetlib.jnr.aqua.impl;
 
+import org.jetbrains.annotations.NotNull;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 
-import org.jetbrains.annotations.*;
-
 /**
-
+  A configuration that describes a segmented control.
 */
 
 public abstract class SegmentedControlConfiguration
@@ -22,16 +21,19 @@ public abstract class SegmentedControlConfiguration
     public final boolean isToolbar;
     public final @NotNull AquaUIPainter.Size size;
     public final @NotNull AquaUIPainter.State state;
+    public final @NotNull AquaUIPainter.SwitchTracking tracking;
 
     protected SegmentedControlConfiguration(@NotNull AquaUIPainter.SegmentedButtonWidget widget,
                                             boolean isToolbar,
                                             @NotNull AquaUIPainter.Size size,
-                                            @NotNull AquaUIPainter.State state)
+                                            @NotNull AquaUIPainter.State state,
+                                            @NotNull AquaUIPainter.SwitchTracking tracking)
     {
         this.widget = widget;
         this.isToolbar = isToolbar;
         this.size = size;
         this.state = state;
+        this.tracking = tracking;
 
         if (widget.isToolbar()) {
             throw new UnsupportedOperationException("Toolbar widget not supported");

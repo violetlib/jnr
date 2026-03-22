@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -9,9 +9,13 @@
 package org.violetlib.jnr.aqua.coreui;
 
 import org.jetbrains.annotations.NotNull;
+import org.violetlib.jnr.aqua.AquaNativeRendering;
 import org.violetlib.jnr.aqua.ButtonConfiguration;
 import org.violetlib.jnr.aqua.ColorWellButtonConfiguration;
-import org.violetlib.jnr.impl.*;
+import org.violetlib.jnr.impl.BasicRenderer;
+import org.violetlib.jnr.impl.PainterExtension;
+import org.violetlib.jnr.impl.Renderer;
+import org.violetlib.jnr.impl.ReusableCompositor;
 
 import java.awt.*;
 import java.awt.color.ColorSpace;
@@ -41,14 +45,14 @@ public class ColorWellRenderer
     @Override
     public void composeTo(@NotNull ReusableCompositor compositor)
     {
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
 
         int rw = compositor.getRasterWidth();
         int rh = compositor.getRasterHeight();
         int scaleFactor = compositor.getScaleFactor();
 
         int bt;
-        if (platformVersion < 130000) {
+        if (version < 130000) {
             int lt = scaleFactor;      // line thickness
             int gt = 4 * scaleFactor;  // gap thickness
             bt = lt * 2 + gt;          // border thickness (two lines plus a gap)
@@ -66,7 +70,7 @@ public class ColorWellRenderer
             return;
         }
 
-        if (platformVersion < 130000) {
+        if (version < 130000) {
             BorderPainter bp = new BorderPainter(scaleFactor);
 
             // Painting should work, but it does not paint pixels as expected
@@ -84,7 +88,7 @@ public class ColorWellRenderer
     }
 
     protected class ColorWellPainter
-       implements PainterExtension
+      implements PainterExtension
     {
         private final @NotNull Color c;
         private final boolean isDark;
@@ -98,7 +102,7 @@ public class ColorWellRenderer
         @Override
         public void paint(@NotNull Graphics2D g, float width, float height)
         {
-            int platformVersion = JNRPlatformUtils.getPlatformVersion();
+            int version = AquaNativeRendering.getSystemRenderingVersion();
 
             int x = 0;
             int y = 0;
@@ -115,7 +119,7 @@ public class ColorWellRenderer
             Graphics2D gg = (Graphics2D) g.create();
 
             Shape rr;
-            if (platformVersion >= 130000) {
+            if (version >= 130000) {
                 gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 rr = new RoundRectangle2D.Float(x1, y1, ww, hh, 4, 4);
             } else {
@@ -142,7 +146,7 @@ public class ColorWellRenderer
             gg.setColor(c);
             gg.fill(rr);
 
-            if (platformVersion >= 130000 && c.getAlpha() != 255) {
+            if (version >= 130000 && c.getAlpha() != 255) {
                 gg.setColor(isDark ? new Color(255, 255, 255, 52) : new Color(0, 0, 0, 52));
                 gg.draw(rr);
             }

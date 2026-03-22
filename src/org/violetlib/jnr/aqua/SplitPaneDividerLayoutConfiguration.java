@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,12 +8,12 @@
 
 package org.violetlib.jnr.aqua;
 
-import java.util.Objects;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaUIPainter.DividerWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.Orientation;
 
-import org.jetbrains.annotations.*;
+import java.util.Objects;
 
 /**
   A layout configuration for a split pane divider.
@@ -37,6 +37,12 @@ public class SplitPaneDividerLayoutConfiguration
     public @NotNull DividerWidget getWidget()
     {
         return dw;
+    }
+
+    @Override
+    public @Nullable AquaUIPainter.Size getSize()
+    {
+        return null;
     }
 
     public @NotNull Orientation getOrientation()

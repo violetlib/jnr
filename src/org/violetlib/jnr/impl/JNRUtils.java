@@ -278,7 +278,7 @@ public class JNRUtils
       @return true if the raster is not empty.
     */
 
-    public static boolean describeRaster(@NotNull int[] buffer, int rw, int rh)
+    public static boolean describeRaster(int @NotNull [] buffer, int rw, int rh)
     {
         int transparentPixelCount = 0;
         int opaquePixelCount = 0;
@@ -367,7 +367,7 @@ public class JNRUtils
       @param rh The number of raster lines.
     */
 
-    public static void showRaster(@NotNull int[] buffer, int rw, int rh)
+    public static void showRaster(int @NotNull [] buffer, int rw, int rh)
     {
         for (int row = 0; row < rh; row++) {
             for (int col = 0; col < rw; col++) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,19 +8,19 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.Insetter;
+import org.violetlib.jnr.aqua.AquaNativeRendering;
 import org.violetlib.jnr.aqua.TitleBarLayoutConfiguration;
 import org.violetlib.jnr.impl.CombinedInsetter;
 import org.violetlib.jnr.impl.FloatingInsetter1;
 import org.violetlib.jnr.impl.Insetter1;
 import org.violetlib.jnr.impl.Insetters;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 
 import static org.violetlib.jnr.aqua.AquaUIPainter.*;
 import static org.violetlib.jnr.aqua.AquaUIPainter.TitleBarButtonWidget.*;
@@ -32,15 +32,33 @@ import static org.violetlib.jnr.aqua.AquaUIPainter.TitleBarButtonWidget.*;
 public class TitleBarLayoutInfo
 {
     private static final int BUTTON_AREA_RIGHT_PAD = 11;
-    private static final int DOCUMENT_HEIGHT = 22;
-    private static final int UTILITY_HEIGHT = 16;
-    private static final int DOCUMENT_DIAMETER = 12;
-    private static final int UTILITY_DIAMETER = 11;
+    private final int DOCUMENT_HEIGHT;
+    private final int UTILITY_HEIGHT;
+    private final int DOCUMENT_DIAMETER;
+    private final int UTILITY_DIAMETER;
 
     private final @NotNull WindowInfo[] windowInfo;
 
     public TitleBarLayoutInfo(@NotNull Rectangle[] documentButtonBounds, @NotNull Rectangle[] utilityButtonBounds)
     {
+        int version = AquaNativeRendering.getSystemRenderingVersion();
+        if (version >= macOS26) {
+            DOCUMENT_HEIGHT = 32;
+            UTILITY_HEIGHT = 22;
+            DOCUMENT_DIAMETER = 14;
+            UTILITY_DIAMETER = 10;
+        } else if (version >= macOS11) {
+            DOCUMENT_HEIGHT = 28;
+            UTILITY_HEIGHT = 19;
+            DOCUMENT_DIAMETER = 12;
+            UTILITY_DIAMETER = 9;
+        } else {
+            DOCUMENT_HEIGHT = 32;
+            UTILITY_HEIGHT = 27;
+            DOCUMENT_DIAMETER = 12;
+            UTILITY_DIAMETER = 12;
+        }
+
         windowInfo = new WindowInfo[2];
         windowInfo[0] = new WindowInfo(DOCUMENT_HEIGHT, documentButtonBounds, DOCUMENT_DIAMETER);
         windowInfo[1] = new WindowInfo(UTILITY_HEIGHT, utilityButtonBounds, UTILITY_DIAMETER);

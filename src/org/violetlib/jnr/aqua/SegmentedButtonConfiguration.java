@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,17 +8,16 @@
 
 package org.violetlib.jnr.aqua;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.violetlib.jnr.aqua.AquaUIPainter.*;
+
 import java.util.Objects;
 
-import org.violetlib.jnr.aqua.AquaUIPainter.Direction;
-import org.violetlib.jnr.aqua.AquaUIPainter.Position;
-import org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget;
-import org.violetlib.jnr.aqua.AquaUIPainter.Size;
-import org.violetlib.jnr.aqua.AquaUIPainter.State;
-import org.violetlib.jnr.aqua.AquaUIPainter.SwitchTracking;
-import org.violetlib.jnr.impl.JNRPlatformUtils;
-
-import org.jetbrains.annotations.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_INSET;
+import static org.violetlib.jnr.aqua.AquaUIPainter.SegmentedButtonWidget.BUTTON_SEGMENTED_SMALL_SQUARE;
+import static org.violetlib.jnr.aqua.AquaUIPainter.macOS11;
+import static org.violetlib.jnr.aqua.AquaUIPainter.macOS26;
 
 /**
   A configuration for a segmented button.
@@ -77,7 +76,7 @@ public class SegmentedButtonConfiguration
                                         @NotNull DividerState rightDividerState)
     {
         this(bw, size, state, isSelected, isFocused, d, position, leftDividerState, rightDividerState,
-          SwitchTracking.SELECT_ONE);
+          defaultTracking(position));
     }
 
     public SegmentedButtonConfiguration(@NotNull SegmentedButtonWidget bw,
@@ -93,12 +92,24 @@ public class SegmentedButtonConfiguration
     {
         super(bw, size, position);
 
-        // Many buttons do not alter their appearance when inactive. In many cases using CoreUI, the way to accomplish
-        // that is to change the inactive state to the active equivalent. Replacing the state also simplifies selection
-        // of a text color and improves caching.
+        if (!AquaNativeRendering.isRaw()) {
+            // Many buttons do not alter their appearance when inactive. In many cases using CoreUI, the way to
+            // accomplish that is to change the inactive state to the active equivalent. Replacing the state also
+            // simplifies selection of a text color and improves caching.
+            if (state.isInactive() && !isSensitiveToInactiveState(bw)) {
+                state = state.toActive();
+            }
 
-        if (state.isInactive() && !isSensitiveToInactiveState(bw)) {
-            state = state.toActive();
+            int version = AquaNativeRendering.getSystemRenderingVersion();
+
+            if (version >= macOS11 && version < 150000) {
+                if (tracking == SwitchTracking.SELECT_ANY) {
+                    if (bw == BUTTON_SEGMENTED_INSET || bw == BUTTON_SEGMENTED_SMALL_SQUARE) {
+                        // Select any changes the rendering, but the visual results are the same.
+                        tracking = SwitchTracking.SELECT_ONE;
+                    }
+                }
+            }
         }
 
         this.state = state;
@@ -119,7 +130,7 @@ public class SegmentedButtonConfiguration
                                         @NotNull DividerState rightDividerState)
     {
         this(g.getWidget(), g.getSize(), state, isSelected, isFocused, d, g.getPosition(),
-          leftDividerState, rightDividerState, SwitchTracking.SELECT_ONE);
+          leftDividerState, rightDividerState, defaultTracking(g.getPosition()));
     }
 
     public SegmentedButtonConfiguration(@NotNull SegmentedButtonLayoutConfiguration g,
@@ -135,9 +146,26 @@ public class SegmentedButtonConfiguration
           leftDividerState, rightDividerState, tracking);
     }
 
+    private static @NotNull SwitchTracking defaultTracking(@NotNull Position pos)
+    {
+        return pos == Position.ONLY ? SwitchTracking.SELECT_ANY : SwitchTracking.SELECT_ONE;
+    }
+
     public @NotNull SegmentedButtonConfiguration withWidget(@NotNull SegmentedButtonWidget widget)
     {
         return new SegmentedButtonConfiguration(widget,
+          getSize(), state, isSelected, isFocused, d, getPosition(), leftDividerState, rightDividerState, tracking);
+    }
+
+    public @NotNull SegmentedButtonConfiguration withTracking(@NotNull SwitchTracking tracking)
+    {
+        return new SegmentedButtonConfiguration(getWidget(),
+          getSize(), state, isSelected, isFocused, d, getPosition(), leftDividerState, rightDividerState, tracking);
+    }
+
+    public @NotNull SegmentedButtonConfiguration withState(@NotNull State state)
+    {
+        return new SegmentedButtonConfiguration(getWidget(),
           getSize(), state, isSelected, isFocused, d, getPosition(), leftDividerState, rightDividerState, tracking);
     }
 
@@ -185,6 +213,12 @@ public class SegmentedButtonConfiguration
     }
 
     @Override
+    public @NotNull LayoutConfiguration getLayoutConfiguration()
+    {
+        return this;
+    }
+
+    @Override
     public boolean equals(@Nullable Object o)
     {
         if (this == o) {
@@ -198,13 +232,13 @@ public class SegmentedButtonConfiguration
         }
         SegmentedButtonConfiguration that = (SegmentedButtonConfiguration) o;
         return state == that.state
-                 && isSelected == that.isSelected
-                 && isFocused == that.isFocused
-                 && d == that.d
-                 && leftDividerState == that.leftDividerState
-                 && rightDividerState == that.rightDividerState
-                 && tracking == that.tracking
-                 && super.layoutEquals(that);
+          && isSelected == that.isSelected
+          && isFocused == that.isFocused
+          && d == that.d
+          && leftDividerState == that.leftDividerState
+          && rightDividerState == that.rightDividerState
+          && tracking == that.tracking
+          && super.layoutEquals(that);
     }
 
     @Override
@@ -226,15 +260,15 @@ public class SegmentedButtonConfiguration
 
     private static boolean isSensitiveToInactiveState(@NotNull SegmentedButtonWidget bw)
     {
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
 
         // Starting with macOS 10.15, textured buttons are not sensitive unless they are on the toolbar
-        if (platformVersion >= 101500 && bw.isTextured() && !bw.isToolbar()) {
+        if (version >= 101500 && bw.isTextured() && !bw.isToolbar()) {
             return false;
         }
 
-        // Starting with macOS 11, tab buttons are not sensitive
-        if (platformVersion >= 101600 && bw.isSlider() && !bw.isToolbar()) {
+        // In macOS 11–15, tab buttons are not sensitive
+        if (version >= macOS11 && version < macOS26 && bw.isSlider() && !bw.isToolbar()) {
             return false;
         }
 

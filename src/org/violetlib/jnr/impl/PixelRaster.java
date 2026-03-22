@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Alan Snyder.
+ * Copyright (c) 2020-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,7 +8,7 @@
 
 package org.violetlib.jnr.impl;
 
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.NotNull;
 
 /**
   An object that provides pixels in the form of an array of pixels in INT_ARGB_PRE format.
@@ -26,7 +26,7 @@ public interface PixelRaster
           @param width The raster width, in pixels.
           @param height The raster height, in pixels.
         */
-        void access(@NotNull int[] data, int width, int height);
+        void access(int @NotNull [] data, int width, int height);
     }
 
     /**

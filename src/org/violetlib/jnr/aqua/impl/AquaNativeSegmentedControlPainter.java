@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Alan Snyder.
+ * Copyright (c) 2020-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,26 +8,21 @@
 
 package org.violetlib.jnr.aqua.impl;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.violetlib.jnr.aqua.AquaNativeRendering;
+import org.violetlib.jnr.aqua.AquaUIPainter;
+import org.violetlib.jnr.aqua.SegmentedButtonConfiguration;
+import org.violetlib.jnr.aqua.SegmentedButtonLayoutConfiguration;
+import org.violetlib.jnr.impl.*;
+
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.lang.annotation.Native;
 
-import org.violetlib.jnr.aqua.AquaUIPainter;
-import org.violetlib.jnr.aqua.SegmentedButtonConfiguration;
-import org.violetlib.jnr.aqua.SegmentedButtonLayoutConfiguration;
-import org.violetlib.jnr.impl.AnnotatedSegmentedControlImage;
-import org.violetlib.jnr.impl.BasicImageSupport;
-import org.violetlib.jnr.impl.PixelRaster;
-import org.violetlib.jnr.impl.PixelRasterImpl;
-import org.violetlib.jnr.impl.Renderer;
-import org.violetlib.jnr.impl.RendererDebugInfo;
-import org.violetlib.jnr.impl.ReusableCompositor;
-
-import org.jetbrains.annotations.*;
-
-import static org.violetlib.jnr.aqua.SegmentedButtonConfiguration.*;
+import static org.violetlib.jnr.aqua.SegmentedButtonConfiguration.DividerState;
 import static org.violetlib.jnr.aqua.impl.AquaNativePainter.*;
-import static org.violetlib.jnr.aqua.impl.SegmentedControl4LayoutInfo.*;
+import static org.violetlib.jnr.aqua.impl.SegmentedControl4LayoutInfo.DividerPosition;
 import static org.violetlib.jnr.aqua.impl.SegmentedControl4LayoutInfo.DividerPosition.*;
 
 /**
@@ -47,7 +42,49 @@ public class AquaNativeSegmentedControlPainter
 
     public @NotNull Renderer createSegmentedButtonRenderer(@NotNull SegmentedButtonConfiguration g)
     {
+        if (!AquaNativeRendering.isRaw()) {
+            g = canonicalize(g);
+        }
         return new SegmentedButtonRenderer(g);
+    }
+
+    public @NotNull SegmentedButtonConfiguration canonicalize(@NotNull SegmentedButtonConfiguration g)
+    {
+        // Replace unsupported styles.
+
+        // TBD: this substitution does not work properly because the slider style buttons are too tall.
+
+        int version = AquaNativeRendering.getSystemRenderingVersion();
+        if (version >= macOS26 && isUnsupportedOn26(g)) {
+            g = g.withWidget(SegmentedButtonWidget.BUTTON_SEGMENTED_SLIDER);
+        }
+
+        // For rendering that is not sensitive to switch tracking (select any), map the switch tracking
+        // to the basic option (select one).
+
+        SwitchTracking tracking = g.getTracking();
+        if (tracking != SwitchTracking.SELECT_ANY) {
+            return g;
+        }
+        if (!scds.isSwitchTrackingDependent(g.getWidget(), g.getSize())) {
+            return g.withTracking(SwitchTracking.SELECT_ONE);
+        }
+        return g;
+    }
+
+    public static boolean isUnsupportedOn26(@NotNull SegmentedButtonLayoutConfiguration g)
+    {
+        switch (g.getWidget()) {
+            case BUTTON_SEGMENTED_INSET:
+            case BUTTON_SEGMENTED_SCURVE:
+            case BUTTON_SEGMENTED_TEXTURED:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
+            case BUTTON_SEGMENTED_SMALL_SQUARE:
+            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
+                return true;
+        }
+        return false;
     }
 
     private class SegmentedButtonRenderer
@@ -107,7 +144,7 @@ public class AquaNativeSegmentedControlPainter
         }
     }
 
-    private static @NotNull Rectangle2D extractBounds(@NotNull float[] fs, int start)
+    private static @NotNull Rectangle2D extractBounds(float @NotNull [] fs, int start)
     {
         return new Rectangle2D.Float(fs[start], fs[start+1], fs[start+2], fs[start+3]);
     }
@@ -137,13 +174,49 @@ public class AquaNativeSegmentedControlPainter
         }
     }
 
+    /**
+      This method computes rendering parameters, for debugging. It should be called using reflection. All widths are
+      in points. This method was introduced before release 15.
+      <p>
+      The results:
+      <ul>
+      <li>The left inset.</li>
+      <li>The divider width.</li>
+      <li>The right inset.</li>
+      <li>A non-zero value if the segmented control uses subviews.</li>
+      </ul>
+      Additional results may be returned in later releases.
+    */
+
     // supports debugging, called using reflection
-    public @Nullable float[] getSegmentedButtonLayoutParameters(@NotNull SegmentedButtonLayoutConfiguration g)
+    public float @Nullable [] getSegmentedButtonLayoutParameters1(@NotNull SegmentedButtonConfiguration g)
+    {
+        return getSegmentedButtonLayoutParameters2(g, 64, 64, 64);
+    }
+
+    /**
+      This method computes rendering parameters, for debugging. It should be called using reflection. All widths are
+      in points. This method was introduced in release 15.
+      <p>
+      The results (as of release 15):
+      <ul>
+      <li>The left inset.</li>
+      <li>The divider width.</li>
+      <li>The right inset.</li>
+      <li>A non-zero value if the segmented control uses subviews.</li>
+      <li>Extra width given to the middle segment (assumes a divider width of 2).</li>
+      <li>Extra width not associated with segments.</li>
+      </ul>
+    */
+
+    // supports debugging, called using reflection
+    public float @Nullable [] getSegmentedButtonLayoutParameters2(
+      @NotNull SegmentedButtonConfiguration g, float sw1, float sw2, float sw3)
     {
         int size = toSize(g.getSize());
         int segmentStyle = toSegmentedStyle(g.getWidget());
         float[] debugOutput = new float[8];
-        int result = nativeDetermineSegmentedButtonLayoutParameters(segmentStyle, size, debugOutput);
+        int result = nativeDetermineSegmentedButtonLayoutParameters(segmentStyle, size, sw1, sw2, sw3, debugOutput);
         return result == 0 ? debugOutput : null;
     }
 
@@ -164,7 +237,7 @@ public class AquaNativeSegmentedControlPainter
     */
 
     public @NotNull SegmentedControlLayoutInfo getSegmentLayoutInfo(
-      @NotNull SegmentedButtonLayoutConfiguration g, int scale)
+      @NotNull SegmentedButtonConfiguration g, int scale)
     {
         return scds.getSegmentLayoutInfo(g, scale);
     }
@@ -177,7 +250,7 @@ public class AquaNativeSegmentedControlPainter
     */
 
     public @NotNull RenderInsets getSegmentedControlInsets(
-      @NotNull SegmentedButtonLayoutConfiguration g, int scale)
+      @NotNull SegmentedButtonConfiguration g, int scale)
     {
         return scds.getInsets(g, scale);
     }
@@ -232,8 +305,9 @@ public class AquaNativeSegmentedControlPainter
         Position pos = g.getPosition();
         DividerState leftDivider = g.getLeftDividerState();
         DividerState rightDivider = g.getRightDividerState();
+        float otherSegmentNominalWidth = g.getSize() == Size.EXTRA_LARGE ? 50 : 20;
         return getRenderConfiguration(isSeparated, isSelected, pos, leftDivider, rightDivider,
-          s, layout, scale, segmentWidth, controlHeight);
+          s, layout, scale, segmentWidth, controlHeight, otherSegmentNominalWidth);
     }
 
     /**
@@ -262,14 +336,14 @@ public class AquaNativeSegmentedControlPainter
       @NotNull SegmentedControl4LayoutInfo layout,
       int scale,
       int segmentWidth,
-      int controlHeight)
+      int controlHeight,
+      float otherSegmentNominalWidth)
     {
         DividerPosition dividerPosition = layout.dividerPosition;
         float dividerVisualWidth = layout.dividerVisualWidth;
         float firstExtra = layout.firstSegmentWidthAdjustment;
         float middleExtra = layout.middleSegmentWidthAdjustment;
         float lastExtra = layout.lastSegmentWidthAdjustment;
-        float otherSegmentNominalWidth = 20;
         float renderedSegmentNominalWidth;
         int segmentIndex;
         int selectedSegmentIndex = -1;
@@ -332,7 +406,7 @@ public class AquaNativeSegmentedControlPainter
             if (segmentIndex > 0) {
                 // adjust so that the left divider is not visible by default
                 if (dividerPosition != LEFT) {
-                    //NSLog(@"Shifting and widening to hide left divider");
+                    //System.err.println("Shifting and widening to hide left divider");
                     xOffset += dividerVisualWidth;
                     renderedSegmentNominalWidth += dividerVisualWidth;
                     widthAdjustment += dividerVisualWidth;
@@ -342,7 +416,7 @@ public class AquaNativeSegmentedControlPainter
             if (segmentIndex < 3) {
                 // adjust so that the right divider is not visible by default
                 if (dividerPosition != RIGHT) {
-                    //NSLog(@"Widening to hide right divider");
+                    //System.err.println("Widening to hide right divider");
                     renderedSegmentNominalWidth += dividerVisualWidth;
                     widthAdjustment += dividerVisualWidth;
                 }
@@ -423,7 +497,7 @@ public class AquaNativeSegmentedControlPainter
         SegmentedButtonWidget basicWidget = widget.toBasicWidget();
         float w = b != null ? b.segmentWidth : 20;
         boolean isSelected = b != null && b.isSelected;
-        return new SegmentedControlConfiguration1(basicWidget, isToolbar, sz, st, w, isSelected);
+        return new SegmentedControlConfiguration1(basicWidget, isToolbar, sz, st, w, isSelected, tracking);
     }
 
     /**
@@ -499,7 +573,7 @@ public class AquaNativeSegmentedControlPainter
     */
 
     public @Nullable AnnotatedSegmentedControlImage paintSegmentedControl(
-      @NotNull int[] data,
+      int @NotNull [] data,
       int rw,
       int rh,
       float scale,
@@ -527,7 +601,7 @@ public class AquaNativeSegmentedControlPainter
     */
 
     private @Nullable AnnotatedSegmentedControlImage paintSegmentedControl1(
-      @NotNull int[] data,
+      int @NotNull [] data,
       int rw,
       int rh,
       float scale,
@@ -545,12 +619,13 @@ public class AquaNativeSegmentedControlPainter
         int size = toSize(g.size);
         int state = toState(g.state);
         int style = toSegmentedStyle(g.widget);
+        int tracking = toTracking(g.tracking);
         boolean isSelected = g.isSelected;
         int context = g.isToolbar ? CONTEXT_TOOLBAR : CONTEXT_WINDOW;
 
         float[] debugData = requestDebugOutput ? new float[4] : null;
 
-        nativePaintSegmentedControl1(data, rw, rh, scale, g.w, style, isSelected, context, size, state, debugData);
+        nativePaintSegmentedControl1(data, rw, rh, scale, g.w, style, tracking, isSelected, context, size, state, debugData);
 
         if (debugData != null) {
             int count = debugData.length / 4;
@@ -580,7 +655,7 @@ public class AquaNativeSegmentedControlPainter
     */
 
     private @Nullable AnnotatedSegmentedControlImage paintSegmentedControl4(
-      @NotNull int[] data,
+      int @NotNull [] data,
       int rw,
       int rh,
       float scale,
@@ -664,7 +739,7 @@ public class AquaNativeSegmentedControlPainter
       int context,
       int sz,
       int st,
-      @Nullable float[] debugOutput
+      float @Nullable [] debugOutput
     );
 
     /**
@@ -676,6 +751,7 @@ public class AquaNativeSegmentedControlPainter
       @param scale The scale factor, typically 1 or 2.
       @param w the nominal width (in points) of the segment
       @param style the control style
+      @param tracking the tracking mode (select one or select any)
       @param isSelected true if the segment should be selected
       @param context the context of the control (toolbar = 1, normal = 0)
       @param sz the size variant
@@ -690,18 +766,15 @@ public class AquaNativeSegmentedControlPainter
       float scale,
       float w,
       int style,
+      int tracking,
       boolean isSelected,
       int context,
       int sz,
       int st,
-      @Nullable float[] debugOutput
+      float @Nullable [] debugOutput
     );
 
-    private static native int nativeDetermineSegmentedButtonLayoutParameters(int segmentStyle, int size, float[] data);
+    private static native int nativeDetermineSegmentedButtonLayoutParameters(
+      int segmentStyle, int size, float sw1, float sw2, float sw3, float[] data);
     public static native int nativeDetermineSegmentedButtonRenderingVersion();
-
-    // The following method represents a failed experiment. Although I am not sure why, asking a view for its size does
-    // not always provide the information needed here.
-
-    private static native int nativeDetermineSegmentedButtonFixedHeight(int segmentStyle, int size);
 }

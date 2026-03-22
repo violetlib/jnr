@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,14 +8,15 @@
 
 package org.violetlib.jnr.aqua;
 
-import java.util.Objects;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaUIPainter.Orientation;
 import org.violetlib.jnr.aqua.AquaUIPainter.ProgressWidget;
 import org.violetlib.jnr.aqua.AquaUIPainter.Size;
-import org.violetlib.jnr.impl.JNRPlatformUtils;
 
-import org.jetbrains.annotations.*;
+import java.util.Objects;
+
+import static org.violetlib.jnr.aqua.AquaUIPainter.macOS11;
 
 /**
   A layout configuration for a progress indicator.
@@ -32,12 +33,16 @@ public class ProgressIndicatorLayoutConfiguration
                                                 @NotNull Size size,
                                                 @NotNull Orientation o)
     {
-        // progress bars can be regular or small on macOS 11, previously have only one size
-        // spinners can be regular or small
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
-        this.size = pw == ProgressWidget.SPINNER || pw == ProgressWidget.INDETERMINATE_SPINNER || platformVersion >= 101600
-                      ? size == Size.MINI || size == Size.SMALL ? Size.SMALL : Size.REGULAR
-                      : Size.REGULAR;
+        if (!AquaNativeRendering.isRaw()) {
+            // progress bars can be regular or small on macOS 11, previously have only one size
+            // spinners can be regular or small
+            int version = AquaNativeRendering.getSystemRenderingVersion();
+            size = pw == ProgressWidget.SPINNER || pw == ProgressWidget.INDETERMINATE_SPINNER || version >= macOS11
+              ? size == Size.MINI || size == Size.SMALL ? Size.SMALL : Size.REGULAR
+              : Size.REGULAR;
+        }
+
+        this.size = size;
         this.o = o;
         this.pw = pw;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,10 +8,8 @@
 
 package org.violetlib.jnr.aqua;
 
-import java.awt.Dimension;
-import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.aqua.impl.PopupArrowConfiguration;
@@ -19,10 +17,12 @@ import org.violetlib.jnr.aqua.impl.SliderThumbConfiguration;
 import org.violetlib.jnr.aqua.impl.SliderTickConfiguration;
 import org.violetlib.jnr.impl.BasicLayoutInfo;
 import org.violetlib.jnr.impl.CombinedInsetter;
+import org.violetlib.jnr.impl.Insetters;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 
-import static org.violetlib.jnr.aqua.AquaUIPainter.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.TitleBarButtonWidget;
 
 /**
   Provides layout information for widgets based on the platform UI and (rarely) the type of native rendering.
@@ -55,7 +55,7 @@ public abstract class AquaUILayoutInfo
 
         if (g instanceof PopupButtonLayoutConfiguration) {
             PopupButtonLayoutConfiguration gg = (PopupButtonLayoutConfiguration) g;
-            return getPopUpButtonLayoutInfo(gg);
+            return getPopupButtonLayoutInfo(gg);
         }
 
         if (g instanceof TitleBarLayoutConfiguration) {
@@ -217,7 +217,7 @@ public abstract class AquaUILayoutInfo
     /**
       Return the (dynamic) insets of the indicator within the combo box.
 
-      @param g This parameter specifies the layout configuration of the segmented button.
+      @param g This parameter specifies the layout configuration of the combo box.
       @return the insets.
     */
 
@@ -226,25 +226,26 @@ public abstract class AquaUILayoutInfo
     /**
       Return the insets that define the editor area in a properly sized combo box.
 
-      @param g This parameter specifies the layout configuration of the segmented button.
+      @param g This parameter specifies the layout configuration of the combo box.
       @return the insets.
     */
 
     public abstract @NotNull Insetter getComboBoxEditorInsets(@NotNull ComboBoxLayoutConfiguration g);
 
     /**
-      Return the insets that define the arrow area in a properly sized pop up button. For internal use.
+      Return the insets that define the arrow area in a properly sized pop-up button. For internal use.
+      Used only by CoreUI and JRS painters.
 
-      @param g This parameter specifies the layout configuration of the pop up button.
+      @param g This parameter specifies the layout configuration of the pop-up button.
       @return the insets.
     */
 
     public abstract @NotNull Insetter getPopUpArrowInsets(@NotNull PopupButtonConfiguration g);
 
     /**
-      Return the insets that define the content area in a properly sized pop up button.
+      Return the insets that define the content area in a properly sized pop-up button.
 
-      @param g This parameter specifies the layout configuration of the pop up button.
+      @param g This parameter specifies the layout configuration of the pop-up button.
       @return the insets.
     */
 
@@ -549,7 +550,7 @@ public abstract class AquaUILayoutInfo
 
     protected abstract @NotNull LayoutInfo getComboBoxLayoutInfo(@NotNull ComboBoxLayoutConfiguration g);
 
-    protected abstract @NotNull LayoutInfo getPopUpButtonLayoutInfo(@NotNull PopupButtonLayoutConfiguration g);
+    protected abstract @NotNull LayoutInfo getPopupButtonLayoutInfo(@NotNull PopupButtonLayoutConfiguration g);
 
     protected abstract @NotNull LayoutInfo getToolBarItemWellLayoutInfo(@NotNull ToolBarItemWellLayoutConfiguration g);
 
@@ -574,4 +575,33 @@ public abstract class AquaUILayoutInfo
     protected abstract @NotNull LayoutInfo getProgressIndicatorLayoutInfo(@NotNull ProgressIndicatorLayoutConfiguration g);
 
     protected abstract @NotNull LayoutInfo getTableColumnHeaderLayoutInfo(@NotNull TableColumnHeaderLayoutConfiguration g);
+
+    protected @NotNull Insetter createInsetter(@NotNull LayoutDirectionSensitiveConfiguration g,
+                                               float top, float bottom, float leading, float trailing)
+    {
+        LayoutInfo layoutInfo = null;
+        if (g instanceof LayoutConfiguration) {
+            LayoutConfiguration lg = (LayoutConfiguration) g;
+            layoutInfo = getLayoutInfo(lg);
+        }
+        return g.isLeftToRight()
+          ? Insetters.createFixed(top, leading, bottom, trailing, layoutInfo)
+          : Insetters.createFixed(top, trailing, bottom, leading, layoutInfo);
+    }
+
+    protected @NotNull Insetter createInsetter(@NotNull LayoutConfiguration g, float top, float bottom, float side)
+    {
+        LayoutInfo layoutInfo = getLayoutInfo(g);
+        return Insetters.createFixed(top, side, bottom, side, layoutInfo);
+    }
+
+    protected @NotNull Insetter createInsetter(@NotNull Configuration g, float top, float bottom, float side)
+    {
+        LayoutInfo layoutInfo = null;
+        if (g instanceof LayoutConfiguration) {
+            LayoutConfiguration lg = (LayoutConfiguration) g;
+            layoutInfo = getLayoutInfo(lg);
+        }
+        return Insetters.createFixed(top, side, bottom, side, layoutInfo);
+    }
 }

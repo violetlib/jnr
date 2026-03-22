@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2025 Alan Snyder.
+ * Copyright (c) 2016-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -12,11 +12,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
-import org.violetlib.jnr.aqua.AquaUIPainter.*;
 import org.violetlib.jnr.aqua.*;
+import org.violetlib.jnr.aqua.AquaUIPainter.*;
 import org.violetlib.jnr.impl.BasicLayoutInfo;
 import org.violetlib.jnr.impl.Insetters;
-import org.violetlib.jnr.impl.JNRPlatformUtils;
 
 import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
 import static org.violetlib.jnr.impl.JNRUtils.size;
@@ -45,7 +44,7 @@ public class LayoutInfo_10_11
 
         Size sz = g.getSize();
 
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
 
         if (bw == BUTTON_PUSH) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 22, 19, 16));
@@ -57,13 +56,13 @@ public class LayoutInfo_10_11
             return BasicLayoutInfo.getInstance();
 
         } else if (bw == BUTTON_CHECK_BOX) {
-            if (platformVersion >= 101400) {
+            if (version >= 101400) {
                 return BasicLayoutInfo.createFixed(size(sz, 16, 14, 10), size(sz, 17, 15, 11));
             }
             return BasicLayoutInfo.createFixed(size(sz, 14, 12, 10), size(sz, 14, 12, 10));
 
         } else if (bw == BUTTON_RADIO) {
-            if (platformVersion >= 101400) {
+            if (version >= 101400) {
                 return BasicLayoutInfo.createFixed(size(sz, 18, 14, 10), size(sz, 18, 15, 11));
             }
             return BasicLayoutInfo.createFixed(size(sz, 16, 14, 10), size(sz, 16, 14, 10));
@@ -90,7 +89,7 @@ public class LayoutInfo_10_11
         } else if (bw == BUTTON_TEXTURED) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));  // changed in El Capitan
 
-        } else if (bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS) {
+        } else if (bw == BUTTON_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 24, 20, 17));  // new in El Capitan
 
         } else if (bw == BUTTON_ROUND) {
@@ -185,23 +184,19 @@ public class LayoutInfo_10_11
             top = bottom = 1;
             left = right = 4;
 
-        } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS) {
+        } else if (bw == BUTTON_TOOLBAR || bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR) {
             top = 0.51f;
             bottom = 1.49f;
             left = right = 3;
 
         } else if (bw == BUTTON_ROUND) {
-            top = left = right = size2D(sz, 4, 3.5f, 3);
-            bottom = top + 1;
+            top = left = right = bottom = size2D(sz, 4, 3.5, 3);
 
         } else if (bw == BUTTON_ROUND_INSET) {
-            left = right = 3;
-            top = 3.5f;
-            bottom = top;
+            top = left = right = bottom = 3.5f;
 
         } else if (bw == BUTTON_ROUND_TEXTURED) {
-            top = left = right = size2D(sz, 3.5f, 3, 2.5f);
-            bottom = top + 1;
+            top = left = right = bottom = size2D(sz, 3.5, 3, 2.5);
 
         } else if (bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
             // changed in El Capitan
@@ -227,14 +222,13 @@ public class LayoutInfo_10_11
             // labels are not supported
         }
 
-        LayoutInfo layoutInfo = getLayoutInfo(g);
-        return Insetters.createFixed(top, left, bottom, right, layoutInfo);
+        return createInsetter(g, top, bottom, left, right);
     }
 
     @Override
     protected @NotNull LayoutInfo getSegmentedButtonLayoutInfo(@NotNull SegmentedButtonLayoutConfiguration g)
     {
-        int version = AquaUIPainterBase.internalGetSegmentedButtonRenderingVersion();
+        int version = AquaNativePainter.getSegmentedButtonRenderingVersion();
         SegmentedButtonWidget bw = g.getWidget();
         Size sz = g.getSize();
 
@@ -243,7 +237,6 @@ public class LayoutInfo_10_11
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
-            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_SEPARATED:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 22, 19, 16));
 
@@ -260,9 +253,7 @@ public class LayoutInfo_10_11
                 return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));  // changed in El Capitan
 
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 if (version == AquaUIPainterBase.SEGMENTED_10_14) {
                     return BasicLayoutInfo.createFixedHeight(size(sz, 22, 18, 15));
                 }
@@ -297,7 +288,6 @@ public class LayoutInfo_10_11
             case BUTTON_SEGMENTED:
             case BUTTON_SEGMENTED_SLIDER:
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
-            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                 break;
             case BUTTON_SEGMENTED_SEPARATED:
                 endAdjust = 0;
@@ -309,7 +299,6 @@ public class LayoutInfo_10_11
             case BUTTON_SEGMENTED_SCURVE:
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TOOLBAR:
                 top = 0.5f;     // changed in El Capitan
                 bottom = 1.5f;  // changed in El Capitan
@@ -317,7 +306,6 @@ public class LayoutInfo_10_11
                 break;
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 top = 0.5f;     // changed in El Capitan
                 bottom = 1.5f;  // changed in El Capitan
                 endAdjust = 0;
@@ -370,7 +358,7 @@ public class LayoutInfo_10_11
     }
 
     @Override
-    protected @NotNull LayoutInfo getPopUpButtonLayoutInfo(@NotNull PopupButtonLayoutConfiguration g)
+    protected @NotNull LayoutInfo getPopupButtonLayoutInfo(@NotNull PopupButtonLayoutConfiguration g)
     {
         // On Yosemite and El Capitan, the square style bombs if the mini size is selected.
         // See rendering code, which must be consistent.
@@ -378,9 +366,9 @@ public class LayoutInfo_10_11
         PopupButtonWidget bw = g.getPopupButtonWidget();
         Size sz = g.getSize();
         boolean isSquare = bw == PopupButtonWidget.BUTTON_POP_UP_SQUARE
-                             || bw == PopupButtonWidget.BUTTON_POP_DOWN_SQUARE;
+          || bw == PopupButtonWidget.BUTTON_POP_DOWN_SQUARE;
         boolean isArrowsOnly = bw == PopupButtonWidget.BUTTON_POP_UP_CELL
-                                 || bw == PopupButtonWidget.BUTTON_POP_DOWN_CELL;
+          || bw == PopupButtonWidget.BUTTON_POP_DOWN_CELL;
 
         if ((isSquare || isArrowsOnly) && sz == Size.MINI) {
             sz = Size.SMALL;
@@ -405,7 +393,7 @@ public class LayoutInfo_10_11
 
             case BUTTON_POP_DOWN_BEVEL:
             case BUTTON_POP_UP_BEVEL:
-                return BasicLayoutInfo.createFixedHeight(22);
+                return BasicLayoutInfo.create(false, 23, true, 22);
 
             case BUTTON_POP_DOWN_ROUND_RECT:
             case BUTTON_POP_UP_ROUND_RECT:

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,24 +8,24 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.RoundRectangle2D;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.violetlib.jnr.aqua.AquaNativeRendering;
 import org.violetlib.jnr.aqua.AquaUILayoutInfo;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.AquaUIPainter.ScrollBarKnobWidget;
 import org.violetlib.jnr.aqua.ScrollBarConfiguration;
 import org.violetlib.jnr.impl.Colors;
+import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
 
-import static org.violetlib.jnr.aqua.AquaUIPainter.ScrollBarKnobWidget.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.ScrollBarKnobWidget.DEFAULT;
+import static org.violetlib.jnr.aqua.AquaUIPainter.ScrollBarKnobWidget.LIGHT;
 
 /**
   Simulates the rendering of overlay scroll bars.
@@ -59,6 +59,11 @@ public class OverlayScrollBarPainterExtension
 
     private boolean getCorrespondingAppearanceIsDark(@Nullable VAppearance appearance, @NotNull ScrollBarKnobWidget w)
     {
+        int version = JNRPlatformUtils.getPlatformVersion();
+        if (version < 101400) {
+            // Dark mode did not exist. Use the "light" style.
+            return true;
+        }
         if (w == DEFAULT) {
             // Use the default style for the appearance.
             return appearance != null && appearance.isDark();
@@ -118,17 +123,19 @@ public class OverlayScrollBarPainterExtension
             g.setColor(getThumbColor());
             g.fill(thumbShape);
 
-            Color thumbBorderColor = getThumbBorderColor();
-            if (thumbBorderColor != null) {
-                float thickness = getThumbBorderThickness();
-                g.setColor(thumbBorderColor);
-                g.setStroke(new BasicStroke(thickness * 1.5f));
-                Shape thumbBorderShape = createThumbShape(width, height);
-                g.clip(thumbShape);
-                if (false) {
-                    g.clip(new Rectangle2D.Float(0, 0, width / 2, height / 2));  // for testing
+            if (AquaNativeRendering.getSystemRenderingVersion() < 150000) {
+                Color thumbBorderColor = getThumbBorderColor();
+                if (thumbBorderColor != null) {
+                    float thickness = getThumbBorderThickness();
+                    g.setColor(thumbBorderColor);
+                    g.setStroke(new BasicStroke(thickness * 1.5f));
+                    Shape thumbBorderShape = createThumbShape(width, height);
+                    g.clip(thumbShape);
+                    if (false) {
+                        g.clip(new Rectangle2D.Float(0, 0, width / 2, height / 2));  // for testing
+                    }
+                    g.draw(thumbBorderShape);
                 }
-                g.draw(thumbBorderShape);
             }
         }
 
@@ -139,8 +146,9 @@ public class OverlayScrollBarPainterExtension
     {
         boolean isVertical = height > width;
 
-        double leftTop = 3.5;
-        double rightBottom = 1.5;
+        boolean isSidebar = g.getWidget() == AquaUIPainter.ScrollBarWidget.LEGACY_SIDEBAR;
+        double leftTop = isSidebar ? 0 : 3.5;
+        double rightBottom = isSidebar ? 0 : 1.5;
 
         Rectangle2D bounds = new Rectangle2D.Float(0, 0, width, height);
         Rectangle2D thumbBounds = uiLayout.getScrollBarThumbBounds(bounds, g);
@@ -148,7 +156,6 @@ public class OverlayScrollBarPainterExtension
         if (isVertical) {
             double w = width - leftTop - rightBottom;
             return new RoundRectangle2D.Double(leftTop, thumbBounds.getY(), w, thumbBounds.getHeight(), w, w);
-
         } else {
             double h = height - leftTop - rightBottom;
             return new RoundRectangle2D.Double(thumbBounds.getX(), leftTop, thumbBounds.getWidth(), h, h, h);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,7 +8,7 @@
 
 package org.violetlib.jnr.impl;
 
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.NotNull;
 
 /**
   An interface for a native renderer that renders directly into a raster.
@@ -31,5 +31,5 @@ public interface BasicRenderer
       @param h The height of the rendered image in device independent pixels (sometimes called points).
     */
 
-    void render(@NotNull int[] data, int rw, int rh, float w, float h);
+    void render(int @NotNull [] data, int rw, int rh, float w, float h);
 }

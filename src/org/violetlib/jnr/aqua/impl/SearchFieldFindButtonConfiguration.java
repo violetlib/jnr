@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,13 +8,14 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.util.Objects;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.Configuration;
 import org.violetlib.jnr.aqua.LayoutConfiguration;
 import org.violetlib.jnr.aqua.TextFieldConfiguration;
 
-import org.jetbrains.annotations.*;
+import java.util.Objects;
 
 /**
   A pseudo configuration for internal and evaluation use. Should not be used by clients.
@@ -35,6 +36,12 @@ public class SearchFieldFindButtonConfiguration
     public @NotNull Object getWidget()
     {
         return g.getWidget();
+    }
+
+    @Override
+    public @Nullable AquaUIPainter.Size getSize()
+    {
+        return g.getSize();
     }
 
     public @NotNull TextFieldConfiguration getTextFieldConfiguration()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2025 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -81,7 +81,7 @@ public class LayoutInfo10_10
         } else if (bw == BUTTON_ROUNDED_RECT) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 18, 16, 14));
 
-        } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS) {
+        } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TOOLBAR) {
             return BasicLayoutInfo.createFixedHeight(size(sz, 23, 19, 16));
 
         } else if (bw == BUTTON_ROUND) {
@@ -174,23 +174,19 @@ public class LayoutInfo10_10
             top = bottom = 1;
             left = right = 4;
 
-        } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR || bw == BUTTON_TEXTURED_TOOLBAR_ICONS) {
+        } else if (bw == BUTTON_TEXTURED || bw == BUTTON_TEXTURED_TOOLBAR) {
             top = 0.51f;
             bottom = 1.49f;
             left = right = 3;
 
         } else if (bw == BUTTON_ROUND) {
-            top = left = right = size2D(sz, 4, 3.5, 3);
-            bottom = top + 1;
+            top = left = right = bottom = size2D(sz, 4, 3.5, 3);
 
         } else if (bw == BUTTON_ROUND_INSET) {
-            left = right = 3;
-            top = 3.5f;
-            bottom = top;
+            top = left = right = bottom = 3.5f;
 
         } else if (bw == BUTTON_ROUND_TEXTURED || bw == BUTTON_ROUND_TEXTURED_TOOLBAR) {
-            top = left = right = size2D(sz, 3.5, 3, 2.5);
-            bottom = top + 1;
+            top = left = right = bottom = size2D(sz, 3.5, 3, 2.5);
 
         } else if (bw == BUTTON_DISCLOSURE_TRIANGLE) {
             // labels are not supported
@@ -211,8 +207,7 @@ public class LayoutInfo10_10
             // labels are not supported
         }
 
-        LayoutInfo layoutInfo = getLayoutInfo(g);
-        return Insetters.createFixed(top, left, bottom, right, layoutInfo);
+        return createInsetter(g, top, bottom, left, right);
     }
 
     @Override
@@ -227,7 +222,6 @@ public class LayoutInfo10_10
             case BUTTON_SEGMENTED_SEPARATED:
             case BUTTON_SEGMENTED_SLIDER:
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
-            case BUTTON_SEGMENTED_SLIDER_TOOLBAR_ICONS:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 22, 19, 16));
 
             case BUTTON_SEGMENTED_INSET:
@@ -236,11 +230,9 @@ public class LayoutInfo10_10
             case BUTTON_SEGMENTED_SCURVE:
             case BUTTON_SEGMENTED_TEXTURED:
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_TOOLBAR_ICONS:
             case BUTTON_SEGMENTED_TOOLBAR:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 return BasicLayoutInfo.createFixedHeight(size(sz, 23, 19, 16));
 
             case BUTTON_SEGMENTED_SMALL_SQUARE:
@@ -287,7 +279,6 @@ public class LayoutInfo10_10
                 break;
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR_ICONS:
                 endAdjust = 0;
                 left = right = 3;
                 break;
@@ -353,8 +344,8 @@ public class LayoutInfo10_10
         }
 
         return g.isLeftToRight()
-                 ? Insetters.createRightAligned(indicatorWidth, 0, 0, 0)
-                 : Insetters.createLeftAligned(indicatorWidth, 0, 0, 0);
+          ? Insetters.createRightAligned(indicatorWidth, 0, 0, 0)
+          : Insetters.createLeftAligned(indicatorWidth, 0, 0, 0);
     }
 
     @Override
@@ -368,7 +359,6 @@ public class LayoutInfo10_10
             return g.isLeftToRight() ? Insetters.createFixed(0, 0, 0, inset) : Insetters.createFixed(0, inset, 0, 0);
         }
 
-        LayoutInfo layoutInfo = getLayoutInfo(g);
         float near;
         float far;
         float top;
@@ -388,13 +378,11 @@ public class LayoutInfo10_10
             bottom = size2D(sz, 2, 2, 1);
         }
 
-        return g.isLeftToRight()
-                 ? Insetters.createFixed(top, far, bottom, near, layoutInfo)
-                 : Insetters.createFixed(top, near, bottom, far, layoutInfo);
+        return createInsetter(g, top, bottom, far, near);
     }
 
     @Override
-    protected @NotNull LayoutInfo getPopUpButtonLayoutInfo(@NotNull PopupButtonLayoutConfiguration g)
+    protected @NotNull LayoutInfo getPopupButtonLayoutInfo(@NotNull PopupButtonLayoutConfiguration g)
     {
         // On Yosemite and El Capitan, the square style bombs if the mini size is selected.
         // See rendering code, which must be consistent.
@@ -457,7 +445,7 @@ public class LayoutInfo10_10
     @Override
     public @NotNull Insetter getPopUpArrowInsets(@NotNull PopupButtonConfiguration g)
     {
-        // used when using Core UI to paint the arrows
+        // used when using Core UI/JRS to paint the arrows
         // only regular and small sizes are used
         PopupButtonWidget w = g.getPopupButtonWidget();
         boolean isCell = g.isCell();
@@ -481,17 +469,17 @@ public class LayoutInfo10_10
                 top -= size2D(sz, 2, 1, 2);
             }
             bottom = buttonHeight - top - height;
-            right = isCell ? 2 : 5;
+            right = isCell ? size2D(sz, 2, 6, 5.5f, 3.5f) : 5;
         } else {
             height = 5;
             top = isCell ? size2D(sz, 3.5, 2.5, 2.5) : size2D(sz, 9, 7.5, 7.5);
             bottom = buttonHeight - top - height;
-            right = isCell ? 3 : 6;
+            right = 6;
         }
 
         Insetter1 horizontal = g.isLeftToRight()
-                                 ? FloatingInsetter1.createRightBottomAligned(width, right)
-                                 : FloatingInsetter1.createLeftTopAligned(width, right);
+          ? FloatingInsetter1.createRightBottomAligned(width, right)
+          : FloatingInsetter1.createLeftTopAligned(width, right);
         Insetter1 vertical = FloatingInsetter1.createCentered(height, top, bottom);
         return new CombinedInsetter(horizontal, vertical);
     }
@@ -514,14 +502,13 @@ public class LayoutInfo10_10
 
         float top = 1;
         float bottom = 1;
-        float far = 1;
+        float far = 3;
         float near;
 
         switch (bw)
         {
             case BUTTON_POP_UP:
             default:
-                far = 3;
                 near = size2D(sz, 17, 15, 13);
                 bottom = size2D(sz, 2.5, 2.5, 2);
                 top = size2D(sz, 0.5, 0.5, 1);
@@ -529,7 +516,6 @@ public class LayoutInfo10_10
 
             case BUTTON_POP_UP_SQUARE:
                 near = size2D(sz, 16, 15, 15);
-                bottom = 1;
                 break;
 
             case BUTTON_POP_UP_CELL:
@@ -538,7 +524,6 @@ public class LayoutInfo10_10
 
             case BUTTON_POP_UP_ROUND_RECT:
             case BUTTON_POP_DOWN_ROUND_RECT:
-                far = 3;
                 near = size2D(sz, 17, 15, 13);
                 break;
 
@@ -554,7 +539,6 @@ public class LayoutInfo10_10
 
             case BUTTON_POP_UP_BEVEL:
             case BUTTON_POP_DOWN_BEVEL:
-                far = 3;
                 bottom = 2;
                 near = 15;
                 break;
@@ -564,17 +548,14 @@ public class LayoutInfo10_10
             case BUTTON_POP_UP_TEXTURED_TOOLBAR:
             case BUTTON_POP_DOWN_TEXTURED_TOOLBAR:
                 // The inactive rendering is not as tall as the active rendering. Need to take that into account.
-                top = 1;
                 bottom = 2;
                 far = 2;
                 near = size2D(sz, 17, 15, 13);
                 break;
 
             case BUTTON_POP_DOWN:
-                far = 3;
                 near = size2D(sz, 17, 15, 13);
                 bottom = 2;
-                top = 1;
                 break;
 
             case BUTTON_POP_DOWN_SQUARE:
@@ -586,10 +567,7 @@ public class LayoutInfo10_10
                 return Insetters.createFixed(0, 0, 0, near);
         }
 
-        LayoutInfo layoutInfo = getLayoutInfo(g);
-        return g.isLeftToRight()
-                 ? Insetters.createFixed(top, far, bottom, near, layoutInfo)
-                 : Insetters.createFixed(top, near, bottom, far, layoutInfo);
+        return createInsetter(g, top, bottom, far, near);
     }
 
     @Override
@@ -1159,6 +1137,7 @@ public class LayoutInfo10_10
         switch (g.getWidget())
         {
             case THIN_DIVIDER:
+            case TRANSPARENT_DIVIDER:
                 d = 1;
                 break;
             case THICK_DIVIDER:
@@ -1269,9 +1248,7 @@ public class LayoutInfo10_10
             default:
                 throw new UnsupportedOperationException();
         }
-
-        LayoutInfo layoutInfo = getLayoutInfo(g);
-        return Insetters.createFixed(top, left, bottom, right, layoutInfo);
+        return createInsetter(g, top, bottom, left, right);
     }
 
     @Override
@@ -1309,7 +1286,7 @@ public class LayoutInfo10_10
                 float left = size2D(sz, 6.5, 6, 5.5);
                 float bottom = buttonHeight - top - height;
                 Insetter1 horizontal = g.isLeftToRight() ? FloatingInsetter1.createLeftTopAligned(width, left)
-                                         : FloatingInsetter1.createRightBottomAligned(width, left);
+                  : FloatingInsetter1.createRightBottomAligned(width, left);
                 Insetter1 vertical = FloatingInsetter1.createCentered(height, top, bottom);
                 return new CombinedInsetter(horizontal, vertical);
             }
@@ -1365,7 +1342,7 @@ public class LayoutInfo10_10
                 float right = size(sz, 4, 4, 3);
                 float bottom = buttonHeight - top - height;
                 Insetter1 horizontal = g.isLeftToRight() ? FloatingInsetter1.createRightBottomAligned(width, right)
-                                         : FloatingInsetter1.createLeftTopAligned(width, right);
+                  : FloatingInsetter1.createLeftTopAligned(width, right);
                 Insetter1 vertical = FloatingInsetter1.createCentered(height, top, bottom);
                 return new CombinedInsetter(horizontal, vertical);
             }
@@ -1407,6 +1384,20 @@ public class LayoutInfo10_10
                     case SMALL:
                     case MINI:
                         d = 11;
+                        break;
+                }
+                break;
+
+            case LEGACY_SIDEBAR:
+                switch (sz)
+                {
+                    case REGULAR:
+                    case LARGE:
+                        d = 8;
+                        break;
+                    case SMALL:
+                    case MINI:
+                        d = 6;
                         break;
                 }
                 break;
@@ -1590,7 +1581,7 @@ public class LayoutInfo10_10
         int top = 1;
         int arrowSide = 7;
         return g.isLeftToRight() ? Insetters.createRightAligned(width, arrowSide, top, top)
-                 : Insetters.createLeftAligned(width, arrowSide, top, top);
+          : Insetters.createLeftAligned(width, arrowSide, top, top);
     }
 
     @Override
@@ -1600,7 +1591,7 @@ public class LayoutInfo10_10
         int top = 1;
         int side = 3;
         return g.isLeftToRight() ? Insetters.createFixed(top, side, top, arrowSide)
-                 : Insetters.createFixed(top, arrowSide, top, side);
+          : Insetters.createFixed(top, arrowSide, top, side);
     }
 
     protected int getTableHeaderSortIndicatorWidth(@NotNull TableColumnHeaderLayoutConfiguration g)

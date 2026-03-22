@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,12 +8,13 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.*;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
 
 /**
   Provides outlines for widgets that can be used to draw focus rings.
@@ -222,5 +223,17 @@ public abstract class UIOutliner
             default:
                 return (float) regular;
         }
+    }
+
+    protected @Nullable Shape getRoundedRectangle(@NotNull Rectangle2D bounds, float arc, float d)
+    {
+        if (arc > 0) {
+            double x = bounds.getX() + d;
+            double y = bounds.getY() + d;
+            double w = bounds.getWidth() - 2 * d;
+            double h = bounds.getHeight() - 2 * d;
+            return new RoundRectangle2D.Double(x, y, w, h, arc, arc);
+        }
+        return null;
     }
 }

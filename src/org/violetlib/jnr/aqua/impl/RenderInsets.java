@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Alan Snyder.
+ * Copyright (c) 2020-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,10 +8,11 @@
 
 package org.violetlib.jnr.aqua.impl;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.text.DecimalFormat;
 import java.util.Objects;
-
-import org.jetbrains.annotations.*;
 
 /**
   This immutable object describes the relationship between the layout size of a widget (which generally matches the
@@ -33,6 +34,23 @@ public class RenderInsets
         df.setDecimalSeparatorAlwaysShown(false);
     }
 
+    /**
+      Create a description of the relationship between a visual rendering (corresponding to a layout size and the
+      raster needed to render it).
+      @param leftOffset The offset of the left edge of the visual rendering in the raster.
+      @param widthAdjust The extra width of the raster relative to the visual rendering.
+      @param topOffset The offset of the top edge of the visual rendering in the raster.
+      @param heightAdjust The extra height of the raster relative to the visual rendering.
+    */
+
+    public static @NotNull RenderInsets create(float leftOffset,
+                                               float widthAdjust,
+                                               float topOffset,
+                                               float heightAdjust)
+    {
+        return new RenderInsets(leftOffset, topOffset, widthAdjust, heightAdjust);
+    }
+
     public final float left;
     public final float top;
     public final float widthAdjust;
@@ -40,14 +58,6 @@ public class RenderInsets
 
     public RenderInsets(float left, float top, float widthAdjust, float heightAdjust)
     {
-        if (left < 0) {
-            throw new IllegalArgumentException("Invalid left inset");
-        }
-
-        if (top < 0) {
-            throw new IllegalArgumentException("Invalid top inset");
-        }
-
         this.left = left;
         this.top = top;
         this.widthAdjust = widthAdjust;

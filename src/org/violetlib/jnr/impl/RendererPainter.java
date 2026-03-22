@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,16 +8,13 @@
 
 package org.violetlib.jnr.impl;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.Painter;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 
 /**
   A painter that uses a renderer.
@@ -66,7 +63,8 @@ public abstract class RendererPainter
         }
     }
 
-    protected @Nullable Image getImage(int scaleFactor, int width, int height)
+    @Override
+    public @Nullable Image getImage(int scaleFactor, int width, int height)
     {
         return createImage(scaleFactor, width, height);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,12 +8,12 @@
 
 package org.violetlib.jnr.aqua.jrs;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.impl.BasicRenderer;
 import org.violetlib.jnr.impl.jrs.JRSUIConstants;
 import org.violetlib.jnr.impl.jrs.JRSUIControl;
 import org.violetlib.jnr.impl.jrs.JRSUIState;
-
-import org.jetbrains.annotations.*;
 
 /**
   A renderer that use the Java Runtime Support framework to perform the rendering.
@@ -42,7 +42,7 @@ public class JRSRenderer
     }
 
     @Override
-    public void render(@NotNull int[] data, int rw, int rh, float w, float h)
+    public void render(int @NotNull [] data, int rw, int rh, float w, float h)
     {
         // Apparently JRS does not expect fractional sizes in 1x
         float ww = (float) Math.ceil(w);

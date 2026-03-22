@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 Alan Snyder.
+ * Copyright (c) 2015-2025 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,12 +8,13 @@
 
 package org.violetlib.jnr.impl;
 
-import java.awt.Rectangle;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.jetbrains.annotations.*;
 
 /**
   A generic renderer. This class supports native renderers as well as renderers implemented using Java graphics.
@@ -22,8 +23,8 @@ import org.jetbrains.annotations.*;
 public abstract class Renderer
   implements ReusableCompositor.PixelSource
 {
-    private final static Renderer NULL_RENDERER = new NullRenderer();
-    private final static BasicRenderer NULL_BASIC_RENDERER = new NullBasicRenderer();
+    public final static Renderer NULL_RENDERER = new NullRenderer();
+    public final static BasicRenderer NULL_BASIC_RENDERER = new NullBasicRenderer();
 
     /**
       Create a renderer using a basic (native) renderer.
@@ -245,7 +246,7 @@ class CompositeBasicRenderer
     }
 
     @Override
-    public void render(@NotNull int[] data, int rw, int rh, float w, float h)
+    public void render(int @NotNull [] data, int rw, int rh, float w, float h)
     {
         int scaleFactor = (int) Math.ceil(rw / w);
         ReusableCompositor compositor = new ReusableCompositor(data, rw, rh, scaleFactor);
@@ -268,7 +269,7 @@ class NullBasicRenderer
   implements BasicRenderer
 {
     @Override
-    public void render(@NotNull int[] data, int rw, int rh, float w, float h)
+    public void render(int @NotNull [] data, int rw, int rh, float w, float h)
     {
     }
 }

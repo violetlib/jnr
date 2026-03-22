@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -72,14 +72,17 @@ public class AugmentedCoreUIPainter
     protected @NotNull Renderer getButtonRenderer(@NotNull ButtonConfiguration g)
     {
         Renderer r = super.getButtonRenderer(g);
-        if (g.getButtonWidget() == ButtonWidget.BUTTON_COLOR_WELL) {
+        ButtonWidget w = g.getButtonWidget();
+        if (w == ButtonWidget.BUTTON_COLOR_WELL) {
             boolean isDark = appearance != null && appearance.isDark();
             return new ColorWellRenderer(g, r, isDark);
         }
-        if (g.getButtonWidget() == ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR) {
-            int platformVersion = JNRPlatformUtils.getPlatformVersion();
-            if (platformVersion >= 101600) {
-                PainterExtension px = new RoundToolbarButtonPainterExtension(g, appearance);
+        if (w == ButtonWidget.BUTTON_ROUND_TEXTURED || w == ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR) {
+            int version = AquaNativeRendering.getSystemRenderingVersion();
+            if (version >= macOS11) {
+                // The CoreUI renderer creates a 28x28 button regardless of the specified size option
+                PainterExtension px = new TexturedButtonPainterExtension(g.getState(), g.getButtonState(), appearance,
+                  (bounds) -> getOutline(bounds, g.getLayoutConfiguration()));
                 return Renderer.create(px);
             }
         }
@@ -95,8 +98,8 @@ public class AugmentedCoreUIPainter
         // but it is not needed in latest release of 10.14+.
 
         if (false) {
-            int platformVersion = JNRPlatformUtils.getPlatformVersion();
-            if (platformVersion < 101500) {
+            int version = AquaNativeRendering.getSystemRenderingVersion();
+            if (version < 101500) {
                 if (appearance != null && appearance.isDark()) {
                     ComboBoxWidget w = g.getWidget();
                     if (w == ComboBoxWidget.BUTTON_COMBO_BOX_TEXTURED_TOOLBAR) {
@@ -121,8 +124,8 @@ public class AugmentedCoreUIPainter
         // but it is not needed in latest release of 10.14+.
 
         if (false) {
-            int platformVersion = JNRPlatformUtils.getPlatformVersion();
-            if (platformVersion < 101500) {
+            int version = AquaNativeRendering.getSystemRenderingVersion();
+            if (version < 101500) {
                 if (r != null && appearance != null && appearance.isDark()) {
                     PopupButtonWidget w = g.getPopupButtonWidget();
                     if (w == BUTTON_POP_DOWN_TEXTURED_TOOLBAR || w == BUTTON_POP_UP_TEXTURED_TOOLBAR) {
@@ -147,8 +150,8 @@ public class AugmentedCoreUIPainter
         // but it is not needed in latest release of 10.14+.
 
         if (false) {
-            int platformVersion = JNRPlatformUtils.getPlatformVersion();
-            if (platformVersion < 101500) {
+            int version = AquaNativeRendering.getSystemRenderingVersion();
+            if (version < 101500) {
                 if (appearance != null && appearance.isDark()) {
                     SegmentedButtonWidget w = g.getWidget();
                     if (w.isTextured() && w.isToolbar()) {
@@ -181,7 +184,7 @@ public class AugmentedCoreUIPainter
         }
 
         return g.getLeftDividerState() != SegmentedButtonConfiguration.DividerState.NONE
-                 || g.getRightDividerState() != SegmentedButtonConfiguration.DividerState.NONE;
+          || g.getRightDividerState() != SegmentedButtonConfiguration.DividerState.NONE;
     }
 
     /**
@@ -273,7 +276,7 @@ public class AugmentedCoreUIPainter
         int leftDividerActual;
         int rightDividerActual;
 
-        int version = getSegmentedButtonRenderingVersion();
+        int version = AquaNativePainter.getSegmentedButtonRenderingVersion();
 
         if (scaleFactor == 1) {
             if (version == SEGMENTED_10_10 || version == SEGMENTED_10_11 || version == SEGMENTED_10_13_OLD) {
@@ -495,7 +498,7 @@ public class AugmentedCoreUIPainter
     @Override
     protected @Nullable Renderer getSliderTickMarkRenderer(@NotNull SliderConfiguration g)
     {
-        int style = getSliderRenderingVersion();
+        int style = AquaNativePainter.getSliderRenderingVersion();
         if (style == SLIDER_10_10 && g.isLinear() && g.hasTickMarks()) {
             return Renderer.create(new LinearSliderPainterExtension(uiLayout, g, appearance));
         } else {
@@ -506,10 +509,10 @@ public class AugmentedCoreUIPainter
     @Override
     protected @NotNull Renderer getScrollBarRenderer(@NotNull ScrollBarConfiguration g)
     {
-        int platformVersion = JNRPlatformUtils.getPlatformVersion();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
         ScrollBarWidget sw = g.getWidget();
 
-        if (platformVersion < 101400) {
+        if (version < 101400) {
             return super.getScrollBarRenderer(g);
         }
 

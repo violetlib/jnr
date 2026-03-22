@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021 Alan Snyder.
+ * Copyright (c) 2015-2026 Alan Snyder.
  * All rights reserved.
  *
  * You may not use, copy or modify this file, except in compliance with the license agreement. For details see
@@ -8,19 +8,22 @@
 
 package org.violetlib.jnr.aqua;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.violetlib.jnr.aqua.impl.AquaNativeSegmentedControlPainter;
 import org.violetlib.jnr.aqua.impl.AquaUIPainterBase;
 import org.violetlib.jnr.aqua.impl.HybridAquaUIPainter;
 import org.violetlib.jnr.aqua.impl.NativeSupport;
 import org.violetlib.jnr.impl.ImageCache;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
 
-import org.jetbrains.annotations.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
+
+import static org.violetlib.jnr.aqua.impl.AquaUIPainterBase.SEGMENTED_26_OLD;
 
 /**
   The main entry point to the Aqua Native Rendering library.
@@ -31,6 +34,14 @@ public class AquaNativeRendering
     private static boolean isInitialized;
 
     private static @Nullable AquaUIPainter preferredPainter;
+
+    private static @Nullable String cachedSpecialRenderingVersion;
+    private static boolean cachedSpecialRenderingVersionIsInitialized;
+    private static int cachedSystemRenderingVersion;
+    private static boolean isRaw;
+
+    public static int macOS11 = 101600;
+    public static int macOS26 = 160000;
 
     /**
       Create a native painter. The painter class is determined by the available implementations. The best available
@@ -96,6 +107,66 @@ public class AquaNativeRendering
     */
     public static void showVersion() {
         System.err.println("VAquaRendering: release " + getReleaseName() + ", build " + getBuildID());
+    }
+
+    public static boolean isRaw() {
+        return isRaw;
+    }
+
+    public static void setRaw(boolean b) {
+        isRaw = b;
+    }
+
+    /**
+      Return the macOS system version, possibly altered to the version whose rendering is simulated.
+      The form is decimal MMmmDD (major, minor, dot).
+    */
+
+    public static int getSystemRenderingVersion()
+    {
+        if (cachedSystemRenderingVersion > 0) {
+            return cachedSystemRenderingVersion;
+        }
+        return cachedSystemRenderingVersion = computeSystemRenderingVersion();
+    }
+
+    private static int computeSystemRenderingVersion()
+    {
+        int version = JNRPlatformUtils.getPlatformVersion();
+        if (version >= macOS26) {
+            try {
+                String rv = AquaNativeRendering.getSpecialRenderingVersion();
+                if (rv != null && rv.equals("macOS 15 Compatibility")) {
+                    return 150600;
+                }
+            } catch (NoSuchMethodError ignore) {
+            }
+        }
+        return version;
+    }
+
+    /**
+      If the application has been configured to use a rendering that is not the standard rendering for the
+      macOS system version, return a string that describes the rendering in use. Otherwise, return null.
+      The only value currently supported is {@code "macOS 15 Compatibility"} for macOS 26 and possibly later.
+    */
+
+    public static @Nullable String getSpecialRenderingVersion()
+    {
+        if (cachedSpecialRenderingVersionIsInitialized) {
+            return cachedSpecialRenderingVersion;
+        }
+        cachedSpecialRenderingVersion = computeSpecialRenderingVersion();
+        cachedSpecialRenderingVersionIsInitialized = true;
+        return cachedSpecialRenderingVersion;
+    }
+
+    private static @Nullable String computeSpecialRenderingVersion()
+    {
+        if (AquaNativeSegmentedControlPainter.nativeDetermineSegmentedButtonRenderingVersion() == SEGMENTED_26_OLD) {
+            return "macOS 15 Compatibility";
+        }
+        return null;
     }
 
     private static @NotNull String getStringResource(@NotNull String name)
