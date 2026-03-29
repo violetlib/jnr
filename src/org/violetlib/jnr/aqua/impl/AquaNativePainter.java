@@ -468,7 +468,7 @@ public class AquaNativePainter
             sz = Size.LARGE;
         }
 
-        int size = toSize(g.getSize());
+        int size = toSize(sz);
         int state = toActiveState(g.getState());
         int orientation = toOrientation(g.getOrientation());
         BasicRenderer r = (data, rw, rh, w, h) -> nativePaintProgressIndicator(data, rw, rh, w, h,
