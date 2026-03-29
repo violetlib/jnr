@@ -72,21 +72,27 @@ public class JNRPlatformUtils
 
     private static @Nullable String command(@NotNull String name, String @NotNull [] command, String @Nullable [] env)
     {
+        Process p = null;
         try {
-            Process p = Runtime.getRuntime().exec(command, env);
-            InputStreamReader stdout = new InputStreamReader(p.getInputStream());
-            StringBuffer sb = new StringBuffer();
-            while (true) {
-                int n = stdout.read();
-                if (n == -1 || n == 10) {
-                    break;
+            p = Runtime.getRuntime().exec(command, env);
+            try (InputStreamReader stdout = new InputStreamReader(p.getInputStream())) {
+                StringBuilder sb = new StringBuilder();
+                while (true) {
+                    int n = stdout.read();
+                    if (n == -1 || n == 10) {
+                        break;
+                    }
+                    sb.append((char) n);
                 }
-                sb.append((char) n);
+                return sb.toString();
             }
-            return sb.toString();
         } catch (Throwable th) {
             System.err.println("Unable to run " + name + ": " + th);
             return null;
+        } finally {
+            if (p != null) {
+                p.destroy();
+            }
         }
     }
 
