@@ -342,7 +342,7 @@ public class JNRUtils
         }
         if (opaquePixelCount > 0) {
             int percent = Math.round(opaquePixelCount * 100f / pixelCount);
-            s += " " + transparentPixelCount + " opaque pixels (" + percent + "%)";
+            s += " " + opaquePixelCount + " opaque pixels (" + percent + "%)";
         }
         if (maximumAlpha > 0) {
             s += " maximum alpha: " + maximumAlpha + " at " + maximumAlphaCol + ", " + maximumAlphaRow;
