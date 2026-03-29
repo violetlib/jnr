@@ -24,7 +24,6 @@ import org.jetbrains.annotations.*;
 */
 public class GeneralRoundRectangle extends RectangularShape implements ExpandableOutline.ExpandableShape
 {
-    // TBD: contains and intersects are not implemented
 
     private double x;
     private double y;
@@ -170,91 +169,196 @@ public class GeneralRoundRectangle extends RectangularShape implements Expandabl
     }
 
     public boolean contains(double x, double y) {
-//        if (isEmpty()) {
-//            return false;
-//        }
-//        double rrx0 = getX();
-//        double rry0 = getY();
-//        double rrx1 = rrx0 + getWidth();
-//        double rry1 = rry0 + getHeight();
-//        // Check for trivial rejection - point is outside bounding rectangle
-//        if (x < rrx0 || y < rry0 || x >= rrx1 || y >= rry1) {
-//            return false;
-//        }
-//        double aw = Math.min(getWidth(), Math.abs(getArcWidth())) / 2.0;
-//        double ah = Math.min(getHeight(), Math.abs(getArcHeight())) / 2.0;
-//        // Check which corner point is in and do circular containment
-//        // test - otherwise simple acceptance
-//        if (x >= (rrx0 += aw) && x < (rrx0 = rrx1 - aw)) {
-//            return true;
-//        }
-//        if (y >= (rry0 += ah) && y < (rry0 = rry1 - ah)) {
-//            return true;
-//        }
-//        x = (x - rrx0) / aw;
-//        y = (y - rry0) / ah;
-//        return (x * x + y * y <= 1.0);
+        if (isEmpty()) {
+            return false;
+        }
 
-        // TBD
-        return false;
+        double x0 = this.x;
+        double y0 = this.y;
+        double x1 = x0 + width;
+        double y1 = y0 + height;
+
+        // Check for trivial rejection - point is outside bounding rectangle
+        if (x < x0 || y < y0 || x >= x1 || y >= y1) {
+            return false;
+        }
+
+        // Check each corner. If the point is in a corner's arc zone, test against that corner's ellipse.
+        // Arc widths and heights are clamped so they don't exceed the rectangle dimensions.
+
+        // Top-left corner
+        double aw = Math.min(width, Math.abs(tlaw)) / 2.0;
+        double ah = Math.min(height, Math.abs(tlah)) / 2.0;
+        if (aw > 0 && ah > 0 && x < x0 + aw && y < y0 + ah) {
+            double nx = (x - (x0 + aw)) / aw;
+            double ny = (y - (y0 + ah)) / ah;
+            return nx * nx + ny * ny <= 1.0;
+        }
+
+        // Top-right corner
+        aw = Math.min(width, Math.abs(traw)) / 2.0;
+        ah = Math.min(height, Math.abs(trah)) / 2.0;
+        if (aw > 0 && ah > 0 && x >= x1 - aw && y < y0 + ah) {
+            double nx = (x - (x1 - aw)) / aw;
+            double ny = (y - (y0 + ah)) / ah;
+            return nx * nx + ny * ny <= 1.0;
+        }
+
+        // Bottom-right corner
+        aw = Math.min(width, Math.abs(braw)) / 2.0;
+        ah = Math.min(height, Math.abs(brah)) / 2.0;
+        if (aw > 0 && ah > 0 && x >= x1 - aw && y >= y1 - ah) {
+            double nx = (x - (x1 - aw)) / aw;
+            double ny = (y - (y1 - ah)) / ah;
+            return nx * nx + ny * ny <= 1.0;
+        }
+
+        // Bottom-left corner
+        aw = Math.min(width, Math.abs(blaw)) / 2.0;
+        ah = Math.min(height, Math.abs(blah)) / 2.0;
+        if (aw > 0 && ah > 0 && x < x0 + aw && y >= y1 - ah) {
+            double nx = (x - (x0 + aw)) / aw;
+            double ny = (y - (y1 - ah)) / ah;
+            return nx * nx + ny * ny <= 1.0;
+        }
+
+        // Not in any corner zone — must be in the body of the rectangle
+        return true;
     }
 
-//    private int classify(double coord, double left, double right,
-//                         double arcsize)
-//    {
-//        if (coord < left) {
-//            return 0;
-//        } else if (coord < left + arcsize) {
-//            return 1;
-//        } else if (coord < right - arcsize) {
-//            return 2;
-//        } else if (coord < right) {
-//            return 3;
-//        } else {
-//            return 4;
-//        }
-//    }
+    /**
+      Test whether a corner's quarter-ellipse intersects with a rectangle. The corner point is at (cx, cy), the arc
+      zone extends inward by aw horizontally and ah vertically, and the rectangle to test is given by its edges.
+
+      @return true if the quarter-ellipse region intersects the given rectangle.
+    */
+    private static boolean cornerIntersects(double cx, double cy, double aw, double ah,
+                                            double rx0, double ry0, double rx1, double ry1,
+                                            double signX, double signY)
+    {
+        // Find the point in the rectangle nearest to the ellipse center
+        double ecx = cx + signX * aw;
+        double ecy = cy + signY * ah;
+        double nearestX = Math.max(rx0, Math.min(rx1, ecx));
+        double nearestY = Math.max(ry0, Math.min(ry1, ecy));
+        double nx = (nearestX - ecx) / aw;
+        double ny = (nearestY - ecy) / ah;
+        return nx * nx + ny * ny <= 1.0;
+    }
 
     public boolean intersects(double x, double y, double w, double h) {
-//        if (isEmpty() || w <= 0 || h <= 0) {
-//            return false;
-//        }
-//        double rrx0 = getX();
-//        double rry0 = getY();
-//        double rrx1 = rrx0 + getWidth();
-//        double rry1 = rry0 + getHeight();
-//        // Check for trivial rejection - bounding rectangles do not intersect
-//        if (x + w <= rrx0 || x >= rrx1 || y + h <= rry0 || y >= rry1) {
-//            return false;
-//        }
-//        double aw = Math.min(getWidth(), Math.abs(getArcWidth())) / 2.0;
-//        double ah = Math.min(getHeight(), Math.abs(getArcHeight())) / 2.0;
-//        int x0class = classify(x, rrx0, rrx1, aw);
-//        int x1class = classify(x + w, rrx0, rrx1, aw);
-//        int y0class = classify(y, rry0, rry1, ah);
-//        int y1class = classify(y + h, rry0, rry1, ah);
-//        // Trivially accept if any point is inside inner rectangle
-//        if (x0class == 2 || x1class == 2 || y0class == 2 || y1class == 2) {
-//            return true;
-//        }
-//        // Trivially accept if either edge spans inner rectangle
-//        if ((x0class < 2 && x1class > 2) || (y0class < 2 && y1class > 2)) {
-//            return true;
-//        }
-//        // Since neither edge spans the center, then one of the corners
-//        // must be in one of the rounded edges.  We detect this case if
-//        // a [xy]0class is 3 or a [xy]1class is 1.  One of those two cases
-//        // must be true for each direction.
-//        // We now find a "nearest point" to test for being inside a rounded
-//        // corner.
-//        x = (x1class == 1) ? (x = x + w - (rrx0 + aw)) : (x = x - (rrx1 - aw));
-//        y = (y1class == 1) ? (y = y + h - (rry0 + ah)) : (y = y - (rry1 - ah));
-//        x = x / aw;
-//        y = y / ah;
-//        return (x * x + y * y <= 1.0);
+        if (isEmpty() || w <= 0 || h <= 0) {
+            return false;
+        }
 
-        // TBD
-        return false;
+        double x0 = this.x;
+        double y0 = this.y;
+        double x1 = x0 + width;
+        double y1 = y0 + height;
+
+        // Check for trivial rejection - bounding rectangles do not intersect
+        if (x + w <= x0 || x >= x1 || y + h <= y0 || y >= y1) {
+            return false;
+        }
+
+        // Clamp arc radii
+        double tlawH = Math.min(width, Math.abs(tlaw)) / 2.0;
+        double tlahH = Math.min(height, Math.abs(tlah)) / 2.0;
+        double trawH = Math.min(width, Math.abs(traw)) / 2.0;
+        double trahH = Math.min(height, Math.abs(trah)) / 2.0;
+        double brawH = Math.min(width, Math.abs(braw)) / 2.0;
+        double brahH = Math.min(height, Math.abs(brah)) / 2.0;
+        double blawH = Math.min(width, Math.abs(blaw)) / 2.0;
+        double blahH = Math.min(height, Math.abs(blah)) / 2.0;
+
+        // Fast path: if the query rect extends into the horizontal or vertical middle band,
+        // it definitely intersects. The middle band is the region clear of all corner arcs.
+        double leftMax = Math.max(tlawH, blawH);
+        double rightMax = Math.max(trawH, brawH);
+        double topMax = Math.max(tlahH, trahH);
+        double bottomMax = Math.max(blahH, brahH);
+
+        if (x + w > x0 + leftMax && x < x1 - rightMax) {
+            return true;
+        }
+        if (y + h > y0 + topMax && y < y1 - bottomMax) {
+            return true;
+        }
+
+        // Clip query rect to the bounding rect for corner zone checks.
+        double cx0 = Math.max(x, x0);
+        double cy0 = Math.max(y, y0);
+        double cx1 = Math.min(x + w, x1);
+        double cy1 = Math.min(y + h, y1);
+
+        // Check each corner. If the clipped rect overlaps a corner zone with a non-zero arc,
+        // test whether the rect reaches the elliptical arc. Sharp corners (arc=0) have a
+        // zero-size zone, so they are never entered — this is correct because a sharp corner
+        // cuts no area from the bounding rect.
+        boolean anyMiss = false;
+
+        if (cx0 < x0 + tlawH && cy0 < y0 + tlahH && tlawH > 0 && tlahH > 0) {
+            if (cornerIntersects(x0, y0, tlawH, tlahH, cx0, cy0, cx1, cy1, 1, 1)) {
+                return true;
+            }
+            anyMiss = true;
+        }
+
+        if (cx1 > x1 - trawH && cy0 < y0 + trahH && trawH > 0 && trahH > 0) {
+            if (cornerIntersects(x1, y0, trawH, trahH, cx0, cy0, cx1, cy1, -1, 1)) {
+                return true;
+            }
+            anyMiss = true;
+        }
+
+        if (cx1 > x1 - brawH && cy1 > y1 - brahH && brawH > 0 && brahH > 0) {
+            if (cornerIntersects(x1, y1, brawH, brahH, cx0, cy0, cx1, cy1, -1, -1)) {
+                return true;
+            }
+            anyMiss = true;
+        }
+
+        if (cx0 < x0 + blawH && cy1 > y1 - blahH && blawH > 0 && blahH > 0) {
+            if (cornerIntersects(x0, y1, blawH, blahH, cx0, cy0, cx1, cy1, 1, -1)) {
+                return true;
+            }
+            anyMiss = true;
+        }
+
+        // If no corner zones were overlapped, the clipped rect is entirely in the body.
+        if (!anyMiss) {
+            return true;
+        }
+
+        // The clipped rect missed one or more corner ellipses. It may still intersect if
+        // part of the rect extends beyond those corner zones into the body. Check whether
+        // the center of the clipped rect is inside the shape.
+        double midX = (cx0 + cx1) / 2;
+        double midY = (cy0 + cy1) / 2;
+
+        if (tlawH > 0 && tlahH > 0 && midX < x0 + tlawH && midY < y0 + tlahH) {
+            double nx = (midX - (x0 + tlawH)) / tlawH;
+            double ny = (midY - (y0 + tlahH)) / tlahH;
+            return nx * nx + ny * ny <= 1.0;
+        }
+        if (trawH > 0 && trahH > 0 && midX > x1 - trawH && midY < y0 + trahH) {
+            double nx = (midX - (x1 - trawH)) / trawH;
+            double ny = (midY - (y0 + trahH)) / trahH;
+            return nx * nx + ny * ny <= 1.0;
+        }
+        if (brawH > 0 && brahH > 0 && midX > x1 - brawH && midY > y1 - brahH) {
+            double nx = (midX - (x1 - brawH)) / brawH;
+            double ny = (midY - (y1 - brahH)) / brahH;
+            return nx * nx + ny * ny <= 1.0;
+        }
+        if (blawH > 0 && blahH > 0 && midX < x0 + blawH && midY > y1 - blahH) {
+            double nx = (midX - (x0 + blawH)) / blawH;
+            double ny = (midY - (y1 - blahH)) / blahH;
+            return nx * nx + ny * ny <= 1.0;
+        }
+
+        // Center is not in any corner zone — it's in the body.
+        return true;
     }
 
     public boolean contains(double x, double y, double w, double h) {
