@@ -492,6 +492,8 @@ public class AquaNativePainter
         }
 
         // NSSlider appears to figure out the orientation from the bounds.
+        // Note: w/h are modified here so that configureLayout picks up the adjusted dimensions.
+        // getPainter() saves and restores w/h to prevent these changes from leaking.
 
         if (sw == SliderWidget.SLIDER_HORIZONTAL || sw == SliderWidget.SLIDER_HORIZONTAL_RIGHT_TO_LEFT) {
             if (h >= w) {
