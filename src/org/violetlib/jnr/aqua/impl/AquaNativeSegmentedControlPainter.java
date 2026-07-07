@@ -305,7 +305,7 @@ public class AquaNativeSegmentedControlPainter
         Position pos = g.getPosition();
         DividerState leftDivider = g.getLeftDividerState();
         DividerState rightDivider = g.getRightDividerState();
-        float otherSegmentNominalWidth = g.getSize() == Size.EXTRA_LARGE ? 50 : 20;
+        float otherSegmentNominalWidth = g.getSize() == Size.EXTRA_LARGE ? 50 : 28;
         return getRenderConfiguration(isSeparated, isSelected, pos, leftDivider, rightDivider,
           s, layout, scale, segmentWidth, controlHeight, otherSegmentNominalWidth);
     }

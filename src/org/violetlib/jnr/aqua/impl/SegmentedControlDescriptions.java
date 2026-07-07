@@ -1452,7 +1452,10 @@ public class SegmentedControlDescriptions
             if (sz == Size.MINI || sz == Size.SMALL || sz == Size.REGULAR) {
                 return new SegmentedControl4LayoutInfo(LEFT, 1, 1, 1, 1);
             }
-       }
-        return new SegmentedControl4LayoutInfo(LEFT, 1, 1, 1, 0);
+        }
+        if (version < 270000) {
+            return new SegmentedControl4LayoutInfo(LEFT, 1, 1, 1, 0);
+        }
+        return new SegmentedControl4LayoutInfo(LEFT, 1, 1, 0, -1);
     }
 }
