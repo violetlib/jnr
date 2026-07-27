@@ -62,7 +62,7 @@ public class Outliner_26
 
     protected float getGlassCornerRadius(AquaUIPainter.Size sz)
     {
-        return JNRUtils.size2D(sz, 36, 30, 24, 20, 16);
+        return JNRUtils.size2D(sz, 36, 30, 10, 8, 6);
     }
 
     protected @Nullable Shape getToolbarButtonOutline(@NotNull Rectangle2D bounds,
