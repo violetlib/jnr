@@ -171,6 +171,15 @@ public class AugmentedAquaNativePainter
                 }
             }
         }
+        if (version >= macOS26) {
+            TextFieldWidget w = g.getWidget();
+            if (w == TextFieldWidget.TEXT_FIELD_SQUARE) {
+                // NSTextField refuses to draw a rectangular border
+                PainterExtension px = new RectangularTextFieldBorderExtension(g, appearance);
+                Renderer pr = Renderer.create(px);
+                return Renderer.createCompositeRenderer(r, pr);
+            }
+        }
 
         return r;
     }

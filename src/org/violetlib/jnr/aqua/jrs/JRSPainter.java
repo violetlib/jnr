@@ -518,7 +518,7 @@ public class JRSPainter
             case TEXT_FIELD_ROUND:
             case TEXT_FIELD_ROUND_TOOLBAR:    // not supported
                 return JRSUIConstants.Widget.FRAME_TEXT_FIELD_ROUND;
-            case TEXT_FIELD:
+            case TEXT_FIELD_SQUARE:
                 return JRSUIConstants.Widget.FRAME_TEXT_FIELD;
             default:
                 return null;

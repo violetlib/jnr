@@ -168,6 +168,8 @@ public class Colors
                 }
             }
 
+            b.add("textFieldBorder", 0, 64);
+
             lightColors = b.getColors();
         }
 
@@ -242,6 +244,8 @@ public class Colors
                     b.add("toolbarButtonBackground_selected_inactive", 172);
                 }
             }
+
+            b.add("textFieldBorder", 0, 160);
 
             highContrastLightColors = b.getColors();
         }
@@ -318,6 +322,8 @@ public class Colors
                 b.add("toolbarButtonBackground_rollover", 255, 16);
                 b.add("toolbarButtonBackground_selected_inactive", 39);
             }
+
+            b.add("textFieldBorder", 255, 64);
 
             darkColors = b.getColors();
         }
@@ -398,6 +404,8 @@ public class Colors
                     b.addClear("texturedButtonBackground_selected_rollover");
                 }
             }
+
+            b.add("textFieldBorder", 255, 210);
 
             highContrastDarkColors = b.getColors();
         }

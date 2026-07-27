@@ -294,12 +294,12 @@ public class HybridAquaUIPainter
             if (version >= macOS26) {
                 return viewPainter;
             }
-            if (version >= 140000 && w == TextFieldWidget.TEXT_FIELD) {
+            if (version >= 140000 && w == TextFieldWidget.TEXT_FIELD_SQUARE) {
                 // The NSView renderer fails on macOS 15.
                 // Not sure about 14.
                 return coreUIPainter;
             }
-            if (version >= macOS11 && version < 120000 && w == TextFieldWidget.TEXT_FIELD) {
+            if (version >= macOS11 && version < 120000 && w == TextFieldWidget.TEXT_FIELD_SQUARE) {
                 if (bg.getSize() == Size.MINI) {
                     // A unique rendering problem?
                     return coreUIPainter;
@@ -308,7 +308,7 @@ public class HybridAquaUIPainter
             if (version >= macOS11 && !w.isToolbar()) {
                 return viewPainter;
             }
-            if (w != TextFieldWidget.TEXT_FIELD && w != TextFieldWidget.TEXT_FIELD_ROUND) {
+            if (w != TextFieldWidget.TEXT_FIELD_SQUARE && w != TextFieldWidget.TEXT_FIELD_ROUND) {
                 return coreUIPainter;
             }
         } else if (g instanceof SliderConfiguration) {

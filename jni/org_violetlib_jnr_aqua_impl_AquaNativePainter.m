@@ -45,7 +45,7 @@ static const int DisabledInactiveState = 6;
 static const int DefaultPressedState = 7;
 
 // Codes for text field types
-static const int TextFieldNormal = 0;
+static const int TextFieldSquare = 0;
 static const int TextFieldRound = 1;
 static const int TextFieldSearch = 2;
 static const int TextFieldSearchWithCancel = 3;
@@ -1819,8 +1819,13 @@ JNIEXPORT void JNICALL Java_org_violetlib_jnr_aqua_impl_AquaNativePainter_native
 
         } else {
             view = [[NSTextField alloc] initWithFrame: frameRect];
-            if (theType == TextFieldNormal) {
-                [view setBezelStyle: NSTextFieldSquareBezel];
+            if (theType == TextFieldSquare) {
+                if (osVersion < macOS26) {
+                    // this bezel style is interpreted as Rounded on 26
+                    [view setBezelStyle: NSTextFieldSquareBezel];
+                } else {
+                    view.bezeled = NO;
+                }
             } else if (theType == TextFieldRound) {
                 [view setBezelStyle: NSTextFieldRoundedBezel];
             }

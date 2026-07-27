@@ -34,8 +34,16 @@ public class TextFieldLayoutConfiguration
         // Layout direction affects search fields, in particular, the locations of the search and cancel icons
         super(ld);
 
+        int version = AquaNativeRendering.getSystemRenderingVersion();
+        if (tw == TextFieldWidget.TEXT_FIELD) {
+            if (version >= macOS26) {
+                tw = TextFieldWidget.TEXT_FIELD_ROUND;
+            } else {
+                tw = TextFieldWidget.TEXT_FIELD_SQUARE;
+            }
+        }
+
         if (!AquaNativeRendering.isRaw()) {
-            int version = AquaNativeRendering.getSystemRenderingVersion();
             if (size == AquaUIPainter.Size.LARGE || size == AquaUIPainter.Size.EXTRA_LARGE) {
                 if (size == Size.EXTRA_LARGE) {
                     size = Size.LARGE;

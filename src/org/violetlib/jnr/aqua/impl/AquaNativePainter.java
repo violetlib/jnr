@@ -90,7 +90,7 @@ public class AquaNativePainter
     protected static final int NSGradientConvexStrong  = 4;
 
     // Text field types
-    protected static final int TextFieldNormal                     = 0;
+    protected static final int TextFieldSquare                     = 0;
     protected static final int TextFieldRound                      = 1;
     protected static final int TextFieldSearch                     = 2;
     protected static final int TextFieldSearchWithCancel           = 3;
@@ -413,8 +413,8 @@ public class AquaNativePainter
         int type;
 
         switch (g.getWidget()) {
-            case TEXT_FIELD:
-                type = TextFieldNormal;
+            case TEXT_FIELD_SQUARE:
+                type = TextFieldSquare;
                 break;
             case TEXT_FIELD_ROUND:
                 type = TextFieldRound;

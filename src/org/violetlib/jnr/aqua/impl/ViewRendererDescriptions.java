@@ -591,7 +591,7 @@ public class ViewRendererDescriptions
         AquaUIPainter.TextFieldWidget w = g.getWidget();
         AquaUIPainter.Size sz = g.getSize();
 
-        if (w == AquaUIPainter.TextFieldWidget.TEXT_FIELD && version >= macOS11) {
+        if (w == AquaUIPainter.TextFieldWidget.TEXT_FIELD_SQUARE && version >= macOS11) {
             switch (sz) {
                 case MINI:
                     return BasicRendererDescription.create(1, 2, 3, 4);

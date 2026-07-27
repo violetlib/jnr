@@ -404,7 +404,8 @@ public interface AquaUIPainter
 
     enum TextFieldWidget
     {
-        TEXT_FIELD(false, false, false, false),                 // no fixed height, square corners prior to macOS 26
+        TEXT_FIELD(false, false, false, false),                 // the default: square prior to macOS 26 (a virtual widget)
+        TEXT_FIELD_SQUARE(false, false, false, false),          // no fixed height, square corners
         TEXT_FIELD_ROUND(false, false, false, false),           // fixed height, rounded corners
         TEXT_FIELD_ROUND_TOOLBAR(false, false, false, true),    // for text fields on the toolbar (taller)
         TEXT_FIELD_SEARCH(true, false, false, false),

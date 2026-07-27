@@ -862,7 +862,7 @@ public class CoreUIRendererDescriptions
             return BasicRendererDescription.create(0, 0, 0, 0);
         }
 
-        if (version >= 150000 && !w.isToolbar() && w != TextFieldWidget.TEXT_FIELD && sz == Size.MINI) {
+        if (version >= 150000 && !w.isToolbar() && w != TextFieldWidget.TEXT_FIELD_SQUARE && sz == Size.MINI) {
             return BasicRendererDescription.create(1, 2, 1, 1);
         }
 

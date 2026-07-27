@@ -1229,7 +1229,7 @@ public class LayoutInfo10_10
             }
 
         } else switch (tw) {
-            case TEXT_FIELD:
+            case TEXT_FIELD_SQUARE:
                 top = bottom = left = right = 1;
                 break;
 

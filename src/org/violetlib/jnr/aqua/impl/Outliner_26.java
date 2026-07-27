@@ -123,6 +123,9 @@ public class Outliner_26
         double height = bounds.getHeight();
 
         AquaUIPainter.TextFieldWidget w = g.getWidget();
+        if (w == AquaUIPainter.TextFieldWidget.TEXT_FIELD_SQUARE) {
+            return bounds;
+        }
         AquaUIPainter.Size sz = g.getSize();
         double corner;
         if (w.isSearch()) {

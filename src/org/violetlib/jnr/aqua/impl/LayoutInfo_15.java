@@ -256,7 +256,7 @@ public class LayoutInfo_15
         float top;
         float bottom;
 
-        if (tw == AquaUIPainter.TextFieldWidget.TEXT_FIELD) {
+        if (tw == AquaUIPainter.TextFieldWidget.TEXT_FIELD_SQUARE) {
             return createInsetter(g, 1, 1, 1, 1);
         }
 
