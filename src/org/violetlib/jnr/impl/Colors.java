@@ -169,6 +169,8 @@ public class Colors
             }
 
             b.add("textFieldBorder", 0, 64);
+            b.add("glassTextFieldBorder", 0, 32);  // should be 0/14, but that is too light
+            b.add("glassTextFieldBackground", 255, 130);
 
             lightColors = b.getColors();
         }
@@ -246,6 +248,8 @@ public class Colors
             }
 
             b.add("textFieldBorder", 0, 160);
+            b.add("glassTextFieldBorder", 0, 220);
+            b.add("glassTextFieldBackground", 255);
 
             highContrastLightColors = b.getColors();
         }
@@ -324,6 +328,8 @@ public class Colors
             }
 
             b.add("textFieldBorder", 255, 64);
+            b.add("glassTextFieldBorder", 255, 32);  // should be 255/14, but that is too dark
+            b.add("glassTextFieldBackground", 20);
 
             darkColors = b.getColors();
         }
@@ -406,6 +412,8 @@ public class Colors
             }
 
             b.add("textFieldBorder", 255, 210);
+            b.add("glassTextFieldBorder", 255, 160);
+            b.add("glassTextFieldBackground", 23);
 
             highContrastDarkColors = b.getColors();
         }

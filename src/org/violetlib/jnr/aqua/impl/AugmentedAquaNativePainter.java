@@ -171,6 +171,16 @@ public class AugmentedAquaNativePainter
                 }
             }
         }
+
+        if (version >= macOS26 && version < 270000) {
+            // native rendering on macOS 26 is broken
+            TextFieldWidget w = g.getWidget();
+            if (w == TextFieldWidget.TEXT_FIELD_ROUND) {
+                PainterExtension px = new GlassTextFieldPainterExtension(g, appearance, this::getOutline);
+                return Renderer.create(px);
+            }
+        }
+
         if (version >= macOS26) {
             TextFieldWidget w = g.getWidget();
             if (w == TextFieldWidget.TEXT_FIELD_SQUARE) {
