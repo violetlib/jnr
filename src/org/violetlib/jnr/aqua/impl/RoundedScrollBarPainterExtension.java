@@ -26,7 +26,7 @@ import java.awt.geom.RoundRectangle2D;
 import static org.violetlib.jnr.aqua.AquaUIPainter.macOS26;
 
 /**
-  Paints a rounded scroll bar (used for a fixed sidebar scroll bar).
+  Paints a rounded scroll bar (used for a legacy sidebar scroll bar).
 */
 
 public class RoundedScrollBarPainterExtension
@@ -119,6 +119,6 @@ public class RoundedScrollBarPainterExtension
 
     protected @NotNull Color getTrackBackgroundColor()
     {
-        return colors.get("legacyScrollBarTrack");
+        return colors.get("sidebarScrollBarTrack");
     }
 }

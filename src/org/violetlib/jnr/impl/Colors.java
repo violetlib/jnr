@@ -112,8 +112,19 @@ public class Colors
             b.add("legacyScrollBarTrack", 0, 5);  // was 0/10 — is that needed for some release?
             b.add("legacyScrollBarInnerBorder", 231);
             b.add("legacyScrollBarOuterBorder", 237);
-            b.add("sidebarThumb", 0, 115);
-            b.add("sidebarThumbRollover", 0, 115);
+            if (version >= 270000) {
+                b.add("sidebarThumb", 0, 150);
+                b.add("sidebarThumbRollover", 0, 150);
+                b.add("sidebarScrollBarTrack", 0, 72);
+            } else if (version >= macOS26) {
+                b.add("sidebarThumb", 0, 120);
+                b.add("sidebarThumbRollover", 0, 120);
+                b.add("sidebarScrollBarTrack", 0, 8);
+            } else {
+                b.add("sidebarThumb", 0, 115);
+                b.add("sidebarThumbRollover", 0, 115);
+                b.add("sidebarScrollBarTrack", 0, 12);
+            }
             b.add("comboBoxButton", 210);
             b.add("comboBoxArrow", 0, 176);
             b.add("titleBarCloseButton", 255, 95, 87);
@@ -188,7 +199,19 @@ public class Colors
             b.add("legacyScrollBarTrack", 0, 5);  // was 0/35 — is that needed for some release?
             b.add("legacyScrollBarInnerBorder", 195);
             b.add("legacyScrollBarOuterBorder", 200);
-            b.add("sidebarThumb", 0, 185);
+            if (version >= 270000) {
+                b.add("sidebarThumb", 0, 132);
+                b.add("sidebarThumbRollover", 0, 132);
+                b.add("sidebarScrollBarTrack", 0, 56);
+            } else if (version >= macOS26) {
+                b.add("sidebarThumb", 0, 192);
+                b.add("sidebarThumbRollover", 0, 192);
+                b.add("sidebarScrollBarTrack", 0, 40);
+            } else {
+                b.add("sidebarThumb", 185);
+                b.add("sidebarThumbRollover", 185);
+                b.add("sidebarScrollBarTrack", 0, 38);
+            }
             b.add("titleBarCloseButton", 255, 45, 64);
             b.add("titleBarMinimizeButton", 246, 177, 1);
             b.add("titleBarResizeButton", 5, 161, 27);
@@ -268,8 +291,19 @@ public class Colors
             b.add("legacyScrollBarTrack", 255, 16);
             b.add("legacyScrollBarInnerBorder", 255, 24);
             b.add("legacyScrollBarOuterBorder", 255, 14);
-            b.add("sidebarThumb", 166);
-            b.add("sidebarThumbRollover", 166);
+            if (version >= 270000) {
+                b.add("sidebarThumb", 255, 123);
+                b.add("sidebarThumbRollover", 255, 123);
+                b.add("sidebarScrollBarTrack", 255, 68);
+            } else if (version >= macOS26) {
+                b.add("sidebarThumb", 255, 113);
+                b.add("sidebarThumbRollover", 255, 113);
+                b.add("sidebarScrollBarTrack", 0, 59);
+            } else {
+                b.add("sidebarThumb", 166);
+                b.add("sidebarThumbRollover", 166);
+                b.add("sidebarScrollBarTrack", 255, 12);
+            }
             b.add("comboBoxButton", 70);
             b.add("comboBoxArrow", 255, 164);
             b.add("titleBarCloseButton", 255, 90, 82);
@@ -347,6 +381,17 @@ public class Colors
             b.add("legacyScrollBarTrack", 255, 44);
             b.add("legacyScrollBarInnerBorder", 255, 22);
             b.add("legacyScrollBarOuterBorder", 255, 12);
+            if (version >= 270000) {
+                b.add("sidebarThumb", 255, 110);
+                b.add("sidebarThumbRollover", 255, 110);
+                b.add("sidebarScrollBarTrack", 255, 56);
+            } else if (version >= macOS26) {
+                b.add("sidebarThumb", 255, 178);
+                b.add("sidebarThumbRollover", 255, 178);
+                b.add("sidebarScrollBarTrack", 255, 38);
+            } else {
+                b.add("sidebarScrollBarTrack", 255, 38);
+            }
             b.add("searchFieldIcon", 255, 237);
             b.add("searchFieldIcon_inactive", 255, 143);
             b.add("circularSliderBorder", 255, 160);
