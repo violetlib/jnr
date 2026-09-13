@@ -546,17 +546,30 @@ public class SegmentedControlDescriptions
             case BUTTON_SEGMENTED_SLIDER:
             case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
             case BUTTON_SEGMENTED_SEPARATED:
+
+                int topLarge = 5;
+                int topRegular = 1;
+                int haMini = 0;
+
+                // unexpected platform variation
+                int platform = JNRPlatformUtils.getPlatformVersion();
+                if (platform >= 270000) {
+                    topLarge = 2;
+                    topRegular = 0;
+                    haMini = 1;
+                }
+
                 if (!isSelectAny || g.getPosition() == Position.ONLY) {
                     left = size2D(sz, 5, 2, 2, 1);
                     wa = left * 2;
-                    top = size2D(sz, 5, 1, 1, 0);
-                    ha = size2D(sz, 5, 1, 1, 0);
+                    top = size2D(sz, topLarge, topRegular, topRegular, 0);
+                    ha = size2D(sz, 5, 1, 1, haMini);
                 } else {
                     left = size2D(sz, 5, 2, 2, 1);
                     int largeWidthAdjustment = bw == SegmentedButtonWidget.BUTTON_SEGMENTED_SEPARATED ? 10 : 9;
                     wa = size2D(sz, largeWidthAdjustment, 4, 5, 4);
-                    top = size2D(sz, 5, 1, 1, 0);
-                    ha = size2D(sz, 6, 1, 1, 0);
+                    top = size2D(sz, topLarge, topRegular, topRegular, 0);
+                    ha = size2D(sz, 6, 1, 1, haMini);
                 }
                 break;
 
