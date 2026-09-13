@@ -10,6 +10,7 @@ package org.violetlib.jnr.aqua.impl;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.violetlib.jnr.Insets2D;
 import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.impl.BasicRenderer;
 import org.violetlib.jnr.impl.Renderer;
@@ -21,7 +22,8 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.security.PrivilegedAction;
 
-import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
+import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.BUTTON_ROUND_TEXTURED;
+import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR;
 import static org.violetlib.jnr.aqua.impl.AquaNativeSegmentedControlPainter.nativeDetermineSegmentedButtonRenderingVersion;
 
 /**

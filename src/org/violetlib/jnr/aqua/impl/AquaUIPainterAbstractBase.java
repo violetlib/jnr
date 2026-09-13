@@ -77,6 +77,9 @@ public abstract class AquaUIPainterAbstractBase
     protected static @NotNull UIOutliner createOutliner(@NotNull AquaUILayoutInfo uiLayout)
     {
         int version = AquaNativeRendering.getSystemRenderingVersion();
+        if (version >= 270000) {
+            return new Outliner_27((LayoutInfo_26) uiLayout);
+        }
         if (version >= macOS26) {
             return new Outliner_26((LayoutInfo_26) uiLayout);
         }

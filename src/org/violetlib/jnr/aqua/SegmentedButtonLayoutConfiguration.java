@@ -49,6 +49,9 @@ public class SegmentedButtonLayoutConfiguration
 
                 switch (bw) {
                     case BUTTON_TAB:
+                        if (version >= 270000) {
+                            break;
+                        }
                     case BUTTON_SEGMENTED_SLIDER:
                     case BUTTON_SEGMENTED_SLIDER_TOOLBAR:
                         bw = BUTTON_SEGMENTED_SLIDER;

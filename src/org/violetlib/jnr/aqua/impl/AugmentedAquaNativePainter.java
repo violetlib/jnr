@@ -15,6 +15,8 @@ import org.violetlib.jnr.aqua.*;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.jnr.impl.Renderer;
 
+import java.awt.*;
+
 import static org.violetlib.jnr.aqua.AquaUIPainter.ButtonWidget.*;
 
 /**
@@ -40,14 +42,16 @@ public class AugmentedAquaNativePainter
         ButtonWidget w = g.getButtonWidget();
 
         if (w == BUTTON_GLASS) {
-            GlassButtonPainterExtension x = new GlassButtonPainterExtension(g, appearance, this::getOutline);
+            Shape outline = getOutline(g);
+            GlassButtonPainterExtension x = new GlassButtonPainterExtension(g, appearance, outline);
             return Renderer.create(x);
         }
 
         if (w == BUTTON_TOOLBAR || w == BUTTON_TEXTURED_TOOLBAR || w == ButtonWidget.BUTTON_ROUND_TEXTURED_TOOLBAR) {
             int version = AquaNativeRendering.getSystemRenderingVersion();
             if (version >= macOS11) {
-                GlassButtonPainterExtension x = new GlassButtonPainterExtension(g, appearance, this::getOutline);
+                Shape outline = getOutline(g);
+                ToolbarButtonPainterExtension x = new ToolbarButtonPainterExtension(g, appearance, outline);
                 return Renderer.create(x);
             }
         }
@@ -64,6 +68,28 @@ public class AugmentedAquaNativePainter
         }
 
         return super.getButtonRenderer(g);
+    }
+
+    @Override
+    protected @NotNull Renderer getSegmentedButtonRenderer(@NotNull SegmentedButtonConfiguration g)
+    {
+        if (g.getWidget() == SegmentedButtonWidget.BUTTON_TAB) {
+            int pv = AquaNativeRendering.getSystemRenderingVersion();
+            if (pv >= 270000) {
+                // tab buttons can be painted individually
+                // Only the selected button has a bezel
+                // State does not matter
+                if (g.isSelected()) {
+                    State state = g.getState();
+                    ButtonState buttonState = ButtonState.ON;
+                    Shape outline = getOutline(g);
+                    TabButtonPainterExtension x = new TabButtonPainterExtension(state, buttonState, appearance, outline);
+                    return Renderer.create(x);
+                }
+                return Renderer.NULL_RENDERER;
+            }
+        }
+        return super.getSegmentedButtonRenderer(g);
     }
 
     @Override

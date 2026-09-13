@@ -250,15 +250,16 @@ public abstract class RendererDescriptionsImpl
 
     public @NotNull RendererDescription getRendererDescription(@NotNull SegmentedButtonConfiguration g)
     {
+        SegmentedButtonWidget bw = g.getWidget();
+        int version = AquaNativeRendering.getSystemRenderingVersion();
+
         // The native view renderer renders an entire segmented control but arranges that only one button is rendered
         // into our buffer. It does not make sense to change the raster width, because the raster width is the only way
         // that the native renderer knows how wide the button should be. If any horizontal adjustment is needed, it
         // should be made by the native renderer.
 
-        SegmentedButtonWidget bw = g.getWidget();
         Size sz = g.getSize();
         boolean isExclusive = g.getTracking() == SwitchTracking.SELECT_ONE;
-        int version = AquaNativeRendering.getSystemRenderingVersion();
 
         if (bw == BUTTON_SEGMENTED_SEPARATED && version >= 150000 && version < macOS26) {
             // TBD: not sure when this became an issue

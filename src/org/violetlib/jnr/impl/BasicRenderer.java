@@ -23,7 +23,7 @@ public interface BasicRenderer
       This library expects the pixels to be represented as INT_ARGB_PRE. The dimensions of the raster may differ from
       the dimensions of the image when rendering to a HiDPI display or when rendering to a scaled graphics context.
 
-      @param data A raster viewed as a two dimensional array of pixels in row major order whose dimension are given by
+      @param data A raster viewed as a two-dimensional array of pixels in row major order whose dimension are given by
       {@code rw} and {@code rh}.
       @param rw The number of pixels in each row of the raster.
       @param rh The number of rows in the raster.

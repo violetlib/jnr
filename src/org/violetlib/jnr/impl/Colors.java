@@ -179,6 +179,13 @@ public class Colors
                 }
             }
 
+            if (version >= 270000) {
+                b.add("tabBackground_selected", 249);
+                b.add("tabBackground_selected_inactive", 241);
+                b.add("tabControlBackground", 238);
+                b.add("tabBorder_selected", 204);
+            }
+
             b.add("textFieldBorder", 0, 64);
             b.add("glassTextFieldBorder", 0, 32);  // should be 0/14, but that is too light
             b.add("glassTextFieldBackground", 255, 130);
@@ -245,6 +252,13 @@ public class Colors
                 b.add("glassButtonBackground", 0, 20);
                 b.add("glassButtonBackground_disabled", 0, 20);
                 b.add("glassButtonBackground_inactive", 0, 20);
+            }
+
+            if (version >= 270000) {
+                b.add("tabBackground_selected", 255);
+                b.add("tabBackground_selected_inactive", 248);
+                b.add("tabControlBackground", 216);
+                b.add("tabBorder_selected", 177);
             }
 
             if (version >= macOS11) {
@@ -355,6 +369,13 @@ public class Colors
                 b.add("glassButtonBackground_rollover", 255, 45);  // no data
             }
 
+            if (version >= 270000) {
+                b.add("tabBackground_selected", 61);
+                b.add("tabBackground_selected_inactive", 54);
+                b.add("tabControlBackground", 48);
+                b.add("tabBorder_selected", 92);
+            }
+
             if (version >= macOS11 && version < 260200) {
                 b.addClear("toolbarButtonBackground");
                 b.add("toolbarButtonBackground_rollover", 255, 16);
@@ -437,6 +458,13 @@ public class Colors
                     b.add("toolbarButtonBackground_selected_pressed", 255, 200);
                     b.add("toolbarButtonBackground_selected_inactive", 255, 60);
                 }
+            }
+
+            if (version >= 270000) {
+                b.add("tabBackground_selected", 54);
+                b.add("tabBackground_selected_inactive", 47);
+                b.add("tabControlBackground", 74);
+                b.add("tabBorder_selected", 86);
             }
 
             if (version >= macOS11) {

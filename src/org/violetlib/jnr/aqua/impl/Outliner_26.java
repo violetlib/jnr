@@ -34,7 +34,7 @@ public class Outliner_26
         super(uiLayout);
     }
 
-    private static final float GLASS_DELTA = 0.75f;
+    protected static final float GLASS_DELTA = 0.75f;
 
     @Override
     protected @Nullable Shape getButtonOutline(@NotNull Rectangle2D bounds, @NotNull ButtonLayoutConfiguration g)

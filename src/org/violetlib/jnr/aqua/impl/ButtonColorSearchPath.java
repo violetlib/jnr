@@ -22,22 +22,13 @@ import static org.violetlib.jnr.aqua.AquaUIPainter.State.*;
 */
 
 public class ButtonColorSearchPath
+  implements ColorSearchPath
 {
     private final @NotNull Colors colors;
     private final @NotNull String root;
     private final @Nullable String root2;
     private final @NotNull AquaUIPainter.State state;
     private final @Nullable AquaUIPainter.ButtonState buttonState;
-
-    public enum Role { BACKGROUND, BORDER, INNER_BORDER }
-
-    public ButtonColorSearchPath(@NotNull String root,
-                                 @Nullable String root2,
-                                 @NotNull Colors colors,
-                                 @NotNull AquaUIPainter.State state)
-    {
-        this(root, root2, colors, state, null);
-    }
 
     public ButtonColorSearchPath(@NotNull String root,
                                  @Nullable String root2,
@@ -52,13 +43,13 @@ public class ButtonColorSearchPath
         this.buttonState = buttonState;
     }
 
+    @Override
     public @Nullable Color getColor(@NotNull Role role)
     {
         String roleName = roleText(role);
         if (roleName == null) {
             return null;
         }
-
         Color color = rootSearch(root, roleName);
         if (color != null || root2 == null) {
             return color;

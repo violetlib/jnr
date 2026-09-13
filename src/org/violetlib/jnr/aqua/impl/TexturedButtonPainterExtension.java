@@ -21,8 +21,8 @@ import java.awt.geom.Rectangle2D;
 import java.util.function.Function;
 
 import static org.violetlib.jnr.aqua.AquaUIPainter.macOS26;
-import static org.violetlib.jnr.aqua.impl.ButtonColorSearchPath.Role.BACKGROUND;
-import static org.violetlib.jnr.aqua.impl.ButtonColorSearchPath.Role.BORDER;
+import static org.violetlib.jnr.aqua.impl.ColorSearchPath.Role.BACKGROUND;
+import static org.violetlib.jnr.aqua.impl.ColorSearchPath.Role.BORDER;
 
 /**
   Simulates the rendering of a textured button bezel.
