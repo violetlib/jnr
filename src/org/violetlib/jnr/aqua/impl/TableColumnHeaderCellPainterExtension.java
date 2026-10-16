@@ -8,12 +8,8 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.TableColumnHeaderConfiguration;
 import org.violetlib.jnr.impl.Colors;
@@ -21,7 +17,9 @@ import org.violetlib.jnr.impl.ImageUtils;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
 /**
   Simulates the rendering of a table header cell.
@@ -97,7 +95,7 @@ public class TableColumnHeaderCellPainterExtension
                 int imageWidth = im.getWidth(null);
                 int imageHeight = im.getHeight(null);
                 float x = tg.isLeftToRight() ? width - 1 - arrowGap - imageWidth + 1  // +1 because image has insets
-                            : arrowGap + 1;
+                  : arrowGap + 1;
                 float y = (height - imageHeight) / 2;
                 AffineTransform tr = AffineTransform.getTranslateInstance(x, y);
                 g.drawImage(im, tr, null);

@@ -534,6 +534,7 @@ public class SegmentedControlDescriptions
         SegmentedButtonWidget bw = g.getWidget();
         Size sz = g.getSize();
         boolean isSelectAny = g.getTracking() == SwitchTracking.SELECT_ANY;
+        int platform = JNRPlatformUtils.getPlatformVersion();
 
         double left = 0;
         double top;
@@ -552,7 +553,6 @@ public class SegmentedControlDescriptions
                 int haMini = 0;
 
                 // unexpected platform variation
-                int platform = JNRPlatformUtils.getPlatformVersion();
                 if (platform >= 270000) {
                     topLarge = 2;
                     topRegular = 0;
@@ -590,8 +590,25 @@ public class SegmentedControlDescriptions
             case BUTTON_SEGMENTED_SCURVE:
                 left = size2D(sz, 1, 1, 1, 1);
                 wa = size2D(sz, 12, 2, 2, 2);
-                top = size2D(sz, 9, 1, 2, 1);
+                // unexpected platform variation
+                if (platform >= 270000) {
+                    top = size2D(sz, 9, 0, 0, 0);
+                } else {
+                    top = size2D(sz, 9, 1, 2, 1);
+                }
                 ha = size2D(sz, 9, 1, 2, 1);
+                break;
+
+            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
+                left = 1;
+                wa = 2;
+                // unexpected platform variation
+                if (platform >= 270000) {
+                    top = size2D(sz, 9, 0, 0, 0);
+                } else {
+                    top = size2D(sz, 9, 1, 2, 1);
+                }
+                ha = size2D(sz, 9, 2, 2, 2);
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_TOOLBAR:
@@ -599,13 +616,6 @@ public class SegmentedControlDescriptions
                 wa = size2D(sz, 12, 2, 2, 2);
                 top = size2D(sz, 0, 0, 0, 0);
                 ha = size2D(sz, 0, 1, 1, 1);
-                break;
-
-            case BUTTON_SEGMENTED_TEXTURED_SEPARATED:
-                left = 1;
-                wa = 2;
-                top = size2D(sz, 9, 1, 2, 1);
-                ha = size2D(sz, 9, 2, 2, 2);
                 break;
 
             case BUTTON_SEGMENTED_TEXTURED_SEPARATED_TOOLBAR:

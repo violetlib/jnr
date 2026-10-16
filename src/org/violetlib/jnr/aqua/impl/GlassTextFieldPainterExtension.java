@@ -12,10 +12,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.LayoutConfiguration;
 import org.violetlib.jnr.impl.Colors;
+import org.violetlib.jnr.impl.CustomColors;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
 
 import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
 import java.util.function.Function;
 
 /**
@@ -49,19 +51,35 @@ public class GlassTextFieldPainterExtension
             return;
         }
 
+        g = (Graphics2D) g.create();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        shape = fixShape(shape);
+
         Color background = colors.get("glassTextFieldBackground");
-        if (!Colors.isClear(background)) {
+        if (!CustomColors.isClear(background)) {
             g.setColor(background);
             g.fill(shape);
         }
 
         Color border = colors.get("glassTextFieldBorder");
-        if (!Colors.isClear(border)) {
+        if (!CustomColors.isClear(border)) {
             g.setColor(border);
             g.setStroke(new BasicStroke(1));
             g.draw(shape);
         }
+
+        g.dispose();
     }
+
+    private @NotNull Shape fixShape(@NotNull Shape s)
+    {
+        if (s instanceof RoundRectangle2D) {
+            RoundRectangle2D r = (RoundRectangle2D) s;
+            return new RoundRectangle2D.Double(r.getX(), r.getY(), r.getWidth()-1, r.getHeight()-1, r.getArcWidth(), r.getArcHeight());
+        }
+        return s;
+    }
+
 
     protected void debug(@NotNull String s)
     {

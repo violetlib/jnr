@@ -8,10 +8,8 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.geom.Rectangle2D;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaUILayoutInfo;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.SliderConfiguration;
@@ -20,7 +18,8 @@ import org.violetlib.jnr.impl.JNRUtils;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 
 /**
   Simulates the rendering of tick marks on linear sliders.
@@ -59,7 +58,7 @@ public class LinearSliderPainterExtension
         AquaUIPainter.SliderWidget sw = sg.getWidget();
         AquaUIPainter.Size sz = sg.getSize();
         boolean isHorizontal = sw == AquaUIPainter.SliderWidget.SLIDER_HORIZONTAL
-                                 || sw == AquaUIPainter.SliderWidget.SLIDER_HORIZONTAL_RIGHT_TO_LEFT;
+          || sw == AquaUIPainter.SliderWidget.SLIDER_HORIZONTAL_RIGHT_TO_LEFT;
         int tickCount = sg.getNumberOfTickMarks();
         AquaUIPainter.TickMarkPosition position = sg.getTickMarkPosition();
         Rectangle2D bounds = new Rectangle2D.Float(0, 0, width, height);

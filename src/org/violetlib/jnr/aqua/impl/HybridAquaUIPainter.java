@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.Painter;
 import org.violetlib.jnr.aqua.*;
-import org.violetlib.jnr.impl.Colors;
+import org.violetlib.jnr.impl.CustomColors;
 import org.violetlib.jnr.impl.RendererDescription;
 import org.violetlib.vappearances.VAppearance;
 
@@ -58,8 +58,8 @@ public class HybridAquaUIPainter
     @Override
     public @NotNull Map<String,Color> getColors(@NotNull VAppearance appearance)
     {
-        Colors colors = Colors.getColors(appearance);
-        return colors.getColors();
+        CustomColors colors = CustomColors.getColors(appearance);
+        return colors.getCustomColors();
     }
 
     @Override

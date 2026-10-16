@@ -14,7 +14,7 @@ import org.violetlib.jnr.aqua.AquaNativeRendering;
 import org.violetlib.jnr.aqua.AquaUILayoutInfo;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.ScrollBarConfiguration;
-import org.violetlib.jnr.impl.Colors;
+import org.violetlib.jnr.impl.CustomColors;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
@@ -33,7 +33,7 @@ public class RoundedScrollBarPainterExtension
   implements PainterExtension
 {
     private final @NotNull AquaUILayoutInfo uiLayout;
-    private final @NotNull Colors colors;
+    private final @NotNull CustomColors colors;
     private final @NotNull ScrollBarConfiguration sg;
 
     public RoundedScrollBarPainterExtension(@NotNull AquaUILayoutInfo uiLayout,
@@ -43,7 +43,7 @@ public class RoundedScrollBarPainterExtension
         this.uiLayout = uiLayout;
         boolean isDark = useDarkColors(appearance);
         boolean isHighContrast = appearance != null && appearance.isHighContrast();
-        this.colors = Colors.getColors(isDark, isHighContrast);
+        this.colors = CustomColors.getColors(isDark, isHighContrast);
         this.sg = g;
     }
 

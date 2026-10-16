@@ -8,17 +8,16 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.BasicStroke;
-import java.awt.Graphics2D;
-import java.awt.geom.Path2D;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.ComboBoxConfiguration;
 import org.violetlib.jnr.impl.Colors;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
+import java.awt.geom.Path2D;
 
 /**
   Simulates the rendering of a combo box button cell (a combo box in a table cell).

@@ -17,8 +17,6 @@ import org.violetlib.vappearances.VAppearance;
 
 import java.awt.*;
 
-import static org.violetlib.jnr.aqua.impl.ColorSearchPath.Role.*;
-
 /**
   Simulates the rendering of glass buttons in macOS 26+.
 */
@@ -37,31 +35,17 @@ public class GlassButtonPainterExtension
       implements ColorSearchPath
     {
         private final @NotNull ColorSearchPath base;
-        private final @Nullable VAppearance appearance;
-        private final @NotNull AquaUIPainter.State state;
-        private final @NotNull AquaUIPainter.ButtonState buttonState;
 
         public MyColorSearchPath(@Nullable VAppearance appearance, @NotNull ButtonConfiguration g)
         {
-            this.appearance = appearance;
-            this.state = g.getState();
-            this.buttonState = g.getButtonState();
+            AquaUIPainter.State state = g.getState();
+            AquaUIPainter.ButtonState buttonState = g.getButtonState();
             base = new ButtonColorSearchPath("glassButton", null, Colors.getColors(appearance), state, buttonState);
         }
 
         @Override
         public @Nullable Color getColor(@NotNull Role role)
         {
-            if (role == BACKGROUND && buttonState == AquaUIPainter.ButtonState.ON) {
-                if (appearance != null && state == AquaUIPainter.State.ACTIVE) {
-                    Color c = appearance.getColors().get("controlAccent");
-                    if (c != null) {
-                        return c;
-                    }
-                    // emergency backup
-                    return new Color(128, 128, 128);
-                }
-            }
             return base.getColor(role);
         }
     }

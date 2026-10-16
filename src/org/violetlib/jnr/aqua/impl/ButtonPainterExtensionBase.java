@@ -11,7 +11,7 @@ package org.violetlib.jnr.aqua.impl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaUIPainter;
-import org.violetlib.jnr.impl.Colors;
+import org.violetlib.jnr.impl.CustomColors;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
 
@@ -63,20 +63,20 @@ public class ButtonPainterExtensionBase
         Color background = colorSearchPath.getColor(BACKGROUND);
         if (background == null) {
             debug("No background defined for " + name + " in state " + state);
-        } else if (!Colors.isClear(background)) {
+        } else if (!CustomColors.isClear(background)) {
             g.setColor(background);
             g.fill(outline);
         }
 
         Color border = colorSearchPath.getColor(BORDER);
-        if (border != null && !Colors.isClear(border)) {
+        if (border != null && !CustomColors.isClear(border)) {
             g.setColor(border);
             g.setStroke(new BasicStroke(1));
             g.draw(outline);
         }
 
         Color innerBorder = colorSearchPath.getColor(INNER_BORDER);
-        if (innerBorder != null && !Colors.isClear(innerBorder)) {
+        if (innerBorder != null && !CustomColors.isClear(innerBorder)) {
             g.setColor(innerBorder);
             g.setStroke(new BasicStroke(1));
             g.draw(shrink(outline));

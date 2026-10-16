@@ -15,7 +15,7 @@ import org.violetlib.jnr.aqua.AquaUILayoutInfo;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.AquaUIPainter.ScrollBarKnobWidget;
 import org.violetlib.jnr.aqua.ScrollBarConfiguration;
-import org.violetlib.jnr.impl.Colors;
+import org.violetlib.jnr.impl.CustomColors;
 import org.violetlib.jnr.impl.JNRPlatformUtils;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
@@ -38,7 +38,7 @@ public class OverlayScrollBarPainterExtension
     private final @NotNull ScrollBarConfiguration g;
     private final @NotNull ScrollBarKnobWidget kw;
     private final boolean isRollover;
-    private final @NotNull Colors colors;
+    private final @NotNull CustomColors colors;
 
     public OverlayScrollBarPainterExtension(@NotNull AquaUILayoutInfo uiLayout,
                                             @NotNull ScrollBarConfiguration g,
@@ -54,7 +54,7 @@ public class OverlayScrollBarPainterExtension
 
         boolean isDark = getCorrespondingAppearanceIsDark(appearance, kw);
         boolean isHighContrast = appearance != null && appearance.isHighContrast();
-        this.colors = Colors.getColors(isDark, isHighContrast);
+        this.colors = CustomColors.getColors(isDark, isHighContrast);
     }
 
     private boolean getCorrespondingAppearanceIsDark(@Nullable VAppearance appearance, @NotNull ScrollBarKnobWidget w)

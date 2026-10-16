@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.Insetter;
 import org.violetlib.jnr.LayoutInfo;
 import org.violetlib.jnr.aqua.*;
-import org.violetlib.jnr.impl.Colors;
+import org.violetlib.jnr.impl.CustomColors;
 import org.violetlib.vappearances.VAppearance;
 
 import java.awt.*;
@@ -106,8 +106,8 @@ public abstract class AquaUIPainterAbstractBase
     @Override
     public @NotNull Map<String,Color> getColors(@NotNull VAppearance appearance)
     {
-        Colors colors = Colors.getColors(appearance);
-        return colors.getColors();
+        CustomColors colors = CustomColors.getColors(appearance);
+        return colors.getCustomColors();
     }
 
     @Override

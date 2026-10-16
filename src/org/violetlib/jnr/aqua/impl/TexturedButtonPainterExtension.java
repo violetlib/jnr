@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaNativeRendering;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.impl.Colors;
+import org.violetlib.jnr.impl.CustomColors;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
 
@@ -70,7 +71,7 @@ public class TexturedButtonPainterExtension
     public void paint(@NotNull Graphics2D g, float width, float height)
     {
         Color background = isSpecialColor ? getSpecialColor() : colorSearch.getColor(BACKGROUND);
-        if (background != null && !Colors.isClear(background)) {
+        if (background != null && !CustomColors.isClear(background)) {
             Shape outline = outlineProvider.apply(new Rectangle2D.Float(0, 0, width, height));
             if (outline != null) {
                 g.setColor(background);
@@ -79,7 +80,7 @@ public class TexturedButtonPainterExtension
         }
 
         Color border = colorSearch.getColor(BORDER);
-        if (border != null && !Colors.isClear(border)) {
+        if (border != null && !CustomColors.isClear(border)) {
             Shape outline = outlineProvider.apply(new Rectangle2D.Float(0, 0, width, height));
             if (outline != null) {
                 g.setColor(border);

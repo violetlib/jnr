@@ -131,7 +131,7 @@ public class Outliner_26
         if (w.isSearch()) {
             corner = JNRUtils.size2D(sz, 32, 24, 20, 16, 12);
         } else {
-            corner = JNRUtils.size2D(sz, 16, 11, 10, 10, 10);
+            corner = JNRUtils.size2D(sz, 20, 16, 14, 13, 12);
         }
         return new RoundRectangle2D.Double(x, y, width, height, corner, corner);
     }

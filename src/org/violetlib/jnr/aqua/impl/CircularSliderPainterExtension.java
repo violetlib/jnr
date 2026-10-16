@@ -8,9 +8,8 @@
 
 package org.violetlib.jnr.aqua.impl;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.violetlib.jnr.aqua.AquaUIPainter;
 import org.violetlib.jnr.aqua.SliderConfiguration;
 import org.violetlib.jnr.impl.Colors;
@@ -18,7 +17,7 @@ import org.violetlib.jnr.impl.JNRUtils;
 import org.violetlib.jnr.impl.PainterExtension;
 import org.violetlib.vappearances.VAppearance;
 
-import org.jetbrains.annotations.*;
+import java.awt.*;
 
 /**
   Simulates the rendering of circular sliders (dials) over a background with no dimple or tick marks.
